@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LogController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,9 +13,10 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 Route::get('/', function () {
-    return ['Laravel' => app()->version()];
+    return view('admin.index'); // Tên file view trong resources/views/admin/index.blade.php
 });
-
+Route::get("dashboard",function(){
+return view('admin.pages.dashboard');
+})->name('admin.dashboard');
 require __DIR__.'/auth.php';
