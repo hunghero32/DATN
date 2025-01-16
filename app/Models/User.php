@@ -24,8 +24,7 @@ class User extends Authenticatable
         'phone',
         'social_id',
         'social_provider',
-        'role',
-        'level'
+        'role'
     ];
 
     /**
