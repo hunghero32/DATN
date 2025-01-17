@@ -21,7 +21,6 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable(); // Thời gian xác thực email
             $table->string('password'); // Mật khẩu mã hóa (có thể dài)
             $table->enum('role', ['admin', 'clinic', 'doctor', 'guest'])->default('guest'); // Vai trò
-            $table->unsignedInteger('level')->default(1);
             $table->rememberToken(); // Token "remember me"
             $table->timestamps();
         });

@@ -29,8 +29,6 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
-            'phone' => ['nullable', 'string', 'phone'],
-            'social_id' => ['nullable', 'string'],
         ];
     }
 
@@ -47,7 +45,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'email' => trans('auth.failed'),
             ]);
         }
 
@@ -82,23 +80,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email')) . '|' . $this->ip());
-    }
-    public function messages(): array
-    {
-        return [
-            'email.required' => 'Vui lòng nhập email.',
-            'email.string' => 'Email phải là chuỗi ký tự.',
-            'email.email' => 'Email không hợp lệ.',
-            
-            'password.required' => 'Vui lòng nhập mật khẩu.',
-            'password.string' => 'Mật khẩu phải là chuỗi ký tự.',
-
-            'phone.string' => 'Số điện thoại phải là chuỗi ký tự.',
-            'phone.max' => 'Số điện thoại không được vượt quá 20 ký tự.',
-
-            'social_id.string' => '',
-            'social_id.max' => '',
-        ];
+        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
     }
 }
