@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('specialties', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Tên của specialty
-            $table->text('description'); // Mô tả specialty
+            $table->text('description')->nullable(); // Mô tả specialty (có thể null)
             $table->string('icon')->nullable(); // Hình ảnh icon (có thể null)
             $table->string('image')->nullable(); // Hình ảnh chi tiết (có thể null)
             $table->timestamps();
