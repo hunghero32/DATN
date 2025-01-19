@@ -11,7 +11,7 @@ class StoreSpecialtyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class StoreSpecialtyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255', // Tên chuyên khoa
+            'description' => 'nullable|string', // Mô tả chuyên khoa (nếu có)
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Hình ảnh icon (nếu có)
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Hình ảnh chi tiết (nếu có)
         ];
     }
 }

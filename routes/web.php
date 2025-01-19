@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SpecialtyController;
+use App\Http\Controllers\SystemController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,7 +45,13 @@ Route::prefix('admin')->group(function () {
     Route::delete('doctors-{doctor}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
 ////*****************     End Doctors    *******************////
 });
+// =========== System =======================
+Route::get('system', [SystemController::class, 'show'])->name('systems.show');
+Route::get('system', [SystemController::class, 'edit'])->name('system.edit');
+Route::put('system', [SystemController::class, 'update'])->name('system.update');
 
+Route::resource('specialties', SpecialtyController::class); // Chuyên khoa
+Route::resource('doctor_specialties', DoctorSpecialtyController::class); // Các Chuyên khoa
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -54,3 +63,5 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+
