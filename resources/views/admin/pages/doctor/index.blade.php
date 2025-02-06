@@ -4,10 +4,9 @@
 <x-table-list-component
 :columns="[
     ['key' => 'id', 'label' => 'ID'],
-    ['key' => 'doctor_name', 'label' => 'Name'],
+    ['key' => 'doctor_name', 'label' => 'Họ và Tên'],
     ['key' => 'doctor_avatar', 'label' => 'Ảnh đại diện'],
     ['key' => 'exp', 'label' => 'Kinh nghiệm'],
-
     ['key'=>'created_at', 'label'=>'Ngày tạo'],
 
 

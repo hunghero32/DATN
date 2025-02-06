@@ -32,39 +32,43 @@
                 @foreach ($data as $row)
                     <tr>
                         @foreach ($columns as $column)
-                            <td>
-                                {{-- Display column data --}}
-                                @if ($column['key'] == 'status')
-                                    @php
-                                        $status = $row[$column['key']];
-                                        switch ($status) {
-                                            case 0:
-                                                $statusText = 'Inactive';
-                                                $badgeClass = 'badge bg-danger';
-                                                break;
-                                            case 1:
-                                                $statusText = 'Active';
-                                                $badgeClass = 'badge bg-success';
-                                                break;
-                                            case 2:
-                                                $statusText = 'Pending';
-                                                $badgeClass = 'badge bg-secondary';
-                                                break;
-                                            default:
-                                                $statusText = 'Unknown';
-                                                $badgeClass = 'badge badge-dark';
-                                                break;
-                                        }
-                                    @endphp
-                                    <span class="{{ $badgeClass }}">{{ $statusText }}</span>
-                                @elseif ($column['key'] == 'image' && !empty($row[$column['key']]))
-                                    <img src="{{ asset('storage/' . $row[$column['key']]) }}" alt="Image"
-                                        class="img-thumbnail" width="100">
-                                @else
-                                    {{ $row[$column['key']] ?? '' }}
-                                @endif
-                            </td>
-                        @endforeach
+                        <td>
+                            {{-- Hiển thị trạng thái --}}
+                            @if ($column['key'] == 'status')
+                                @php
+                                    $status = $row[$column['key']];
+                                    switch ($status) {
+                                        case 0:
+                                            $statusText = 'Inactive';
+                                            $badgeClass = 'badge bg-danger';
+                                            break;
+                                        case 1:
+                                            $statusText = 'Active';
+                                            $badgeClass = 'badge bg-success';
+                                            break;
+                                        case 2:
+                                            $statusText = 'Pending';
+                                            $badgeClass = 'badge bg-secondary';
+                                            break;
+                                        default:
+                                            $statusText = 'Unknown';
+                                            $badgeClass = 'badge badge-dark';
+                                            break;
+                                    }
+                                @endphp
+                                <span class="{{ $badgeClass }}">{{ $statusText }}</span>
+
+                            {{-- Tự động nhận diện cột ảnh --}}
+                            @elseif (!empty($row[$column['key']]) && is_string($row[$column['key']]) && preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$column['key']]))
+                                <img src="{{ Storage::url($row[$column['key']]) }}" alt="Image" class="img-thumbnail" width="100">
+
+                            {{-- Hiển thị dữ liệu khác --}}
+                            @else
+                                {{ $row[$column['key']] ?? '' }}
+                            @endif
+                        </td>
+                    @endforeach
+
                         @if (collect($actions)->where('type', 'row')->isNotEmpty())
                             <td>
                                 <div class="dropdown">

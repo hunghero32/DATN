@@ -17,22 +17,19 @@ class Doctor extends Model
         'specialty_id',
         'exp',
         'file',
-        'approve',
+        'approve'
     ];
 
-    // Quan hệ với bảng User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Quan hệ với bảng Clinic
     public function clinic()
     {
         return $this->belongsTo(Clinic::class);
     }
 
-    // Quan hệ với bảng Specialty
     public function specialty()
     {
         return $this->belongsTo(Specialty::class);
