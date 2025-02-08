@@ -22,7 +22,7 @@
     ],
     [
         'label' => 'Chỉnh sửa',
-        // 'route' => fn($id) => route('users.edit', $id),
+        'route' => fn($id) => route('admin.doctors.edit', $id),
         'method' => 'GET',
         'type' => 'row',
         'class' => 'btn btn-primary btn-sm'
@@ -36,10 +36,11 @@
     ],
     [
         'label' => 'Xóa',
-        // 'route' => fn($id) => route(),
+        'route' => fn($id) => route('admin.doctors.delete', $id),
         'method' => 'DELETE',
         'type' => 'row',
-        'confirm' => 'Are you sure you want to delete this user?',
+        'confirm' => 'Bạn có chắc muốn xóa?',
+
 
     ],
 ]"

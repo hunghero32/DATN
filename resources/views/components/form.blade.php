@@ -2,7 +2,6 @@
 @section('title', 'Tạo mới')
 @section('content')
 <div class="content-wrapper">
-
     <!-- Content -->
     <div class="container-xxl flex-grow-1 container-p-y">
         <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Settings /</span> Thêm thông tin bác sĩ</h4>
@@ -15,16 +14,6 @@
                     <!-- Account -->
                     <hr class="my-0" />
                     <div class="card-body">
-                        @if($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
                         <form action="{{ $action }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method($method)
@@ -35,7 +24,7 @@
                                         <div class="mb-3 col-md-12">
                                             <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
                                             <div class="d-flex align-items-start align-items-sm-center gap-4">
-                                                <img src="{{ old($field['name'], asset('admin/assets/img/avatars/1.png')) }}"
+                                                <img src="{{ isset($data[$field['name']]) ? Storage::url($data[$field['name']]) : asset('admin/assets/img/avatars/1.png') }}"
                                                     alt="user-avatar" class="d-block rounded" height="100" width="100" id="uploadedAvatar" />
                                                 <div class="button-wrapper">
                                                     <label for="{{ $field['name'] }}" class="btn btn-primary me-2 mb-4">
@@ -86,6 +75,5 @@
             </div>
         </div>
     </div>
-
 </div>
 @endsection

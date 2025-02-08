@@ -15,8 +15,6 @@
             </div>
         @endif
 
-
-
         <table class="table">
             <thead>
                 <tr>
@@ -32,47 +30,50 @@
                 @foreach ($data as $row)
                     <tr>
                         @foreach ($columns as $column)
-                        <td>
-                            {{-- Hiển thị trạng thái --}}
-                            @if ($column['key'] == 'status')
-                                @php
-                                    $status = $row[$column['key']];
-                                    switch ($status) {
-                                        case 0:
-                                            $statusText = 'Inactive';
-                                            $badgeClass = 'badge bg-danger';
-                                            break;
-                                        case 1:
-                                            $statusText = 'Active';
-                                            $badgeClass = 'badge bg-success';
-                                            break;
-                                        case 2:
-                                            $statusText = 'Pending';
-                                            $badgeClass = 'badge bg-secondary';
-                                            break;
-                                        default:
-                                            $statusText = 'Unknown';
-                                            $badgeClass = 'badge badge-dark';
-                                            break;
-                                    }
-                                @endphp
-                                <span class="{{ $badgeClass }}">{{ $statusText }}</span>
+                            <td>
+                                {{-- Hiển thị trạng thái --}}
+                                @if ($column['key'] == 'status')
+                                    @php
+                                        $status = $row[$column['key']];
+                                        switch ($status) {
+                                            case 0:
+                                                $statusText = 'Inactive';
+                                                $badgeClass = 'badge bg-danger';
+                                                break;
+                                            case 1:
+                                                $statusText = 'Active';
+                                                $badgeClass = 'badge bg-success';
+                                                break;
+                                            case 2:
+                                                $statusText = 'Pending';
+                                                $badgeClass = 'badge bg-secondary';
+                                                break;
+                                            default:
+                                                $statusText = 'Unknown';
+                                                $badgeClass = 'badge badge-dark';
+                                                break;
+                                        }
+                                    @endphp
+                                    <span class="{{ $badgeClass }}">{{ $statusText }}</span>
 
-                            {{-- Tự động nhận diện cột ảnh --}}
-                            @elseif (!empty($row[$column['key']]) && is_string($row[$column['key']]) && preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$column['key']]))
-                                <img src="{{ Storage::url($row[$column['key']]) }}" alt="Image" class="img-thumbnail" width="100">
+                                    {{-- Tự động nhận diện cột ảnh --}}
+                                @elseif (
+                                    !empty($row[$column['key']]) &&
+                                        is_string($row[$column['key']]) &&
+                                        preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$column['key']]))
+                                    <img src="{{ Storage::url($row[$column['key']]) }}" alt="Image"
+                                        class="img-thumbnail" width="100">
 
-                            {{-- Hiển thị dữ liệu khác --}}
-                            @else
-                                {{ $row[$column['key']] ?? '' }}
-                            @endif
-                        </td>
-                    @endforeach
+                                    {{-- Hiển thị dữ liệu khác --}}
+                                @else
+                                    {{ $row[$column['key']] ?? '' }}
+                                @endif
+                            </td>
+                        @endforeach
 
                         @if (collect($actions)->where('type', 'row')->isNotEmpty())
                             <td>
                                 <div class="dropdown">
-
                                     <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
                                         data-bs-toggle="dropdown">
                                         <i class="bx bx-dots-vertical-rounded"></i>
@@ -81,23 +82,20 @@
                                         @foreach ($actions as $action)
                                             @if ($action['type'] == 'row')
                                                 <form
-                                                    action="{{ isset($action['route']) ? route($action['route'], $row['id']) : '#' }}"
-                                                    method="{{ $action['method'] ?? 'POST' }}">
-
-
+                                                    action="{{ isset($action['route']) && is_callable($action['route']) ? $action['route']($row['id']) : '#' }}"
+                                                    method="POST">
+                                                    @csrf
                                                     @if ($action['method'] == 'DELETE')
-                                                        @csrf
                                                         @method('DELETE')
-                                                    @elseif ($action['method'] == 'POST')
-                                                        @csrf
                                                     @endif
-                                                    <button type="submit" class="dropdown-item "
-                                                        onclick="return confirm('{{ $action['confirm'] ?? 'Are you sure?' }}')">
+                                                    <button type="submit" class="dropdown-item"
+                                                        @if (isset($action['confirm'])) onclick="return confirm('{{ $action['confirm'] }}')" @endif>
                                                         {{ $action['label'] }}
                                                     </button>
                                                 </form>
                                             @endif
                                         @endforeach
+
                                     </div>
                                 </div>
                             </td>
@@ -107,3 +105,4 @@
             </tbody>
         </table>
     </div>
+</div>

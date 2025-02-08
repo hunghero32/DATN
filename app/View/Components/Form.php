@@ -25,6 +25,11 @@ class Form extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.form');
+        return view('components.form',[
+            'action'=>$this->action,
+            'mehtod'=>$this->method,
+            'fields'=>$this->fields,
+            'data'=>$this->data,
+        ]);
     }
 }
