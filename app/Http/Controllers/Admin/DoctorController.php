@@ -7,14 +7,51 @@ use App\Models\Doctor;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\FilterTrait;
 
 class DoctorController extends Controller
+
 {
+    use FilterTrait;
     public function index()
     {
         $data = Doctor::all();
         return view('admin.pages.doctor.index', compact('data'));
     }
+    public function search(Request $request)
+    {
+        // Lấy dữ liệu từ request
+        $exp = $request->input('exp');
+        $search = $request->input('search');
+
+        // Truy vấn danh sách bác sĩ
+        $query = Doctor::query();
+
+        // Lọc theo kinh nghiệm nếu có chọn
+        if (!empty($exp)) {
+            if ($exp === '0-5') {
+                $query->whereBetween('exp', [0, 5]);
+            } elseif ($exp === '6-10') {
+                $query->whereBetween('exp', [6, 10]);
+            } elseif ($exp === '10+') {
+                $query->where('exp', '>', 10);
+            }
+        }
+        // Lọc theo tên bác sĩ nếu có từ khóa tìm kiếm
+        if (!empty($search)) {
+            $query->where('doctor_name', 'like', '%' . $search . '%');
+        }
+
+
+        // Lấy danh sách bác sĩ sau khi lọc
+        $data = $query->get();
+
+        // Trả về view với dữ liệu đã lọc
+        return view('admin.pages.doctor.index', compact('data'));
+    }
+
+
+
     public function create()
     {
         return view('admin.pages.doctor.create');
@@ -57,9 +94,10 @@ class DoctorController extends Controller
 
         return redirect()->route('admin.doctors.index')->with('success', 'Doctor created successfully!');
     }
-    public function edit($id){
+    public function edit($id)
+    {
         $data = Doctor::find($id);
-        return view('admin.pages.doctor.edit',['data'=>$data]);
+        return view('admin.pages.doctor.edit', ['data' => $data]);
     }
     public function update(Request $request, $id)
     {
@@ -104,7 +142,8 @@ class DoctorController extends Controller
 
         return redirect()->route('admin.doctors.index')->with('success', 'Doctor updated successfully!');
     }
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $doctor = Doctor::findOrFail($id); // Tìm bác sĩ theo ID
         $doctor->delete(); // Xóa bản ghi
 

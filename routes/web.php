@@ -29,6 +29,7 @@ Route::prefix('admin')->group(function () {
     ////****************   Start  Doctors  **************////
     // Danh sách bác sĩ
     Route::get('doctors', [DoctorController::class, 'index'])->name('admin.doctors.index');
+    Route::get('doctors-searh',[DoctorController::class,'search'])->name('admin.doctors.search');
 
     // Thêm bác sĩ
     Route::get('doctors-create', [DoctorController::class, 'create'])->name('admin.doctors.create');

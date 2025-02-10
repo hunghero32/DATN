@@ -1,7 +1,23 @@
 @extends('admin.index')
 @section('title', 'Thông tin bác sĩ')
 @section('content')
+
+@php
+    $selects = [
+    [
+        'id' => 'exp',
+        'name' => 'exp',
+        'options' => [
+            '0-5' => '0 - 5 năm',
+            '6-10' => '6 - 10 năm',
+            '10+' => 'Trên 10 năm',
+        ]
+    ]
+];
+@endphp
+
 <x-table-list-component
+    :route="route('admin.doctors.search')"
     :columns="[
         ['key' => 'id', 'label' => 'ID'],
         ['key' => 'doctor_name', 'label' => 'Họ và Tên'],
@@ -9,7 +25,9 @@
         ['key' => 'exp', 'label' => 'Kinh nghiệm'],
         ['key' => 'created_at', 'label' => 'Ngày tạo'],
     ]"
+
     :data="$data"
+    :selects="$selects"
     :actions="[
         [
             'label' => 'Thêm mới',
@@ -36,7 +54,5 @@
         ],
     ]"
 />
-
-
 
 @endsection

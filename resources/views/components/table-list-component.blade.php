@@ -1,12 +1,34 @@
-@props(['columns', 'data', 'actions' => []])
+
+@props(['columns', 'data', 'actions' => [], 'route' => ''])
+
 
 <div class="content-wrapper mt-3">
-    <div class="container-xxl flex-grow-1 container-p-y">
-        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Tables /</span> Basic Tables</h4>
 
+    <div class="container-xxl flex-grow-1 container-p-y mb-5">
+        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Tables /</span> Basic Tables</h4>
+        <form method="GET" action={{$route}}>
+            <div class="d-flex align-items-center gap-2 w-100">
+                {{-- Input Search --}}
+                <div class="flex-grow-1">
+                    <x-input-search id="search-doctor" name="search" placeholder="Nhập tên bác sĩ..." />
+                </div>
+
+                {{-- Select Search --}}
+                @foreach ($selects as $select)
+                    <div class="flex-grow-1">
+                        <x-select-search id="{{$select['id']}}" name="{{$select['name']}}" :options="$select['options']" />
+                    </div>
+                @endforeach
+
+                {{-- Button Search --}}
+                <div>
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                </div>
+            </div>
+        </form>
         {{-- Nút hành động toàn cục --}}
         @if (collect($actions)->where('type', 'global')->isNotEmpty())
-            <div class="text-end">
+            <div class="text-end mt-5">
                 @foreach ($actions as $action)
                     @if ($action['type'] == 'global')
                         <a href="{{ $action['route']() }}" class="btn {{ $action['class'] }}">
@@ -58,11 +80,15 @@
                                     @endphp
                                     <span class="{{ $badgeClass }}">{{ $statusText }}</span>
 
-                                {{-- Hiển thị hình ảnh nếu có --}}
-                                @elseif (!empty($row[$column['key']]) && is_string($row[$column['key']]) && preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$column['key']]))
-                                    <img src="{{ Storage::url($row[$column['key']]) }}" alt="Image" class="img-thumbnail" width="100">
+                                    {{-- Hiển thị hình ảnh nếu có --}}
+                                @elseif (
+                                    !empty($row[$column['key']]) &&
+                                        is_string($row[$column['key']]) &&
+                                        preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$column['key']]))
+                                    <img src="{{ Storage::url($row[$column['key']]) }}" alt="Image"
+                                        class="img-thumbnail" width="100">
 
-                                {{-- Hiển thị dữ liệu khác --}}
+                                    {{-- Hiển thị dữ liệu khác --}}
                                 @else
                                     {{ $row[$column['key']] ?? '' }}
                                 @endif
@@ -111,13 +137,16 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="modalLabel{{ $row['id'] }}">Xác nhận xoá</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             Bạn có chắc muốn xóa mục này không?
                         </div>
                         <div class="modal-footer">
-                            <form action="{{ isset($action['route']) && is_callable($action['route']) ? $action['route']($row['id']) : '#' }}" method="POST">
+                            <form
+                                action="{{ isset($action['route']) && is_callable($action['route']) ? $action['route']($row['id']) : '#' }}"
+                                method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger">Xóa</button>
@@ -134,7 +163,7 @@
 {{-- Ngăn dropdown bị đóng khi nhấn vào modal --}}
 <script>
     document.querySelectorAll('.dropdown-menu').forEach(menu => {
-        menu.addEventListener('click', function (event) {
+        menu.addEventListener('click', function(event) {
             event.stopPropagation();
         });
     });
