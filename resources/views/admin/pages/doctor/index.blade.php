@@ -17,6 +17,7 @@
 @endphp
 
 <x-table-list-component
+    :title="'Bác sĩ'"
     :route="route('admin.doctors.search')"
     :columns="[
         ['key' => 'id', 'label' => 'ID'],

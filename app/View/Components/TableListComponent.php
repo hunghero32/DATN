@@ -11,14 +11,16 @@ class TableListComponent extends Component
     public $actions;
     public  $selects;
     public $route;
+    public $title;
 
-    public function __construct($columns = [], $data = [], $actions = [], $selects=[],$route=null)
+    public function __construct($columns = [], $data = [], $actions = [], $selects=[],$route=null,$title=null)
     {
         $this->columns = $columns;
         $this->data = $data;
         $this->actions = $actions;
         $this->selects = $selects;
         $this->route=$route;
+        $this->title=$title;
 
     }
 
@@ -31,6 +33,7 @@ class TableListComponent extends Component
             'actions' => $this->actions,
             'selects' => $this->selects,
             'route'=>$this->route,
+            'title'=>$this->title,
         ]);
     }
 }
