@@ -25,10 +25,11 @@ class PostFactory extends Factory
             'category_id' => Category::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID danh mục
             'user_id' => User::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID người dùng
             'slug' => $this->faker->slug, // Slug ngẫu nhiên
-            'title' => $this->faker->sentence, // Tiêu đề giả
-            'content' => $this->faker->paragraphs(3, true), // Nội dung bài viết giả
-            'status' => $this->faker->randomElement(['draft', 'published', 'archived']), // Trạng thái giả
-            'published_at' => $this->faker->optional()->dateTime, // Thời gian xuất bản giả (ngẫu nhiên hoặc null)
+            'title' => $this->faker->sentence, // Tiêu đề 
+            'content' => $this->faker->paragraphs(3, true), // Nội dung bài viết 
+            'views' => $this->faker->numberBetween(0, 10000), // Lượt xem bài viết 
+            'status' => $this->faker->randomElement(['draft', 'published', 'archived']), // Trạng thái 
+            'published_at' => $this->faker->optional()->dateTime, // Thời gian xuất bản  (ngẫu nhiên hoặc null)
         ];
     }
 }

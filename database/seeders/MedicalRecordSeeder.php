@@ -2,17 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\Combo;
+use App\Models\MedicalRecord;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class ComboSeeder extends Seeder
+class MedicalRecordSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Combo::factory(10)->create();
+        MedicalRecord::factory(50)->create();
     }
 }

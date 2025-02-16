@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('doctor_id')->nullable()->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng doctors (có thể null)
-            $table->foreignId('combo_id')->nullable()->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng combos (có thể null)
             $table->foreignId('service_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng services (có thể null)
             $table->foreignId('guest_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng guests
             $table->date('booking_date'); // Ngày đặt lịch

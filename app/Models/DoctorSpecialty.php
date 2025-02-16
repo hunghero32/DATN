@@ -11,7 +11,6 @@ class DoctorSpecialty extends Model
 
     protected $fillable = [
         'doctor_id',
-        'clinic_id',
         'specialty_id',
     ];
 
@@ -19,12 +18,6 @@ class DoctorSpecialty extends Model
     public function doctor()
     {
         return $this->belongsTo(Doctor::class);
-    }
-
-    // Quan hệ với bảng Clinic
-    public function clinic()
-    {
-        return $this->belongsTo(Clinic::class);
     }
 
     // Quan hệ với bảng Specialty

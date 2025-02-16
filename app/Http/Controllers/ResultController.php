@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Clinic;
-use App\Http\Requests\StoreClinicRequest;
-use App\Http\Requests\UpdateClinicRequest;
+use App\Models\Result;
+use App\Http\Requests\StoreResultRequest;
+use App\Http\Requests\UpdateResultRequest;
 
-class ClinicController extends Controller
+class ResultController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class ClinicController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreClinicRequest $request)
+    public function store(StoreResultRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class ClinicController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Clinic $clinic)
+    public function show(Result $result)
     {
         //
     }
@@ -43,7 +43,7 @@ class ClinicController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Clinic $clinic)
+    public function edit(Result $result)
     {
         //
     }
@@ -51,7 +51,7 @@ class ClinicController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateClinicRequest $request, Clinic $clinic)
+    public function update(UpdateResultRequest $request, Result $result)
     {
         //
     }
@@ -59,7 +59,7 @@ class ClinicController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Clinic $clinic)
+    public function destroy(Result $result)
     {
         //
     }

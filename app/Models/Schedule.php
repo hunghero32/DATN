@@ -10,7 +10,6 @@ class Schedule extends Model
     use HasFactory;
     protected $fillable = [
         'doctor_id',
-        'clinic_id',
         'time_start',
         'time_end',
         'working_date',
@@ -26,11 +25,5 @@ class Schedule extends Model
     public function doctor()
     {
         return $this->belongsTo(Doctor::class);
-    }
-
-    // Quan hệ với bảng Clinic
-    public function clinic()
-    {
-        return $this->belongsTo(Clinic::class);
     }
 }

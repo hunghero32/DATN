@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('doctor_specialties', function (Blueprint $table) {
             $table->id();
             $table->foreignId('doctor_id')->nullable()->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng doctors
-            $table->foreignId('clinic_id')->nullable()->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng clinics
             $table->foreignId('specialty_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng specialties
             $table->timestamps();
         });

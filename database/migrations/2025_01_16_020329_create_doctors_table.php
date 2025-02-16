@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('doctor_avatar')->nullable(); // Hình ảnh đại diện của bác sĩ (có thể null)
             $table->string('doctor_name'); // Tên bác sĩ
             $table->text('doctor_bio')->nullable(); // Tiểu sử bác sĩ
-            $table->foreignId('clinic_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng clinics
             $table->foreignId('specialty_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng specialties
             $table->integer('exp')->nullable(); // Kinh nghiệm bác sĩ (số năm kinh nghiệm)
             $table->string('file')->nullable(); // File đính kèm (có thể null)
