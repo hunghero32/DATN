@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -17,12 +18,12 @@ class DatabaseSeeder extends Seeder
             SystemSeeder::class,
             SpecialtySeeder::class,
             CategorySeeder::class,
-            ClinicSeeder::class,
             DoctorSeeder::class,
             GuestSeeder::class,
+            MedicalRecordSeeder::class,
             ServicesSeeder::class,
-            ComboSeeder::class,
             BookingSeeder::class,
+            ResultSeeder::class,
             NotificationSeeder::class,
             DoctorSpecialtySeeder::class,
             ScheduleSeeder::class,

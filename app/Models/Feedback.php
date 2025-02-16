@@ -11,7 +11,6 @@ class Feedback extends Model
     protected $fillable = [
         'guest_id',
         'doctor_id',
-        'clinic_id',
         'service_id',
         'rating',
         'comments',
@@ -28,12 +27,6 @@ class Feedback extends Model
     public function doctor()
     {
         return $this->belongsTo(Doctor::class);
-    }
-
-    // Quan hệ với bảng Clinic
-    public function clinic()
-    {
-        return $this->belongsTo(Clinic::class);
     }
 
     // Quan hệ với bảng Service

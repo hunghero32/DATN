@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Combo;
-use App\Http\Requests\StoreComboRequest;
-use App\Http\Requests\UpdateComboRequest;
+use App\Models\MedicalRecord;
+use App\Http\Requests\StoreMedicalRecordRequest;
+use App\Http\Requests\UpdateMedicalRecordRequest;
 
-class ComboController extends Controller
+class MedicalRecordController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class ComboController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreComboRequest $request)
+    public function store(StoreMedicalRecordRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class ComboController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Combo $combo)
+    public function show(MedicalRecord $medicalRecord)
     {
         //
     }
@@ -43,7 +43,7 @@ class ComboController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Combo $combo)
+    public function edit(MedicalRecord $medicalRecord)
     {
         //
     }
@@ -51,7 +51,7 @@ class ComboController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateComboRequest $request, Combo $combo)
+    public function update(UpdateMedicalRecordRequest $request, MedicalRecord $medicalRecord)
     {
         //
     }
@@ -59,7 +59,7 @@ class ComboController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Combo $combo)
+    public function destroy(MedicalRecord $medicalRecord)
     {
         //
     }

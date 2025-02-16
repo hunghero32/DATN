@@ -19,5 +19,8 @@ class System extends Model
         'default_language',
         'timezone',
         'tracking_code',
+        'address',
+        'hotline',
+        'banner',
     ];
 }

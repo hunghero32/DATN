@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('guest_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng guests
             $table->foreignId('doctor_id')->nullable()->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng doctors
-            $table->foreignId('clinic_id')->nullable()->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng clinics
             $table->foreignId('service_id')->nullable()->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng services
             $table->tinyInteger('rating')->unsigned(); // Đánh giá (1-5)
             $table->text('comments')->nullable(); // Bình luận
