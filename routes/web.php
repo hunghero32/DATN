@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\Admin\SchedulesController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -41,5 +42,16 @@ Route::prefix('admin')->group(function () {
 
     // Xóa bác sĩ
     Route::delete('delete-doctor/{id}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
+
     ////*****************     End Doctors    *******************////
+
+    ////*****************     Start Schedule    *******************////
+    Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
+    
+
+
+
+    ////*****************     End Schedule    *******************////
+
+
 });

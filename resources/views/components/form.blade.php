@@ -4,7 +4,7 @@
 <div class="content-wrapper">
     <!-- Content -->
     <div class="container-xxl flex-grow-1 container-p-y">
-        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Settings /</span> Thêm thông tin bác sĩ</h4>
+        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Form /</span> Thêm thông tin bác sĩ</h4>
 
         <div class="row">
             <div class="col-md-12">
@@ -45,13 +45,14 @@
                                         <div class="mb-3 col-md-6">
                                             <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
                                             @if($field['type'] == 'select')
-                                                <select id="{{ $field['name'] }}" name="{{ $field['name'] }}" class="select2 form-select">
-                                                    @foreach($field['options'] as $option)
-                                                        <option value="{{ $option }}" {{ old($field['name']) == $option ? 'selected' : '' }}>
-                                                            {{ $option }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                    <select id="{{ $field['name'] }}" name="{{ $field['name'] }}" class="select2 form-select">
+                                                        @foreach($field['options'] as $id => $name)
+                                                            <option value="{{ $id }}" {{ old($field['name']) == $id ? 'selected' : '' }}>
+                                                                {{ $name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+
                                             @else
                                                 <input type="{{ $field['type'] }}" class="form-control" id="{{ $field['name'] }}" name="{{ $field['name'] }}"
                                                        value="{{ old($field['name'], $data[$field['name']] ?? '') }}" placeholder="{{ $field['placeholder'] ?? '' }}">
