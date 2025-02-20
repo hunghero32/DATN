@@ -8,6 +8,7 @@
         'id' => 'exp',
         'name' => 'exp',
         'options' => [
+            'all' => 'Tất cả',
             '0-5' => '0 - 5 năm',
             '6-10' => '6 - 10 năm',
             '10+' => 'Trên 10 năm',
@@ -24,6 +25,7 @@
         ['key' => 'doctor_name', 'label' => 'Họ và Tên'],
         ['key' => 'doctor_avatar', 'label' => 'Ảnh đại diện'],
         ['key' => 'exp', 'label' => 'Kinh nghiệm'],
+        ['key' => 'status', 'name'=>'approve', 'label' => 'Trạng thái'],
         ['key' => 'created_at', 'label' => 'Ngày tạo'],
     ]"
 

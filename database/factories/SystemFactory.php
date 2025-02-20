@@ -29,6 +29,12 @@ class SystemFactory extends Factory
             'default_language' => 'en',
             'timezone' => 'UTC',
             'tracking_code' => '<script>console.log("Tracking Code")</script>',
+            'address' => fake()->address(),
+            'hotline' => fake()->phoneNumber(),
+            'banner' => json_encode([
+                ['image' => fake()->imageUrl(800, 400, 'business', true, 'banner')],
+                ['image' => fake()->imageUrl(800, 400, 'business', true, 'banner-2')],
+            ]),
         ];
     }
 }

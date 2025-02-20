@@ -58,14 +58,14 @@
                                 {{-- Hiển thị trạng thái --}}
                                 @if ($column['key'] == 'status')
                                     @php
-                                        $status = $row[$column['key']];
+                                        $status = $row[$column['name']];
                                         switch ($status) {
                                             case 0:
-                                                $statusText = 'Inactive';
+                                                $statusText = 'Chưa kích hoạt';
                                                 $badgeClass = 'badge bg-danger';
                                                 break;
                                             case 1:
-                                                $statusText = 'Active';
+                                                $statusText = 'Đã kích hoạt';
                                                 $badgeClass = 'badge bg-success';
                                                 break;
                                             case 2:

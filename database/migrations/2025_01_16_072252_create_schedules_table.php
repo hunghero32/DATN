@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('doctor_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng doctors
-            $table->foreignId('clinic_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng clinics
             $table->time('time_start'); // Thời gian bắt đầu làm việc
             $table->time('time_end'); // Thời gian kết thúc làm việc
             $table->json('working_date'); // Ngày làm việc dưới dạng JSON (mảng ngày làm việc)

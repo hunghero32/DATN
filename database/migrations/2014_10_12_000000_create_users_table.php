@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('social_provider')->nullable(); // Nhà cung cấp mạng xã hội
             $table->timestamp('email_verified_at')->nullable(); // Thời gian xác thực email
             $table->string('password'); // Mật khẩu mã hóa (có thể dài)
-            $table->enum('role', ['admin', 'clinic', 'doctor', 'guest'])->default('guest'); // Vai trò
+            $table->enum('role', ['admin', 'doctor', 'guest'])->default('guest'); // Vai trò
             $table->rememberToken(); // Token "remember me"
             $table->timestamps();
         });

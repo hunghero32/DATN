@@ -13,11 +13,11 @@ class Doctor extends Model
         'doctor_avatar',
         'doctor_name',
         'doctor_bio',
-        'clinic_id',
         'specialty_id',
         'exp',
         'file',
-        'approve'
+        'approve',
+        'isDeleted'
     ];
 
     public function user()
@@ -25,11 +25,9 @@ class Doctor extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function clinic()
-    {
-        return $this->belongsTo(Clinic::class);
-    }
 
+
+    // Quan hệ với bảng Specialty
     public function specialty()
     {
         return $this->belongsTo(Specialty::class);

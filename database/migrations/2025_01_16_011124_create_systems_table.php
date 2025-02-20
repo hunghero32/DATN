@@ -23,6 +23,9 @@ return new class extends Migration
             $table->string('default_language')->default('en'); // Ngôn ngữ mặc định
             $table->string('timezone')->default('UTC'); // Múi giờ
             $table->text('tracking_code')->nullable(); // Mã tracking (Google Analytics, ...)
+            $table->string('address')->nullable(); //Địa chỉ công ty
+            $table->string('hotline')->nullable(); // Hotline công ty
+            $table->json('banner')->nullable(); // Banner của cty
             $table->timestamps(); // Thời gian tạo và cập nhật
         });
     }

@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Booking;
 use App\Models\Doctor;
-use App\Models\Combo;
 use App\Models\Services;
 use App\Models\Guest;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,7 +24,6 @@ class BookingFactory extends Factory
     {
         return [
             'doctor_id' => Doctor::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID bác sĩ
-            'combo_id' => Combo::inRandomOrder()->first()->id ?? null, // Lấy ngẫu nhiên ID combo hoặc null
             'service_id' => Services::inRandomOrder()->first()->id ?? null, // Lấy ngẫu nhiên ID dịch vụ hoặc null
             'guest_id' => Guest::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID khách
             'booking_date' => $this->faker->date(), // Ngày đặt lịch

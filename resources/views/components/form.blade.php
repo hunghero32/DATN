@@ -37,6 +37,7 @@
                                                     </button>
                                                 </div>
                                             </div>
+                                            <input type="hidden" name="{{ $field['name'] }}_current" value="{{ $data[$field['name']] ?? '' }}">
                                             @error($field['name'])
                                                 <div class="text-danger">{{ $message }}</div>
                                             @enderror
@@ -45,13 +46,15 @@
                                         <div class="mb-3 col-md-6">
                                             <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
                                             @if($field['type'] == 'select')
-                                                    <select id="{{ $field['name'] }}" name="{{ $field['name'] }}" class="select2 form-select">
-                                                        @foreach($field['options'] as $id => $name)
-                                                            <option value="{{ $id }}" {{ old($field['name']) == $id ? 'selected' : '' }}>
-                                                                {{ $name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
+                                            <select id="{{ $field['name'] }}" name="{{ $field['name'] }}" class="select2 form-select">
+                                                @foreach($field['options'] as $id => $name)
+                                                    <option value="{{ $id }}"
+                                                        {{ (old($field['name'], $data[$field['name']] ?? '') == $id) ? 'selected' : '' }}>
+                                                        {{ $name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+
 
                                             @else
                                                 <input type="{{ $field['type'] }}" class="form-control" id="{{ $field['name'] }}" name="{{ $field['name'] }}"

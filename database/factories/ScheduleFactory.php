@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Schedule;
 use App\Models\Doctor;
-use App\Models\Clinic;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +22,6 @@ class ScheduleFactory extends Factory
     {
         return [
             'doctor_id' => Doctor::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID bác sĩ
-            'clinic_id' => Clinic::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID phòng khám
             'time_start' => $this->faker->time('H:i:s'), // Giờ bắt đầu làm việc
             'time_end' => $this->faker->time('H:i:s'), // Giờ kết thúc làm việc
             'working_date' => $this->faker->unique()->date() . ',' . $this->faker->unique()->date(), // Mảng các ngày làm việc
