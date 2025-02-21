@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\DoctorController;
-<<<<<<< HEAD
+
 use App\Http\Controllers\Admin\SchedulesController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-=======
+
 use App\Http\Controllers\Admin\CategoryController;
->>>>>>> e1d6648 (Thêm sua xoa category)
+use App\Http\Controllers\Admin\PostController;
+
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -31,17 +32,14 @@ Route::prefix('admin')->group(function () {
     Route::get("dashboard", function () {
         return view('admin.pages.dashboard');
     })->name('admin.dashboard');
-<<<<<<< HEAD
-=======
 
->>>>>>> e1d6648 (Thêm sua xoa category)
     /////****************   End  Dashboard  **************/////
 
 
     ////****************   Start  Doctors  **************////
     // Danh sách bác sĩ
     Route::get('doctors', [DoctorController::class, 'index'])->name('admin.doctors.index');
-    Route::get('doctors-searh',[DoctorController::class,'search'])->name('admin.doctors.search');
+    Route::get('doctors-searh', [DoctorController::class, 'search'])->name('admin.doctors.search');
 
     // Thêm bác sĩ
     Route::get('doctors-create', [DoctorController::class, 'create'])->name('admin.doctors.create');
@@ -52,20 +50,20 @@ Route::prefix('admin')->group(function () {
     Route::put('doctors-{doctor}', [DoctorController::class, 'update'])->name('admin.doctors.update');
 
     // Xóa bác sĩ
-<<<<<<< HEAD
+
     Route::delete('delete-doctor/{id}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
 
     ////*****************     End Doctors    *******************////
 
     ////*****************     Start Schedule    *******************////
-    Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
+    Route::get("doctor-schedule", [SchedulesController::class, 'index'])->name('admin.schedule.index');
 
 
 
 
     ////*****************     End Schedule    *******************////
 
-=======
+
     Route::delete('doctors-{doctor}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
     ////*****************     End Doctors    *******************////
 
@@ -76,13 +74,20 @@ Route::prefix('admin')->group(function () {
     Route::get('categories', [CategoryController::class, 'index'])->name('admin.categories.index');
     Route::get('categories-create', [CategoryController::class, 'create'])->name('admin.categories.create');
     Route::post('categories', [CategoryController::class, 'store'])->name('admin.categories.store');
-    Route::get('categories-edit/{id}',[CategoryController::class, 'edit'])->name('admin.categories.edit');
-    Route::put('categories-update/{id}',[CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::get('categories-edit/{id}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
+    Route::put('categories-update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
     Route::delete('doctors/{id}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
 
     ////*****************     End categorycategory    *******************////
->>>>>>> e1d6648 (Thêm sua xoa category)
 
+    ////****************   Start  POST  **************////
+
+    Route::get('posts', [PostController::class, 'index'])->name('admin.posts.index');
+    Route::get('posts-create', [PostController::class, 'create'])->name('admin.posts.create');
+    Route::post('posts', [PostController::class, 'store'])->name('admin.posts.store');
+    Route::delete('posts/{id}', [PostController::class, 'delete'])->name('admin.posts.delete');
+    Route::get('post-edit/{id}', [PostController::class, 'edit'])->name('admin.posts.edit');
+    Route::put('posts-update/{id}', [PostController::class, 'update'])->name('admin.posts.update');
 });
 
 

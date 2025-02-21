@@ -28,12 +28,13 @@ class Post extends Model
     // Quan hệ với bảng Category
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class,'category_id');
     }
 
     // Quan hệ với bảng User
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'user_id');
     }
+
 }

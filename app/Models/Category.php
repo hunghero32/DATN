@@ -22,4 +22,8 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id'); // Một danh mục có thể có nhiều danh mục con
     }
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'category_id');
+    }
 }
