@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\UserController;
 
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
@@ -80,6 +81,9 @@ Route::prefix('admin')->group(function () {
 
     ////*****************     End categorycategory    *******************////
 
+
+
+
     ////****************   Start  POST  **************////
 
     Route::get('posts', [PostController::class, 'index'])->name('admin.posts.index');
@@ -88,6 +92,20 @@ Route::prefix('admin')->group(function () {
     Route::delete('posts/{id}', [PostController::class, 'delete'])->name('admin.posts.delete');
     Route::get('post-edit/{id}', [PostController::class, 'edit'])->name('admin.posts.edit');
     Route::put('posts-update/{id}', [PostController::class, 'update'])->name('admin.posts.update');
+    ////*****************     End postpost    *******************////
+
+
+
+
+    ////****************   Start  useruser  **************////
+    Route::get('users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::get('users-create',[UserController::class,'create'])->name('admin.users.create');
+    Route::post('users-store',[UserController::class, 'store'])->name('admin.users.store');
+    route::delete('users-delete/{id}',[UserController::class ,'delete'])->name('admin.users.delete');
+    route::get('users-edit/{id}',[UserController::class ,'edit'])->name('admin.users.edit');
+    route::put('users-update/{id}',[UserController::class,'update'])->name('admin.users.update');
+
+
 });
 
 
