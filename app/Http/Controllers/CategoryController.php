@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 
+
 class CategoryController extends Controller
 {
     /**
@@ -13,7 +14,6 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
     }
 
     /**
@@ -61,6 +61,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
+        
         //
     }
 }

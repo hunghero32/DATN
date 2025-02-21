@@ -107,6 +107,27 @@
             </ul>
         </li>
         {{-- End doctor --}}
+          {{-- Start category --}}
+          <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Categories</span>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                <div data-i18n="Account Settings">Quản lý danh muc</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.categories.index')}}" class="menu-link">
+                        <div data-i18n="Account">Danh sách danh muc</div>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
+
+
+          {{-- End category --}}
 
 
 

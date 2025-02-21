@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\DoctorController;
+<<<<<<< HEAD
 use App\Http\Controllers\Admin\SchedulesController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+=======
+use App\Http\Controllers\Admin\CategoryController;
+>>>>>>> e1d6648 (Thêm sua xoa category)
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -27,6 +31,10 @@ Route::prefix('admin')->group(function () {
     Route::get("dashboard", function () {
         return view('admin.pages.dashboard');
     })->name('admin.dashboard');
+<<<<<<< HEAD
+=======
+
+>>>>>>> e1d6648 (Thêm sua xoa category)
     /////****************   End  Dashboard  **************/////
 
 
@@ -44,6 +52,7 @@ Route::prefix('admin')->group(function () {
     Route::put('doctors-{doctor}', [DoctorController::class, 'update'])->name('admin.doctors.update');
 
     // Xóa bác sĩ
+<<<<<<< HEAD
     Route::delete('delete-doctor/{id}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
 
     ////*****************     End Doctors    *******************////
@@ -56,8 +65,32 @@ Route::prefix('admin')->group(function () {
 
     ////*****************     End Schedule    *******************////
 
+=======
+    Route::delete('doctors-{doctor}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
+    ////*****************     End Doctors    *******************////
+
+
+
+
+    ////****************   Start  Categories  **************////
+    Route::get('categories', [CategoryController::class, 'index'])->name('admin.categories.index');
+    Route::get('categories-create', [CategoryController::class, 'create'])->name('admin.categories.create');
+    Route::post('categories', [CategoryController::class, 'store'])->name('admin.categories.store');
+    Route::get('categories-edit/{id}',[CategoryController::class, 'edit'])->name('admin.categories.edit');
+    Route::put('categories-update/{id}',[CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('doctors/{id}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
+
+    ////*****************     End categorycategory    *******************////
+>>>>>>> e1d6648 (Thêm sua xoa category)
 
 });
+
+
+
+
+
+
+
 // =========== System =======================
 Route::get('system', [SystemController::class, 'show'])->name('systems.show');
 Route::get('system', [SystemController::class, 'edit'])->name('system.edit');
@@ -75,6 +108,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
 
 
+require __DIR__ . '/auth.php';
