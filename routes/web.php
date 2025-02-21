@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\DoctorController;
+use App\Http\Controllers\Admin\SchedulesController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -21,29 +23,40 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::prefix('admin')->group(function () {
-////****************   Start  Dashboard  **************////
-    Route::get("dashboard",function(){
+    ////****************   Start  Dashboard  **************////
+    Route::get("dashboard", function () {
         return view('admin.pages.dashboard');
-
     })->name('admin.dashboard');
-/////****************   End  Dashboard  **************/////
+    /////****************   End  Dashboard  **************/////
 
 
-////****************   Start  Doctors  **************////
+    ////****************   Start  Doctors  **************////
     // Danh sách bác sĩ
     Route::get('doctors', [DoctorController::class, 'index'])->name('admin.doctors.index');
+    Route::get('doctors-searh',[DoctorController::class,'search'])->name('admin.doctors.search');
 
     // Thêm bác sĩ
     Route::get('doctors-create', [DoctorController::class, 'create'])->name('admin.doctors.create');
-    Route::post('doctors', [DoctorController::class, 'store'])->name('admin.doctors.store');
+    Route::post('save-doctors-create', [DoctorController::class, 'store'])->name('admin.doctors.store');
 
     // Sửa bác sĩ
     Route::get('doctors-{doctor}/edit', [DoctorController::class, 'edit'])->name('admin.doctors.edit');
     Route::put('doctors-{doctor}', [DoctorController::class, 'update'])->name('admin.doctors.update');
 
     // Xóa bác sĩ
-    Route::delete('doctors-{doctor}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
-////*****************     End Doctors    *******************////
+    Route::delete('delete-doctor/{id}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
+
+    ////*****************     End Doctors    *******************////
+
+    ////*****************     Start Schedule    *******************////
+    Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
+
+
+
+
+    ////*****************     End Schedule    *******************////
+
+
 });
 // =========== System =======================
 Route::get('system', [SystemController::class, 'show'])->name('systems.show');

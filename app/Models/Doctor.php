@@ -17,13 +17,15 @@ class Doctor extends Model
         'exp',
         'file',
         'approve',
+        'isDeleted'
     ];
 
-    // Quan hệ với bảng User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
+
 
     // Quan hệ với bảng Specialty
     public function specialty()
