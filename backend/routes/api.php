@@ -8,6 +8,10 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+
+use App\Http\Controllers\Api\SystemController;
+use App\Http\Controllers\Api\Admin\SpecialtyController;
+use App\Http\Controllers\Api\Admin\DoctorSpecialtyController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,7 +26,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::middleware(['auth:sanctum'])->group(function (){
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
     Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 });
@@ -34,3 +38,8 @@ Route::middleware(['guest'])->group(function () {
 });
 Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
     ->middleware(['auth', 'signed', 'throttle:6,1'])->name('verification.verify');
+
+
+Route::apiResource('specialties', SpecialtyController::class);
+Route::apiResource('system', SystemController::class);
+Route::apiResource('doctor-specialties', DoctorSpecialtyController::class);
