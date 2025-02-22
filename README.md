@@ -29,48 +29,61 @@ Dự án này là một hệ thống đặt chỗ được xây dựng bằng c�
     git clone https://github.com/hunghero32/DATN.git
     cd DATN
     ```
-
-2. **Cài đặt các Phụ thuộc**
+2. **Thư Mục**
+- Backend
+    ```bash
+    cd DATN/backend
+    ```
+- Frontend
+    ```bash
+    cd DATN/frontend
+    ```
+3. **Cài đặt các Phụ thuộc**
 
     ```bash
     composer install
     npm install
     ```
 
-3. **Tạo File `.env`**
+4. **Tạo File `.env`**
 
     ```bash
     cp .env.example .env
     ```
 
-4. **Cấu hình Cơ sở dữ liệu**
+5. **Cấu hình Cơ sở dữ liệu**
 
     Chỉnh sửa file `.env` để cấu hình thông tin kết nối cơ sở dữ liệu của bạn.
 
-5. **Tạo Khóa Ứng dụng**
+6. **Tạo Khóa Ứng dụng Backend**
 
     ```bash
     php artisan key:generate
     ```
 
-6. **Chạy Migrations**
+7. **Chạy Migrations**
 
     ```bash
     php artisan migrate
     ```
 
-7. **Chạy Ứng dụng**
+8. **Chạy Ứng dụng Backend**
 
     ```bash
     php artisan serve
     ```
+9. **Chạy Ứng dụng Frontend**
 
-    Truy cập ứng dụng tại `http://localhost:8000`
+    ```bash
+    npm run
+    ```
 
+    Truy cập backend tại `http://localhost:8000`
+    Truy cập frontend tại `http://localhost:3000`
 ## Cấu Trúc Dự Án
 
-- `app/Models`: Chứa các mô hình Eloquent.
-- `app/Http/Controllers`: Chứa các controller xử lý logic.
+- `backend/app/Models`: Chứa các mô hình Eloquent.
+- `backend/app/Http/Controllers`: Chứa các controller xử lý logic.
 - `routes` : chứa các router và API.
 - `resources/views`: Chứa các view được sử dụng trong ứng dụng.
 - `database/migrations`: Chứa các file migration để tạo bảng cơ sở dữ liệu.
