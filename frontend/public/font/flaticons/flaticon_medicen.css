@@ -1,0 +1,164 @@
+/*!
+*    ______ _       _   _
+*    |  ____| |     | | (_)
+*    | |__  | | __ _| |_ _  ___ ___  _ __
+*    |  __| | |/ _` | __| |/ __/ _ \| '_ \
+*    | |    | | (_| | |_| | (_| (_) | | | |
+*    |_|    |_|\__,_|\__|_|\___\___/|_| |_|
+*
+*         https://www.flaticon.com
+*/
+
+@font-face {
+    font-family: "flaticon_medicen";
+    src: url("flaticon_medicen1359.woff2?da22af06b70f17e2f5a1a6d84787378a") format("woff2"),
+url("flaticon_medicen1359.woff?da22af06b70f17e2f5a1a6d84787378a") format("woff"),
+url("flaticon_medicen1359.eot?da22af06b70f17e2f5a1a6d84787378a#iefix") format("embedded-opentype"),
+url("flaticon_medicen1359.ttf?da22af06b70f17e2f5a1a6d84787378a") format("truetype"),
+url("flaticon_medicen1359.svg?da22af06b70f17e2f5a1a6d84787378a#flaticon_medicen") format("svg")
+}
+
+i[class^="flaticon-"]:before, i[class*=" flaticon-"]:before {
+    font-family: flaticon_medicen !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: inherit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.flaticon-facebook-app-symbol:before {
+    content: "\f101";
+}
+.flaticon-twitter:before {
+    content: "\f102";
+}
+.flaticon-loupe:before {
+    content: "\f103";
+}
+.flaticon-shopping-bag:before {
+    content: "\f104";
+}
+.flaticon-shopping-cart:before {
+    content: "\f105";
+}
+.flaticon-check:before {
+    content: "\f106";
+}
+.flaticon-checked:before {
+    content: "\f107";
+}
+.flaticon-instagram:before {
+    content: "\f108";
+}
+.flaticon-phone-call:before {
+    content: "\f109";
+}
+.flaticon-mail:before {
+    content: "\f10a";
+}
+.flaticon-location:before {
+    content: "\f10b";
+}
+.flaticon-back:before {
+    content: "\f10c";
+}
+.flaticon-next:before {
+    content: "\f10d";
+}
+.flaticon-clock:before {
+    content: "\f10e";
+}
+.flaticon-healthcare:before {
+    content: "\f10f";
+}
+.flaticon-hospital:before {
+    content: "\f110";
+}
+.flaticon-patient:before {
+    content: "\f111";
+}
+.flaticon-doctor:before {
+    content: "\f112";
+}
+.flaticon-health-insurance:before {
+    content: "\f113";
+}
+.flaticon-doctor-1:before {
+    content: "\f114";
+}
+.flaticon-medicine:before {
+    content: "\f115";
+}
+.flaticon-laboratory:before {
+    content: "\f116";
+}
+.flaticon-cost:before {
+    content: "\f117";
+}
+.flaticon-ambulance:before {
+    content: "\f118";
+}
+.flaticon-insurance:before {
+    content: "\f119";
+}
+.flaticon-document:before {
+    content: "\f11a";
+}
+.flaticon-medical-center:before {
+    content: "\f11b";
+}
+.flaticon-hospital-bed:before {
+    content: "\f11c";
+}
+.flaticon-surgery-room:before {
+    content: "\f11d";
+}
+.flaticon-dental-service:before {
+    content: "\f11e";
+}
+.flaticon-dentist-chair:before {
+    content: "\f11f";
+}
+.flaticon-vision:before {
+    content: "\f120";
+}
+.flaticon-surgery:before {
+    content: "\f121";
+}
+.flaticon-orthopedics:before {
+    content: "\f122";
+}
+.flaticon-orthopedics-1:before {
+    content: "\f123";
+}
+.flaticon-neurologist:before {
+    content: "\f124";
+}
+.flaticon-cardiology:before {
+    content: "\f125";
+}
+.flaticon-hospital-1:before {
+    content: "\f126";
+}
+.flaticon-healthcare-1:before {
+    content: "\f127";
+}
+.flaticon-patient-1:before {
+    content: "\f128";
+}
+.flaticon-injection:before {
+    content: "\f129";
+}
+.flaticon-market:before {
+    content: "\f12a";
+}
+.flaticon-calendar:before {
+    content: "\f12b";
+}
+.flaticon-schedule:before {
+    content: "\f12c";
+}
+
