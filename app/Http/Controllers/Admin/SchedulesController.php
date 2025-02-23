@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Schedule;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 class SchedulesController extends Controller
@@ -28,15 +29,33 @@ class SchedulesController extends Controller
     }
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'doctor_id' => 'required|exists:doctors,id',
             'time_start' => 'required',
             'time_end' => 'required',
             'working_date' => 'required|date',
             'max_patients' => 'required|integer|min:1',
             'status' => 'nullable|integer|in:0,1',
+        ], [
+            'doctor_id.required' => 'Vui lòng chọn bác sĩ.',
+            'doctor_id.exists' => 'Bác sĩ không tồn tại trong hệ thống.',
+            'time_start.required' => 'Vui lòng nhập giờ bắt đầu.',
+            'time_end.required' => 'Vui lòng nhập giờ kết thúc.',
+            'working_date.required' => 'Vui lòng chọn ngày làm việc.',
+            'working_date.date' => 'Ngày làm việc không hợp lệ.',
+            'max_patients.required' => 'Vui lòng nhập số lượng bệnh nhân tối đa.',
+            'max_patients.integer' => 'Số lượng bệnh nhân phải là số nguyên.',
+            'max_patients.min' => 'Số lượng bệnh nhân tối thiểu là 1.',
+            'status.integer' => 'Trạng thái phải là số 0 hoặc 1.',
+            'status.in' => 'Trạng thái không hợp lệ.',
         ]);
 
+        // Nếu validation thất bại, trả về với lỗi
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Nếu validation thành công, tiếp tục xử lý
         Schedule::create($request->all());
 
         return redirect()->route('admin.schedule.index')->with('success', 'Lịch làm việc đã được tạo!');
@@ -52,16 +71,37 @@ class SchedulesController extends Controller
     }
     public function update(Request $request, $id)
     {
-        $request->validate([
+        // Tạo bộ kiểm tra dữ liệu
+        $validator = Validator::make($request->all(), [
             'doctor_id' => 'required|exists:doctors,id',
             'time_start' => 'required',
             'time_end' => 'required',
             'working_date' => 'required|date',
             'max_patients' => 'required|integer|min:1',
             'status' => 'nullable|integer|in:0,1',
+        ], [
+            'doctor_id.required' => 'Vui lòng chọn bác sĩ.',
+            'doctor_id.exists' => 'Bác sĩ không tồn tại trong hệ thống.',
+            'time_start.required' => 'Vui lòng nhập giờ bắt đầu.',
+            'time_end.required' => 'Vui lòng nhập giờ kết thúc.',
+            'working_date.required' => 'Vui lòng chọn ngày làm việc.',
+            'working_date.date' => 'Ngày làm việc không hợp lệ.',
+            'max_patients.required' => 'Vui lòng nhập số lượng bệnh nhân tối đa.',
+            'max_patients.integer' => 'Số lượng bệnh nhân phải là số nguyên.',
+            'max_patients.min' => 'Số lượng bệnh nhân tối thiểu là 1.',
+            'status.integer' => 'Trạng thái phải là số 0 hoặc 1.',
+            'status.in' => 'Trạng thái không hợp lệ.',
         ]);
 
+        // Nếu validation thất bại, quay lại form với lỗi
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Tìm lịch làm việc cần cập nhật
         $schedule = Schedule::findOrFail($id);
+
+        // Cập nhật thông tin lịch làm việc
         $schedule->update($request->all());
 
         return redirect()->route('admin.schedule.index')->with('success', 'Lịch làm việc đã được cập nhật!');
