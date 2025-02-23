@@ -15,7 +15,6 @@ class Schedule extends Model
         'working_date',
         'max_patients',
         'status',
-        'isDeleted',
     ];
 
     protected $casts = [
