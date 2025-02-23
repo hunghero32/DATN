@@ -1,5 +1,5 @@
 <x-form
-    :action="route('admin.schedule.edit', $data->id)"
+    :action="route('admin.schedule.update', $data->id)"
     method="PUT"
     :fields="[
         ['name' => 'doctor_id', 'label' => 'Bác sĩ', 'type' => 'select', 'options' => $doctors],

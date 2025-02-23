@@ -13,6 +13,7 @@ class SchedulesController extends Controller
     {
         $data = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
             ->select('schedules.*', 'doctors.doctor_name')
+            ->where('schedules.isDeleted', 0)
             ->get();
 
         return view('admin.pages.schedule.index', [
@@ -28,11 +29,11 @@ class SchedulesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'doctor_id' => 'nullable|exists:doctors,id',
-            'time_start' => 'nullable',
-            'time_end' => 'nullable',
-            'working_date' => 'nullable|date',
-            'max_patients' => 'nullable|integer|min:1',
+            'doctor_id' => 'required|exists:doctors,id',
+            'time_start' => 'required',
+            'time_end' => 'required',
+            'working_date' => 'required|date',
+            'max_patients' => 'required|integer|min:1',
             'status' => 'nullable|integer|in:0,1',
         ]);
 
@@ -52,11 +53,11 @@ class SchedulesController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'doctor_id' => 'nullable|exists:doctors,id',
-            'time_start' => 'nullable',
-            'time_end' => 'nullable',
-            'working_date' => 'nullable|date',
-            'max_patients' => 'nullable|integer|min:1',
+            'doctor_id' => 'required|exists:doctors,id',
+            'time_start' => 'required',
+            'time_end' => 'required',
+            'working_date' => 'required|date',
+            'max_patients' => 'required|integer|min:1',
             'status' => 'nullable|integer|in:0,1',
         ]);
 
@@ -64,5 +65,16 @@ class SchedulesController extends Controller
         $schedule->update($request->all());
 
         return redirect()->route('admin.schedule.index')->with('success', 'Lịch làm việc đã được cập nhật!');
+    }
+    public function destroy($id)
+    {
+
+        $shedule = Schedule::findOrFail($id);
+        if ($shedule->status == 0) {
+            $shedule->update(['isDeleted' => 1]);
+            return redirect()->route('admin.schedule.index')->with('success', 'Lịch làm việc đã được xóa!');
+        } else {
+            return redirect()->route('admin.schedule.index')->with('error', 'Không thể xóa lịch làm việc đang hoạt động!');
+        }
     }
 }

@@ -9,7 +9,7 @@
         ['key' => 'doctor_name', 'label' => 'Họ và Tên'],
         ['key' => 'time_start', 'label' => 'Giờ bắt đầu'],
         ['key' => 'time_end', 'label' => 'Giờ kết thúc'],
-        ['key' => 'working_date', 'name'=>'approve', 'label' => 'Trạng thái'],
+        ['key' => 'working_date', 'name'=>'approve', 'label' => 'Ngày làm việc'],
         ['key' => 'max_patients', 'label' => 'Số lượng bệnh nhân tối đa'],
         ['key' => 'status', 'name'=>'status', 'label' => 'Trạng thái'],
     ]"
