@@ -56,7 +56,16 @@ Route::prefix('admin')->group(function () {
 
     ////*****************     End Doctors    *******************////
 
+
+
+
     ////*****************     Start Schedule    *******************////
+    Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
+    Route::get("doctor-schedule-create",[SchedulesController::class,'create'])->name('admin.schedule.create');
+    Route::post("doctor-schedule-save",[SchedulesController::class,'store'])->name('admin.schedule.store');
+    Route::get("doctor-schedule-{schedule}/edit",[SchedulesController::class,'edit'])->name('admin.schedule.edit');
+    Route::put("doctor-schedule-{schedule}",[SchedulesController::class,'update'])->name('admin.schedule.update');
+    Route::delete("doctor-schedule-{schedule}",[SchedulesController::class,'destroy'])->name('admin.schedule.delete');
     Route::get("doctor-schedule", [SchedulesController::class, 'index'])->name('admin.schedule.index');
 
 
