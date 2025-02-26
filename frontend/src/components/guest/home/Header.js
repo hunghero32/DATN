@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Header (){
 return (
   <>
@@ -58,7 +60,7 @@ return (
                                                     <a href="aboutus">About Us</a>
                                                 </li>
                                                 <li className="menu-item">
-                                                    <a href="ourprocess">Our Process</a>
+                                                    <Link  to="/ourprocess">Our Process</Link>
                                                 </li>
                                                 <li className="menu-item">
                                                     <a href="ourservices">Our Services</a>

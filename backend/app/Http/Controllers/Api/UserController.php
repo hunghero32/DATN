@@ -16,7 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(5);
+        $users = User::orderBy('id', 'desc')->get();
         return response()->json($users, 200);
     }
 
@@ -39,9 +39,9 @@ class UserController extends Controller
     /**
      * Cập nhật thông tin người dùng.
      */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(Request $request, User $user)
     {
-        $validatedData = $request->validated();
+         $validatedData = $request->all();
 
         if (isset($validatedData['password'])) {
             $validatedData['password'] = Hash::make($validatedData['password']); // Mã hóa mật khẩu mới nếu có
@@ -53,6 +53,10 @@ class UserController extends Controller
             'user' => $user,
             'message' => 'Cập nhật thông tin thành công.'
         ], 200);
+    }
+    public function show($id){
+        $data = User::find($id);
+        return response()->json($data,200);
     }
 
     /**
