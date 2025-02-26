@@ -11,7 +11,7 @@ class UpdateResultRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,23 @@ class UpdateResultRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'booking_id' => 'sometimes|exists:bookings,id',
+            'doctor_id' => 'sometimes|exists:doctors,id',
+            'guest_id' => 'sometimes|exists:guests,id',
+            'diagnosis' => 'nullable|string',
+            'note' => 'nullable|string',
+            'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'booking_id.exists' => 'Mã đặt lịch không tồn tại.',
+            'doctor_id.exists' => 'Mã bác sĩ không tồn tại.',
+            'guest_id.exists' => 'Mã khách hàng không tồn tại.',
+            'file.mimes' => 'File phải có định dạng: pdf, jpg, jpeg, png.',
+            'file.max' => 'File không được vượt quá 2MB.',
         ];
     }
 }
