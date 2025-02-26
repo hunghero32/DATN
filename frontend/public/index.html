@@ -10,103 +10,49 @@
       content="Web site created using create-react-app"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-   
+    <link rel="preconnect" href="https://fonts.googleapis.com/" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins:200,200i,300,400,500,600,700,800,900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/slick.js"></script>
+    <script src="/js/owl.carousel.js"></script>
+    <script src="/js/custom.js"></script>
     
     <title>React App</title>
-    <link rel="shortcut icon" href="%PUBLIC_URL%/img/favicon.webp" type="image/x-icon">
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/css/bootstrap.min.css">
-    <!-- owl carousel -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/css/owl.carousel.css">
-    <!-- Animation -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/css/animations.min.css">
-    <!-- Fonts CSS -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/css/fonts.css">
-    <!-- Fontawesome -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/font/font-awesome/css/all.min.css">
-    <!-- Themify -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/font/themify-icons/themify-icons.css">
-    <!-- Flaticon -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/font/flaticons/flaticon_medicen.css">
-    <!-- Style CSS -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/css/style.css">
-    <!-- Responsive -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/css/responsive.css">
-
-  <!--Home2 -->
-  <!-- public/index.html -->
-<link rel="stylesheet" href="%PUBLIC_URL%/css/bootstrap.min.css">
-<link rel="stylesheet" href="%PUBLIC_URL%/css/owl.carousel.css">
-<link rel="stylesheet" href="%PUBLIC_URL%/css/animations.min.css">
-<link rel="stylesheet" href="%PUBLIC_URL%/css/slick.css">
-<link rel="stylesheet" href="%PUBLIC_URL%/css/fonts.css">
-<link rel="stylesheet" href="%PUBLIC_URL%/css/style.css">
-<link rel="stylesheet" href="%PUBLIC_URL%/css/responsive.css">
-    
+    <link
+      rel="shortcut icon"
+      href="%PUBLIC_URL%/img/favicon.webp"
+      type="image/x-icon"
+    />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script src="%PUBLIC_URL%/js/jquery-3.7.1.js"></script>
-    <!--Splitting js -->
-    <script src="%PUBLIC_URL%/js/splitting.js"></script>
-    <!--att js -->
-    <script src="%PUBLIC_URL%/js/aat.min.js"></script>
-    <!-- scroll -->
-    <script src="%PUBLIC_URL%/js/scroll-out.js"></script>
-    <!--bootstrap js-->
-    <script src="%PUBLIC_URL%/js/bootstrap.bundle.min.js"></script>
-    <!-- isotope js -->
-    <script src="%PUBLIC_URL%/js/isotope.pkgd.min.js"></script>
-    <!-- load more js -->
-    <script src="%PUBLIC_URL%/js/load-more.js"></script>
-    <!-- gsap -->
-    <script src="%PUBLIC_URL%/js/gsap.min.js"></script>
-    <!-- flip -->
-    <script src="%PUBLIC_URL%/js/flip.min.html"></script>
-    <!-- scroll-trigger -->
-    <script src="%PUBLIC_URL%/js/ScrollTrigger.min.js"></script>
-    <!-- slick js -->
-    <script src="%PUBLIC_URL%/js/slick.js"></script>
-    <!-- Wow -->
-    <script src="%PUBLIC_URL%/js/wow.min.js"></script>
-    <!--owl-carousal-->
-    <script src="%PUBLIC_URL%/js/owl.carousel.js"></script>
-    <!--custom js-->
-    <script src="%PUBLIC_URL%/js/custom.js"></script>
-
-
- <!--Script Home2-->
- <script src="%PUBLIC_URL%/js/splitting.js"></script>
- <!--att js -->
- <script src="%PUBLIC_URL%/js/aat.min.js"></script>
- <!-- scroll -->
- <script src="%PUBLIC_URL%/js/scroll-out.js"></script>
- <!--jquery js-->
- <script src="%PUBLIC_URL%/js/jquery-3.7.1.js"></script>
- <!--bootstrap js-->
- <script src="%PUBLIC_URL%/js/bootstrap.min.js"></script>
- <!-- isotope js -->
- <script src="%PUBLIC_URL%/js/isotope.pkgd.min.js"></script>
- <!-- Slick Slider -->
- <script src="%PUBLIC_URL%/js/slick.js"></script>
- <!-- Revolution Slider -->
- <script src="%PUBLIC_URL%/rev/js/rbtools.min.js"></script>
- <script src="%PUBLIC_URL%/rev/js/rs6.min.js"></script>
- <script src="%PUBLIC_URL%/js/rev-custom.js"></script>
- <!-- gsap -->
- <script src="%PUBLIC_URL%/js/gsap.min.js"></script>
- <!-- scroll-trigger -->
- <script src="%PUBLIC_URL%/js/ScrollTrigger.min.js"></script>
- <!-- Wow -->
- <script src="%PUBLIC_URL%/js/wow.min.js"></script>
- <!--owl-carousal-->
- <script src="%PUBLIC_URL%/js/owl.carousel.js"></script>
- <!--custom js-->
- <script src="%PUBLIC_URL%/js/custom.js"></script>
- 
   </body>
-  <script>'undefined'=== typeof _trfq || (window._trfq = []);'undefined'=== typeof _trfd && (window._trfd=[]),_trfd.push({'tccl.baseHost':'secureserver.net'},{'ap':'cpbh-mt'},{'server':'sg2plmcpnl492384'},{'dcenter':'sg2'},{'cp_id':'9858662'},{'cp_cache':''},{'cp_cl':'8'}) // Monitoring performance to make your website faster. If you want to opt-out, please contact web hosting support.</script><script src='../../../../img1.wsimg.com/signals/js/clients/scc-c2/scc-c2.min.js'></script>
 
+  <script>
+    "undefined" === typeof _trfq || (window._trfq = []);
+    "undefined" === typeof _trfd && (window._trfd = []),
+      _trfd.push(
+        { "tccl.baseHost": "secureserver.net" },
+        { ap: "cpbh-mt" },
+        { server: "sg2plmcpnl492384" },
+        { dcenter: "sg2" },
+        { cp_id: "9858662" },
+        { cp_cache: "" },
+        { cp_cl: "8" }
+      ); // Monitoring performance to make your website faster. If you want to opt-out, please contact web hosting support.
+  </script>
+  <script src="../../../../img1.wsimg.com/signals/js/clients/scc-c2/scc-c2.min.js"></script>
 </html>

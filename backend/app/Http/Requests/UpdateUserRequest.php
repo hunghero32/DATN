@@ -16,10 +16,10 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|max:255|unique:users,email,' . $this->route('user')->id,
-            'phone' => 'sometimes|required|string|regex:/^(\+?\d{1,3}[- ]?)?\d{10}$/|unique:users,phone,' . $this->route('user')->id,
+            'email' => 'sometimes|required|email|max:255|unique:users,email,' . $this->route('user'),
+            'phone' => 'sometimes|required|string|regex:/^(\+?\d{1,3}[- ]?)?\d{10}$/|unique:users,phone,' . $this->route('user'),
             'password' => ['nullable', 'string', Password::min(8)->letters()->numbers()],
-            'social_id' => 'nullable|string|unique:users,social_id,' . $this->route('user')->id,
+            'social_id' => 'nullable|string|unique:users,social_id,' . $this->route('user'),
             'social_provider' => 'nullable|string|in:facebook,google,apple',
             'role' => 'sometimes|required|string|in:admin,doctor,guest',
         ];
