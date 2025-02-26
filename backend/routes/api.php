@@ -15,6 +15,14 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\SystemController;
 use App\Http\Controllers\Api\Admin\SpecialtyController;
 use App\Http\Controllers\Api\Admin\DoctorSpecialtyController;
+use App\Http\Controllers\Api\Admin\GuestController;
+use App\Http\Controllers\Api\Admin\MedicalRecordController;
+use App\Http\Controllers\Api\Admin\NotificationController;
+use App\Http\Controllers\Api\Admin\ResultController;
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -55,5 +63,10 @@ Route::apiResource('categories', CategoryController::class);
  ////*****************     End postpost    *******************////
   ////****************   Start  user  **************////
   Route::apiResource('users',UserController::class);
+
+  Route::apiResource('guests',GuestController::class);
+  Route::apiResource('medical-records', MedicalRecordController::class);
+  Route::apiResource('notifications', NotificationController::class);
+  Route::apiResource('results', ResultController::class);
 
 
