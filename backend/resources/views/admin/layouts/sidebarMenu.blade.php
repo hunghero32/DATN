@@ -150,26 +150,6 @@
         {{-- End category --}}
 
 
-        {{-- Start doctor --}}
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Schedule</span>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý lịch làm việc của bác sĩ</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{{route('admin.schedule.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách đặt lịch</div>
-                    </a>
-                </li>
-
-            </ul>
-        </li>
-        {{-- End doctor --}}
-
 
 
 

@@ -8,10 +8,21 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\UserController;
 
 use App\Http\Controllers\Api\SystemController;
 use App\Http\Controllers\Api\Admin\SpecialtyController;
 use App\Http\Controllers\Api\Admin\DoctorSpecialtyController;
+use App\Http\Controllers\Api\Admin\GuestController;
+use App\Http\Controllers\Api\Admin\MedicalRecordController;
+use App\Http\Controllers\Api\Admin\NotificationController;
+use App\Http\Controllers\Api\Admin\ResultController;
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -43,3 +54,19 @@ Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
 Route::apiResource('specialties', SpecialtyController::class);
 Route::apiResource('system', SystemController::class);
 Route::apiResource('doctor-specialties', DoctorSpecialtyController::class);
+
+  ////****************   Start  Categories  **************////
+Route::apiResource('categories', CategoryController::class);
+//     ////*****************     End categorycategory    *******************////
+ ////****************   Start  POST  **************////
+ Route::apiResource('posts',PostController::class);
+ ////*****************     End postpost    *******************////
+  ////****************   Start  user  **************////
+  Route::apiResource('users',UserController::class);
+
+  Route::apiResource('guests',GuestController::class);
+  Route::apiResource('medical-records', MedicalRecordController::class);
+  Route::apiResource('notifications', NotificationController::class);
+  Route::apiResource('results', ResultController::class);
+
+

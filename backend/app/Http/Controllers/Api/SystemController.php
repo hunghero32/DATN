@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class SystemController extends Controller
 {
-    /**
+  /**
      * Lấy thông tin hệ thống.
      */
     public function index()

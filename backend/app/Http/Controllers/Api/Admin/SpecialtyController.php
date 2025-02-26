@@ -16,7 +16,7 @@ class SpecialtyController extends Controller
      */
     public function index()
     {
-        $specialties = Specialty::paginate(5);
+        $specialties = Specialty::orderBy('id','DESC')->get();
         return response()->json($specialties, 200);
     }
 
