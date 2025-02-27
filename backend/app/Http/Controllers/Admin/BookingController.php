@@ -19,4 +19,18 @@ class BookingController extends Controller
         return view('admin.pages.booking.index',compact('data'));
     }
 
+    public function destroy($id)
+    {
+        $data=Booking::find($id);
+        if($data->status=='pending'){
+            $data->isDeleted=1;
+            $data->save();
+            return redirect()->route('admin.bookings.index')->with('success','Xóa thành công đặt lịch khám bệnh');
+        }else{
+            return redirect()->route('admin.bookings.index')->with('error','Không thể xóa đặt lịch khám bệnh đã được xác nhận');
+        }
+
+
+    }
+
 }
