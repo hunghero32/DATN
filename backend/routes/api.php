@@ -62,8 +62,9 @@ Route::apiResource('categories', CategoryController::class);
  Route::apiResource('posts',PostController::class);
  ////*****************     End postpost    *******************////
   ////****************   Start  user  **************////
-  Route::apiResource('users',UserController::class);
-
+  Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::apiResource('users',UserController::class);
+});
   Route::apiResource('guests',GuestController::class);
   Route::apiResource('medical-records', MedicalRecordController::class);
   Route::apiResource('notifications', NotificationController::class);
