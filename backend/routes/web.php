@@ -82,7 +82,7 @@ Route::prefix('admin')->group(function () {
         Route::get("bookings-{booking}/edit",[BookingController::class,'edit'])->name('admin.bookings.edit');
         Route::put("bookings-{booking}",[BookingController::class,'update'])->name('admin.bookings.update');
         Route::delete("bookings-{booking}",[BookingController::class,'destroy'])->name('admin.bookings.delete');
-        Route::get("bookings", [BookingController::class, 'index'])->name('admin.bookings.index');
+        Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
 
     ////*****************     End Bookings    *******************////
 

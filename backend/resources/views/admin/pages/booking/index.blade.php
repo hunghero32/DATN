@@ -3,24 +3,24 @@
 @section('content')
 
 @php
-    // $selects = [
-    //     [
-    //         'id' => 'status',
-    //         'name' => 'status',
-    //         'options' => [
-    //             'all' => 'Tất cả',
-    //             'pending' => 'Đang chờ',
-    //             'confirmed' => 'Đã xác nhận',
-    //             'completed' => 'Hoàn thành',
-    //             'canceled' => 'Đã hủy',
-    //         ]
-    //     ]
-    // ];
+    $selects = [
+        [
+            'id' => 'status',
+            'name' => 'status',
+            'options' => [
+                'all' => 'Tất cả',
+                'pending' => 'Đang chờ',
+                'confirmed' => 'Đã xác nhận',
+                'completed' => 'Hoàn thành',
+                'canceled' => 'Đã hủy',
+            ]
+        ]
+    ];
 @endphp
 
 <x-table-list-component
     :title="'Danh sách đặt lịch'"
-    {{-- :route="route('admin.bookings.search')" --}}
+    :route="route('admin.bookings.search')"
     :columns="[
         ['key' => 'id', 'label' => 'ID'],
         ['key' => 'doctor_name', 'label' => 'Bác sĩ'],
@@ -33,15 +33,8 @@
     ]"
 
     :data="$data"
-    {{-- :selects="$selects" --}}
+    :selects="$selects"
     :actions="[
-        [
-            'label' => 'Thêm mới',
-            'route' => fn() => route('admin.bookings.create'),
-            'method' => 'GET',
-            'type' => 'global',
-            'class' => 'btn btn-success btn-sm'
-        ],
         [
             'label' => 'Chỉnh sửa',
             'route' => fn($id) => route('admin.bookings.edit', $id),

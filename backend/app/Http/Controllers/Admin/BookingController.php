@@ -32,5 +32,30 @@ class BookingController extends Controller
 
 
     }
+    public function search(Request $request){
+        $status = $request->input('status');
+        $search = $request->input('search');
+
+        $query = Booking::join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
+            ->join('guests', 'bookings.guest_id', '=', 'guests.id')
+            ->join('services', 'bookings.service_id', '=', 'services.id')
+            ->select('bookings.*', 'doctors.doctor_name', 'guests.guest_name', 'services.services_name')
+            ->where('bookings.isDeleted', 0);
+
+        // Nếu status không rỗng và khác 'all', thì lọc theo trạng thái
+        if (!empty($status) && $status !== 'all') {
+            $query->where('bookings.status', $status);
+        }
+
+        // Lọc theo tên khách hàng nếu có nhập
+        if (!empty($search)) {
+            $query->where('guests.guest_name', 'like', '%' . $search . '%');
+        }
+
+        $data = $query->get();
+        return view('admin.pages.booking.index', compact('data'));
+    }
+
+
 
 }
