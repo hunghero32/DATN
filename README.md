@@ -9,7 +9,16 @@
 
 # Dự Án Booking
 
-Dự án này là một hệ thống đặt chỗ được xây dựng bằng các Framework Laravel(Backend) và React(Frontend). Cho phép người dùng đặt lịch khám bệnh, quản lý lịch làm việc của bác sĩ ...
+Dự án này là một hệ thống đặt chỗ trực tuyến được xây dựng bằng các công nghệ:
+- **Backend**: Laravel - PHP Framework mạnh mẽ để xây dựng hệ thống API và xử lý nghiệp vụ backend.
+- **Frontend**: React - Thư viện JavaScript hiện đại giúp tạo giao diện người dùng động và mượt mà.
+
+Hệ thống hỗ trợ các chức năng chính như:
+- Đặt lịch khám bệnh.
+- Quản lý lịch làm việc của bác sĩ.
+- Quản lý bệnh nhân và hồ sơ y tế.
+- Tích hợp thanh toán trực tuyến.
+- Gửi thông báo và nhắc nhở lịch hẹn.
 
 ## Thành Viên Dự Án
 
@@ -23,76 +32,69 @@ Dự án này là một hệ thống đặt chỗ được xây dựng bằng c�
 
 ## Cài Đặt
 
-1. **Clone Repository**
+### 1. Clone Repository
+```bash
+git clone https://github.com/hunghero32/DATN.git
+cd DATN
+```
 
-    ```bash
-    git clone https://github.com/hunghero32/DATN.git
-    cd DATN
-    ```
-2. **Thư Mục**
-- Backend
-    ```bash
-    cd DATN/backend
-    ```
-- Frontend
-    ```bash
-    cd DATN/frontend
-    ```
-3. **Cài đặt các Phụ thuộc**
+### 2. Cấu trúc thư mục
+- **Backend** (Laravel): `DATN/backend`
+- **Frontend** (React): `DATN/frontend`
 
-    ```bash
-    composer install
-    npm install
-    ```
+### 3. Cài đặt Backend (Laravel)
+```bash
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+```
+Cấu hình file `.env` cho database và các thông tin cần thiết.
 
-4. **Tạo File `.env`**
+Chạy migration để tạo bảng dữ liệu:
+```bash
+php artisan migrate --seed
+```
 
-    ```bash
-    cp .env.example .env
-    ```
+Khởi chạy Laravel:
+```bash
+php artisan serve
+```
+Mặc định backend chạy tại: `http://localhost:8000`
 
-5. **Cấu hình Cơ sở dữ liệu**
+### 4. Cài đặt Frontend (React)
+```bash
+cd frontend
+npm install
+npm start
+```
+Mặc định frontend chạy tại: `http://localhost:3000`
 
-    Chỉnh sửa file `.env` để cấu hình thông tin kết nối cơ sở dữ liệu của bạn.
+Nếu muốn build dự án:
+```bash
+npm run build
+```
 
-6. **Tạo Khóa Ứng dụng Backend**
-
-    ```bash
-    php artisan key:generate
-    ```
-
-7. **Chạy Migrations**
-
-    ```bash
-    php artisan migrate
-    ```
-
-8. **Chạy Ứng dụng Backend**
-
-    ```bash
-    php artisan serve
-    ```
-9. **Chạy Ứng dụng Frontend**
-
-    ```bash
-    npm run
-    ```
-
-    Truy cập backend tại `http://localhost:8000`
-    Truy cập frontend tại `http://localhost:3000`
 ## Cấu Trúc Dự Án
 
-- `backend/app/Models`: Chứa các mô hình Eloquent.
-- `backend/app/Http/Controllers`: Chứa các controller xử lý logic.
-- `routes` : chứa các router và API.
-- `resources/views`: Chứa các view được sử dụng trong ứng dụng.
-- `database/migrations`: Chứa các file migration để tạo bảng cơ sở dữ liệu.
-- `public`: Chứa các file static như hình ảnh, CSS, JavaScript.
+### **Backend (Laravel)**
+- `app/Models/`: Chứa các mô hình Eloquent ORM.
+- `app/Http/Controllers/`: Chứa các controller xử lý logic backend.
+- `routes/api.php`: Chứa các API endpoint.
+- `database/migrations/`: Chứa các file migration để quản lý cấu trúc database.
+- `public/`: Chứa các tài nguyên tĩnh (CSS, JS, hình ảnh...).
+- `storage/logs/`: Chứa file log hệ thống.
+- `config/`: Chứa các file cấu hình của Laravel.
+
+### **Frontend (React)**
+- `src/components/`: Chứa các component tái sử dụng.
+- `src/pages/`: Chứa các trang chính của ứng dụng.
+- `src/routes/`: Cấu hình route sử dụng React Router.
+- `src/services/`: Chứa các API call giao tiếp với backend.
+- `src/redux/`: Chứa các file quản lý trạng thái ứng dụng với Redux (nếu có).
 
 ## Đóng Góp
-
 Nếu bạn muốn đóng góp vào dự án này, vui lòng làm theo các bước sau:
-
 1. Fork repository này.
 2. Tạo một nhánh mới (`git checkout -b feature-branch`).
 3. Thực hiện các thay đổi và commit (`git commit -am 'Add new feature'`).
@@ -100,10 +102,8 @@ Nếu bạn muốn đóng góp vào dự án này, vui lòng làm theo các bư�
 5. Tạo một Pull Request.
 
 ## Liên Hệ
-
 Nếu bạn có bất kỳ câu hỏi nào, hãy liên hệ với chúng tôi qua email: [hung87800@gmail.com](mailto:hung87800@gmail.com).
 
 ## Giấy phép
-
 Dự án này được cấp phép theo [Giấy phép MIT](LICENSE).
 
