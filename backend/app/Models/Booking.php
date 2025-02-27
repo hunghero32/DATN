@@ -23,7 +23,7 @@ class Booking extends Model
     {
         return $this->belongsTo(Doctor::class);
     }
-    
+
     // Quan hệ với bảng Service
     public function service()
     {
