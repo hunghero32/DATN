@@ -22,6 +22,9 @@ use App\Http\Controllers\Api\Admin\ResultController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\SchedulesController;
 
+use App\Http\Controllers\Api\Admin\InvoiceController;
+use App\Http\Controllers\Api\Admin\InvoiceDetailController;
+use App\Http\Controllers\Api\Admin\FeedbackController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -69,7 +72,9 @@ Route::apiResource('categories', CategoryController::class);
   Route::apiResource('notifications', NotificationController::class);
   Route::apiResource('results', ResultController::class);
 
-
+  Route::apiResource('invoices', InvoiceController::class);
+  Route::apiResource('invoice-details', InvoiceDetailController::class);
+  Route::apiResource('feedbacks', FeedbackController::class);
 
 ////****************   Start  Doctors  **************////
 

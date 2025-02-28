@@ -6,23 +6,32 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateFeedbackRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
+    public function authorize()
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
+    public function rules()
     {
         return [
-            //
+            'guest_id' => 'sometimes|exists:guests,id',
+            'service_id' => 'sometimes|exists:services,id',
+            'rating' => 'sometimes|integer|min:1|max:5',
+            'comments' => 'nullable|string',
+            'status' => 'sometimes|in:pending,approved,rejected'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'guest_id.exists' => 'Khách hàng không tồn tại.',
+            'service_id.exists' => 'Dịch vụ không tồn tại.',
+            'rating.integer' => 'Đánh giá phải là số nguyên.',
+            'rating.min' => 'Đánh giá tối thiểu là 1.',
+            'rating.max' => 'Đánh giá tối đa là 5.',
+            'comments.string' => 'Bình luận phải là chuỗi.',
+            'status.in' => 'Trạng thái không hợp lệ.',
         ];
     }
 }
