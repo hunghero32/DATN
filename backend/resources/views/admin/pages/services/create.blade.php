@@ -8,7 +8,6 @@
         ['name' => 'description', 'label' => 'Mô tả', 'type' => 'textarea'],
         ['name' => 'price', 'label' => 'Giá', 'type' => 'number', 'attributes' => ['step' => '1000']],
         ['name' => 'duration', 'label' => 'Thời gian thực hiện (phút)', 'type' => 'number'],
-        ['name' => 'status', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động']],
     ]"
     :data="old()"
 />
