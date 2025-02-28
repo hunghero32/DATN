@@ -7,7 +7,7 @@
     <div class="container-xxl flex-grow-1 container-p-y mb-5">
         <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Danh sách /</span> {{ $title }}</h4>
         <form method="GET" action={{ $route }}>
-            <div class="d-flex align-items-center gap-2 w-100">
+            <div class="d-flex align-items-center gap-2 w-100 mb-3">
                 {{-- Input Search --}}
                 <div class="flex-grow-1">
                     <x-input-search id="search-doctor" name="search" placeholder="Nhập tên bác sĩ..." />
@@ -69,53 +69,54 @@
                                     @endphp
 
                                     <span class="{{ $badgeClass }}">{{ $statusText }}</span>
-                                
 
 
-                                {{-- Hiển thị hình ảnh nếu có --}}
-                            @elseif (
-                                !empty($row[$column['key']]) &&
-                                    is_string($row[$column['key']]) &&
-                                    preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$column['key']]))
-                                <img src="{{ Storage::url($row[$column['key']]) }}" alt="Image"
-                                    class="img-thumbnail" width="100">
 
-                                {{-- Hiển thị dữ liệu khác --}}
-                            @else
-                                {{ $row[$column['key']] ?? '' }}
+                                    {{-- Hiển thị hình ảnh nếu có --}}
+                                @elseif (
+                                    !empty($row[$column['key']]) &&
+                                        is_string($row[$column['key']]) &&
+                                        preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$column['key']]))
+                                    <img src="{{ Storage::url($row[$column['key']]) }}" alt="Image"
+                                        class="img-thumbnail" width="100">
+
+                                    {{-- Hiển thị dữ liệu khác --}}
+                                @else
+                                    {{ $row[$column['key']] ?? '' }}
+                                @endif
+                            </td>
+                        @endforeach
+
+                        {{-- Cột Actions với dropdown --}}
+                        @if (collect($actions)->where('type', 'row')->isNotEmpty())
+                            <td>
+                                <div class="dropdown">
+                                    <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
+                                        data-bs-toggle="dropdown">
+                                        <i class="bx bx-dots-vertical-rounded"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        @foreach ($actions as $action)
+                                            @if ($action['type'] == 'row')
+                                                @if ($action['method'] == 'DELETE')
+                                                    {{-- Nút mở modal xác nhận xoá --}}
+                                                    <button type="button" class="dropdown-item" data-bs-toggle="modal"
+                                                        data-bs-target="#confirmDelete{{ $row['id'] }}">
+                                                        {{ $action['label'] }}
+                                                    </button>
+                                                @else
+                                                    {{-- Nút thực hiện hành động khác --}}
+                                                    <a href="{{ $action['route']($row['id']) }}" class="dropdown-item">
+                                                        {{ $action['label'] }}
+                                                    </a>
+                                                @endif
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </td>
                         @endif
-                        </td>
-                @endforeach
-
-                {{-- Cột Actions với dropdown --}}
-                @if (collect($actions)->where('type', 'row')->isNotEmpty())
-                    <td>
-                        <div class="dropdown">
-                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                <i class="bx bx-dots-vertical-rounded"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                @foreach ($actions as $action)
-                                    @if ($action['type'] == 'row')
-                                        @if ($action['method'] == 'DELETE')
-                                            {{-- Nút mở modal xác nhận xoá --}}
-                                            <button type="button" class="dropdown-item" data-bs-toggle="modal"
-                                                data-bs-target="#confirmDelete{{ $row['id'] }}">
-                                                {{ $action['label'] }}
-                                            </button>
-                                        @else
-                                            {{-- Nút thực hiện hành động khác --}}
-                                            <a href="{{ $action['route']($row['id']) }}" class="dropdown-item">
-                                                {{ $action['label'] }}
-                                            </a>
-                                        @endif
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
-                    </td>
-                @endif
-                </tr>
+                    </tr>
                 @endforeach
             </tbody>
         </table>

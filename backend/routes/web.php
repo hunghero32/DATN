@@ -78,8 +78,6 @@ Route::prefix('admin')->group(function () {
      ////*****************     Start Bookings    *******************////
         Route::get("bookings",[BookingController::class,'index'])->name('admin.bookings.index');
         Route::get("bookings-create",[BookingController::class,'create'])->name('admin.bookings.create');
-        Route::post("bookings-save",[BookingController::class,'store'])->name('admin.bookings.store');
-        Route::get("bookings-{booking}/edit",[BookingController::class,'edit'])->name('admin.bookings.edit');
         Route::put("bookings-{booking}",[BookingController::class,'update'])->name('admin.bookings.update');
         Route::delete("bookings-{booking}",[BookingController::class,'destroy'])->name('admin.bookings.delete');
         Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
