@@ -11,7 +11,8 @@ const initialState = {
 // Fetch all guests
 export const fetchGuests = createAsyncThunk('guests/fetchGuests', async () => {
   const response = await httpRequest.get('/guests');
-  return response.data;
+  console.log(response.data);
+  return response.data.data; // Nếu API bọc trong data
 });
 
 // Create new guest
