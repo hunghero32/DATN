@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -83,6 +84,19 @@ Route::prefix('admin')->group(function () {
         Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
 
     ////*****************     End Bookings    *******************////
+
+
+    ////*****************     Start Services    *******************////
+
+    Route::get('services', [ServiceController::class, 'index'])->name('admin.services.index');
+    Route::get('services-create', [ServiceController::class, 'create'])->name('admin.services.create');
+    Route::post('services', [ServiceController::class, 'store'])->name('admin.services.store');
+    Route::get('services-edit/{id}', [ServiceController::class, 'edit'])->name('admin.services.edit');
+    Route::put('services-update/{id}', [ServiceController::class, 'update'])->name('admin.services.update');
+    Route::delete('services/{id}', [ServiceController::class, 'delete'])->name('admin.services.delete');
+    Route::get('services-search', [ServiceController::class, 'search'])->name('admin.services.search');
+
+    ////*****************     End Services    *******************////
 
     ////****************   Start  Categories  **************////
     Route::get('categories', [CategoryController::class, 'index'])->name('admin.categories.index');
