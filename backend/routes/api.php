@@ -19,9 +19,8 @@ use App\Http\Controllers\Api\Admin\GuestController;
 use App\Http\Controllers\Api\Admin\MedicalRecordController;
 use App\Http\Controllers\Api\Admin\NotificationController;
 use App\Http\Controllers\Api\Admin\ResultController;
-
-
-
+use App\Http\Controllers\Api\DoctorController;
+use App\Http\Controllers\Api\SchedulesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,3 +70,26 @@ Route::apiResource('categories', CategoryController::class);
   Route::apiResource('results', ResultController::class);
 
 
+
+////****************   Start  Doctors  **************////
+
+Route::prefix('doctors')->group(function () {
+    Route::get('/', [DoctorController::class, 'index']); // Lấy danh sách bác sĩ
+    Route::get('/search', [DoctorController::class, 'search']); // Tìm kiếm bác sĩ
+    Route::post('/create', [DoctorController::class, 'store']); // Tạo bác sĩ mới
+    Route::get('/{id}', [DoctorController::class, 'show']); // Xem chi tiết bác sĩ
+    Route::put('/{id}', [DoctorController::class, 'update']); // Cập nhật bác sĩ
+    Route::delete('/{id}', [DoctorController::class, 'destroy']); // Xóa bác sĩ
+});
+
+////*****************     End Doctors    *******************////
+
+////****************   Start  Schedules  **************////
+Route::prefix('schedules')->group(function () {
+    Route::get('/', [SchedulesController::class, 'index']);
+    Route::post('/', [SchedulesController::class, 'store']);
+    Route::get('/{id}', [SchedulesController::class, 'show']);
+    Route::put('/{id}', [SchedulesController::class, 'update']);
+    Route::delete('/{id}', [SchedulesController::class, 'destroy']);
+});
+////*****************     End Schedules    *******************////

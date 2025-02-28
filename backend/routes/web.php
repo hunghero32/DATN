@@ -8,7 +8,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
-
+use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -54,9 +54,11 @@ Route::prefix('admin')->group(function () {
 
     Route::delete('delete-doctor/{id}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
 
+
+
     ////*****************     End Doctors    *******************////
 
-    ////*****************     Start Schedule    *******************////
+
      ////*****************     Start Schedule    *******************////
      Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
      Route::get("doctor-schedule-create",[SchedulesController::class,'create'])->name('admin.schedule.create');
@@ -72,14 +74,15 @@ Route::prefix('admin')->group(function () {
      ////*****************     End Schedule    *******************////
 
 
-    ////*****************     End Schedule    *******************////
 
+     ////*****************     Start Bookings    *******************////
+        Route::get("bookings",[BookingController::class,'index'])->name('admin.bookings.index');
+        Route::get("bookings-create",[BookingController::class,'create'])->name('admin.bookings.create');
+        Route::put("bookings-{booking}",[BookingController::class,'update'])->name('admin.bookings.update');
+        Route::delete("bookings-{booking}",[BookingController::class,'destroy'])->name('admin.bookings.delete');
+        Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
 
-    Route::delete('doctors-{doctor}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
-    ////*****************     End Doctors    *******************////
-
-
-
+    ////*****************     End Bookings    *******************////
 
     ////****************   Start  Categories  **************////
     Route::get('categories', [CategoryController::class, 'index'])->name('admin.categories.index');
