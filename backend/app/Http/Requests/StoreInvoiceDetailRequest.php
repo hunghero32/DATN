@@ -6,23 +6,26 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreInvoiceDetailRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
+    public function authorize()
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
+    public function rules()
     {
         return [
-            //
+            'invoice_id' => 'required|exists:invoices,id',
+            'booking_id' => 'required|exists:bookings,id',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'invoice_id.required' => 'Vui lòng chọn hóa đơn.',
+            'invoice_id.exists' => 'Hóa đơn không tồn tại.',
+            'booking_id.required' => 'Vui lòng chọn đặt chỗ.',
+            'booking_id.exists' => 'Đặt chỗ không tồn tại.',
         ];
     }
 }
