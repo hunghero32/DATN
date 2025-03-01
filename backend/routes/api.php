@@ -26,6 +26,8 @@ use App\Http\Controllers\Api\SchedulesController;
 use App\Http\Controllers\Api\Admin\InvoiceController;
 use App\Http\Controllers\Api\Admin\InvoiceDetailController;
 use App\Http\Controllers\Api\Admin\FeedbackController;
+use App\Http\Controllers\Api\Admin\ServiceController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -108,3 +110,14 @@ Route::prefix('admin')->group(function () {
     Route::get('/bookings/search', [BookingController::class, 'search']);
 });
 ////*****************     End Bookings    *******************////
+
+
+////****************   Start  Invoices  **************////
+Route::prefix('services')->group(function () {
+    Route::get('/', [ServiceController::class, 'index']); // Lấy danh sách dịch vụ
+    Route::post('/', [ServiceController::class, 'store']); // Thêm dịch vụ mới
+    Route::get('/{id}', [ServiceController::class, 'show']); // Lấy thông tin một dịch vụ
+    Route::put('/{id}', [ServiceController::class, 'update']); // Cập nhật dịch vụ
+    Route::delete('/{id}', [ServiceController::class, 'delete']); // Xóa dịch vụ
+});
+////*****************     End Invoices    *******************////
