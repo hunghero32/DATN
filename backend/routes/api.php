@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\BookingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -98,3 +99,12 @@ Route::prefix('schedules')->group(function () {
     Route::delete('/{id}', [SchedulesController::class, 'destroy']);
 });
 ////*****************     End Schedules    *******************////
+
+
+////****************   Start  Bookings  **************////
+Route::prefix('admin')->group(function () {
+    Route::get('/bookings', [BookingController::class, 'index']);
+    Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
+    Route::get('/bookings/search', [BookingController::class, 'search']);
+});
+////*****************     End Bookings    *******************////
