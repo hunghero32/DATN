@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import ClientLayout from "./layouts/client/ClientLayout";
-import AdminLayout from "./layouts/admin/AdminLayout";
 import { Toaster } from "react-hot-toast";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import DoctorLayout from "./layouts/doctor/DoctorLayout";
 
 
 function App() {
@@ -11,9 +11,9 @@ function App() {
     <div>
       <Routes>
         <Route path="*" element={<ClientLayout />} />
-        <Route path="/admin/*" element={<AdminLayout />} />
+        <Route path="/doctor/*" element={<DoctorLayout />} />
       </Routes>
-      <Toaster />
+      <Toaster/>
     </div>
   );
 }
