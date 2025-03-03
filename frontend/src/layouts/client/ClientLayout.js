@@ -26,6 +26,9 @@ import Masonry from "../../components/guest/PoftFolio/Masonry";
 import Colum from "../../components/guest/PoftFolio/Colum";
 import Colum2 from "../../components/guest/PoftFolio/Colum2";
 import BlogSingle from "../../components/guest/Blog/BlogSingle";
+import Register from "../../components/guest/auth/Register";
+import Login from "../../components/guest/auth/Login";
+import ForgotPassword from "../../components/guest/auth/Forgot-password";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -80,6 +83,9 @@ const ClientLayout = () => {
       <Header />
       <Routes>
         <Route path="/" element={<HomeMain />} />
+        <Route path="/forgot-password" element={<ForgotPassword/>}/>
+        <Route path="/register" element={<Register/>}/>
+        <Route path="login" element={<Login/>}/>
         <Route path="/contact" element={<HomeMainContact />} />
         <Route path="aboutus" element={<AboutUsSection />} />
         <Route path="ourprocess" element={<OurProcess />} />
