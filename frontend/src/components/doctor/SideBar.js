@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const menuItems = [
   { path: "/doctor/db", icon: "ri-hospital-fill", name: "Doctor Dashboard" },
+  { path: "/doctor/doctor-profile", icon: "ri-map-pin-user-line", name: "Hồ Sơ Bác Sĩ" },
   { path: "/doctor/doctor-schedule", icon: "ri-map-pin-user-line", name: "Danh sách lịch khám" },
   { path: "/doctor/schedule", icon: "ri-user-line", name: "lịch làm việc" },
   { path: "/doctor/history-doctor", icon: "ri-message-fill", name: "lịch sử khám" },

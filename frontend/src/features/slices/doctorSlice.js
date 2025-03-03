@@ -52,9 +52,9 @@ const doctorSlice = createSlice({
         state.doctors.push(action.payload);
       })
       .addCase(updateDoctor.fulfilled, (state, action) => {
-        const index = state.doctors.findIndex((doctor) => doctor.id === action.payload.id);
+        const index = state.doctors.doctors.findIndex((doctor) => doctor.id === action.payload.id);
         if (index !== -1) {
-          state.doctors[index] = action.payload;
+          state.doctors.doctors[index] = action.payload;
         }
       })
       .addCase(deleteDoctor.fulfilled, (state, action) => {

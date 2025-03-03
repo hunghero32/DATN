@@ -83,7 +83,7 @@ class DoctorController extends Controller
         $doctor = Doctor::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'doctor_avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            
             'doctor_name' => 'required|string|max:255',
             'doctor_bio' => 'nullable|string|max:1000',
             'exp' => 'required|integer|min:0|max:50',
