@@ -1,6 +1,20 @@
 @extends('admin.index')
 @section('title', 'Danh sách dịch vụ')
 @section('content')
+<?php
+$specialties = $data->pluck('specialty_id', 'specialty_name')->toArray();
+$categories = $data->pluck('category_id', 'category_name')->toArray();
+$detailModal=[
+    'fields'=>[
+        ['name' => 'specialty_id', 'label' => 'Chuyên khoa', 'type' => 'select', 'options' => $specialties],
+        ['name' => 'category_id', 'label' => 'Danh mục', 'type' => 'select', 'options' => $categories],
+        ['name' => 'services_name', 'label' => 'Tên dịch vụ', 'type' => 'text'],
+        ['name' => 'price', 'label' => 'Giá', 'type' => 'number'],
+        ['name' => 'duration', 'label' => 'Thời gian thực hiện', 'type' => 'number'],
+        ['name' => 'status', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']],
+    ]
+];
+?>
 <x-table-list-component
     :title="'Danh sách dịch vụ'"
     :route="route('admin.services.search')"
@@ -15,6 +29,7 @@
     ]"
 
     :data="$data"
+    :detailModal="$detailModal"
     :actions="[
         [
             'label' => 'Thêm mới',
@@ -30,6 +45,14 @@
             'modal' => true,
             'type' => 'row',
             'class' => 'btn btn-primary btn-sm'
+        ],
+        [
+            'label' => 'Xem chi tiết',
+            'route' => fn($id) => route('admin.services.show', $id),
+            'method' => 'GET',
+            'modal' => true,
+            'type' => 'row',
+            'class' => 'btn btn-info btn-sm'
         ],
         [
             'label' => 'Xóa',
