@@ -3,6 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchSchedules } from "../../../../features/slices/scheduleSlice";
 import AddSchedule from "./AddSchedule";
 
+/**
+ * Hiển thị danh sách lịch làm việc bác sĩ, bao gồm:
+ * + Danh sách lịch làm việc
+ * + Nút thêm lịch làm việc
+ * + Modal thêm lịch làm việc
+ * 
+ * @returns 
+ */
 const ListSchedule = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dispatch = useDispatch();
