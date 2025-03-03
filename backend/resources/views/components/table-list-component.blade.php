@@ -10,7 +10,7 @@
             <div class="d-flex align-items-center gap-2 w-100 mb-3">
                 {{-- Input Search --}}
                 <div class="flex-grow-1">
-                    <x-input-search id="search-doctor" name="search" placeholder="Nhập tên bác sĩ..." />
+                    <x-input-search id="search-doctor" name="search" placeholder="Tìm kiếm..." />
                 </div>
 
                 {{-- Select Search --}}
@@ -42,6 +42,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>STT</th>
                     @foreach ($columns as $column)
                         <th>{{ $column['label'] }}</th>
                     @endforeach
@@ -51,8 +52,9 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($data as $row)
+                @foreach ($data as $index => $row)
                     <tr>
+                        <td>{{ $index + 1 }}</td>
                         @foreach ($columns as $column)
                             <td>
                                 {{-- Hiển thị trạng thái --}}
@@ -81,6 +83,14 @@
                                         class="img-thumbnail" width="100">
 
                                     {{-- Hiển thị dữ liệu khác --}}
+                                @elseif (!empty($row[$column['key']]) && strtotime($row[$column['key']]) !== false)
+                                    @if (preg_match('/^\d{2}:\d{2}:\d{2}$/', $row[$column['key']]))
+                                        {{ $row[$column['key']] }}
+                                    @else
+                                        {{ \Carbon\Carbon::parse($row[$column['key']])->format('d/m/Y') }}
+                                    @endif
+                                @elseif (is_numeric($row[$column['key']]))
+                                    {{ number_format($row[$column['key']], 0, ',', '.') }}
                                 @else
                                     {{ $row[$column['key']] ?? '' }}
                                 @endif

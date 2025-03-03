@@ -21,8 +21,9 @@
                                         @if ($field['type'] == 'avatar')
                                             <!-- 🟢 Giao diện Avatar -->
                                             <div class="mb-3 col-md-12">
-                                                <label for="{{ $field['name'] }}"
-                                                    class="form-label">{{ $field['label'] }}</label>
+                                                <label for="{{ $field['name'] }}" class="form-label">
+                                                    {!! str_replace('*', '<span style="color: red;">*</span>', $field['label']) !!}
+                                                </label>
                                                 <div class="d-flex align-items-center gap-3">
                                                     <img src="{{ isset($data[$field['name']]) ? Storage::url($data[$field['name']]) : asset('admin/assets/img/avatars/1.png') }}"
                                                         alt="user-avatar" class="avatar-preview rounded-circle"
@@ -50,8 +51,9 @@
                                         @elseif(in_array($field['type'], ['file', 'image']))
                                             <!-- 🔵 Giao diện hiển thị ảnh thường (chứng chỉ, tài liệu, ảnh lớn) -->
                                             <div class="mb-3 col-md-12">
-                                                <label for="{{ $field['name'] }}"
-                                                    class="form-label">{{ $field['label'] }}</label>
+                                                <label for="{{ $field['name'] }}" class="form-label">
+                                                    {!! str_replace('*', '<span style="color: red;">*</span>', $field['label']) !!}
+                                                </label>
                                                 <div class="image-upload-container">
                                                     <img src="{{ isset($data[$field['name']]) ? Storage::url($data[$field['name']]) : asset('admin/assets/img/default-image.png') }}"
                                                         alt="{{ $field['label'] }}" class="image-preview-large"
@@ -69,8 +71,9 @@
                                         @elseif($field['type'] == 'textarea')
                                             <!-- 🔶 CKEditor -->
                                             <div class="mb-3 col-md-12">
-                                                <label for="{{ $field['name'] }}"
-                                                    class="form-label">{{ $field['label'] }}</label>
+                                                <label for="{{ $field['name'] }}" class="form-label">
+                                                    {!! str_replace('*', '<span style="color: red;">*</span>', $field['label']) !!}
+                                                </label>
                                                 <textarea class="form-control" id="{{ $field['name'] }}" name="{{ $field['name'] }}">
                                                         {{ old($field['name'], $data[$field['name']] ?? '') }}
                                                     </textarea>
@@ -82,8 +85,9 @@
                                         @else
                                             <!-- 🔶 Input thông thường -->
                                             <div class="mb-3 col-md-6">
-                                                <label for="{{ $field['name'] }}"
-                                                    class="form-label">{{ $field['label'] }}</label>
+                                                <label for="{{ $field['name'] }}" class="form-label">
+                                                    {!! str_replace('*', '<span style="color: red;">*</span>', $field['label']) !!}
+                                                </label>
                                                 @if ($field['type'] == 'select')
                                                     <select id="{{ $field['name'] }}" name="{{ $field['name'] }}"
                                                         class="select2 form-select">
@@ -157,11 +161,6 @@
                 @endif
             @endforeach
 
-
-        });
-
-        // Hiển thị màu đỏ cho label có dấu *
-        document.addEventListener("DOMContentLoaded", function() {
 
         });
     </script>
