@@ -16,6 +16,17 @@
             ]
         ]
     ];
+    $detailModal=[
+        'fields'=>[
+            ['name'=>'doctor_name','label'=>'Bác sĩ','type'=>'text'],
+            ['name'=>'services_name','label'=>'Dịch vụ','type'=>'text'],
+            ['name'=>'guest_name','label'=>'Khách hàng','type'=>'text'],
+            ['name'=>'booking_date','label'=>'Ngày hẹn','type'=>'text'],
+            ['name'=>'booking_time','label'=>'Giờ hẹn','type'=>'text'],
+            ['name'=>'status','label'=>'Trạng thái','type'=>'text'],
+            ['name'=>'created_at','label'=>'Ngày tạo','type'=>'text'],
+        ]
+    ];
 @endphp
 
 <x-table-list-component
@@ -33,6 +44,7 @@
     ]"
 
     :data="$data"
+    :detailModal="$detailModal"
     :selects="$selects"
     :actions="[
         [
@@ -43,6 +55,18 @@
             'modal' => true,
             'confirm' => 'Bạn có chắc muốn xóa?',
         ],
+        [
+            'label' => 'Chi tiết',
+            'route' => fn($id) => '#',
+            'method' => 'GET',
+            'modal' => true,
+            'type' => 'row',
+            'class' => 'btn btn-primary btn-sm',
+            'attributes' => [
+                'data-bs-toggle' => 'modal',
+                'data-bs-target' => fn($id) => '#detailModal' . $id,
+            ],
+        ]
     ]"
 />
 
