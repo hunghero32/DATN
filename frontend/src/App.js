@@ -3,7 +3,7 @@ import "./App.css";
 import ClientLayout from "./layouts/client/ClientLayout";
 import { Toaster } from "react-hot-toast";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import DoctorLayout from "./layouts/Doctor/DoctorLayout";
+import DoctorLayout from "./layouts/doctor/DoctorLayout";
 
 
 

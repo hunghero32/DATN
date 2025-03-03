@@ -14,7 +14,7 @@ class SchedulesController extends Controller
     {
         $data = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
             ->select('schedules.*', 'doctors.doctor_name')
-            ->where('schedules.isDeleted', 0)
+            ->whereNull('schedules.deleted_at')
             ->get();
 
         return response()->json(['success' => true, 'data' => $data]);
