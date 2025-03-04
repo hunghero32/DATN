@@ -16,19 +16,19 @@ class DoctorController extends Controller
     use FilterTrait;
     public function index()
     {
-        $data = Doctor::where('isDeleted', 0)->get();
+        $perPage = request()->get('per_page', 10);
+        $data = Doctor::where('isDeleted', 0)->paginate($perPage);
         return view('admin.pages.doctor.index', compact('data'));
     }
+
     public function search(Request $request)
     {
-        // Lấy dữ liệu từ request
+        $perPage = $request->get('per_page', 10);
         $exp = $request->input('exp');
         $search = $request->input('search');
 
-        // Truy vấn danh sách bác sĩ
         $query = Doctor::where('isDeleted', 0);
 
-        // Lọc theo kinh nghiệm nếu có chọn
         if (!empty($exp)) {
             if ($exp === '0-5') {
                 $query->whereBetween('exp', [0, 5]);
@@ -38,16 +38,13 @@ class DoctorController extends Controller
                 $query->where('exp', '>', 10);
             }
         }
-        // Lọc theo tên bác sĩ nếu có từ khóa tìm kiếm
+
         if (!empty($search)) {
             $query->where('doctor_name', 'like', '%' . $search . '%');
         }
 
-
-        // Lấy danh sách bác sĩ sau khi lọc
-        $data = $query->get();
-
-        // Trả về view với dữ liệu đã lọc
+        $data = $query->paginate($perPage);
+        $data->appends($request->all());
         return view('admin.pages.doctor.index', compact('data'));
     }
 
