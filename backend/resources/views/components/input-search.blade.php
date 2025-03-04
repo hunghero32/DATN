@@ -1,9 +1,10 @@
-<div class="input-group {{$class}}">
-    <input type="text"
-           name="{{$name}}"
-           id="{{$id}}"
-           value="{{$value}}"
-           placeholder="{{$placeholder}}"
-           class="form-control"
-           data-id="{{$dataId}}">
-</div>
+@props(['id', 'name', 'value' => '', 'placeholder'])
+
+<input
+    type="text"
+    class="form-control"
+    id="{{ $id }}"
+    name="{{ $name }}"
+    value="{{ $value }}"
+    placeholder="{{ $placeholder }}"
+>

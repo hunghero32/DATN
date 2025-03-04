@@ -7,15 +7,28 @@
             <div class="d-flex align-items-center gap-2 w-100 mb-3">
                 {{-- Input Search --}}
                 <div class="flex-grow-1">
-                    <x-input-search id="search-doctor" name="search" placeholder="Tìm kiếm..." />
+                    <x-input-search
+                        id="search-doctor"
+                        name="search"
+                        placeholder="Tìm kiếm..."
+                        :value="request()->get('search')"
+                    />
                 </div>
 
                 {{-- Select Search --}}
                 @foreach ($selects as $select)
                     <div class="flex-grow-1">
-                        <x-select-search id="{{ $select['id'] }}" name="{{ $select['name'] }}" :options="$select['options']" />
+                        <x-select-search
+                            id="{{ $select['id'] }}"
+                            name="{{ $select['name'] }}"
+                            :options="$select['options']"
+                            :selected="request()->get($select['name'])"
+                        />
                     </div>
                 @endforeach
+
+                {{-- Hidden input for per_page --}}
+                <input type="hidden" name="per_page" value="{{ request()->get('per_page', 10) }}">
 
                 {{-- Button Search --}}
                 <div>
@@ -23,6 +36,15 @@
                 </div>
             </div>
         </form>
+
+        {{-- Clear Filter Button --}}
+        @if(request()->hasAny(['search', 'status', 'per_page']))
+            <div class="mb-3">
+                <a href="{{ $route }}" class="badge bg-danger text-decoration-none">
+                    <i class='bx bx-x-circle'></i> Xóa lọc
+                </a>
+            </div>
+        @endif
 
         {{-- Nút hành động toàn cục --}}
         @if (collect($actions)->where('type', 'global')->isNotEmpty())
