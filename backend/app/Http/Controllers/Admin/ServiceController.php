@@ -12,13 +12,38 @@ use Illuminate\Support\Facades\Validator;
 class ServiceController extends Controller
 {
     public function index()
-
     {
+        $perPage = request()->get('per_page', 10);
         $data = Services::join('specialties', 'specialties.id', 'services.specialty_id')
             ->join('categories', 'categories.id', 'services.category_id')
             ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
             ->where('services.isDeleted', 0)
-            ->get();
+            ->paginate($perPage);
+        return view('admin.pages.services.index', compact('data'));
+    }
+
+    public function search(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        $query = Services::join('specialties', 'specialties.id', 'services.specialty_id')
+            ->join('categories', 'categories.id', 'services.category_id')
+            ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
+            ->where('services.isDeleted', 0);
+
+        if (!empty($search)) {
+            $query->where('services.services_name', 'like', '%' . $search . '%');
+        }
+
+        if (!empty($status) && $status !== 'all') {
+            $query->where('services.status', $status);
+        }
+
+        $data = $query->paginate($perPage);
+        $data->appends($request->all());
+
         return view('admin.pages.services.index', compact('data'));
     }
     public function create()

@@ -85,4 +85,3 @@
 />
 
 @endsection
-<x-flash-message />

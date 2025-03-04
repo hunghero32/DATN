@@ -12,10 +12,37 @@ class SchedulesController extends Controller
 {
     public function index()
     {
+        $perPage = request()->get('per_page', 10);
         $data = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
             ->select('schedules.*', 'doctors.doctor_name')
             ->where('schedules.isDeleted', 0)
-            ->get();
+            ->paginate($perPage);
+
+        return view('admin.pages.schedule.index', [
+            'data' => $data
+        ]);
+    }
+
+    public function search(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        $query = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
+            ->select('schedules.*', 'doctors.doctor_name')
+            ->where('schedules.isDeleted', 0);
+
+        if (!empty($search)) {
+            $query->where('doctors.doctor_name', 'like', '%' . $search . '%');
+        }
+
+        if (!empty($status) && $status !== 'all') {
+            $query->where('schedules.status', $status);
+        }
+
+        $data = $query->paginate($perPage);
+        $data->appends($request->all());
 
         return view('admin.pages.schedule.index', [
             'data' => $data

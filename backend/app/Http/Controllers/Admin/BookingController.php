@@ -10,29 +10,19 @@ class BookingController extends Controller
 {
     public function index()
     {
-        $data=Booking::join('doctors','bookings.doctor_id','=','doctors.id')
+        $perPage = request()->get('per_page', 10);
+        $data = Booking::join('doctors','bookings.doctor_id','=','doctors.id')
             ->join('guests','bookings.guest_id','=','guests.id')
             ->join('services','bookings.service_id','=','services.id')
             ->select('bookings.*','doctors.doctor_name','guests.guest_name','services.services_name')
             ->where('bookings.isDeleted',0)
-            ->get();
+            ->paginate($perPage);
         return view('admin.pages.booking.index',compact('data'));
     }
 
-    public function destroy($id)
+    public function search(Request $request)
     {
-        $data=Booking::find($id);
-        if($data->status=='pending'){
-            $data->isDeleted=1;
-            $data->save();
-            return redirect()->route('admin.bookings.index')->with('success','Xóa thành công đặt lịch khám bệnh');
-        }else{
-            return redirect()->route('admin.bookings.index')->with('error','Không thể xóa đặt lịch khám bệnh đã được xác nhận');
-        }
-
-
-    }
-    public function search(Request $request){
+        $perPage = $request->get('per_page', 10);
         $status = $request->input('status');
         $search = $request->input('search');
 
@@ -42,17 +32,17 @@ class BookingController extends Controller
             ->select('bookings.*', 'doctors.doctor_name', 'guests.guest_name', 'services.services_name')
             ->where('bookings.isDeleted', 0);
 
-        // Nếu status không rỗng và khác 'all', thì lọc theo trạng thái
         if (!empty($status) && $status !== 'all') {
             $query->where('bookings.status', $status);
         }
 
-        // Lọc theo tên khách hàng nếu có nhập
         if (!empty($search)) {
             $query->where('guests.guest_name', 'like', '%' . $search . '%');
         }
 
-        $data = $query->get();
+        $data = $query->paginate($perPage);
+        $data->appends($request->all());
+
         return view('admin.pages.booking.index', compact('data'));
     }
 

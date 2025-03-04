@@ -1,5 +1,5 @@
 @props(['columns', 'data', 'actions' => [], 'route' => '', 'selects' => [], 'detailModal' => []])
-
+<x-flash-message />
 <div class="content-wrapper mt-3">
     <div class="container-xxl flex-grow-1 container-p-y mb-5">
         <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Danh sách /</span> {{ $title }}</h4>
@@ -52,7 +52,7 @@
             <tbody>
                 @foreach ($data as $index => $row)
                     <tr>
-                        <td>{{ $index + 1 }}</td>
+                        <td>{{ ($data->currentPage() - 1) * $data->perPage() + $index + 1 }}</td>
                         @foreach ($columns as $column)
                             <td>
                                 {{-- Hiển thị trạng thái --}}
@@ -126,7 +126,11 @@
             </tbody>
         </table>
 
-        {{-- Modal xác nhận xóa --}}
+        </table>
+
+            <x-pagination-component :data="$data" />
+
+            {{-- Modal xác nhận xóa --}}
         @foreach ($data as $row)
             <div class="modal fade" id="confirmDelete{{ $row['id'] }}" tabindex="-1" aria-labelledby="modalLabel{{ $row['id'] }}" aria-hidden="true">
                 <div class="modal-dialog">
