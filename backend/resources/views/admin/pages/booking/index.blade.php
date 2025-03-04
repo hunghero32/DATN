@@ -35,6 +35,7 @@
     :columns="[
         ['key' => 'id', 'label' => 'ID'],
         ['key' => 'doctor_name', 'label' => 'Bác sĩ'],
+        ['key' => 'guest_name', 'label' => 'Bệnh nhân'],
         ['key' => 'services_name', 'label' => 'Dịch vụ'],
         ['key' => 'guest_name', 'label' => 'Khách hàng'],
         ['key' => 'booking_date', 'label' => 'Ngày hẹn'],

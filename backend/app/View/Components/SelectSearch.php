@@ -8,20 +8,23 @@ use Illuminate\View\Component;
 
 class SelectSearch extends Component
 {
+    public string $id;
     public string $name;
     public array $options;
-    public string $selected;
+    public ?string $selected;
     public string $class;
 
     public function __construct(
+        string $id = '',
         string $name = '',
         array $options = [],
-        string $selected = '',
+        ?string $selected = '',
         string $class = ''
     ) {
+        $this->id = $id;
         $this->name = $name;
         $this->options = $options;
-        $this->selected = $selected;
+        $this->selected = $selected ?? '';
         $this->class = $class;
     }
 

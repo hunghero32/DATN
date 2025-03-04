@@ -27,7 +27,13 @@ $detailModal=[
         ['key' => 'duration', 'label' => 'Thời gian thực hiện'],
         ['key' => 'status','name'=>'status' ,'label' => 'Trạng thái'],
     ]"
-
+    :selects="[
+        [
+            'id' => 'status',
+            'name' => 'status',
+            'options' => $statuses
+        ]
+    ]"
     :data="$data"
     :detailModal="$detailModal"
     :actions="[
