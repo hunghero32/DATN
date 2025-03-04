@@ -19,7 +19,16 @@ class ServiceController extends Controller
             ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
             ->where('services.isDeleted', 0)
             ->paginate($perPage);
-        return view('admin.pages.services.index', compact('data'));
+
+        $specialties = Specialty::pluck('name', 'id')->toArray();
+        $categories = Category::pluck('name', 'id')->toArray();
+        $statuses = [
+            '' => 'Tất cả trạng thái',
+            '0' => 'Không hoạt động',
+            '1' => 'Hoạt động'
+        ];
+
+        return view('admin.pages.services.index', compact('data', 'specialties', 'categories', 'statuses'));
     }
 
     public function search(Request $request)
@@ -27,6 +36,8 @@ class ServiceController extends Controller
         $perPage = $request->get('per_page', 10);
         $search = $request->input('search');
         $status = $request->input('status');
+        $specialty_id = $request->input('specialty_id');
+        $category_id = $request->input('category_id');
 
         $query = Services::join('specialties', 'specialties.id', 'services.specialty_id')
             ->join('categories', 'categories.id', 'services.category_id')
@@ -37,14 +48,29 @@ class ServiceController extends Controller
             $query->where('services.services_name', 'like', '%' . $search . '%');
         }
 
-        if (!empty($status) && $status !== 'all') {
+        if (!empty($status)) {
             $query->where('services.status', $status);
+        }
+
+        if (!empty($specialty_id)) {
+            $query->where('services.specialty_id', $specialty_id);
+        }
+
+        if (!empty($category_id)) {
+            $query->where('services.category_id', $category_id);
         }
 
         $data = $query->paginate($perPage);
         $data->appends($request->all());
+        $specialties = Specialty::pluck('name', 'id')->toArray();
+        $categories = Category::pluck('name', 'id')->toArray();
+        $statuses = [
+            '' => 'Tất cả trạng thái',
+            '0' => 'Không hoạt động',
+            '1' => 'Hoạt động'
+        ];
 
-        return view('admin.pages.services.index', compact('data'));
+        return view('admin.pages.services.index', compact('data', 'specialties', 'categories', 'statuses'));
     }
     public function create()
     {
