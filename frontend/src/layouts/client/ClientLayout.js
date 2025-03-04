@@ -29,6 +29,7 @@ import BlogSingle from "../../components/guest/Blog/BlogSingle";
 import Register from "../../components/guest/auth/Register";
 import Login from "../../components/guest/auth/Login";
 import ForgotPassword from "../../components/guest/auth/Forgot-password";
+import ResetPassword from "../../components/guest/auth/ResetPassword";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -84,6 +85,7 @@ const ClientLayout = () => {
       <Routes>
         <Route path="/" element={<HomeMain />} />
         <Route path="/forgot-password" element={<ForgotPassword/>}/>
+        <Route path="/password-reset/:token" element={<ResetPassword />} />
         <Route path="/register" element={<Register/>}/>
         <Route path="login" element={<Login/>}/>
         <Route path="/contact" element={<HomeMainContact />} />
