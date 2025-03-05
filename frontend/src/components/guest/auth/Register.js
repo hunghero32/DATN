@@ -6,32 +6,33 @@ import { useNavigate, Link } from 'react-router-dom';
 
 export default function Register() {
   const nav = useNavigate();
-  const [APIMESSAGE, contextHolder] = message.useMessage();
+  const [APIMESSAGE, contextHolder] = message.useMessage();  // Cần contextHolder để hiển thị thông báo
   const [form] = Form.useForm();
 
+  // Mutation API đăng ký
   const { mutate, isPending } = useMutation({
     mutationFn: async (data) => {
-      await api.post("/api/register", data);
+      await api.post("/api/register", data);  // Đảm bảo api này hoạt động và trả về phản hồi đúng
     },
     onSuccess: () => {
-      APIMESSAGE.success("Register Success!"); // Hiển thị thông báo thành công
+      APIMESSAGE.success("Register Success!");  // Hiển thị thông báo thành công
       setTimeout(() => {
-        nav("/login");
+        nav("/login");  // Điều hướng về trang login sau khi đăng ký thành công
       }, 1000);
     },
     onError: (error) => {
-      APIMESSAGE.error(error.response?.data?.message || "Register failed!"); // Hiển thị lỗi nếu có
+      APIMESSAGE.error(error.response?.data?.message || "Register failed!");  // Thông báo lỗi nếu có
     },
   });
 
   const onFinish = (values) => {
-    console.log("Form Data:", values);
-    mutate(values);
+    console.log("Form Data:", values);  // Kiểm tra dữ liệu gửi đi
+    mutate(values);  // Gửi dữ liệu đến API
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      {contextHolder} 
+      {contextHolder}  {/* Đây là nơi thông báo sẽ hiển thị */}
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
         <Form
@@ -52,10 +53,7 @@ export default function Register() {
           <Form.Item
             label="Email"
             name="email"
-            rules={[
-              { required: true, message: "Please input your email!" },
-              { type: "email", message: "Please enter a valid email!" },
-            ]}
+            rules={[{ required: true, message: "Please input your email!" }, { type: "email", message: "Please enter a valid email!" }]}
           >
             <Input placeholder="Enter your email" />
           </Form.Item>
@@ -79,9 +77,7 @@ export default function Register() {
                   if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(
-                    new Error("The two passwords do not match!")
-                  );
+                  return Promise.reject(new Error("The two passwords do not match!"));
                 },
               }),
             ]}
@@ -90,7 +86,7 @@ export default function Register() {
           </Form.Item>
 
           <Form.Item>
-            <Button   type="primary" htmlType="submit" block loading={isPending}>
+            <Button type="primary" htmlType="submit" block loading={isPending}>
               Register
             </Button>
           </Form.Item>
@@ -100,7 +96,7 @@ export default function Register() {
         <div className="text-center mt-4">
           <p>
             Already have an account?{" "}
-            <Link to="/login" className="text-blue-500 ">
+            <Link to="/login" className="text-blue-500">
               Login here
             </Link>
           </p>
