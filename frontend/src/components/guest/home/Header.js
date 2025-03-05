@@ -6,43 +6,41 @@ export default function Header() {
   const [token, setToken] = useState(null);
   const [username, setUsername] = useState(""); // Thêm state lưu tên người dùng
 
-  // Kiểm tra token khi component được mount
+  // Kiểm tra token khi component được mount và theo dõi sự thay đổi
   useEffect(() => {
+    // Lấy token và username từ localStorage ngay khi component mount
     const storedToken = localStorage.getItem("token");
+    const storedUsername = localStorage.getItem("username");
 
     if (storedToken) {
       setToken(storedToken);
-
-      // Giả sử username được lưu trong localStorage, nếu không có thì mặc định là "User"
-      const storedUsername = localStorage.getItem("username") || "User";
-      setUsername(storedUsername);
+      setUsername(storedUsername || "User");
     }
-
-    // Lắng nghe sự kiện thay đổi localStorage
-    const handleStorageChange = () => {
-      const newToken = localStorage.getItem("token");
-      setToken(newToken);
-
-      if (newToken) {
-        const newUsername = localStorage.getItem("username") || "User";
-        setUsername(newUsername);
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
+  }, []); // Chỉ chạy 1 lần khi component mount
 
   // Hàm đăng xuất
   const thoatTrang = () => {
-    localStorage.removeItem("token"); // Xóa token khỏi localStorage
-    localStorage.removeItem("username"); // Xóa username nếu có
+    // Xóa token khỏi localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    
+    // Cập nhật lại state và UI
     setToken(null);
     setUsername("");
-    navigate("/"); // Chuyển hướng về trang indexindex
+
+    // Chuyển hướng về trang chủ
+    navigate("/");
+  };
+
+  // Hàm đăng nhập (Giả định bạn có một hàm login để test)
+  const login = () => {
+    // Sau khi đăng nhập thành công
+    localStorage.setItem("token", "yourToken");
+    localStorage.setItem("username", "yourUsername");
+
+    // Cập nhật lại state
+    setToken("yourToken");
+    setUsername("yourUsername");
   };
 
   return (
@@ -118,10 +116,10 @@ export default function Header() {
                     </div>
                   ) : (
                     <div className="pq-btn-container">
-                      <Link to="/register" className="pq-button">
+                      <Link to="/login" className="pq-button">
                         <div className="pq-button-block">
-                          <span className="pq-button-text">Register</span>
-                          <span className="pq-button-text">Register</span>
+                          <span className="pq-button-text">Đăng nhập</span>
+                          <span className="pq-button-text">Đăng nhập</span>
                         </div>
                       </Link>
                     </div>

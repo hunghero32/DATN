@@ -9,24 +9,26 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\Api\PostController;
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\PostController;
+use App\Http\Controllers\Api\Admin\UserController;
 
-use App\Http\Controllers\Api\SystemController;
+use App\Http\Controllers\Api\Admin\SystemController;
 use App\Http\Controllers\Api\Admin\SpecialtyController;
 use App\Http\Controllers\Api\Admin\DoctorSpecialtyController;
 use App\Http\Controllers\Api\Admin\GuestController;
 use App\Http\Controllers\Api\Admin\MedicalRecordController;
 use App\Http\Controllers\Api\Admin\NotificationController;
 use App\Http\Controllers\Api\Admin\ResultController;
-use App\Http\Controllers\Api\DoctorController;
-use App\Http\Controllers\Api\SchedulesController;
+use App\Http\Controllers\Api\Admin\DoctorController;
+use App\Http\Controllers\Api\Admin\SchedulesController;
 
 use App\Http\Controllers\Api\Admin\InvoiceController;
 use App\Http\Controllers\Api\Admin\InvoiceDetailController;
 use App\Http\Controllers\Api\Admin\FeedbackController;
 use App\Http\Controllers\Api\Admin\ServiceController;
+
+use App\Http\Controllers\Api\Doctor;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,27 +62,27 @@ Route::apiResource('specialties', SpecialtyController::class);
 Route::apiResource('system', SystemController::class);
 Route::apiResource('doctor-specialties', DoctorSpecialtyController::class);
 
-  ////****************   Start  Categories  **************////
+////****************   Start  Categories  **************////
 Route::apiResource('categories', CategoryController::class);
 //     ////*****************     End categorycategory    *******************////
- ////****************   Start  POST  **************////
- Route::apiResource('posts',PostController::class);
- ////*****************     End postpost    *******************////
-  ////****************   Start  user  **************////
-  Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::apiResource('users',UserController::class);
+////****************   Start  POST  **************////
+Route::apiResource('posts', PostController::class);
+////*****************     End postpost    *******************////
+////****************   Start  user  **************////
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::apiResource('users', UserController::class);
 });
-  Route::apiResource('guests',GuestController::class);
-  Route::apiResource('medical-records', MedicalRecordController::class);
-  Route::apiResource('notifications', NotificationController::class);
-  Route::apiResource('results', ResultController::class);
+Route::apiResource('guests', GuestController::class);
+Route::apiResource('medical-records', MedicalRecordController::class);
+Route::apiResource('notifications', NotificationController::class);
+Route::apiResource('results', ResultController::class);
 
-  Route::apiResource('invoices', InvoiceController::class);
-  Route::apiResource('invoice-details', InvoiceDetailController::class);
-  Route::apiResource('feedbacks', FeedbackController::class);
+Route::apiResource('invoices', InvoiceController::class);
+Route::apiResource('invoice-details', InvoiceDetailController::class);
+Route::apiResource('feedbacks', FeedbackController::class);
+
 
 ////****************   Start  Doctors  **************////
-
 Route::prefix('doctors')->group(function () {
     Route::get('/', [DoctorController::class, 'index']); // Lấy danh sách bác sĩ
     Route::get('/search', [DoctorController::class, 'search']); // Tìm kiếm bác sĩ

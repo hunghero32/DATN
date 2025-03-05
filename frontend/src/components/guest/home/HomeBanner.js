@@ -7,15 +7,15 @@ export default function Banner() {
                 <div className="row align-items-center">
                     <div className="col-lg-7">
                         <div className="pq-banner-title">
-                            <span className="pq-sub-title">Welcome to the best Medical</span>
-                            <h2 data-splitting className="pq-main-title">Affordable to medical service everyone</h2>
+                            <span className="pq-sub-title">Chào mừng đến với dịch vụ y tế tốt nhất</span>
+                            <h2 data-splitting className="pq-main-title">Dịch vụ y tế với chi phí hợp lý cho mọi người</h2>
                         </div>
                     </div>
                     <div className="col-lg-5 mt-lg-0 mt-4 pe-md-5 pe-lg-0">
                         <p className="pq-banner-description">
-                            There are many variations passages of Lorem Ipsum available, but the or randomised words
-                            which don’t look even to believable. If you are going to be sure there isn’t anything
-                            embarrassing…
+                            Có rất nhiều phiên bản khác nhau của Lorem Ipsum, nhưng các từ ngẫu nhiên không mang ý nghĩa 
+                            khiến chúng trở nên khó tin. Nếu bạn đang tìm kiếm một lựa chọn đáng tin cậy, hãy chắc chắn rằng 
+                            không có gì đáng xấu hổ...
                         </p>
                     </div>
                 </div>
@@ -26,7 +26,7 @@ export default function Banner() {
                                 className="pq-img"
                                 decoding="async"
                                 src="img/banner/home-banner-02.webp"
-                                alt="Banner showcasing affordable medical services"
+                                alt="Hình ảnh quảng bá dịch vụ y tế với chi phí hợp lý"
                             />
                         </div>
                     </div>
