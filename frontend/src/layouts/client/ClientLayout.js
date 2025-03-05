@@ -30,6 +30,12 @@ import Register from "../../components/guest/auth/Register";
 import Login from "../../components/guest/auth/Login";
 import ForgotPassword from "../../components/guest/auth/Forgot-password";
 import ResetPassword from "../../components/guest/auth/ResetPassword";
+import Booking from "../../components/guest/home/Booking";
+import PatientProfile from "../../components/guest/home/HoSoBenhNhan";
+import ArticleList from "../../components/guest/home/BaiViet";
+import TopSpecialties from "../../components/guest/home/TopChuyenKhoa";
+import TopBookedServices from "../../components/guest/home/TopDichVu";
+import ClinicDetail from "../../components/guest/home/GioiThieuPhongKham";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -88,6 +94,14 @@ const ClientLayout = () => {
         <Route path="/password-reset/:token" element={<ResetPassword />} />
         <Route path="/register" element={<Register/>}/>
         <Route path="login" element={<Login/>}/>
+
+        <Route path="/booking/:serviceId" element={<Booking />} />
+        <Route path="/patientProfile" element={<PatientProfile/>} /> 
+        <Route path="/articles" element={<ArticleList/>} />
+        <Route path="/specialties" element={<TopSpecialties/>}/> 
+        <Route path="/topServices" element={<TopBookedServices/>}/>
+        <Route path="/clinicDetail" element={<ClinicDetail/>}/>
+
         <Route path="/contact" element={<HomeMainContact />} />
         <Route path="aboutus" element={<AboutUsSection />} />
         <Route path="ourprocess" element={<OurProcess />} />

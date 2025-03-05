@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from "../../../ultils/api/axios";
 
 export default function Login() {
+  
   const nav = useNavigate();
   const [APIMESSAGE, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
@@ -76,6 +77,14 @@ export default function Login() {
             </Link>
           </div>
         </Form>
+         <div className="text-center mt-4">
+                  <p>
+                    Already have an account?{" "}
+                    <Link to="/register" className="text-blue-500 ">
+                      Register here
+                    </Link>
+                  </p>
+                </div>
       </div>
     </div>
   );

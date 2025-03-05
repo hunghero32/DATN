@@ -1,88 +1,80 @@
-import React from 'react';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function Service() {
-    return (
-        <section className="service pq-bg-grey pq-margin-top">
-            <div className="container">
-                <div className="row">
-                    <div className="col-lg-12">
-                        <div className="pq-section-title">
-                            <span className="pq-sub-title">What We Do Our Services</span>
-                            <h2 data-splitting className="pq-main-title">Comprehensive Health Service</h2>
-                        </div>
-                        <div className="pq-btn-container pq-section-btn">
-                            <a href="ourservices-2.html" className="pq-button">
-                                <div className="pq-button-block">
-                                    <span className="pq-button-text">view More</span>
-                                    <span className="pq-button-text">view More</span>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div className="pq-hover-active">
-                    <div className="pq-service-box style-1 pq-hover-item">
-                        <div className="pq-service-box-icon">
-                            <i className="flaticon-laboratory"></i>
-                        </div>
-                        <h2 className="pq-service-title">Dental care services</h2>
-                        <div className="pq-service-img">
-                            <img className="pq-img" src="img/service/service-st-1-001.webp" alt="service image" />
-                        </div>
-                        <p className="pq-service-description">There are many variations of passages in that of Lorem or randomised words which don’t doing look even</p>
-                        <div className="pq-icon-btn-container">
-                            <a href="dental-services.html" className="pq-button">
-                                <span className="btn-icon"><i className="flaticon-next"></i></span>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="pq-service-box style-1 pq-hover-item">
-                        <div className="pq-service-box-icon">
-                            <i className="flaticon-cost"></i>
-                        </div>
-                        <h2 className="pq-service-title">Operation Theatre</h2>
-                        <div className="pq-service-img">
-                            <img className="pq-img" src="img/service/service-st-1-002.webp" alt="service image" />
-                        </div>
-                        <p className="pq-service-description">There are many variations of passages in that of Lorem or randomised words which don’t doing look even</p>
-                        <div className="pq-icon-btn-container">
-                            <a href="angioplasty-services.html" className="pq-button">
-                                <span className="btn-icon"><i className="flaticon-next"></i></span>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="pq-service-box style-1 pq-hover-item">
-                        <div className="pq-service-box-icon">
-                            <i className="flaticon-ambulance"></i>
-                        </div>
-                        <h2 className="pq-service-title">Emergency Care services</h2>
-                        <div className="pq-service-img">
-                            <img className="pq-img" src="img/service/service-st-1-003.webp" alt="Service img" />
-                        </div>
-                        <p className="pq-service-description">There are many variations of passages in that of Lorem or randomised words which don’t doing look even</p>
-                        <div className="pq-icon-btn-container">
-                            <a href="angioplasty-services.html" className="pq-button">
-                                <span className="btn-icon"><i className="flaticon-next"></i></span>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="pq-service-box style-1 pq-hover-item">
-                        <div className="pq-service-box-icon">
-                            <i className="flaticon-hospital-bed"></i>
-                        </div>
-                        <h2 className="pq-service-title">Radiation Therapy</h2>
-                        <div className="pq-service-img">
-                            <img className="pq-img" src="img/service/service-st-1-004.webp" alt="Service img" />
-                        </div>
-                        <p className="pq-service-description">There are many variations of passages in that of Lorem or randomised words which don’t doing look even</p>
-                        <div className="pq-icon-btn-container">
-                            <a href="angioplasty-services.html" className="pq-button">
-                                <span className="btn-icon"><i className="flaticon-next"></i></span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-}
+// Dữ liệu về các dịch vụ
+const services = [
+  {
+    title: "Khám Chuyên khoa",
+    description: "Khám các bệnh lý chuyên khoa.",
+    icon: "https://via.placeholder.com/40", // Hình ảnh biểu tượng
+    id: 1, // ID cho dịch vụ
+  },
+  {
+    title: "Khám tổng quát",
+    description: "Khám sức khỏe tổng quát định kỳ.",
+    icon: "https://via.placeholder.com/40",
+    id: 2,
+  },
+  {
+    title: "Khám từ xa",
+    description: "Dịch vụ khám bệnh trực tuyến qua điện thoại.",
+    icon: "https://via.placeholder.com/40",
+    id: 3,
+  },
+  {
+    title: "Xét nghiệm y học",
+    description: "Các xét nghiệm y học cần thiết.",
+    icon: "https://via.placeholder.com/40",
+    id: 4,
+  },
+  {
+    title: "Khám nha khoa",
+    description: "Khám và điều trị các vấn đề về răng miệng.",
+    icon: "https://via.placeholder.com/40",
+    id: 5,
+  },
+  {
+    title: "Khám tim mạch",
+    description: "Khám và kiểm tra sức khỏe tim mạch.",
+    icon: "https://via.placeholder.com/40",
+    id: 6,
+  },
+];
+
+const Services = () => {
+  const navigate = useNavigate();
+
+  // Chuyển hướng đến trang đặt lịch
+  const handleServiceClick = (serviceId) => {
+    navigate(`/booking/${serviceId}`);
+  };
+
+  return (
+    <main className="container mx-auto p-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-semibold">Các Dịch Vụ Khám Bệnh Của Chúng Tôi</h2>
+        <p className="text-gray-600">Chúng tôi cung cấp các dịch vụ khám bệnh uy tín và chất lượng</p>
+      </div>
+
+      {/* Service Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {services.map((service) => (
+          <div
+            key={service.id}
+            className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col items-center p-6 cursor-pointer hover:shadow-xl transition-shadow duration-300"
+            onClick={() => handleServiceClick(service.id)}
+          >
+            <img src={service.icon} alt={service.title} className="w-16 h-16 mb-4" />
+            <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
+            <p className="text-gray-600 text-center">{service.description}</p>
+            <button className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-full hover:bg-blue-700 transition">
+              Xem chi tiết
+            </button>
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+};
+
+export default Services;
