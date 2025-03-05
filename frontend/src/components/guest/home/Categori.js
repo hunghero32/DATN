@@ -7,14 +7,14 @@ const Categori = () => {
                 <div className="row">
                     <div className="col-lg-12">
                         <div className="pq-section-title">
-                            <span className="pq-sub-title">Our PORTFOLIO</span>
-                            <h2 className="pq-main-title">Check Recent Success Work</h2>
+                            <span className="pq-sub-title">Dự Án Của Chúng Tôi</span>
+                            <h2 className="pq-main-title">Xem Các Dự Án Thành Công Gần Đây</h2>
                         </div>
                         <div className="pq-btn-container pq-section-btn">
                             <a href="3-Column.html" className="pq-button">
                                 <div className="pq-button-block">
-                                    <span className="pq-button-text">view More</span>
-                                    <span className="pq-button-text">view More</span>
+                                    <span className="pq-button-text">Xem Thêm</span>
+                                    <span className="pq-button-text">Xem Thêm</span>
                                 </div>
                             </a>
                         </div>
@@ -25,78 +25,23 @@ const Categori = () => {
                         <li className="pq-portfoliobox-1">
                             <div className="pq-portfolio-img">
                                 <a href="portfolio.html">
-                                    <img className="pq-img" src="img/portfolio/portfolio-003.webp" alt="portfolio image" />
+                                    <img className="pq-img" src="img/portfolio/portfolio-003.webp" alt="Hình ảnh dự án" />
                                 </a>
                             </div>
                             <div className="pq-portfolio-info">
-                                <span className="pq-portfolio-tag"><a href="portfolio.html">surgeries</a></span>
-                                <h2 className="pq-portfolio-title"><a href="portfolio.html">Health Passport</a></h2>
+                                <span className="pq-portfolio-tag"><a href="portfolio.html">Phẫu thuật</a></span>
+                                <h2 className="pq-portfolio-title"><a href="portfolio.html">Hộ Chiếu Sức Khỏe</a></h2>
                             </div>
                         </li>
                         <li className="pq-portfoliobox-1">
                             <div className="pq-portfolio-img">
                                 <a href="portfolio.html">
-                                    <img className="pq-img" src="img/portfolio/portfolio-004.webp" alt="portfolio image" />
+                                    <img className="pq-img" src="img/portfolio/portfolio-004.webp" alt="Hình ảnh dự án" />
                                 </a>
                             </div>
                             <div className="pq-portfolio-info">
-                                <span className="pq-portfolio-tag"><a href="portfolio.html">medications</a></span>
-                                <h2 className="pq-portfolio-title"><a href="portfolio.html">Health Passport</a></h2>
-                            </div>
-                        </li>
-                        <li className="pq-portfoliobox-1">
-                            <div className="pq-portfolio-img">
-                                <a href="portfolio.html">
-                                    <img className="pq-img" src="img/portfolio/portfolio-002.webp" alt="portfolio image" />
-                                </a>
-                            </div>
-                            <div className="pq-portfolio-info">
-                                <span className="pq-portfolio-tag"><a href="portfolio.html">temperature</a></span>
-                                <h2 className="pq-portfolio-title"><a href="portfolio.html">Wellness Ledger</a></h2>
-                            </div>
-                        </li>
-                        <li className="pq-portfoliobox-1">
-                            <div className="pq-portfolio-img">
-                                <a href="portfolio.html">
-                                    <img className="pq-img" src="img/portfolio/portfolio-008.webp" alt="portfolio image" />
-                                </a>
-                            </div>
-                            <div className="pq-portfolio-info">
-                                <span className="pq-portfolio-tag"><a href="portfolio.html">surgeries</a></span>
-                                <h2 className="pq-portfolio-title"><a href="portfolio.html">Medical Odyssey</a></h2>
-                            </div>
-                        </li>
-                        <li className="pq-portfoliobox-1">
-                            <div className="pq-portfolio-img">
-                                <a href="portfolio.html">
-                                    <img className="pq-img" src="img/portfolio/portfolio-011.webp" alt="portfolio image" />
-                                </a>
-                            </div>
-                            <div className="pq-portfolio-info">
-                                <span className="pq-portfolio-tag"><a href="portfolio.html">medications</a></span>
-                                <h2 className="pq-portfolio-title"><a href="portfolio.html">Health Passport</a></h2>
-                            </div>
-                        </li>
-                        <li className="pq-portfoliobox-1">
-                            <div className="pq-portfolio-img">
-                                <a href="portfolio.html">
-                                    <img className="pq-img" src="img/portfolio/portfolio-010.webp" alt="portfolio image" />
-                                </a>
-                            </div>
-                            <div className="pq-portfolio-info">
-                                <span className="pq-portfolio-tag"><a href="portfolio.html">therapies</a></span>
-                                <h2 className="pq-portfolio-title"><a href="portfolio.html">Care Companion</a></h2>
-                            </div>
-                        </li>
-                        <li className="pq-portfoliobox-1">
-                            <div className="pq-portfolio-img">
-                                <a href="portfolio.html">
-                                    <img className="pq-img" src="img/portfolio/portfolio-006.webp" alt="portfolio image" />
-                                </a>
-                            </div>
-                            <div className="pq-portfolio-info">
-                                <span className="pq-portfolio-tag"><a href="portfolio.html">therapies</a></span>
-                                <h2 className="pq-portfolio-title"><a href="portfolio.html">Care Companion</a></h2>
+                                <span className="pq-portfolio-tag"><a href="portfolio.html">Dược phẩm</a></span>
+                                <h2 className="pq-portfolio-title"><a href="portfolio.html">Hộ Chiếu Sức Khỏe</a></h2>
                             </div>
                         </li>
                     </ul>
