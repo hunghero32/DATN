@@ -118,8 +118,8 @@ export default function Header() {
                     <div className="pq-btn-container">
                       <Link to="/login" className="pq-button">
                         <div className="pq-button-block">
-                          <span className="pq-button-text">Login</span>
-                          <span className="pq-button-text">Login</span>
+                          <span className="pq-button-text">Đăng nhập</span>
+                          <span className="pq-button-text">Đăng nhập</span>
                         </div>
                       </Link>
                     </div>

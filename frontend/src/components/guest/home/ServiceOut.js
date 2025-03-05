@@ -7,16 +7,16 @@ const ServiceOut = () => {
         <div className="row">
           <div className="col-lg-12">
             <div className="pq-section-title pq-section-dark">
-              <span className="pq-sub-title">Our Service</span>
+              <span className="pq-sub-title">Dịch Vụ Của Chúng Tôi</span>
               <h2 data-splitting className="pq-main-title">
-                Exceptional Medical Service Every Time
+                Dịch Vụ Y Tế Xuất Sắc Mọi Lúc, Mọi Nơi
               </h2>
             </div>
             <div className="pq-btn-container pq-section-btn">
               <a href="ourservices-2.html" className="pq-button">
                 <div className="pq-button-block">
-                  <span className="pq-button-text">Read More</span>
-                  <span className="pq-button-text">Read More</span>
+                  <span className="pq-button-text">Xem Thêm</span>
+                  <span className="pq-button-text">Xem Thêm</span>
                 </div>
               </a>
             </div>
@@ -25,32 +25,32 @@ const ServiceOut = () => {
         <div className="pq-service-box-2-list pq-hover-active">
           {/* Service Box Component */}
           <ServiceBox
-            title="Radiation Therapy"
-            description="There are many variations of passages Lorem Ipsum available but…"
+            title="Xạ Trị"
+            description="Có rất nhiều phương pháp xạ trị hiện đại mang lại hiệu quả điều trị cao…"
             icon="flaticon-healthcare"
             link="angioplasty-services.html"
           />
           <ServiceBox
-            title="Eye Care Services"
-            description="There are many variations of passages Lorem Ipsum available but…"
+            title="Dịch Vụ Chăm Sóc Mắt"
+            description="Dịch vụ chuyên nghiệp giúp bạn bảo vệ và chăm sóc đôi mắt của mình…"
             icon="flaticon-laboratory"
             link="eyecare-services.html"
           />
           <ServiceBox
-            title="Dental Care"
-            description="There are many variations of passages Lorem Ipsum available but…"
+            title="Chăm Sóc Răng Miệng"
+            description="Các dịch vụ nha khoa hàng đầu giúp bạn có một nụ cười khỏe mạnh…"
             icon="flaticon-dentist-chair"
             link="dental-services.html"
           />
           <ServiceBox
-            title="Operation Theatre"
-            description="There are many variations of passages Lorem Ipsum available but…"
+            title="Phòng Phẫu Thuật"
+            description="Trang bị hiện đại, đội ngũ bác sĩ chuyên môn cao đảm bảo ca phẫu thuật an toàn…"
             icon="flaticon-hospital-bed"
             link="angioplasty-services.html"
           />
           <ServiceBox
-            title="Cardiology Services"
-            description="There are many variations of passages Lorem Ipsum available but…"
+            title="Dịch Vụ Tim Mạch"
+            description="Chăm sóc sức khỏe tim mạch toàn diện với các phương pháp tiên tiến…"
             icon="flaticon-orthopedics-1"
             link="cardiology-services.html"
           />
@@ -59,8 +59,8 @@ const ServiceOut = () => {
             <div className="pq-btn-container">
               <a href="angioplasty-services.html" className="pq-button pq-round-button">
                 <div className="pq-button-block">
-                  <span className="pq-button-text">view more</span>
-                  <span className="pq-button-text">view More</span>
+                  <span className="pq-button-text">Xem Thêm</span>
+                  <span className="pq-button-text">Xem Thêm</span>
                 </div>
               </a>
             </div>
@@ -83,8 +83,8 @@ const ServiceBox = ({ title, description, icon, link }) => {
       <div className="pq-btn-container pq-button-flat">
         <a href={link} className="pq-button">
           <div className="pq-button-block">
-            <span className="pq-button-text">Read More</span>
-            <span className="pq-button-text">Read More</span>
+            <span className="pq-button-text">Tìm Hiểu Thêm</span>
+            <span className="pq-button-text">Tìm Hiểu Thêm</span>
           </div>
         </a>
       </div>
