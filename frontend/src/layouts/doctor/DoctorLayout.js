@@ -11,11 +11,8 @@ import DoctorStatistics from "../../components/doctor/pages/DoctorStatistics/Doc
 import NotificationPage from "../../components/doctor/pages/NotificationPage/NotificationPage";
 import DoctorProfile from "../../components/doctor/pages/DoctorProfile/DoctorProfile";
 import EditDoctorProfile from "../../components/doctor/pages/DoctorProfile/EditDoctorProfile";
-<<<<<<< HEAD
 import Appointment from "../../components/doctor/pages/ListAppointment/Appointment";
 import DoctorServices from "../../components/doctor/pages/Services/DoctorServices";
-=======
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
 
 const DoctorLayout = () => {
   useEffect(() => {
@@ -60,48 +57,7 @@ const DoctorLayout = () => {
     ];
     cssFiles.forEach(loadCSS);
     const jsFiles = [
-<<<<<<< HEAD
       
-=======
-      "/admin/js/core/libs.min.js",
-      "/admin/vendor/flatpickr/dist/flatpickr.min.js",
-      "/admin/vendor/amcharts/core.js",
-      "/admin/vendor/amcharts/charts.js",
-      "/admin/vendor/amcharts/themes/animated.js",
-      "/admin/vendor/lodash/lodash.min.js",
-      "/admin/js/core/external.min.js",
-      "/admin/js/dashboard/doctor-dashboard5438.js",
-      "/admin/js/dashboard/dashboard-25438.js",
-      "/admin/js/dashboard/patient-dashboard5438.js",
-      "/admin/js/dashboard/doctor-dashboard5438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-15438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-25438.js?v=1.2.0",
-      "/admin/js/dashboard/patient-dashboard5438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-25438.js?v=1.2.0",
-      "/admin/js/sidebar5438.js?v=1.2.0",
-      "/admin/vendor/moment.min.js",
-      "/admin/js/plugins/calender.js",
-      "/admin/js/sidebar5438.js?v=1.2.0",
-      "/admin/js/core/libs.min.js",
-      "/admin/vendor/flatpickr/dist/flatpickr.min.js",
-      "/admin/vendor/amcharts/core.js",
-      "/admin/vendor/amcharts/charts.js",
-      "/admin/vendor/amcharts/themes/animated.js",
-      "/admin/vendor/lodash/lodash.min.js",
-      "/admin/js/core/external.min.js",
-      "/admin/js/dashboard/doctor-dashboard5438.js",
-      "/admin/js/dashboard/dashboard-25438.js",
-      "/admin/js/dashboard/patient-dashboard5438.js",
-      "/admin/js/dashboard/doctor-dashboard5438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-15438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-25438.js?v=1.2.0",
-      "/admin/js/dashboard/patient-dashboard5438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-25438.js?v=1.2.0",
-      "/admin/js/sidebar5438.js?v=1.2.0",
-      "/admin/vendor/moment.min.js",
-      "/admin/js/plugins/calender.js",
-      "/admin/js/sidebar5438.js?v=1.2.0",
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
     ];
     jsFiles.forEach(loadScript);
 
@@ -115,11 +71,8 @@ const DoctorLayout = () => {
         <Header />
         <Routes>
           <Route path="/db" element={<Dashboard />} />
-<<<<<<< HEAD
           <Route path="/doctor-services" element={<DoctorServices/>} />
           <Route path="/appointment" element={<Appointment/>} />
-=======
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
           <Route path="/doctor-profile" element={<DoctorProfile/>} />
           <Route path="/doctor-profile/edit/:id" element={<EditDoctorProfile />} /> {/* Route mới */}
           <Route path="/doctor-schedule" element={<DoctorSchedule/>} />
