@@ -3,10 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-<<<<<<< HEAD
-=======
 use Illuminate\Support\Carbon;
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
 
 class StoreBookingRequest extends FormRequest
 {
@@ -15,11 +12,7 @@ class StoreBookingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-<<<<<<< HEAD
-        return false;
-=======
         return true;
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
     }
 
     /**
@@ -27,12 +20,6 @@ class StoreBookingRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-<<<<<<< HEAD
-    public function rules(): array
-    {
-        return [
-            //
-=======
     public function rules()
     {
         return [
@@ -63,7 +50,6 @@ class StoreBookingRequest extends FormRequest
             'note.max' => 'Ghi chú không được vượt quá 255 ký tự.',
             'status.required' => 'Trạng thái là bắt buộc.',
             'status.in' => 'Trạng thái không hợp lệ.'
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
         ];
     }
 }

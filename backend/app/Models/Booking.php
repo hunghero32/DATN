@@ -35,8 +35,6 @@ class Booking extends Model
     {
         return $this->belongsTo(Guest::class);
     }
-<<<<<<< HEAD
-=======
 
     // Scope tìm kiếm theo tên, email, số điện thoại của guest
     public function scopeSearchGuest($query, $search)
@@ -97,5 +95,4 @@ class Booking extends Model
         return $query->where('doctor_id', auth()->id())
             ->where('status', 'completed');
     }
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
 }

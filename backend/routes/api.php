@@ -123,12 +123,9 @@ Route::prefix('services')->group(function () {
     Route::delete('/{id}', [ServiceController::class, 'delete']); // Xóa dịch vụ
 });
 ////*****************     End Invoices    *******************////
-<<<<<<< HEAD
-=======
 
 
 // Phần API để Frontend xử lý cho doctor 
 Route::middleware(['auth:sanctum'])->prefix('doctor')->group(function () {
     Route::apiResource('bookings', Doctor\BookingController::class); // Chỉ get và put thôi
 });
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6

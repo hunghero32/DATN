@@ -67,11 +67,7 @@ Route::prefix('admin')->group(function () {
      Route::get("doctor-schedule-{schedule}/edit",[SchedulesController::class,'edit'])->name('admin.schedule.edit');
      Route::put("doctor-schedule-{schedule}",[SchedulesController::class,'update'])->name('admin.schedule.update');
      Route::delete("doctor-schedule-{schedule}",[SchedulesController::class,'destroy'])->name('admin.schedule.delete');
-<<<<<<< HEAD
-     Route::get("doctor-schedule", [SchedulesController::class, 'index'])->name('admin.schedule.index');
-=======
      Route::get("doctor-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
 
 
 
