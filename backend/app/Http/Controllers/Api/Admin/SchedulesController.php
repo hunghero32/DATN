@@ -14,8 +14,12 @@ class SchedulesController extends Controller
     {
         $data = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
             ->select('schedules.*', 'doctors.doctor_name')
+<<<<<<< HEAD
             ->whereNull('schedules.deleted_at')
             ->orderBy('schedules.working_date', 'asc')
+=======
+            ->where('schedules.isDeleted', 0)
+>>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
             ->get();
 
         return response()->json(['success' => true, 'data' => $data]);

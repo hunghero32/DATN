@@ -6,8 +6,25 @@
     $detailModal = [
         'fields' => [['name' => 'doctor_id', 'label' => 'Bác sĩ', 'type' => 'select', 'options' => $doctor], ['name' => 'time_start', 'label' => 'Giờ bắt đầu', 'type' => 'time'], ['name' => 'time_end', 'label' => 'Giờ kết thúc', 'type' => 'time'], ['name' => 'working_date', 'label' => 'Ngày làm việc', 'type' => 'date'], ['name' => 'max_patients', 'label' => 'Số lượng bệnh nhân tối đa', 'type' => 'number'], ['name' => 'status', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']]],
     ];
+<<<<<<< HEAD
     ?>
     <x-table-list-component :title="'Danh sách đặt lịch'" :route="route('admin.doctors.search')" :columns="[
+=======
+    $selects = [
+        'status' => [
+            'id' => 'status',
+            'name' => 'status',
+            'label' => 'Trạng thái',
+            'options' => [
+                '' => 'Tất cả',
+                '1' => 'Đã kịch hoạt',
+                '0' => 'Chưa kích hoạt'
+            ]
+        ]
+    ];
+    ?>
+    <x-table-list-component :title="'Danh sách đặt lịch'" :route="route('admin.schedule.search')" :columns="[
+>>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
         ['key' => 'id', 'label' => 'ID'],
         ['key' => 'doctor_name', 'label' => 'Họ và Tên'],
         ['key' => 'time_start', 'label' => 'Giờ bắt đầu'],
@@ -16,7 +33,11 @@
         ['key' => 'max_patients', 'label' => 'Số lượng bệnh nhân tối đa'],
         ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái'],
     ]"
+<<<<<<< HEAD
     :data="$data" {{-- :selects="$selects" --}}
+=======
+    :data="$data" :selects="$selects"
+>>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
     :detailModal="$detailModal"
         :actions="[
             [
@@ -30,7 +51,10 @@
                 'label' => 'Chỉnh sửa',
                 'route' => fn($id) => route('admin.schedule.edit', $id),
                 'method' => 'GET',
+<<<<<<< HEAD
                 'modal' => true,
+=======
+>>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
                 'type' => 'row',
                 'class' => 'btn btn-primary btn-sm',
             ],
