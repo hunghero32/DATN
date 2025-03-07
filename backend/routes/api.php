@@ -127,5 +127,14 @@ Route::prefix('services')->group(function () {
 
 // Phần API để Frontend xử lý cho doctor 
 Route::middleware(['auth:sanctum'])->prefix('doctor')->group(function () {
-    Route::apiResource('bookings', Doctor\BookingController::class); // Chỉ get và put thôi
+    // Hiển thị và sửa profile của bác sĩ
+    Route::get('profile', [Doctor\ProfileDoctor::class, 'show']);
+    Route::put('profile', [Doctor\ProfileDoctor::class, 'update']);
+    // Hiển thị dashboard của bác sĩ
+    Route::get('dashboard', [Doctor\DashboardController::class, 'index']);
+    // Hiển thị và sửa booking của bác sĩ
+    Route::get('bookings', [Doctor\BookingController::class, 'index']);
+    Route::put('bookings/{bookings}', [Doctor\BookingController::class, 'update']);
+    // Hiển thị, thêm và sửa kết quả khám của bác sĩ
+    Route::apiResource('results', Doctor\ResultController::class);
 });
