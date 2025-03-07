@@ -186,7 +186,7 @@ class DoctorController extends Controller
             'approve' => $request->has('approve'),
     ]);
 
-    return redirect()->route('admin.doctors.index')->with('success', 'Doctor updated successfully!');
+    return redirect()->route('admin.doctors.index')->with('success', 'Chỉnh sửa bác sĩ thành công !');
     }
 
     public function destroy($id)

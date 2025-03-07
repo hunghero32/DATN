@@ -184,19 +184,33 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            border: 1px dashed #ccc;
-            padding: 10px;
+            gap: 15px;
+            border: 2px dashed #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
 
-            text-align: center;
+        .image-upload-container:hover {
+            border-color: #007bff;
+            background-color: #f0f7ff;
         }
 
         .image-preview-large {
             width: 100%;
-            height: 400px;
-            object-fit: cover;
-            border: 2px solid #ddd;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: white;
+            padding: 10px;
+        }
 
+        .image-upload-container input[type="file"] {
+            margin-top: 10px;
+            width: 100%;
+            max-width: 400px;
         }
     </style>
 

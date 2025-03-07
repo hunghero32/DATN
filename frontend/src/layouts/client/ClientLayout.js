@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../components/guest/home/Header";
 import Footer from "../../components/guest/home/Footer";
 import { Route, Routes } from "react-router-dom";
@@ -36,6 +36,7 @@ import ArticleList from "../../components/guest/home/BaiViet";
 import TopSpecialties from "../../components/guest/home/TopChuyenKhoa";
 import TopBookedServices from "../../components/guest/home/TopDichVu";
 import ClinicDetail from "../../components/guest/home/GioiThieuPhongKham";
+import Appointment from "../../components/guest/home/Appointment";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -102,6 +103,8 @@ const ClientLayout = () => {
         <Route path="/topServices" element={<TopBookedServices/>}/>
         <Route path="/clinicDetail" element={<ClinicDetail/>}/>
 
+        <Route path="/appointment" element={<Appointment/>}/>  {/* Trang đặt lịch khám */}
+
         <Route path="/contact" element={<HomeMainContact />} />
         <Route path="aboutus" element={<AboutUsSection />} />
         <Route path="ourprocess" element={<OurProcess />} />
@@ -128,8 +131,11 @@ const ClientLayout = () => {
         <Route path="Colum" element={<Colum />} />
         <Route path="Colum2" element={<Colum2 />} />
         <Route path="BlogSingle" element={<BlogSingle />} />
+        
       </Routes>
+      
       <Footer />
+    
     </>
   );
 };
