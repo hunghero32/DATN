@@ -12,6 +12,7 @@ class Services extends Model
         'specialty_id',
         'category_id',
         'services_name',
+        'image',
         'description',
         'price',
         'duration',

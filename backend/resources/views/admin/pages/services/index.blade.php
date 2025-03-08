@@ -10,7 +10,7 @@ $detailModal=[
         ['name' => 'category_id', 'label' => 'Danh mục', 'type' => 'select', 'options' => $categories],
         ['name' => 'services_name', 'label' => 'Tên dịch vụ', 'type' => 'text'],
         ['name' => 'price', 'label' => 'Giá', 'type' => 'number'],
-        ['name' => 'duration', 'label' => 'Thời gian thực hiện', 'type' => 'number'],
+        ['name'=>'image','label'=>'Ảnh','type'=>'file'],
         ['name' => 'status', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']],
     ]
 ];
@@ -23,8 +23,8 @@ $detailModal=[
         ['key' => 'specialty_name', 'label' => 'Tên Chuyên khoa'],
         ['key' => 'category_name', 'label' => 'Tên Danh mục'],
         ['key' => 'services_name', 'label' => 'Tên dịch vụ'],
+        ['key'=>'image','label'=>'Ảnh'],
         ['key' => 'price', 'label' => 'Giá'],
-        ['key' => 'duration', 'label' => 'Thời gian thực hiện'],
         ['key' => 'status','name'=>'status' ,'label' => 'Trạng thái'],
     ]"
     :selects="[

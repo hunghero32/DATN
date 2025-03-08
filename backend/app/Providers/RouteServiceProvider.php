@@ -30,16 +30,11 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
-
+            Route::middleware('api')
+                ->prefix('api/client')
+                ->group(base_path('routes/client_api.php')); // Đổi prefix để tránh xung đột
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
-        });
-        $this->routes(function () {
-            // Đăng ký file route API mới
-            Route::prefix('api')
-                ->middleware('api')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/client_api.php')); // Thay đổi tên file ở đây
         });
     }
 
