@@ -5,6 +5,8 @@ const menuItems = [
   { path: "/doctor/db", icon: "ri-hospital-fill", name: "Doctor Dashboard" },
   { path: "/doctor/doctor-services", icon: "ri-map-pin-user-line", name: "Danh sách Dịch Vụ" },
   { path: "/doctor/appointment", icon: "ri-map-pin-user-line", name: "Danh sách lịch khám" },
+  { path: "/doctor/ReceivedAppointments", icon: "ri-map-pin-user-line", name: "lịch khám Đã nhận" },
+  { path: "/doctor/CompletedAppointments", icon: "ri-map-pin-user-line", name: "lịch khám Đã Khám xong" },
   { path: "/doctor/doctor-profile", icon: "ri-map-pin-user-line", name: "Hồ Sơ Bác Sĩ" },
   { path: "/doctor/doctor-schedule", icon: "ri-map-pin-user-line", name: "Danh sách lịch khám" },
   { path: "/doctor/schedule", icon: "ri-user-line", name: "lịch làm việc" },
