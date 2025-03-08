@@ -8,25 +8,29 @@ use App\Models\Doctor;
 use App\Models\Services;
 use App\Models\Specialty;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
     public function index()
     {
         // Lấy chuyên khoa có liên kết với dịch vụ và bác sĩ, giới hạn 5 chuyên khoa
-        $specialties = Specialty::with('services', 'doctors')->limit(5)->get();
+        $specialties = Specialty::take(4)->get();
 
         // Lấy 5 dịch vụ có số lượng đặt lịch nhiều nhất
-        $popularServices = Booking::select('service_id', DB::raw('COUNT(*) as total_bookings'))
-            ->groupBy('service_id')
-            ->orderByDesc('total_bookings')
-            ->limit(5)
-            ->with('service') // Lấy thêm thông tin chi tiết về dịch vụ
+        $popularServices = Services::withCount('bookings')
+            ->where('status', 'completed')
+            ->where('isDeleted', 0)
+            ->has('bookings')
+            ->with('specialty')
+            ->orderByDesc('bookings_count')
+            ->take(4)
             ->get();
 
         // Lấy danh sách tất cả bác sĩ
-        $doctors = Doctor::all();
+        $doctors = Doctor::with('specialty')
+            ->where('approve', 1)
+            ->where('isDeleted', 0)
+            ->get();
 
         return response()->json([
             'specialties' => $specialties,
