@@ -8,6 +8,7 @@ use App\Models\Services;
 use Illuminate\Http\Request;
 use App\Models\Specialty;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
 {
@@ -92,6 +93,7 @@ class ServiceController extends Controller
             'duration'        => 'required|integer|min:1',
             'category_id'     => 'required|exists:categories,id',
             'specialty_id'    => 'required|exists:specialties,id',
+            'image'           => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
         ], [
             'services_name.required'  => 'Tên dịch vụ không được để trống.',
             'services_name.max'       => 'Tên dịch vụ tối đa 255 ký tự.',
@@ -106,6 +108,9 @@ class ServiceController extends Controller
             'category_id.exists'      => 'Danh mục không hợp lệ.',
             'specialty_id.required'   => 'Chuyên khoa không được để trống.',
             'specialty_id.exists'     => 'Chuyên khoa không hợp lệ.',
+            'image.image'             => 'File tải lên phải là hình ảnh.',
+            'image.mimes'             => 'Ảnh phải có định dạng jpg, jpeg, png hoặc gif.',
+            'image.max'               => 'Ảnh không được lớn hơn 2MB.',
         ]);
 
         if ($validator->fails()) {
@@ -117,6 +122,11 @@ class ServiceController extends Controller
         // Lấy dữ liệu hợp lệ và thêm giá trị mặc định cho status
         $validatedData = $validator->validated();
         $validatedData['status'] = 0; // Gán giá trị mặc định
+
+        if($request->has('image')){
+            $image=$request->file('image')->store('services', 'public');
+            $validatedData['image'] =  $image;
+        }
 
         // Lưu vào database
         Services::create($validatedData);
@@ -149,6 +159,7 @@ class ServiceController extends Controller
             'duration'        => 'required|integer|min:1',
             'category_id'     => 'required|exists:categories,id',
             'specialty_id'    => 'required|exists:specialties,id',
+            'image'           => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048'
         ], [
             'services_name.required'  => 'Tên dịch vụ không được để trống.',
             'services_name.max'       => 'Tên dịch vụ tối đa 255 ký tự.',
@@ -163,6 +174,9 @@ class ServiceController extends Controller
             'category_id.exists'      => 'Danh mục không hợp lệ.',
             'specialty_id.required'   => 'Chuyên khoa không được để trống.',
             'specialty_id.exists'     => 'Chuyên khoa không hợp lệ.',
+            'image.image'             => 'File tải lên phải là hình ảnh.',
+            'image.mimes'             => 'Ảnh phải có định dạng jpg, jpeg, png hoặc gif.',
+            'image.max'               => 'Ảnh không được lớn hơn 2MB.',
         ]);
 
         // Nếu có lỗi validate
@@ -172,9 +186,19 @@ class ServiceController extends Controller
                 ->withInput();
         }
 
-        // Lấy dữ liệu hợp lệ và giữ nguyên status hiện có
+        // Lấy dữ liệu hợp lệ
         $validatedData = $validator->validated();
-        $validatedData['status'] = $service->status; // Giữ nguyên giá trị status cũ
+        $validatedData['status'] = $service->status;
+
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu tồn tại
+            if ($service->image && Storage::disk('public')->exists($service->image)) {
+                Storage::disk('public')->delete($service->image);
+            }
+
+            $image = $request->file('image')->store('services', 'public');
+            $validatedData['image'] = $image;
+        }
 
         // Cập nhật dữ liệu
         $service->update($validatedData);
