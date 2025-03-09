@@ -18,10 +18,11 @@ class BookingController extends Controller
             ->join('services','bookings.service_id','=','services.id')
             ->select('bookings.*','doctors.doctor_name','guests.guest_name','services.services_name')
             ->where('bookings.isDeleted',0)
+            ->orderBy('bookings.created_at', 'desc')
             ->paginate($perPage);
 
-        $doctors = Doctor::pluck('doctor_name', 'id')->toArray();
-        $services = Services::pluck('services_name', 'id')->toArray();
+        $doctors = Doctor::where('isDeleted', 0)->pluck('doctor_name', 'id')->toArray();
+        $services = Services::where('isDeleted', 0)->pluck('services_name', 'id')->toArray();
         $statuses = [
             '' => 'Tất cả trạng thái',
             'pending' => 'Chờ xác nhận',
@@ -47,18 +48,24 @@ class BookingController extends Controller
             ->join('guests', 'bookings.guest_id', '=', 'guests.id')
             ->join('services', 'bookings.service_id', '=', 'services.id')
             ->select('bookings.*', 'doctors.doctor_name', 'guests.guest_name', 'services.services_name')
-            ->where('bookings.isDeleted', 0);
+            ->where('bookings.isDeleted', 0)
+            ->where('doctors.isDeleted', 0)
+            ->where('services.isDeleted', 0);
 
-        if (!empty($status)) {
-            $query->where('bookings.status', $status);
-        }
-
+        // Enhanced search functionality
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
                 $q->where('guests.guest_name', 'like', '%' . $search . '%')
                   ->orWhere('doctors.doctor_name', 'like', '%' . $search . '%')
-                  ->orWhere('services.services_name', 'like', '%' . $search . '%');
+                  ->orWhere('services.services_name', 'like', '%' . $search . '%')
+                  ->orWhere('bookings.booking_code', 'like', '%' . $search . '%')
+                  ->orWhere('guests.phone', 'like', '%' . $search . '%')
+                  ->orWhere('guests.email', 'like', '%' . $search . '%');
             });
+        }
+
+        if (!empty($status)) {
+            $query->where('bookings.status', $status);
         }
 
         if (!empty($doctor_id)) {
@@ -77,11 +84,12 @@ class BookingController extends Controller
             $query->whereDate('bookings.booking_date', '<=', $date_to);
         }
 
-        $data = $query->paginate($perPage);
+        $data = $query->orderBy('bookings.created_at', 'desc')
+                     ->paginate($perPage);
         $data->appends($request->all());
 
-        $doctors = Doctor::pluck('doctor_name', 'id')->toArray();
-        $services = Services::pluck('services_name', 'id')->toArray();
+        $doctors = Doctor::where('isDeleted', 0)->pluck('doctor_name', 'id')->toArray();
+        $services = Services::where('isDeleted', 0)->pluck('services_name', 'id')->toArray();
         $statuses = [
             '' => 'Tất cả trạng thái',
             'pending' => 'Chờ xác nhận',

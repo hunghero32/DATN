@@ -37,8 +37,9 @@ class SchedulesController extends Controller
             $query->where('doctors.doctor_name', 'like', '%' . $search . '%');
         }
 
-        if (!empty($status) && $status !== 'all') {
-            $query->where('schedules.status', $status);
+        // Modified status filtering
+        if ($status !== null && $status !== 'all') {
+            $query->where('schedules.status', (int)$status);
         }
 
         $data = $query->paginate($perPage);
