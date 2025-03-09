@@ -12,6 +12,7 @@ class Services extends Model
         'specialty_id',
         'category_id',
         'services_name',
+        'image',
         'description',
         'price',
         'duration',
@@ -28,5 +29,10 @@ class Services extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'service_id');
     }
 }
