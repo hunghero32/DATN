@@ -18,13 +18,16 @@ class HomeController extends Controller
 
         // Lấy 5 dịch vụ có số lượng đặt lịch nhiều nhất
         $popularServices = Services::withCount('bookings')
-            ->where('status', 'completed')
-            ->where('isDeleted', 0)
-            ->has('bookings')
-            ->with('specialty')
-            ->orderByDesc('bookings_count')
-            ->take(4)
-            ->get();
+        ->where('isDeleted', 0)
+        ->with('specialty')
+        ->orderByDesc('bookings_count')
+        ->take(4)
+        ->get();
+    
+    // Nếu không có dịch vụ nào được đặt nhiều, lấy 4 dịch vụ bất kỳ
+    if ($popularServices->isEmpty()) {
+        $popularServices = Services::where('isDeleted', 0)->take(4)->get();
+    }
 
         // Lấy danh sách tất cả bác sĩ
         $doctors = Doctor::with('specialty')

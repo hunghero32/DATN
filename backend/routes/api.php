@@ -42,16 +42,15 @@ use App\Http\Controllers\Api\ProfileController;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show']);
-    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::match(['put', 'patch'], '/profile', [ProfileController::class, 'update']);
     Route::delete('/profile', [ProfileController::class, 'destroy']);
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
-    Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+    Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware(['throttle:6,1'])->name('verification.send');
 });
+
 Route::middleware(['guest'])->group(function () {
     Route::post('register', [RegisteredUserController::class, 'store'])->name('api.register');;
     Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login');;
