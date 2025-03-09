@@ -3,7 +3,7 @@ import Footer from "../../components/doctor/Footer";
 import Header from "../../components/doctor/Header";
 import Dashboard from "../../components/doctor/pages/DashBoard";
 import SideBar from "../../components/doctor/SideBar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ListSchedule from "../../components/doctor/pages/Schedule/ListSchedule";
 import HistoryDoctor from "../../components/doctor/pages/History/HistoryDoctor";
 import DoctorSchedule from "../../components/doctor/pages/DoctorSchedule/DoctorSchedule";
@@ -11,13 +11,31 @@ import DoctorStatistics from "../../components/doctor/pages/DoctorStatistics/Doc
 import NotificationPage from "../../components/doctor/pages/NotificationPage/NotificationPage";
 import DoctorProfile from "../../components/doctor/pages/DoctorProfile/DoctorProfile";
 import EditDoctorProfile from "../../components/doctor/pages/DoctorProfile/EditDoctorProfile";
-<<<<<<< HEAD
 import Appointment from "../../components/doctor/pages/ListAppointment/Appointment";
 import DoctorServices from "../../components/doctor/pages/Services/DoctorServices";
-=======
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
+import ReceivedAppointments from "../../components/doctor/pages/ListAppointment/ReceivedAppointments";
+import CompletedAppointments from "../../components/doctor/pages/ListAppointment/CompletedAppointments";
+import FillExaminationResult from "../../components/doctor/pages/ListAppointment/FillExaminationResult";
 
 const DoctorLayout = () => {
+  const [showModal, setShowModal] = useState(false);
+
+  // Hàm đóng modal
+  const handleClose = () => {
+    setShowModal(false);
+  };
+
+  // Hàm gọi API lấy danh sách dịch vụ
+  const fetchServices = async () => {
+    try {
+      const response = await fetch("/api/services"); // Điều chỉnh API endpoint phù hợp
+      const data = await response.json();
+      console.log("Fetched services:", data);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+  };
+
   useEffect(() => {
     const loadScript = (src) => {
       const script = document.createElement("script");
@@ -25,12 +43,14 @@ const DoctorLayout = () => {
       script.async = true;
       document.body.appendChild(script);
     };
+
     const loadCSS = (href) => {
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.href = href;
       document.head.appendChild(link);
     };
+
     const cssFiles = [
       "/admin/css/core/libs.min.css",
       "/admin/vendor/flaticon/css/flaticon.css",
@@ -50,83 +70,39 @@ const DoctorLayout = () => {
       "/admin/vendor/fullcalendar/daygrid/main.css",
       "/admin/vendor/fullcalendar/timegrid/main.css",
       "/admin/vendor/fullcalendar/list/main.css",
-      "/admin/vendor/dripicons/webfont/webfont.css",
-      "/admin/vendor/ionicons/css/ionicons.min.css",
-      "/admin/vendor/line-awesome/css/line-awesome.min.css",
-      "/admin/vendor/phosphor-icons/Fonts/regular/style.css",
-      "/admin/vendor/phosphor-icons/Fonts/duotone/style.css",
-      "/admin/vendor/phosphor-icons/Fonts/fill/style.css",
+    ];
 
-    ];
     cssFiles.forEach(loadCSS);
-    const jsFiles = [
-<<<<<<< HEAD
-      
-=======
-      "/admin/js/core/libs.min.js",
-      "/admin/vendor/flatpickr/dist/flatpickr.min.js",
-      "/admin/vendor/amcharts/core.js",
-      "/admin/vendor/amcharts/charts.js",
-      "/admin/vendor/amcharts/themes/animated.js",
-      "/admin/vendor/lodash/lodash.min.js",
-      "/admin/js/core/external.min.js",
-      "/admin/js/dashboard/doctor-dashboard5438.js",
-      "/admin/js/dashboard/dashboard-25438.js",
-      "/admin/js/dashboard/patient-dashboard5438.js",
-      "/admin/js/dashboard/doctor-dashboard5438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-15438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-25438.js?v=1.2.0",
-      "/admin/js/dashboard/patient-dashboard5438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-25438.js?v=1.2.0",
-      "/admin/js/sidebar5438.js?v=1.2.0",
-      "/admin/vendor/moment.min.js",
-      "/admin/js/plugins/calender.js",
-      "/admin/js/sidebar5438.js?v=1.2.0",
-      "/admin/js/core/libs.min.js",
-      "/admin/vendor/flatpickr/dist/flatpickr.min.js",
-      "/admin/vendor/amcharts/core.js",
-      "/admin/vendor/amcharts/charts.js",
-      "/admin/vendor/amcharts/themes/animated.js",
-      "/admin/vendor/lodash/lodash.min.js",
-      "/admin/js/core/external.min.js",
-      "/admin/js/dashboard/doctor-dashboard5438.js",
-      "/admin/js/dashboard/dashboard-25438.js",
-      "/admin/js/dashboard/patient-dashboard5438.js",
-      "/admin/js/dashboard/doctor-dashboard5438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-15438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-25438.js?v=1.2.0",
-      "/admin/js/dashboard/patient-dashboard5438.js?v=1.2.0",
-      "/admin/js/dashboard/dashboard-25438.js?v=1.2.0",
-      "/admin/js/sidebar5438.js?v=1.2.0",
-      "/admin/vendor/moment.min.js",
-      "/admin/js/plugins/calender.js",
-      "/admin/js/sidebar5438.js?v=1.2.0",
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
-    ];
-    jsFiles.forEach(loadScript);
 
     return () => {
+      console.log("Cleanup function (optional)");
     };
   }, []);
+
   return (
     <div className="wrapper">
       <SideBar />
-      <main className="main-content content-page ">
+      <main className="main-content content-page">
         <Header />
         <Routes>
           <Route path="/db" element={<Dashboard />} />
-<<<<<<< HEAD
-          <Route path="/doctor-services" element={<DoctorServices/>} />
-          <Route path="/appointment" element={<Appointment/>} />
-=======
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
-          <Route path="/doctor-profile" element={<DoctorProfile/>} />
-          <Route path="/doctor-profile/edit/:id" element={<EditDoctorProfile />} /> {/* Route mới */}
-          <Route path="/doctor-schedule" element={<DoctorSchedule/>} />
+          <Route
+            path="/doctor-services"
+            element={
+              <DoctorServices show={showModal} onCloseModal={handleClose} onServiceAdded={fetchServices} />
+            }
+          />
+          <Route path="/appointment" element={<Appointment />} />
+          <Route path="/ReceivedAppointments" element={<ReceivedAppointments />} />
+          <Route path="/CompletedAppointments" element={<CompletedAppointments />} />
+          <Route path="/FillExaminationResult" element={<FillExaminationResult />} />
+          <Route path="/doctor-profile" element={<DoctorProfile />} />
+          <Route path="/doctor-profile/edit/:id" element={<EditDoctorProfile />} />
+          <Route path="/doctor-schedule" element={<DoctorSchedule />} />
           <Route path="/schedule" element={<ListSchedule />} />
           <Route path="/history-doctor" element={<HistoryDoctor />} />
           <Route path="/doctorstatistics" element={<DoctorStatistics />} />
-          <Route path="/notificationpage" element={<NotificationPage />} />   
+          <Route path="/notificationpage" element={<NotificationPage />} />
         </Routes>
         <Footer />
       </main>

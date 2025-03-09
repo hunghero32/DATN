@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDoctors } from "../../../../features/slices/doctorSlice";
-import { Link, useNavigate } from "react-router-dom";
+import { fetchDoctors, updateDoctor } from "../../../../features/slices/doctorSlice";
+import { Modal, Button, Form } from "react-bootstrap";
 
 const DoctorProfile = () => {
     const dispatch = useDispatch();
     const { doctors } = useSelector((state) => state.doctor);
     const [selectedDoctor, setSelectedDoctor] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [formData, setFormData] = useState({
+        doctor_name: "",
+        specialty_id: "",
+        exp: "",
+        doctor_bio: "",
+    });
 
     useEffect(() => {
         dispatch(fetchDoctors());
@@ -14,11 +21,37 @@ const DoctorProfile = () => {
 
     useEffect(() => {
         if (doctors.doctors?.length > 0) {
-            setSelectedDoctor(doctors.doctors[0]);
+            const doctor = doctors.doctors[0]; // Chọn bác sĩ đầu tiên
+            setSelectedDoctor(doctor);
+            setFormData({
+                doctor_name: doctor.doctor_name,
+                specialty_id: doctor.specialty_id,
+                exp: doctor.exp,
+                doctor_bio: doctor.doctor_bio,
+            });
         }
     }, [doctors]);
 
+    const handleEditClick = () => {
+        setShowModal(true);
+    };
 
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (selectedDoctor) {
+            dispatch(updateDoctor({ id: selectedDoctor.id, doctorData: formData }));
+            setShowModal(false);
+        }
+    };
 
     return (
         <div className="container mt-5">
@@ -39,16 +72,70 @@ const DoctorProfile = () => {
                             <p>Không có ảnh</p>
                         )}
                         <div className="text-center mt-3">
-                            <Link to={`/doctor/doctor-profile/edit/${selectedDoctor.id}`} className="btn btn-primary me-3" >
-                                Chỉnh Sửa
-                            </Link>
-                            <button className="btn btn-danger">Xóa</button>
+                            <Button variant="primary" className="me-3" onClick={handleEditClick}>Chỉnh Sửa</Button>
+                            <Button variant="danger">Xóa</Button>
                         </div>
                     </div>
                 </div>
             ) : (
                 <p className="text-center">Không có hồ sơ bác sĩ nào</p>
             )}
+
+            {/* Modal chỉnh sửa bác sĩ */}
+            <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Chỉnh Sửa Hồ Sơ Bác Sĩ</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleSubmit}>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Tên:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="doctor_name"
+                                value={formData.doctor_name}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Chuyên Ngành:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="specialty_id"
+                                value={formData.specialty_id}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Kinh Nghiệm:</Form.Label>
+                            <Form.Control
+                                type="number"
+                                name="exp"
+                                value={formData.exp}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Tiểu Sử:</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                name="doctor_bio"
+                                value={formData.doctor_bio}
+                                onChange={handleChange}
+                                required
+                            />
+                        </Form.Group>
+
+                        <Button variant="primary" type="submit">Lưu</Button>
+                    </Form>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 };

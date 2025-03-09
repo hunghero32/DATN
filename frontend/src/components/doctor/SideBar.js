@@ -3,11 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 
 const menuItems = [
   { path: "/doctor/db", icon: "ri-hospital-fill", name: "Doctor Dashboard" },
-<<<<<<< HEAD
   { path: "/doctor/doctor-services", icon: "ri-map-pin-user-line", name: "Danh sách Dịch Vụ" },
   { path: "/doctor/appointment", icon: "ri-map-pin-user-line", name: "Danh sách lịch khám" },
-=======
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
+  { path: "/doctor/ReceivedAppointments", icon: "ri-map-pin-user-line", name: "lịch khám Đã nhận" },
+  { path: "/doctor/CompletedAppointments", icon: "ri-map-pin-user-line", name: "lịch khám Đã Khám xong" },
   { path: "/doctor/doctor-profile", icon: "ri-map-pin-user-line", name: "Hồ Sơ Bác Sĩ" },
   { path: "/doctor/doctor-schedule", icon: "ri-map-pin-user-line", name: "Danh sách lịch khám" },
   { path: "/doctor/schedule", icon: "ri-user-line", name: "lịch làm việc" },

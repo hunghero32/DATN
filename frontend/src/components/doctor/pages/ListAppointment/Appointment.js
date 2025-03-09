@@ -11,6 +11,7 @@ const Appointment = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [activeTab, setActiveTab] = useState('send');
   const [file, setFile] = useState(null);
+  const [acceptedAppointments, setAcceptedAppointments] = useState([]);
 
   const appointments = [
     {
@@ -49,6 +50,12 @@ const Appointment = () => {
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
+  const handleAcceptAppointment = (appointment) => {
+    appointment.status = 'Accepted';
+    setAcceptedAppointments([...acceptedAppointments, appointment]);
+    setShowModal(false);
+    alert(`${appointment.name} đã được nhận.`);
+  };
 
   return (
     <div className="container mt-5">
@@ -86,6 +93,7 @@ const Appointment = () => {
                 <td>
                   <Button variant="info" className="me-2" onClick={() => handleShowDetail(app)}>Detail</Button>
                   <Button variant="primary" className="me-2" onClick={() => handleShowInvoice(app)}>Send the Invoice</Button>
+                  <Button variant="success" className="me-2" onClick={() => handleAcceptAppointment(app)}>Nhận Bệnh</Button>
                   <Button variant="danger">Delete</Button>
                 </td>
               </tr>
@@ -193,6 +201,7 @@ const Appointment = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
+        <Button variant="success" onClick={() => handleAcceptAppointment(selectedAppointment)}>Nhận Bệnh</Button>
           <Button variant="secondary" onClick={() => setShowInvoiceModal(false)}>Close</Button>
           <Button variant="primary">Send</Button>
         </Modal.Footer>
