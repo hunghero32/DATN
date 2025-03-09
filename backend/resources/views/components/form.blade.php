@@ -55,12 +55,23 @@
                                                     {!! str_replace('*', '<span style="color: red;">*</span>', $field['label']) !!}
                                                 </label>
                                                 <div class="image-upload-container">
-                                                    <img src="{{ isset($data[$field['name']]) ? Storage::url($data[$field['name']]) : asset('admin/assets/img/default-image.png') }}"
-                                                        alt="{{ $field['label'] }}" class="image-preview-large"
-                                                        id="preview-{{ $field['name'] }}" />
-                                                    <input type="file" id="{{ $field['name'] }}"
-                                                        name="{{ $field['name'] }}" class="form-control"
-                                                        onchange="previewImage(event, 'preview-{{ $field['name'] }}')" />
+                                                    <div class="image-preview-wrapper">
+                                                        <img src="{{ isset($data[$field['name']]) ? Storage::url($data[$field['name']]) : asset('admin/assets/img/default-image.png') }}"
+                                                            alt="{{ $field['label'] }}" class="image-preview-large"
+                                                            id="preview-{{ $field['name'] }}" />
+                                                    </div>
+                                                    <div class="upload-controls">
+                                                        <label for="{{ $field['name'] }}" class="btn btn-primary upload-btn">
+                                                            <i class="bx bx-upload"></i> Chọn ảnh
+                                                            <input type="file" id="{{ $field['name'] }}"
+                                                                name="{{ $field['name'] }}" class="file-input"
+                                                                onchange="previewImage(event, 'preview-{{ $field['name'] }}')" />
+                                                        </label>
+                                                        <button type="button" class="btn btn-outline-secondary reset-btn"
+                                                            onclick="resetImage('preview-{{ $field['name'] }}', '{{ isset($data[$field['name']]) ? Storage::url($data[$field['name']]) : asset('admin/assets/img/default-image.png') }}')">
+                                                            <i class="bx bx-reset"></i> Reset
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <input type="hidden" name="{{ $field['name'] }}_current"
                                                     value="{{ $data[$field['name']] ?? '' }}">
@@ -148,6 +159,15 @@
             reader.readAsDataURL(event.target.files[0]);
         }
 
+        function resetImage(targetId, defaultImage) {
+            document.getElementById(targetId).src = defaultImage;
+            // Reset file input
+            const fileInput = document.querySelector(`#${targetId.replace('preview-', '')}`);
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Khởi tạo CKEditor cho tất cả textarea có type='textarea'
             @foreach ($fields as $field)
@@ -184,33 +204,93 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
             border: 2px dashed #e0e0e0;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 30px;
+            border-radius: 12px;
             background-color: #f8f9fa;
             transition: all 0.3s ease;
         }
 
         .image-upload-container:hover {
-            border-color: #007bff;
+            border-color: #696cff;
             background-color: #f0f7ff;
+        }
+
+        .image-preview-wrapper {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
         .image-preview-large {
             width: 100%;
-            max-height: 400px;
+            height: 100%;
             object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            background-color: white;
-            padding: 10px;
+            border-radius: 4px;
+            transition: transform 0.3s ease;
         }
 
-        .image-upload-container input[type="file"] {
-            margin-top: 10px;
+        .image-preview-large:hover {
+            transform: scale(1.02);
+        }
+
+        .upload-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .upload-btn {
+            position: relative;
+            overflow: hidden;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(105, 108, 255, 0.4);
+        }
+
+        .upload-btn i {
+            font-size: 1.2rem;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 400px;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .reset-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .reset-btn i {
+            font-size: 1.2rem;
         }
     </style>
 
