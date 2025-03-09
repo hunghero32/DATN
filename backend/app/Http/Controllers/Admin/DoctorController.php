@@ -17,8 +17,19 @@ class DoctorController extends Controller
     public function index()
     {
         $perPage = request()->get('per_page', 10);
-        $data = Doctor::where('isDeleted', 0)->paginate($perPage);
-        return view('admin.pages.doctor.index', compact('data'));
+        $data = Doctor::join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
+            ->select('doctors.*', 'specialties.name as specialty_name')
+            ->where('doctors.isDeleted', 0)
+            ->orderBy('doctors.created_at', 'desc')
+            ->paginate($perPage);
+
+        $statuses = [
+            '' => 'Tất cả trạng thái',
+            '0' => 'Chưa phê duyệt',
+            '1' => 'Đã phê duyệt'
+        ];
+
+        return view('admin.pages.doctor.index', compact('data', 'statuses'));
     }
 
     public function search(Request $request)
@@ -26,10 +37,13 @@ class DoctorController extends Controller
         $perPage = $request->get('per_page', 10);
         $exp = $request->input('exp');
         $search = $request->input('search');
+        $approve = $request->input('approve'); // Changed from 'status' to 'approve'
 
-        $query = Doctor::where('isDeleted', 0);
+        $query = Doctor::join('specialties', 'doctors.specialty_id', '=', 'specialties.id')
+            ->select('doctors.*', 'specialties.name as specialty_name')
+            ->where('doctors.isDeleted', 0);
 
-        if (!empty($exp)) {
+        if (!empty($exp) && $exp !== 'all') {
             if ($exp === '0-5') {
                 $query->whereBetween('exp', [0, 5]);
             } elseif ($exp === '6-10') {
@@ -40,12 +54,27 @@ class DoctorController extends Controller
         }
 
         if (!empty($search)) {
-            $query->where('doctor_name', 'like', '%' . $search . '%');
+            $query->where(function($q) use ($search) {
+                $q->where('doctor_name', 'like', '%' . $search . '%')
+                  ->orWhere('doctor_bio', 'like', '%' . $search . '%');
+            });
         }
 
-        $data = $query->paginate($perPage);
+        if ($approve !== null && $approve !== '') {
+            $query->where('doctors.approve', (int)$approve);
+        }
+
+        $data = $query->orderBy('doctors.created_at', 'desc')
+                     ->paginate($perPage);
         $data->appends($request->all());
-        return view('admin.pages.doctor.index', compact('data'));
+
+        $statuses = [
+            '' => 'Tất cả trạng thái',
+            '0' => 'Chưa phê duyệt',
+            '1' => 'Đã phê duyệt'
+        ];
+
+        return view('admin.pages.doctor.index', compact('data', 'statuses'));
     }
 
 

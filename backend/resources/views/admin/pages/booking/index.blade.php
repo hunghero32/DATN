@@ -8,7 +8,7 @@
             'id' => 'status',
             'name' => 'status',
             'options' => [
-                'all' => 'Tất cả',
+                '' => 'Tất cả',
                 'pending' => 'Đang chờ',
                 'confirmed' => 'Đã xác nhận',
                 'completed' => 'Hoàn thành',

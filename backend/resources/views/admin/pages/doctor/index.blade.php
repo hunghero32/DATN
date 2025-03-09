@@ -13,7 +13,16 @@
                 '6-10' => '6 - 10 năm',
                 '10+' => 'Trên 10 năm',
             ]
-        ]
+        ],
+        [
+            'id' => 'status',
+            'name' => 'approve',
+            'options' => [
+                'all' => 'Tất cả',
+                '1' => 'Hoạt động',
+                '0' => 'Không hoạt động',
+            ]
+        ],
     ];
 
     $specialties = $data->pluck('specialty_id', 'specialty_name')->toArray();

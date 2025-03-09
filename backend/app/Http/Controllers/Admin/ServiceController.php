@@ -19,10 +19,11 @@ class ServiceController extends Controller
             ->join('categories', 'categories.id', 'services.category_id')
             ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
             ->where('services.isDeleted', 0)
+            ->orderBy('services.created_at', 'desc')
             ->paginate($perPage);
 
-        $specialties = Specialty::pluck('name', 'id')->toArray();
-        $categories = Category::pluck('name', 'id')->toArray();
+        $specialties = Specialty::where('isDeleted', 0)->pluck('name', 'id')->toArray();
+        $categories = Category::where('isDeleted', 0)->pluck('name', 'id')->toArray();
         $statuses = [
             '' => 'Tất cả trạng thái',
             '0' => 'Không hoạt động',
@@ -39,17 +40,26 @@ class ServiceController extends Controller
         $status = $request->input('status');
         $specialty_id = $request->input('specialty_id');
         $category_id = $request->input('category_id');
+        $price_from = $request->input('price_from');
+        $price_to = $request->input('price_to');
 
         $query = Services::join('specialties', 'specialties.id', 'services.specialty_id')
             ->join('categories', 'categories.id', 'services.category_id')
             ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
-            ->where('services.isDeleted', 0);
+            ->where('services.isDeleted', 0)
+            ->where('specialties.isDeleted', 0)
+            ->where('categories.isDeleted', 0);
 
         if (!empty($search)) {
-            $query->where('services.services_name', 'like', '%' . $search . '%');
+            $query->where(function($q) use ($search) {
+                $q->where('services.services_name', 'like', '%' . $search . '%')
+                  ->orWhere('services.description', 'like', '%' . $search . '%')
+                  ->orWhere('categories.name', 'like', '%' . $search . '%')
+                  ->orWhere('specialties.name', 'like', '%' . $search . '%');
+            });
         }
 
-        if (!empty($status)) {
+        if ($status !== null && $status !== '') {
             $query->where('services.status', $status);
         }
 
@@ -61,10 +71,20 @@ class ServiceController extends Controller
             $query->where('services.category_id', $category_id);
         }
 
-        $data = $query->paginate($perPage);
+        if (!empty($price_from)) {
+            $query->where('services.price', '>=', $price_from);
+        }
+
+        if (!empty($price_to)) {
+            $query->where('services.price', '<=', $price_to);
+        }
+
+        $data = $query->orderBy('services.created_at', 'desc')
+                     ->paginate($perPage);
         $data->appends($request->all());
-        $specialties = Specialty::pluck('name', 'id')->toArray();
-        $categories = Category::pluck('name', 'id')->toArray();
+
+        $specialties = Specialty::where('isDeleted', 0)->pluck('name', 'id')->toArray();
+        $categories = Category::where('isDeleted', 0)->pluck('name', 'id')->toArray();
         $statuses = [
             '' => 'Tất cả trạng thái',
             '0' => 'Không hoạt động',
