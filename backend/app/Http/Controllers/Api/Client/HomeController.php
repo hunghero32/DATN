@@ -26,6 +26,16 @@ class HomeController extends Controller
             ->take(4)
             ->get();
 
+        // If no popular services found, get random services
+        if ($popularServices->isEmpty()) {
+            $popularServices = Services::where('status', 'completed')
+                ->where('isDeleted', 0)
+                ->with('specialty')
+                ->inRandomOrder()
+                ->take(4)
+                ->get();
+        }
+
         // Lấy danh sách tất cả bác sĩ
         $doctors = Doctor::with('specialty')
             ->where('approve', 1)
