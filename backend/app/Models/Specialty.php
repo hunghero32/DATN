@@ -12,6 +12,7 @@ class Specialty extends Model
         'description',
         'icon',
         'image',
+        'isDeleted'
     ];
     public function services() {
         return $this->hasMany(Services::class);

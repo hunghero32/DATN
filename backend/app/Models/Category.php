@@ -12,6 +12,7 @@ class Category extends Model
         'parent_id',
         'name',
         'description',
+        'isDeleted',
     ];
     public function parent() // Quan hệ danh mục cha
     {
