@@ -17,6 +17,7 @@ class Services extends Model
         'price',
         'duration',
         'status',
+        'isDeleted'
     ];
 
     // Quan hệ với bảng Specialty

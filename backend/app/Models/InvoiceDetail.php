@@ -11,6 +11,7 @@ class InvoiceDetail extends Model
     protected $fillable = [
         'invoice_id',
         'booking_id',
+        'isDeleted'
     ];
 
     // Quan hệ với bảng Invoice

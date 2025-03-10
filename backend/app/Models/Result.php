@@ -15,6 +15,7 @@ class Result extends Model
         'diagnosis',
         'note',
         'file',
+        'isDeleted'
     ];
 
     // Quan hệ với bảng Booking

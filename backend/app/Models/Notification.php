@@ -15,6 +15,7 @@ class Notification extends Model
         'content',
         'type',
         'is_read',    // Trạng thái đã đọc
+        'isDeleted',
     ];
 
     // Quan hệ với bảng User

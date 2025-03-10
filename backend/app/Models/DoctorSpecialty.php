@@ -12,6 +12,7 @@ class DoctorSpecialty extends Model
     protected $fillable = [
         'doctor_id',
         'specialty_id',
+        'isDeleted',
     ];
 
     // Quan hệ với bảng Doctor

@@ -22,5 +22,6 @@ class System extends Model
         'address',
         'hotline',
         'banner',
+        'isDeleted',
     ];
 }

@@ -19,6 +19,7 @@ class Post extends Model
         'views',
         'status',
         'published_at',
+        'isDeleted',
     ];
 
     protected $casts = [

@@ -17,6 +17,7 @@ class MedicalRecord extends Model
         'family_history',
         'treatment',
         'note',
+        'isDeleted',
     ];
 
     // Quan hệ với bảng Guest

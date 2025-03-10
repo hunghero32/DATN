@@ -17,6 +17,7 @@ class Guest extends Model
         'guest_email',
         'address',
         'file',
+        'isDeleted',
     ];
     protected $casts = [
         'address' => 'array',
