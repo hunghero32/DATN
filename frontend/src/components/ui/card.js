@@ -1,8 +1,10 @@
+// src/components/ui/Card.jsx
+import React from "react";
+
 export const Card = ({ children, className }) => {
-    return <div className={`border p-4 rounded-lg shadow ${className}`}>{children}</div>;
-  };
-  
-  export const CardContent = ({ children }) => {
-    return <div className="p-2">{children}</div>;
-  };
-  
+  return (
+    <div className={`border rounded-lg shadow-md p-4 bg-white ${className}`}>
+      {children}
+    </div>
+  );
+};

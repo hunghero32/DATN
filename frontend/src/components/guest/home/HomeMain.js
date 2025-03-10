@@ -1,14 +1,10 @@
 import { useState } from "react";
 import About from "./About";
-import Appointment from "./Appointment";
 import ArticleList from "./BaiViet";
 import Categori from "./Categori";
 import ClinicDetail from "./GioiThieuPhongKham";
 import Banner from "./HomeBanner";
-import Service from "./Service";
-import ServiceDetail from "./ServiceDetail";
 import ServiceOut from "./ServiceOut";
-import Team from "./Team";
 import TopSpecialties from "./TopChuyenKhoa";
 import TopBookedServices from "./TopDichVu";
 import { MessageCircle } from "lucide-react";
@@ -26,7 +22,7 @@ export default function HomeMain() {
       <Categori />
       <ServiceOut />
       {/* <Appointment />   // Trang đặt lịch khám  */}
-      <ClinicDetail />
+      <ClinicDetail />    { /* Trang giới thiệu phòng khám */}
       <ArticleList />
       {/* <Team/> */}
       <Chatbot
