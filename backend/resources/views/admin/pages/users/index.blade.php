@@ -1,70 +1,86 @@
 @extends('admin.index')
 
-@section('title', 'Thông tin nguoi dung')
+@section('title', 'Danh sách người dùng')
 
 @section('content')
     <div class="content-wrapper">
-        <div class="container-xxl flex-grow-1 container-p-y">
-            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Tables /</span> USERS</h4>
+        <div class="container-xxl">
+            <h4 class="fw-bold py-3 mb-4">Danh sách người dùng</h4>
 
+            <!-- Thanh tìm kiếm & bộ lọc -->
+            <form action="{{ route('admin.users.index') }}" method="GET" class="mb-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm theo tên, email, SĐT"
+                            value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="role" class="form-control">
+                            <option value="">-- Chọn vai trò --</option>
+                            <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="doctor" {{ request('role') == 'doctor' ? 'selected' : '' }}>Doctor</option>
+                            <option value="guest" {{ request('role') == 'guest' ? 'selected' : '' }}>Guest</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" name="created_at" class="form-control" value="{{ request('created_at') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">Lọc</button>
+                    </div>
+                </div>
+            </form>
             <div class="text-end mb-3">
-                <a href="{{route('admin.users.create')}}" class="btn btn-success">Thêm mới</a>
+                <a href="{{ route('admin.users.create') }}" class="btn btn-success">Thêm mới</a>
             </div>
 
-            <div class="card mt-3">
-                <div class="table-responsive text-nowrap">
-                    <table class="table table-bordered table-hover align-middle">
-                        <thead class="table-dark text-center">
+            <!-- Bảng danh sách người dùng -->
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
                             <tr>
-                                <th>ID</th>
-                                <th>NAME</th>
-                                <th>EMAIL</th>
-                                <th>PHONE</th>
-                                <th>social_id</th>
-                                <th>social_provider</th>
-                                <th>password</th>
-                                <th>ROLE</th>
+                                <th>STT</th>
+                                <th>Tên</th>
+                                <th>Email</th>
+                                <th>SĐT</th>
+                                <th>Vai trò</th>
+                                <th>Ngày tạo</th>
                                 <th>Hành động</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                            @foreach ($user as $key => $value)
+                            @foreach ($users as $user)
                                 <tr>
-                                    <td class="text-center"><strong>{{ $key + 1 }}</strong></td>
+                                    {{-- <td>{{ $user->id }}</td> --}}
+                                    <td>{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
 
-                                    <td>{{ $value->name }}</td>
-                                    <td>{{ $value->email }}</td>
-                                    <td>{{ $value->phone }}</td>
-                                    <td class="text-center">{{ $value->social_id }}</td>
-                                    <td class="text-center">{{ $value->social_provider }}</td>
-                                    <td class="text-center">{{ $value->password }}</td>
-                                    <td class="text-center">
-                                        <span class="badge bg-warning text-dark">{{ ucfirst($value->role) }}</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <a class="btn btn-primary btn-sm"
-                                                href="{{route('admin.users.edit', $value->id)}}">
-                                                <i class="bx bx-edit-alt"></i> Sửa
-                                            </a>
-                                            <form action="{{route('admin.users.delete',$value->id)}}" method="POST"
-                                                onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
-                                                @method('delete')
-                                                @csrf
-                                                <button type="submit" class="btn btn-danger btn-sm">
-                                                    <i class="bx bx-trash"></i> Xóa
-                                                </button>
-                                            </form>
-                                        </div>
+                                    <td>{{ $user->name }}</td>
+                                    <td>{{ $user->email }}</td>
+                                    <td>{{ $user->phone }}</td>
+                                    <td>{{ $user->role ?? 'Không có vai trò' }}</td>
+                                    <td>{{ $user->created_at->format('d-m-Y') }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.users.edit', $user->id) }}"
+                                            class="btn btn-primary btn-sm">Sửa</a>
+                                        <form action="{{ route('admin.users.delete', $user->id) }}" method="POST"
+                                            onsubmit="return confirm('Bạn có chắc không?')" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-danger btn-sm">Xóa</button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Phân trang -->
+                <div class="card-footer">
+                    {{ $users->links() }}
+                </div>
             </div>
         </div>
-        <div class="content-backdrop fade"></div>
     </div>
 @endsection

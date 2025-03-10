@@ -54,9 +54,9 @@ class DoctorController extends Controller
         }
 
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('doctor_name', 'like', '%' . $search . '%')
-                  ->orWhere('doctor_bio', 'like', '%' . $search . '%');
+                    ->orWhere('doctor_bio', 'like', '%' . $search . '%');
             });
         }
 
@@ -65,7 +65,7 @@ class DoctorController extends Controller
         }
 
         $data = $query->orderBy('doctors.created_at', 'desc')
-                     ->paginate($perPage);
+            ->paginate($perPage);
         $data->appends($request->all());
 
         $statuses = [
@@ -85,8 +85,6 @@ class DoctorController extends Controller
 
             'specialties' => Specialty::pluck('name', 'id')->toArray()
         ]);
-
-
     }
 
 
@@ -213,9 +211,9 @@ class DoctorController extends Controller
             'specialty_id' => $request->specialty_id,
             'exp' => $request->exp ?? 0,
             'approve' => $request->has('approve'),
-    ]);
+        ]);
 
-    return redirect()->route('admin.doctors.index')->with('success', 'Chỉnh sửa bác sĩ thành công !');
+        return redirect()->route('admin.doctors.index')->with('success', 'Chỉnh sửa bác sĩ thành công !');
     }
 
     public function destroy($id)
@@ -231,5 +229,4 @@ class DoctorController extends Controller
             return redirect()->route('admin.doctors.index')->with('error', 'Bạn không thể xóa bác sĩ này vì đã được phê duyệt.');
         }
     }
-
 }
