@@ -1,18 +1,104 @@
-import React from "react";
-
-const patientData = {
-  id: "123456",
-  name: "Nguyễn Văn A",
-  gender: "Nam",
-  address: "123 Đường Lê Lai, Quận 1, TP.HCM",
-  notes: "Bệnh nhân có tiền sử cao huyết áp.",
-  phone: "0123456789",
-  email: "nguyenvana@gmail.com",
-  avatar: "https://via.placeholder.com/150", 
-  pdfFile: "/path/to/file.pdf",
-};
+import React, { useEffect, useState } from "react";
+import api from "../../../ultils/api/axios";
 
 const PatientProfile = () => {
+  const [patientData, setPatientData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    currentPassword: "",
+    password: "",
+    password_confirmation: "",
+  });
+
+  // 🟢 Lấy dữ liệu bệnh nhân khi component được tải
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      try {
+        const response = await api.get("api/profile");
+        console.log("Dữ liệu từ API:", response.data);
+
+        if (response.data.user) {
+          setPatientData(response.data.user);
+          setFormData({
+            name: response.data.user.name || "",
+            email: response.data.user.email || "",
+            phone: response.data.user.phone || "",
+            currentPassword: "",
+            password: "",
+            password_confirmation: "",
+          });
+        } else {
+          setError("Không có dữ liệu người dùng.");
+        }
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu:", error.response?.data || error.message);
+        setError("Không thể tải dữ liệu bệnh nhân.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatientData();
+  }, []);
+
+  // 🟢 Xử lý thay đổi input
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  // 🟢 Cập nhật hồ sơ bệnh nhân
+  const handleUpdateProfile = async () => {
+    setUpdateStatus("loading");
+    setError("");
+
+    try {
+      const updateData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+      };
+
+      if (formData.password.trim() !== "") {
+        updateData.password = formData.password;
+        updateData.password_confirmation = formData.password_confirmation;
+      }
+
+      if (formData.currentPassword.trim() !== "") {
+        updateData.currentPassword = formData.currentPassword;
+      }
+
+      console.log("Dữ liệu gửi lên API:", updateData);
+
+      const response = await api.put("api/profile", updateData);
+      console.log("Phản hồi từ API sau khi cập nhật:", response.data);
+
+      setPatientData(response.data.user);
+      setIsEditing(false);
+      setUpdateStatus("success");
+      setFormData({ ...formData, currentPassword: "", password: "", password_confirmation: "" });
+    } catch (error) {
+      console.error("Lỗi API:", error.response?.data || error.message);
+      if (error.response?.status === 422) {
+        setError(error.response?.data?.message || "Dữ liệu nhập không hợp lệ.");
+      } else {
+        setError("Đã xảy ra lỗi không xác định.");
+      }
+      setUpdateStatus("error");
+    }
+  };
+
+  if (loading) return <p className="text-center text-gray-500">Đang tải dữ liệu...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
+
   return (
     <div className="container mx-auto p-6">
       <div className="text-center mb-8">
@@ -23,28 +109,101 @@ const PatientProfile = () => {
       <div className="bg-white shadow-xl rounded-lg p-6 flex flex-col md:flex-row mb-6">
         <div className="flex-none mb-6 md:mb-0 md:w-1/4">
           <img
-            src={patientData.avatar}
-            alt={patientData.name}
+            src={patientData?.avatar || "https://via.placeholder.com/150"}
+            alt={patientData?.name || "Avatar"}
             className="w-32 h-32 rounded-full mx-auto border-4 border-blue-300"
           />
         </div>
 
         <div className="md:ml-6 flex-1">
-          <h2 className="text-2xl font-semibold text-gray-800">{patientData.name}</h2>
-          <div className="space-y-3 mt-4">
-            <p className="text-gray-600"><strong>ID:</strong> {patientData.id}</p>
-            <p className="text-gray-600"><strong>Giới tính:</strong> {patientData.gender}</p>
-            <p className="text-gray-600"><strong>Địa chỉ:</strong> {patientData.address}</p>
-            <p className="text-gray-600"><strong>Số điện thoại:</strong> {patientData.phone}</p>
-            <p className="text-gray-600"><strong>Email:</strong> {patientData.email}</p>
-            <p className="text-gray-600"><strong>Ghi chú:</strong> {patientData.notes}</p>
-          </div>
+          {isEditing ? (
+            <div className="space-y-3 mt-4">
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Họ và tên"
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Email"
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder="Số điện thoại"
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="password"
+                name="currentPassword"
+                value={formData.currentPassword}
+                onChange={handleInputChange}
+                placeholder="Mật khẩu hiện tại (nếu muốn đổi)"
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Mật khẩu mới"
+                className="w-full p-2 border rounded"
+              />
+              <input
+                type="password"
+                name="password_confirmation"
+                value={formData.password_confirmation}
+                onChange={handleInputChange}
+                placeholder="Nhập lại mật khẩu mới"
+                className="w-full p-2 border rounded"
+              />
+              <div className="flex gap-4">
+                <button
+                  className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                  onClick={handleUpdateProfile}
+                >
+                  Lưu
+                </button>
+                <button
+                  className="bg-gray-400 text-white py-2 px-4 rounded hover:bg-gray-500"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3 mt-4">
+              <p className="text-gray-600"><strong>Họ và tên:</strong> {patientData?.name}</p>
+              <p className="text-gray-600"><strong>Email:</strong> {patientData?.email}</p>
+              <p className="text-gray-600"><strong>Số điện thoại:</strong> {patientData?.phone}</p>
+              <button
+                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                onClick={() => setIsEditing(true)}
+              >
+                Chỉnh sửa
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
+      {updateStatus === "success" && <p className="text-center text-green-600">Cập nhật thành công!</p>}
+      {updateStatus === "error" && <p className="text-center text-red-600">{error}</p>}
+      {updateStatus === "loading" && <p className="text-center text-gray-500">Đang cập nhật...</p>}
+
       <div className="text-center">
         <a
-          href={patientData.pdfFile}
+          href={patientData?.pdfFile || "#"}
           className="bg-green-600 text-white py-2 px-6 rounded-full hover:bg-green-700 transition"
           target="_blank"
           rel="noopener noreferrer"

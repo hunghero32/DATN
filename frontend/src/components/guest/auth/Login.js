@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Form, Input, Button } from "antd";
+import { Form, Input, Button, message, notification } from "antd";
 import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import api from "../../../ultils/api/axios";
 
 export default function Login() {
-  
+  const [apiMessage, contextHolder] = message.useMessage();
   const nav = useNavigate();
   const [form] = Form.useForm();
   const [serverError, setServerError] = useState(""); // Lưu lỗi từ API
@@ -18,9 +18,14 @@ export default function Login() {
     },
     onSuccess: (data) => {
       window.localStorage.setItem("token", data.token);
-      setTimeout(() => {
-        nav("/");
-      }, 1000);
+        notification.success({
+        message: "Đăng nhập thành công!",
+        description: "Chào mừng bạn quay trở lại.",
+        duration: 2, // Hiển thị trong 2 giây
+        placement: "topRight", // Vị trí góc trên phải
+      });
+      nav('/')
+      
     },
     onError: (error) => {
       setServerError(error.response?.data?.message || "Đăng nhập thất bại.");
@@ -28,13 +33,14 @@ export default function Login() {
   });
 
   const onFinish = (values) => {
-    console.log("Form Data:", values);
+    console.log("📝 Dữ liệu gửi đi:", values);
     setServerError(""); // Xóa lỗi trước khi gửi request
     mutate(values);
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      {contextHolder}
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6">Đăng Nhập</h1>
         <Form
@@ -70,14 +76,17 @@ export default function Login() {
             <Input.Password placeholder="Nhập mật khẩu" className="w-full" />
           </Form.Item>
 
+          {/* Hiển thị lỗi từ server */}
           {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
 
+          {/* Nút đăng nhập */}
           <Form.Item>
             <Button type="primary" htmlType="submit" block loading={isPending}>
               Đăng nhập
             </Button>
           </Form.Item>
 
+          {/* Quên mật khẩu */}
           <div className="text-center">
             <Link to="/forgot-password" className="text-blue-500 hover:underline">
               Quên mật khẩu?
@@ -85,6 +94,7 @@ export default function Login() {
           </div>
         </Form>
 
+        {/* Đăng ký */}
         <div className="text-center mt-4">
           <p>
             Chưa có tài khoản?{" "}
