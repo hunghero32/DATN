@@ -15,6 +15,7 @@ class Feedback extends Model
         'rating',
         'comments',
         'status',
+        'isDeleted',
     ];
 
     // Quan hệ với bảng Guest

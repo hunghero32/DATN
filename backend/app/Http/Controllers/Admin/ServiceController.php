@@ -141,7 +141,7 @@ class ServiceController extends Controller
 
         // Lấy dữ liệu hợp lệ và thêm giá trị mặc định cho status
         $validatedData = $validator->validated();
-        $validatedData['status'] = 0; // Gán giá trị mặc định
+        $validatedData['status'] = $request->has('status'); // Gán giá trị mặc định
 
         if($request->has('image')){
             $image=$request->file('image')->store('services', 'public');
@@ -168,7 +168,6 @@ class ServiceController extends Controller
     }
     public function update(Request $request, $id)
     {
-        // Tìm dịch vụ theo ID
         $service = Services::findOrFail($id);
 
         // Quy tắc kiểm tra dữ liệu (validate)
@@ -208,7 +207,7 @@ class ServiceController extends Controller
 
         // Lấy dữ liệu hợp lệ
         $validatedData = $validator->validated();
-        $validatedData['status'] = $service->status;
+        $validatedData['status'] = $request->has('status') ? 1 : 0;  // Changed this line
 
         if ($request->hasFile('image')) {
             // Xóa ảnh cũ nếu tồn tại

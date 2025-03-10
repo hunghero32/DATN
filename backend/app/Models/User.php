@@ -24,7 +24,8 @@ class User extends Authenticatable
         'phone',
         'social_id',
         'social_provider',
-        'role'
+        'role',
+        'isDeleted'
     ];
 
     /**
@@ -46,7 +47,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    
+
     // Kiểm tra quyền
     public function isAdmin()
     {

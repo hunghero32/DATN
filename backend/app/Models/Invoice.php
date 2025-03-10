@@ -12,6 +12,7 @@ class Invoice extends Model
         'total_amount',
         'discount',
         'tax',
+        'isDeleted'
     ];
 
     /**
