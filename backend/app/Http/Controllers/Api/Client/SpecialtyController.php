@@ -8,8 +8,22 @@ use App\Models\Doctor;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 
-class DetailSpecialtyController extends Controller
+class SpecialtyController extends Controller
 {
+    public function listSpecialty(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $specialties = Specialty::where('isDeleted', 0)
+            ->select('id', 'name', 'description', 'image')
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Danh sách chuyên khoa',
+            'data' => $specialties
+        ]);
+    }
     public function detailSpecialty(Request $request)
     {
         // Lấy Specialty theo ID và kiểm tra isDeleted = 0
