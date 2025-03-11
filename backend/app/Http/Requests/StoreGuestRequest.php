@@ -28,7 +28,7 @@ class StoreGuestRequest extends FormRequest
             'birthday' => 'nullable|date',
             'guest_phone' => 'nullable|string|max:20',
             'guest_email' => 'nullable|email|unique:guests,guest_email',
-            'address' => 'nullable|json',
+            'address' => 'nullable',
             'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ];
     }

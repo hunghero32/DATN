@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\GuestController;
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -60,28 +61,28 @@ Route::prefix('admin')->group(function () {
     ////*****************     End Doctors    *******************////
 
 
-     ////*****************     Start Schedule    *******************////
-     Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
-     Route::get("doctor-schedule-create",[SchedulesController::class,'create'])->name('admin.schedule.create');
-     Route::post("doctor-schedule-save",[SchedulesController::class,'store'])->name('admin.schedule.store');
-     Route::get("doctor-schedule-{schedule}/edit",[SchedulesController::class,'edit'])->name('admin.schedule.edit');
-     Route::put("doctor-schedule-{schedule}",[SchedulesController::class,'update'])->name('admin.schedule.update');
-     Route::delete("doctor-schedule-{schedule}",[SchedulesController::class,'destroy'])->name('admin.schedule.delete');
-     Route::get("doctor-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
+    ////*****************     Start Schedule    *******************////
+    Route::get("doctor-schedule", [SchedulesController::class, 'index'])->name('admin.schedule.index');
+    Route::get("doctor-schedule-create", [SchedulesController::class, 'create'])->name('admin.schedule.create');
+    Route::post("doctor-schedule-save", [SchedulesController::class, 'store'])->name('admin.schedule.store');
+    Route::get("doctor-schedule-{schedule}/edit", [SchedulesController::class, 'edit'])->name('admin.schedule.edit');
+    Route::put("doctor-schedule-{schedule}", [SchedulesController::class, 'update'])->name('admin.schedule.update');
+    Route::delete("doctor-schedule-{schedule}", [SchedulesController::class, 'destroy'])->name('admin.schedule.delete');
+    Route::get("doctor-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
 
 
 
 
-     ////*****************     End Schedule    *******************////
+    ////*****************     End Schedule    *******************////
 
 
 
-     ////*****************     Start Bookings    *******************////
-        Route::get("bookings",[BookingController::class,'index'])->name('admin.bookings.index');
-        Route::get("bookings-create",[BookingController::class,'create'])->name('admin.bookings.create');
-        Route::put("bookings-{booking}",[BookingController::class,'update'])->name('admin.bookings.update');
-        Route::delete("bookings-{booking}",[BookingController::class,'destroy'])->name('admin.bookings.delete');
-        Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
+    ////*****************     Start Bookings    *******************////
+    Route::get("bookings", [BookingController::class, 'index'])->name('admin.bookings.index');
+    Route::get("bookings-create", [BookingController::class, 'create'])->name('admin.bookings.create');
+    Route::put("bookings-{booking}", [BookingController::class, 'update'])->name('admin.bookings.update');
+    Route::delete("bookings-{booking}", [BookingController::class, 'destroy'])->name('admin.bookings.delete');
+    Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
 
     ////*****************     End Bookings    *******************////
 
@@ -126,11 +127,20 @@ Route::prefix('admin')->group(function () {
 
     ////****************   Start  useruser  **************////
     Route::get('users', [UserController::class, 'index'])->name('admin.users.index');
-    Route::get('users-create',[UserController::class,'create'])->name('admin.users.create');
-    Route::post('users-store',[UserController::class, 'store'])->name('admin.users.store');
-    route::delete('users-delete/{id}',[UserController::class ,'delete'])->name('admin.users.delete');
-    route::get('users-edit/{id}',[UserController::class ,'edit'])->name('admin.users.edit');
-    route::put('users-update/{id}',[UserController::class,'update'])->name('admin.users.update');
+    Route::get('users-create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('users-store', [UserController::class, 'store'])->name('admin.users.store');
+    route::delete('users-delete/{id}', [UserController::class, 'delete'])->name('admin.users.delete');
+    route::get('users-edit/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
+    route::put('users-update/{id}', [UserController::class, 'update'])->name('admin.users.update');
+
+
+    ////****************   Start  geust   **************////
+    Route::get('guests', [GuestController::class, 'index'])->name('admin.guests.index');
+    Route::get('guests-create', [GuestController::class, 'create'])->name('admin.guests.create');
+    Route::post('guests', [GuestController::class, 'store'])->name('admin.guests.store');
+    Route::delete('guests-delete/{id}',[GuestController::class,'delete'])->name('admin.guests.delete');
+    route::get('guests-edit/{id}', [GuestController::class, 'edit'])->name('admin.guests.edit');
+    route::put('guests-update/{id}', [GuestController::class, 'update'])->name('admin.guests.update');
 
 
 });
