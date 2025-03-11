@@ -15,17 +15,29 @@ class ServiceController extends Controller
         return response()->json(["Danh sách dịch vụ",$services]);
     }
     public function detailService(Request $request)
-    {
-        $services = Services::where('status', 1)
-            ->where('isDeleted', 0)
-            ->where('id', $request->id)
-            ->with(['category:id,name', 'specialty:id,name,image'])
-            ->first();
+{
+    // Lấy thông tin dịch vụ cùng chuyên khoa và danh mục
+    $service = Services::where('status', 1)
+        ->where('isDeleted', 0)
+        ->where('id', $request->id)
+        ->with([
+            'category:id,name',
+            'specialty:id,name,image',
+            'doctors' => function ($query) {
+                $query->where('isDeleted', 0)
+                    ->where('approve', 1)
+                    ->with(['schedules' => function ($q) {
+                        $q->where('isDeleted', 0);
+                    }]);
+            }
+        ])
+        ->first();
 
-        if (!$services) {
-            return response()->json(['message' => 'Service not found'], 404);
-        }
-
-        return response()->json($services);
+    if (!$service) {
+        return response()->json(['message' => 'Service not found'], 404);
     }
+
+    return response()->json($service);
+}
+
 }
