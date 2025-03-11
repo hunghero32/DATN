@@ -7,10 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Models\Booking;
 use App\Models\Guest;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
-    // Lưu thông tin booking tạm thời
+    public function __construct()
+    {
+        // $this->middleware('auth:client_api'); // Yêu cầu đăng nhập qua API
+        $this->middleware('web'); // Đã thêm trước đó cho session
+    }
     public function tempBooking(Request $request)
     {
         $data = $request->validate([
@@ -18,26 +23,28 @@ class BookingController extends Controller
             'doctor_id' => 'required',
             'schedule_id' => 'required',
             'date' => 'required|date',
-            'service_id' => 'required',  // Add this
-            'time' => 'required'         // Add this
+            'service_id' => 'required',
+            'time' => 'required'
         ]);
 
-        // Store in session
         Session::put('temp_booking', $data);
-
-        // Force session to be saved
         Session::save();
+
+        // Debug
+        Log::info('Temp booking saved: ' . json_encode(Session::get('temp_booking')));
 
         return response()->json([
             'status' => true,
             'message' => 'Lưu thông tin đặt lịch tạm thời thành công',
             'data' => $data
-        ])->withCookie(cookie('laravel_session', Session::getId()));
+        ]);
     }
 
-    // Lấy thông tin booking tạm thời
     public function getTempBooking()
     {
+        // Debug
+        Log::info('Session in getTempBooking: ' . json_encode(Session::all()));
+
         $data = Session::get('temp_booking', []);
 
         return response()->json([
@@ -47,11 +54,8 @@ class BookingController extends Controller
         ]);
     }
 
-
-   // Lưu booking vào database
-   public function confirmBooking(Request $request)
+    public function confirmBooking(Request $request)
     {
-        // Validate request
         $validated = $request->validate([
             'guest_name' => 'required|string|max:255',
             'gender' => 'required|in:male,female,other',
@@ -62,9 +66,7 @@ class BookingController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        // Kiểm tra dữ liệu booking tạm thời
         $tempBooking = Session::get('temp_booking');
-
         if (!$tempBooking) {
             return response()->json([
                 'status' => false,
@@ -72,18 +74,13 @@ class BookingController extends Controller
             ], 400);
         }
 
-        // Add logging to debug
-
-
-        // Kiểm tra khách đã tồn tại chưa
         $guest = Guest::where('guest_phone', $request->guest_phone)
-                      ->orWhere('guest_email', $request->guest_email)
-                      ->first();
+            ->orWhere('guest_email', $request->guest_email)
+            ->first();
 
         if (!$guest) {
-            // Tạo mới guest nếu chưa có
             $guest = Guest::create([
-                'user_id' => $request->user_id ?? null, // Nếu có user_id (nếu user đã đăng nhập)
+                'user_id' => $request->user_id ?? 2, // user_id có thể là NULL
                 'guest_name' => $request->guest_name,
                 'gender' => $request->gender,
                 'birthday' => $request->birthday,
@@ -94,18 +91,16 @@ class BookingController extends Controller
             ]);
         }
 
-        // Tạo booking với thông tin khách
         $booking = Booking::create([
             'doctor_id' => $tempBooking['doctor_id'],
             'service_id' => $tempBooking['service_id'],
-            'guest_id' => $guest->id, // Liên kết với guest
+            'guest_id' => $guest->id,
             'booking_date' => $tempBooking['date'],
             'booking_time' => $tempBooking['time'],
             'notes' => $request->notes ?? null,
             'status' => 'pending'
         ]);
 
-        // Xóa session sau khi lưu thành công
         Session::forget('temp_booking');
 
         return response()->json([

@@ -22,10 +22,11 @@ Route::get('/list-service',[ServiceController::class,'listService']);
 Route::get('/detail-service/{id}',[ServiceController::class,'detailService']);
 
 
-// *************** lấy ra booking ************************/
-Route::post('/temp-booking', [BookingController::class, 'tempBooking']);  // Lưu tạm booking
-Route::get('/get-temp-booking', [BookingController::class, 'getTempBooking']); // Lấy booking tạm thời
-Route::post('/confirm-booking', [BookingController::class, 'confirmBooking']); // Xác nhận booking và lưu thông tin khách
+Route::middleware('web')->group(function () {
+    Route::post('/temp-booking', [BookingController::class, 'tempBooking']);
+    Route::get('/get-temp-booking', [BookingController::class, 'getTempBooking']);
+    Route::post('/confirm-booking', [BookingController::class, 'confirmBooking']);
+});
 
 
 
