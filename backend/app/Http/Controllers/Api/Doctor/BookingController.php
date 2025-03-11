@@ -17,6 +17,7 @@ class BookingController extends Controller
     {
         // Sử dụng Scope để xử lý tìm kiếm và bộ lọc trong model Booking đọc kỹ vào nhé :))
         $bookings = Booking::with(['doctor', 'service', 'guest'])
+            ->where('isDeleted', 0)
             ->searchGuest($request->search) // search theo tên, sđt, email của guest
             ->filterGender($request->gender) // lọc theo giới tính
             ->filterAge($request->age) // lọc theo độ tuổi
@@ -27,14 +28,14 @@ class BookingController extends Controller
             ->when(auth()->user()->role === 'doctor' && $request->status === 'completed', function ($query) {
                 return $query->filterDoctorCompleted(); // lọc theo trạng thái hoàn thành
             })
-            ->latest('updated_at') 
+            ->latest('updated_at')
             ->paginate(10);
-            if ($bookings->isEmpty()) {
-                return response()->json([
-                    'message' => 'Không tìm thấy thông tin đặt lịch phù hợp.',
-                    'data' => []
-                ], 200);
-            }
+        if ($bookings->isEmpty()) {
+            return response()->json([
+                'message' => 'Không tìm thấy thông tin đặt lịch phù hợp.',
+                'data' => []
+            ], 200);
+        }
         return response()->json($bookings, 200);
     }
     /**
