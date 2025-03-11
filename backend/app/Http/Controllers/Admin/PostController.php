@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePostRequest;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Category;
@@ -10,15 +11,46 @@ use App\Models\User;
 
 class PostController  extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $post = Post::with('category', 'user')->get();
+        $query = Post::query()->with('category', 'user');
 
-        return view('admin.pages.posts.index')->with([
-            'post' => $post
+        // Tìm kiếm theo tiêu đề, nội dung, tác giả
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%$search%")
+                    ->orWhere('content', 'like', "%$search%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('name', 'like', "%$search%");
+                    });
+            });
+        }
 
-        ]);
+        // Lọc theo danh mục
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Lọc theo trạng thái
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Lọc theo ngày xuất bản
+        if ($request->filled('published_at')) {
+            $query->whereDate('published_at', $request->published_at);
+        }
+
+        // Phân trang (10 bài viết mỗi trang)
+        $posts = $query->paginate(10);
+
+        // Lấy danh sách danh mục để hiển thị bộ lọc
+        $categories = Category::all();
+
+        return view('admin.pages.posts.index', compact('posts', 'categories'));
     }
+
     public function create()
     {
         $categories = Category::all();
@@ -33,23 +65,15 @@ class PostController  extends Controller
 
         ]);
     }
-    public function store(Request $rep)
+    public function store(StorePostRequest $rep)
     {
-        //dd($rep->all());
-        $data = [
-            'title' => $rep->title,
-            'content' => $rep->content,
-            'category_id' => $rep->category_id,
-            'user_id' => $rep->user_id,
-            'status' => $rep->status,
-            'slug' => $rep->slug,
+        $data = $rep->validated(); // Lấy dữ liệu đã validate
 
-
-
-        ];
         Post::create($data);
-        return redirect()->route('admin.posts.index');
+
+        return redirect()->route('admin.posts.index')->with('success', 'Bài viết đã được tạo thành công.');
     }
+
     public function delete($id)
     {
         $post = Post::find($id);
