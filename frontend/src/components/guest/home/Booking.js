@@ -1,24 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const SpecialtyIntro = () => {
+const SpecialtyIntro = ({ specialty }) => {
   return (
     <div className="w-full bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-gray-800">Cơ Xương Khớp</h2>
-      <h3 className="text-lg font-semibold text-gray-700 mt-2">
-        Bác sĩ Cơ Xương Khớp giỏi
-      </h3>
-      <p className="text-gray-600 mt-2">
-        Danh sách các bác sĩ uy tín đầu ngành Cơ Xương Khớp tại Việt Nam:
-      </p>
-      <ul className="list-disc list-inside text-gray-600 mt-2 space-y-2">
-        <li>Các chuyên gia có quá trình đào tạo bài bản, nhiều kinh nghiệm.</li>
-        <li>
-          Các giáo sư, phó giáo sư đang trực tiếp nghiên cứu và giảng dạy tại Đại học Y khoa Hà Nội.
-        </li>
-        <li>
-          Các bác sĩ đã, đang công tác tại các bệnh viện hàng đầu Khoa Cơ Xương Khớp - Bệnh viện Bạch Mai, Bệnh viện Hữu nghị Việt Đức, Bệnh Viện E.
-        </li>
-      </ul>
+      <h2 className="text-2xl font-bold text-gray-800">{specialty.name}</h2>
+      <h3 className="text-lg font-semibold text-gray-700 mt-2">Chuyên khoa</h3>
+      <p className="text-gray-600 mt-2">{specialty.description}</p>
+      <img
+        src={specialty.image}
+        alt={specialty.name}
+        className="w-full h-60 object-cover rounded-md mt-4"
+      />
       <a href="#" className="text-blue-600 mt-4 inline-block hover:underline">
         Xem thêm
       </a>
@@ -26,13 +18,12 @@ const SpecialtyIntro = () => {
   );
 };
 
-const DoctorCard = () => {
+const DoctorCard = ({ doctor }) => {
   return (
     <div className="w-full md:w-1/2 p-4 bg-white shadow-lg rounded-lg flex items-center">
-      {/* Ảnh bác sĩ */}
       <div className="flex-shrink-0">
         <img
-          src="https://via.placeholder.com/80"
+          src={doctor.doctor_avatar}
           alt="Bác sĩ"
           className="w-20 h-20 rounded-full object-cover"
         />
@@ -47,14 +38,12 @@ const DoctorCard = () => {
             Yêu thích
           </span>
           <h3 className="text-blue-900 font-bold text-lg uppercase">
-            PGS. TS. BSCKII. TTUT Vũ Văn Hòa
+            {doctor.doctor_name}
           </h3>
         </div>
-        <p className="text-gray-600 text-sm mt-1">
-          35 năm kinh nghiệm về Cột sống, thần kinh, cơ xương khớp.
-        </p>
+        <p className="text-gray-600 text-sm mt-1">{doctor.doctor_bio}</p>
         <p className="text-gray-600 text-sm">
-          Phó chủ tịch Hội Phẫu thuật Cột sống Việt Nam.
+          {doctor.exp} năm kinh nghiệm
         </p>
         <p className="text-gray-600 text-sm">Nhận khám từ 7 tuổi trở lên.</p>
         <p className="text-red-500 text-sm font-semibold mt-2">📍 Hà Nội</p>
@@ -63,31 +52,24 @@ const DoctorCard = () => {
   );
 };
 
-// Component đặt lịch khám
-const DoctorBooking = () => {
-  const scheduleTimes = [
-    "09:00 - 09:30", "09:30 - 10:00", "10:00 - 10:30", "10:30 - 11:00",
-    "11:00 - 11:30", "11:30 - 12:00", "13:30 - 14:00", "14:00 - 14:30",
-    "14:30 - 15:00", "15:00 - 15:30", "15:30 - 16:00"
-  ];
-
+const DoctorBooking = ({ schedules }) => {
   const [selectedTime, setSelectedTime] = useState(null);
 
   return (
     <div className="w-full md:w-1/2 p-4 bg-white shadow-lg rounded-lg">
       <h2 className="text-xl font-bold text-blue-900 mb-2">Đặt Lịch Khám</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        {scheduleTimes.map((time) => (
+        {schedules.map((schedule) => (
           <button
-            key={time}
-            className={`px-3 py-2 rounded-md text-sm transition ${
-              selectedTime === time
+            key={schedule.id}
+            className={`px-3 py-2 rounded-md text-sm transition duration-200 ${
+              selectedTime === schedule.time_start
                 ? "bg-blue-500 text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-blue-500 hover:text-white"
             }`}
-            onClick={() => setSelectedTime(time)}
+            onClick={() => setSelectedTime(schedule.time_start)}
           >
-            {time}
+            {schedule.time_start} - {schedule.time_end}
           </button>
         ))}
       </div>
@@ -103,12 +85,39 @@ const DoctorBooking = () => {
 };
 
 const Booking = () => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/client/detail-specialty-2");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError(error.message);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (error) return <div>Error loading data: {error}</div>;
+  if (!data) return <div>Loading...</div>;
+
+  const { specialty, doctors } = data;
+  const doctor = doctors[0]; // Assuming we have one doctor for simplicity
+  const schedules = doctor.schedules;
+
   return (
     <div className="max-w-5xl mx-auto p-6 bg-gray-100 rounded-lg">
-      <SpecialtyIntro />
+      <SpecialtyIntro specialty={specialty} />
       <div className="flex flex-col md:flex-row gap-4 items-center mt-4">
-        <DoctorCard />
-        <DoctorBooking />
+        <DoctorCard doctor={doctor} />
+        <DoctorBooking schedules={schedules} />
       </div>
     </div>
   );
