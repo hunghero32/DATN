@@ -18,6 +18,7 @@ class ResultController extends Controller
     public function index(Request $request)
     {
         $results = Result::with(['guest', 'doctor', 'booking'])
+            ->where('isDeleted', 0)
             ->where('doctor_id', auth()->id())
             ->searchGuest($request->search)          // Tìm theo tên, sđt, email khách hàng
             ->filterBookingDate($request->booking_date) // Lọc theo ngày đặt lịch
@@ -111,7 +112,7 @@ class ResultController extends Controller
     {
         if ($result->doctor_id !== auth()->id()) {
             return response()->json(['message' => 'Bạn không có quyền xóa kết quả này.'], 403);
-        }  
+        }
         if ($result->file) {
             Storage::disk('public')->delete($result->file);
         }

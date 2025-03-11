@@ -35,4 +35,36 @@ class Result extends Model
     {
         return $this->belongsTo(Guest::class);
     }
+    // Scope tìm kiếm theo tên, email, số điện thoại của guest
+    public function scopeSearchGuest($query, $search)
+    {
+        if (!empty($search)) {
+            return $query->whereHas('guest', function ($q) use ($search) {
+                $q->where('guest_name', 'LIKE', "%$search%")
+                    ->orWhere('guest_phone', 'LIKE', "%$search%")
+                    ->orWhere('guest_email', 'LIKE', "%$search%");
+            });
+        }
+        return $query;
+    }
+    // Scope lọc theo ngày đặt lịch.
+    public function scopeFilterBookingDate($query, $date)
+    {
+        if (!empty($date)) {
+            return $query->whereHas('booking', function ($q) use ($date) {
+                $q->whereDate('booking_date', $date);
+            });
+        }
+        return $query;
+    }
+    // Scope lọc theo giờ đặt lịch.
+    public function scopeFilterBookingTime($query, $time)
+    {
+        if (!empty($time)) {
+            return $query->whereHas('booking', function ($q) use ($time) {
+                $q->whereTime('booking_time', $time);
+            });
+        }
+        return $query;
+    }
 }
