@@ -8,9 +8,11 @@ import resultReducer from "../features/slices/resultSlice";
 import medicalRecordReducer from "../features/slices/medicalRecordSlice";
 import scheduleReducer from "../features/slices/scheduleSlice";
 import invoiceReducer from "../features/slices/invoiceSlice";
+import authReducer from '../features/slices/authSlice';
 
 const store = configureStore({
   reducer: {
+    auth: authReducer,
     user: userReducer,
     doctor: doctorReducer,
     guest: guestReducer,

@@ -10,15 +10,19 @@ use Illuminate\Support\Facades\Validator;
 
 class SchedulesController extends Controller
 {
-    public function index()
-    {
-        $data = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
-            ->select('schedules.*', 'doctors.doctor_name')
-            ->where('schedules.isDeleted', 0)
-            ->get();
+    public function index(Request $request)
+{
+    $query = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
+        ->select('schedules.*', 'doctors.doctor_name')
+        ->where('schedules.isDeleted', 0);
 
-        return response()->json(['success' => true, 'data' => $data]);
+    if ($request->has('doctor_id')) {
+        $query->where('schedules.doctor_id', $request->doctor_id);
     }
+
+    $data = $query->get();
+    return response()->json(['success' => true, 'data' => $data]);
+}
 
     public function store(Request $request)
     {
