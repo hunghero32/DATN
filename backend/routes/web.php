@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\MedicalRecordController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
@@ -74,6 +75,11 @@ Route::prefix('admin')->group(function () {
 
      ////*****************     End Schedule    *******************////
 
+     
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('medical_records', MedicalRecordController::class);
+});
 
 
      ////*****************     Start Bookings    *******************////
