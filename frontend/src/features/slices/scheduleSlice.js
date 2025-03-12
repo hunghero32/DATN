@@ -1,31 +1,44 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import httpRequest from '../../ultils/request/httpRequest';
-
+import axios from "axios";
 const initialState = {
   schedules: [],
   loading: false,
   error: null,
 };
 
-export const fetchSchedules = createAsyncThunk('schedule/fetchSchedules', async () => {
-  const response = await httpRequest.get('/schedules');
-  return response.data;
-});
+// Fetch toàn bộ lịch làm việc từ API
+export const fetchSchedules = createAsyncThunk(
+  "schedule/fetchSchedules",
+  async () => {
+      const response = await axios.get("http://localhost:8000/api/schedules");
+      return response.data;
+  }
+);
 
-export const createSchedule = createAsyncThunk('schedule/createSchedule', async (scheduleData) => {
-  const response = await httpRequest.post('/schedules', scheduleData);
-  return response.data;
-});
+export const createSchedule = createAsyncThunk(
+  'schedule/createSchedule',
+  async (scheduleData) => {
+    const response = await httpRequest.post('/schedules', scheduleData);
+    return response.data;
+  }
+);
 
-export const updateSchedule = createAsyncThunk('schedule/updateSchedule', async ({ id, scheduleData }) => {
-  const response = await httpRequest.put(`/schedules/${id}`, scheduleData);
-  return response.data;
-});
+export const updateSchedule = createAsyncThunk(
+  'schedule/updateSchedule',
+  async ({ id, scheduleData }) => {
+    const response = await httpRequest.put(`/schedules/${id}`, scheduleData);
+    return response.data;
+  }
+);
 
-export const deleteSchedule = createAsyncThunk('schedule/deleteSchedule', async (id) => {
-  await httpRequest.delete(`/schedules/${id}`);
-  return id;
-});
+export const deleteSchedule = createAsyncThunk(
+  'schedule/deleteSchedule',
+  async (id) => {
+    await httpRequest.delete(`/schedules/${id}`);
+    return id;
+  }
+);
 
 const scheduleSlice = createSlice({
   name: 'schedule',
@@ -38,7 +51,7 @@ const scheduleSlice = createSlice({
       })
       .addCase(fetchSchedules.fulfilled, (state, action) => {
         state.loading = false;
-        state.schedules = action.payload;
+        state.schedules = action.payload.data; // Thêm `.data` để lấy danh sách lịch làm việc
       })
       .addCase(fetchSchedules.rejected, (state, action) => {
         state.loading = false;

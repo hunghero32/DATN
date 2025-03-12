@@ -1,35 +1,58 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchSchedules } from "../../../../features/slices/scheduleSlice";
+import React, { useEffect, useState, useMemo } from "react";
+import axios from "axios";
 import AddSchedule from "./AddSchedule";
 
-/**
- * Hiển thị danh sách lịch làm việc bác sĩ, bao gồm:
- * + Danh sách lịch làm việc
- * + Nút thêm lịch làm việc
- * + Modal thêm lịch làm việc
- * 
- * @returns 
- */
 const ListSchedule = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const dispatch = useDispatch();
-    const { schedules } = useSelector((state) => state.schedule);
+    const [schedules, setSchedules] = useState([]);  // Lưu danh sách lịch làm việc
+    const [loading, setLoading] = useState(true);  // Trạng thái loading
+    const [error, setError] = useState(null);
 
+    const user = JSON.parse(localStorage.getItem("user")) || null; // Lấy user từ localStorage
 
     useEffect(() => {
-        dispatch(fetchSchedules());
-    }, [dispatch]);
+        const fetchSchedules = async () => {
+            if (!user) return; // Nếu chưa đăng nhập thì không gọi API
+    
+            try {
+                setLoading(true);
+                const response = await axios.get("http://localhost:8000/api/schedules");
+                console.log("Raw API Response:", response.data); // Kiểm tra dữ liệu API trả về
+    
+                if (Array.isArray(response.data)) {
+                    setSchedules(response.data); // Nếu là mảng thì set
+                } else {
+                    setSchedules([]); // Nếu không phải mảng thì gán mảng rỗng
+                }
+            } catch (err) {
+                setError("Lỗi khi tải dữ liệu!");
+                console.error("API Error:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchSchedules();
+    }, []);
+    
 
-    const toggleModal = () => {
-        setIsOpen(!isOpen);
-    };
+    const userSchedules = useMemo(() => {
+        return user ? schedules.filter((s) => s.doctor_id === user.id) : [];
+    }, [schedules, user]);
+
+    const toggleModal = () => setIsOpen(!isOpen);
+
+    if (!user) {
+        return <div className="text-center mt-5 text-danger">Bạn cần đăng nhập để xem lịch làm việc.</div>;
+    }
 
     return (
         <div className="container mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="text-primary">Lịch Làm Việc Bác Sĩ</h2>
-                <button className="btn btn-primary" onClick={toggleModal}>Thêm Lịch Làm Việc</button>
+                <button className="btn btn-primary" onClick={toggleModal}>
+                    Thêm Lịch Làm Việc
+                </button>
             </div>
 
             {isOpen && (
@@ -52,32 +75,34 @@ const ListSchedule = () => {
                 <table className="table table-striped table-bordered">
                     <thead className="bg-primary text-white text-center">
                         <tr>
-                            <th>ID Bác Sĩ</th>
                             <th>Ngày Làm Việc</th>
                             <th>Số Bệnh Nhân Tối Đa</th>
-                            <th>Tên Bác Sĩ</th>
                             <th>Giờ Bắt Đầu</th>
                             <th>Giờ Kết Thúc</th>
                             <th>Hành Động</th>
                         </tr>
                     </thead>
                     <tbody className="text-center">
-                        {schedules.data?.length > 0 ? schedules.data.map((s) => (
-                            <tr key={s.id}>
-                                <td>{s.doctor_id}</td>
-                                <td>{s.working_date}</td>
-                                <td>{s.max_patients}</td>
-                                <td>{s.doctor_name}</td>
-                                <td>{s.time_start}</td>
-                                <td>{s.time_end}</td>
-                                <td>
-                                    <button className="btn btn-warning btn-sm me-2">Sửa</button>
-                                    <button className="btn btn-danger btn-sm">Xóa</button>
-                                </td>
-                            </tr>
-                        )) : (
+                        {loading ? (
+                            <tr><td colSpan="5">Đang tải dữ liệu...</td></tr>
+                        ) : error ? (
+                            <tr><td colSpan="5" className="text-danger">{error}</td></tr>
+                        ) : userSchedules.length > 0 ? (
+                            userSchedules.map((s) => (
+                                <tr key={s.id}>
+                                    <td>{s.working_date}</td>
+                                    <td>{s.max_patients}</td>
+                                    <td>{s.time_start}</td>
+                                    <td>{s.time_end}</td>
+                                    <td>
+                                        <button className="btn btn-warning btn-sm me-2">Sửa</button>
+                                        <button className="btn btn-danger btn-sm">Xóa</button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
                             <tr>
-                                <td colSpan="7" className="text-center">Không có lịch làm việc nào</td>
+                                <td colSpan="5" className="text-center text-muted">Không có lịch làm việc nào.</td>
                             </tr>
                         )}
                     </tbody>

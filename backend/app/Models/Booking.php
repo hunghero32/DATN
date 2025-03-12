@@ -36,6 +36,11 @@ class Booking extends Model
     {
         return $this->belongsTo(Guest::class);
     }
+    public function result()
+{
+    return $this->hasOne(Result::class, 'booking_id');
+}
+
 
     // Scope tìm kiếm theo tên, email, số điện thoại của guest
     public function scopeSearchGuest($query, $search)
