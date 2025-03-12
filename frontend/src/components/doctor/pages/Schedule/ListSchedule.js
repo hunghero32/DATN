@@ -16,6 +16,7 @@ const ListSchedule = () => {
     const dispatch = useDispatch();
     const { schedules } = useSelector((state) => state.schedule);
 
+
     useEffect(() => {
         dispatch(fetchSchedules());
     }, [dispatch]);
