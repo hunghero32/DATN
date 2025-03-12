@@ -12,6 +12,7 @@
     <table>
         <thead>
             <tr>
+
                 <th>ID</th>
                 <th>Tên Khách</th>
                 <th>BHYT</th>
