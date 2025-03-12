@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\Admin\ServiceController;
 
 use App\Http\Controllers\Api\Doctor;
 
+use App\Http\Controllers\Api\ProfileController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -45,6 +46,9 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
     Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 });
@@ -123,3 +127,18 @@ Route::prefix('services')->group(function () {
     Route::delete('/{id}', [ServiceController::class, 'delete']); // Xóa dịch vụ
 });
 ////*****************     End Invoices    *******************////
+
+
+// Phần API để Frontend xử lý cho doctor 
+Route::middleware(['auth:sanctum'])->prefix('doctor')->group(function () {
+    // Hiển thị và sửa profile của bác sĩ
+    Route::get('profile', [Doctor\ProfileDoctor::class, 'show']);
+    Route::put('profile', [Doctor\ProfileDoctor::class, 'update']);
+    // Hiển thị dashboard của bác sĩ
+    Route::get('dashboard', [Doctor\DashboardController::class, 'index']);
+    // Hiển thị và sửa booking của bác sĩ
+    Route::get('bookings', [Doctor\BookingController::class, 'index']);
+    Route::put('bookings/{bookings}', [Doctor\BookingController::class, 'update']);
+    // Hiển thị, thêm và sửa kết quả khám của bác sĩ
+    Route::apiResource('results', Doctor\ResultController::class);
+});

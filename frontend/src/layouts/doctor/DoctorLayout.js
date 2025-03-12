@@ -11,6 +11,8 @@ import DoctorStatistics from "../../components/doctor/pages/DoctorStatistics/Doc
 import NotificationPage from "../../components/doctor/pages/NotificationPage/NotificationPage";
 import DoctorProfile from "../../components/doctor/pages/DoctorProfile/DoctorProfile";
 import EditDoctorProfile from "../../components/doctor/pages/DoctorProfile/EditDoctorProfile";
+import Appointment from "../../components/doctor/pages/ListAppointment/Appointment";
+import DoctorServices from "../../components/doctor/pages/Services/DoctorServices";
 
 const DoctorLayout = () => {
   useEffect(() => {
@@ -55,6 +57,7 @@ const DoctorLayout = () => {
     ];
     cssFiles.forEach(loadCSS);
     const jsFiles = [
+      
       "/admin/js/core/libs.min.js",
       "/admin/vendor/flatpickr/dist/flatpickr.min.js",
       "/admin/vendor/amcharts/core.js",
@@ -106,6 +109,8 @@ const DoctorLayout = () => {
         <Header />
         <Routes>
           <Route path="/db" element={<Dashboard />} />
+          <Route path="/doctor-services" element={<DoctorServices/>} />
+          <Route path="/appointment" element={<Appointment/>} />
           <Route path="/doctor-profile" element={<DoctorProfile/>} />
           <Route path="/doctor-profile/edit/:id" element={<EditDoctorProfile />} /> {/* Route mới */}
           <Route path="/doctor-schedule" element={<DoctorSchedule/>} />

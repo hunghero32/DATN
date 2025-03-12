@@ -22,7 +22,6 @@ class UpdateMedicalRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guest_id' => 'sometimes|required|exists:guests,id',
             'BHYT' => 'sometimes|nullable|string|max:50|unique:medical_records,BHYT,' . $this->medical_record->id,
             'medical_condition' => 'sometimes|required|string|max:500',
             'medications' => 'sometimes|nullable|string|max:500',
@@ -35,8 +34,6 @@ class UpdateMedicalRecordRequest extends FormRequest
     public function messages()
     {
         return [
-            'guest_id.required' => 'Khách hàng là bắt buộc.',
-            'guest_id.exists' => 'Khách hàng không tồn tại.',
             'BHYT.max' => 'Mã BHYT không được vượt quá 50 ký tự.',
             'BHYT.unique' => 'Mã BHYT đã tồn tại.',
             'medical_condition.required' => 'Tình trạng bệnh không được để trống.',

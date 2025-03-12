@@ -9,7 +9,15 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\MedicalRecordController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\GuestController;
+use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\InvoiceDetailController;
+use App\Http\Controllers\Admin\FeedbackController;
+
+
+
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -61,6 +69,7 @@ Route::prefix('admin')->group(function () {
     ////*****************     End Doctors    *******************////
 
 
+
      ////*****************     Start Schedule    *******************////
      Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
      Route::get("doctor-schedule-create",[SchedulesController::class,'create'])->name('admin.schedule.create');
@@ -73,8 +82,14 @@ Route::prefix('admin')->group(function () {
 
 
 
-     ////*****************     End Schedule    *******************////
 
+    ////*****************     End Schedule    *******************////
+
+     
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('medical_records', MedicalRecordController::class);
+});
 
 
      ////*****************     Start Bookings    *******************////
@@ -84,6 +99,7 @@ Route::prefix('admin')->group(function () {
         Route::delete("bookings-{booking}",[BookingController::class,'destroy'])->name('admin.bookings.delete');
         Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
         Route::patch('bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
+
 
     ////*****************     End Bookings    *******************////
 
@@ -129,15 +145,50 @@ Route::prefix('admin')->group(function () {
 
     ////****************   Start  useruser  **************////
     Route::get('users', [UserController::class, 'index'])->name('admin.users.index');
-    Route::get('users-create',[UserController::class,'create'])->name('admin.users.create');
-    Route::post('users-store',[UserController::class, 'store'])->name('admin.users.store');
-    route::delete('users-delete/{id}',[UserController::class ,'delete'])->name('admin.users.delete');
-    route::get('users-edit/{id}',[UserController::class ,'edit'])->name('admin.users.edit');
-    route::put('users-update/{id}',[UserController::class,'update'])->name('admin.users.update');
+    Route::get('users-create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('users-store', [UserController::class, 'store'])->name('admin.users.store');
+    route::delete('users-delete/{id}', [UserController::class, 'delete'])->name('admin.users.delete');
+    route::get('users-edit/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
+    route::put('users-update/{id}', [UserController::class, 'update'])->name('admin.users.update');
 
+
+    ////****************   Start  geust   **************////
+    Route::get('guests', [GuestController::class, 'index'])->name('admin.guests.index');
+    Route::get('guests-create', [GuestController::class, 'create'])->name('admin.guests.create');
+    Route::post('guests', [GuestController::class, 'store'])->name('admin.guests.store');
+    Route::delete('guests-delete/{id}',[GuestController::class,'delete'])->name('admin.guests.delete');
+    route::get('guests-edit/{id}', [GuestController::class, 'edit'])->name('admin.guests.edit');
+    route::put('guests-update/{id}', [GuestController::class, 'update'])->name('admin.guests.update');
+
+    Route::get('invoices', [InvoiceController::class, 'index'])->name('admin.invoices.index');
+    Route::get('invoices/create', [InvoiceController::class, 'create'])->name('admin.invoices.create');
+    Route::post('invoices', [InvoiceController::class, 'store'])->name('admin.invoices.store');
+    Route::get('invoices/{id}/edit', [InvoiceController::class, 'edit'])->name('admin.invoices.edit');
+    Route::put('invoices/{id}', [InvoiceController::class, 'update'])->name('admin.invoices.update');
+    Route::delete('invoices/{id}', [InvoiceController::class, 'delete'])->name('admin.invoices.delete');
+
+    Route::get('invoice-details', [InvoiceDetailController::class, 'index'])->name('invoice_details.index');
+    Route::get('invoice-details/create', [InvoiceDetailController::class, 'create'])->name('invoice_details.create');
+    Route::post('invoice-details', [InvoiceDetailController::class, 'store'])->name('invoice_details.store');
+    Route::get('invoice-details/{id}/edit', [InvoiceDetailController::class, 'edit'])->name('invoice_details.edit');
+    Route::put('invoice-details/{id}', [InvoiceDetailController::class, 'update'])->name('invoice_details.update');
+    Route::delete('invoice-details/{id}', [InvoiceDetailController::class, 'delete'])->name('invoice_details.delete');
+
+    Route::get('feedback', [FeedbackController::class, 'index'])->name('admin.feedback.index');
+    Route::get('feedback/create', [FeedbackController::class, 'create'])->name('admin.feedback.create');
+    Route::post('feedback', [FeedbackController::class, 'store'])->name('admin.feedback.store');
+    Route::get('feedback/{id}/edit', [FeedbackController::class, 'edit'])->name('admin.feedback.edit');
+    Route::put('feedback/{id}', [FeedbackController::class, 'update'])->name('admin.feedback.update');
+    Route::delete('feedback/{id}', [FeedbackController::class, 'delete'])->name('admin.feedback.delete');
+
+    Route::get('specialties', [SpecialtyController::class, 'index'])->name('admin.specialties.index');
+    Route::get('specialties/create', [SpecialtyController::class, 'create'])->name('admin.specialties.create');
+    Route::post('specialties', [SpecialtyController::class, 'store'])->name('admin.specialties.store');
+    Route::get('specialties/{id}/edit', [SpecialtyController::class, 'edit'])->name('admin.specialties.edit');
+    Route::put('specialties/{id}', [SpecialtyController::class, 'update'])->name('admin.specialties.update');
+    Route::delete('specialties/{id}', [SpecialtyController::class, 'delete'])->name('admin.specialties.delete');
 
 });
-
 
 
 

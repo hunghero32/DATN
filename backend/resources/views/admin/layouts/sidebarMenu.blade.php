@@ -190,6 +190,26 @@
         </li>
         {{-- End Booking --}}
 
+        {{-- Start medical_records --}}
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">medical_records</span>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                <div data-i18n="Account Settings">Quản lý hồ sơ y tế</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.medical_records.index')}}" class="menu-link">
+                        <div data-i18n="Account">Danh sách hồ sơ y tế</div>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
+        {{-- End Booking --}}
+
          {{-- Start Booking --}}
          <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Sevices</span>
@@ -209,6 +229,27 @@
             </ul>
         </li>
         {{-- End Booking --}}
+         {{-- Start guest --}}
+         <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Sevices</span>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                <div data-i18n="Account Settings">Quản lý  người khách hàng</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.guests.index')}}" class="menu-link">
+                        <div data-i18n="Account">Danh sách khách hàng</div>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
+        {{-- End guest --}}
+
+
 
 
 

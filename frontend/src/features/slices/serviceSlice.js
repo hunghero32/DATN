@@ -42,8 +42,9 @@ const serviceSlice = createSlice({
       })
       .addCase(fetchServices.fulfilled, (state, action) => {
         state.loading = false;
-        state.services = action.payload;
+        state.services = action.payload.data || []; // Chỉ lấy data, tránh lỗi undefined
       })
+      
       .addCase(fetchServices.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;

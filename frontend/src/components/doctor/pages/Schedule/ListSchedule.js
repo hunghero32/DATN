@@ -14,7 +14,7 @@ import AddSchedule from "./AddSchedule";
 const ListSchedule = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dispatch = useDispatch();
-    const { schedules } = useSelector((state) => state.schedules);
+    const { schedules } = useSelector((state) => state.schedule);
 
     useEffect(() => {
         dispatch(fetchSchedules());
