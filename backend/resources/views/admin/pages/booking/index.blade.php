@@ -8,7 +8,7 @@
             'id' => 'status',
             'name' => 'status',
             'options' => [
-                '' => 'Tất cả',
+                '' => 'Tất cả trạng thái',
                 'pending' => 'Đang chờ',
                 'confirmed' => 'Đã xác nhận',
                 'completed' => 'Hoàn thành',
@@ -16,6 +16,30 @@
             ]
         ]
     ];
+
+    // Add status configuration
+    $statusConfig = [
+        'route' => 'admin.bookings.update-status',
+        'states' => [
+            'pending' => [
+                'text' => 'Đang chờ',
+                'class' => 'badge bg-warning'
+            ],
+            'confirmed' => [
+                'text' => 'Đã xác nhận',
+                'class' => 'badge bg-info'
+            ],
+            'completed' => [
+                'text' => 'Hoàn thành',
+                'class' => 'badge bg-success'
+            ],
+            'canceled' => [
+                'text' => 'Đã hủy',
+                'class' => 'badge bg-danger'
+            ]
+        ]
+    ];
+
     $detailModal=[
         'fields'=>[
             ['name'=>'doctor_name','label'=>'Bác sĩ','type'=>'text'],
@@ -40,7 +64,7 @@
         ['key' => 'guest_name', 'label' => 'Khách hàng'],
         ['key' => 'booking_date', 'label' => 'Ngày hẹn'],
         ['key' => 'booking_time', 'label' => 'Giờ hẹn'],
-        ['key' => 'status','name'=>'status', 'label' => 'Trạng thái'],
+        ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái', 'status_config' => $statusConfig],
         ['key' => 'created_at', 'label' => 'Ngày tạo'],
     ]"
 

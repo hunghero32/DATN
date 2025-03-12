@@ -8,7 +8,7 @@
             'id' => 'exp',
             'name' => 'exp',
             'options' => [
-                'all' => 'Tất cả',
+                'all' => 'Tất cả kinh nghiệm',
                 '0-5' => '0 - 5 năm',
                 '6-10' => '6 - 10 năm',
                 '10+' => 'Trên 10 năm',
@@ -18,7 +18,7 @@
             'id' => 'status',
             'name' => 'approve',
             'options' => [
-                'all' => 'Tất cả',
+                'all' => 'Tất cả trạng thái',
                 '1' => 'Hoạt động',
                 '0' => 'Không hoạt động',
             ]

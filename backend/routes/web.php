@@ -83,6 +83,7 @@ Route::prefix('admin')->group(function () {
         Route::put("bookings-{booking}",[BookingController::class,'update'])->name('admin.bookings.update');
         Route::delete("bookings-{booking}",[BookingController::class,'destroy'])->name('admin.bookings.delete');
         Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
+        Route::patch('bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
 
     ////*****************     End Bookings    *******************////
 
@@ -96,6 +97,7 @@ Route::prefix('admin')->group(function () {
     Route::put('services-update/{id}', [ServiceController::class, 'update'])->name('admin.services.update');
     Route::delete('services/{id}', [ServiceController::class, 'delete'])->name('admin.services.delete');
     Route::get('services-search', [ServiceController::class, 'search'])->name('admin.services.search');
+    Route::patch('services/{id}/status', [ServiceController::class, 'updateStatus'])->name('admin.services.update-status');
 
     ////*****************     End Services    *******************////
 

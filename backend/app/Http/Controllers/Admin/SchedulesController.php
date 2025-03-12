@@ -145,4 +145,16 @@ class SchedulesController extends Controller
             return redirect()->route('admin.schedule.index')->with('error', 'Không thể xóa lịch làm việc đang hoạt động!');
         }
     }
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $schedule = Schedule::findOrFail($id);
+            $schedule->status = $request->status;
+            $schedule->save();
+
+            return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật trạng thái');
+        }
+    }
 }
