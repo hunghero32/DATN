@@ -23,7 +23,7 @@ class MedicalRecord extends Model
     // Quan hệ với bảng Guest
     public function guest()
     {
-        return $this->belongsTo(Guest::class);
+        return $this->belongsTo(Guest::class,'guest_id');
     }
     public function results()
     {
