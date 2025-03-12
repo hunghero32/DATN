@@ -69,4 +69,5 @@ class CategoryController extends Controller
             'succers' => 'Ban da xoa thanh cong'
         ]);
     }
+
 }

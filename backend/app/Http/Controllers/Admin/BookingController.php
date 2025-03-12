@@ -101,6 +101,16 @@ class BookingController extends Controller
         return view('admin.pages.booking.index', compact('data', 'doctors', 'services', 'statuses'));
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $booking = Booking::findOrFail($id);
+            $booking->status = $request->status;
+            $booking->save();
 
-
+            return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật trạng thái');
+        }
+    }
 }

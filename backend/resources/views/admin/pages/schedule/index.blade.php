@@ -3,6 +3,22 @@
 @section('content')
     <?php
     $doctor = $data->pluck('doctor_id', 'doctor_name')->toArray();
+
+    // Add status configuration
+    $statusConfig = [
+        'route' => 'admin.schedule.update-status',
+        'states' => [
+            '1' => [
+                'text' => 'Hoạt động',
+                'class' => 'badge bg-success'
+            ],
+            '0' => [
+                'text' => 'Không hoạt động',
+                'class' => 'badge bg-danger'
+            ]
+        ]
+    ];
+
     $detailModal = [
         'fields' => [['name' => 'doctor_id', 'label' => 'Bác sĩ', 'type' => 'select', 'options' => $doctor], ['name' => 'time_start', 'label' => 'Giờ bắt đầu', 'type' => 'time'], ['name' => 'time_end', 'label' => 'Giờ kết thúc', 'type' => 'time'], ['name' => 'working_date', 'label' => 'Ngày làm việc', 'type' => 'date'], ['name' => 'max_patients', 'label' => 'Số lượng bệnh nhân tối đa', 'type' => 'number'], ['name' => 'status', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']]],
     ];
@@ -10,11 +26,10 @@
         'status' => [
             'id' => 'status',
             'name' => 'status',
-            'label' => 'Trạng thái',
             'options' => [
-                '' => 'Tất cả',
-                '1' => 'Đã kịch hoạt',
-                '0' => 'Chưa kích hoạt'
+                'all' => 'Tất cả trạng thái',
+                '1' => 'Hoạt động',
+                '0' => 'Không hoạt động',
             ]
         ]
     ];
@@ -26,7 +41,7 @@
         ['key' => 'time_end', 'label' => 'Giờ kết thúc'],
         ['key' => 'working_date', 'name' => 'approve', 'label' => 'Ngày làm việc'],
         ['key' => 'max_patients', 'label' => 'Số lượng bệnh nhân tối đa'],
-        ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái'],
+        ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái', 'status_config' => $statusConfig],
     ]"
     :data="$data" :selects="$selects"
     :detailModal="$detailModal"

@@ -4,6 +4,22 @@
 <?php
 $specialties = $data->pluck('specialty_id', 'specialty_name')->toArray();
 $categories = $data->pluck('category_id', 'category_name')->toArray();
+
+// Add status configuration
+$statusConfig = [
+    'route' => 'admin.services.update-status',
+    'states' => [
+        '1' => [
+            'text' => 'Hoạt động',
+            'class' => 'badge bg-success'
+        ],
+        '0' => [
+            'text' => 'Không hoạt động',
+            'class' => 'badge bg-danger'
+        ]
+    ]
+];
+
 $detailModal=[
     'fields'=>[
         ['name' => 'specialty_id', 'label' => 'Chuyên khoa', 'type' => 'select', 'options' => $specialties],
@@ -25,13 +41,17 @@ $detailModal=[
         ['key' => 'services_name', 'label' => 'Tên dịch vụ'],
         ['key'=>'image','label'=>'Ảnh'],
         ['key' => 'price', 'label' => 'Giá'],
-        ['key' => 'status','name'=>'status' ,'label' => 'Trạng thái'],
+        ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái', 'status_config' => $statusConfig],
     ]"
     :selects="[
         [
             'id' => 'status',
             'name' => 'status',
-            'options' => $statuses
+            'options' => [
+                'all' => 'Tất cả trạng thái',
+                '1' => 'Hoạt động',
+                '0' => 'Không hoạt động'
+            ]
         ]
     ]"
     :data="$data"

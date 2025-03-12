@@ -62,20 +62,23 @@ Route::prefix('admin')->group(function () {
     // Xóa bác sĩ
 
     Route::delete('delete-doctor/{id}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
+    Route::patch('doctors/{id}/status', [DoctorController::class, 'updateStatus'])->name('admin.doctors.update-status');
 
 
 
     ////*****************     End Doctors    *******************////
 
 
-    ////*****************     Start Schedule    *******************////
-    Route::get("doctor-schedule", [SchedulesController::class, 'index'])->name('admin.schedule.index');
-    Route::get("doctor-schedule-create", [SchedulesController::class, 'create'])->name('admin.schedule.create');
-    Route::post("doctor-schedule-save", [SchedulesController::class, 'store'])->name('admin.schedule.store');
-    Route::get("doctor-schedule-{schedule}/edit", [SchedulesController::class, 'edit'])->name('admin.schedule.edit');
-    Route::put("doctor-schedule-{schedule}", [SchedulesController::class, 'update'])->name('admin.schedule.update');
-    Route::delete("doctor-schedule-{schedule}", [SchedulesController::class, 'destroy'])->name('admin.schedule.delete');
-    Route::get("doctor-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
+
+     ////*****************     Start Schedule    *******************////
+     Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
+     Route::get("doctor-schedule-create",[SchedulesController::class,'create'])->name('admin.schedule.create');
+     Route::post("doctor-schedule-save",[SchedulesController::class,'store'])->name('admin.schedule.store');
+     Route::get("doctor-schedule-{schedule}/edit",[SchedulesController::class,'edit'])->name('admin.schedule.edit');
+     Route::put("doctor-schedule-{schedule}",[SchedulesController::class,'update'])->name('admin.schedule.update');
+     Route::delete("doctor-schedule-{schedule}",[SchedulesController::class,'destroy'])->name('admin.schedule.delete');
+     Route::get("doctor-schedule-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
+     Route::patch('doctor-schedule-{id}/status',[SchedulesController::class,'updateStatus'])->name('admin.schedule.update-status');
 
 
 
@@ -89,12 +92,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 
-    ////*****************     Start Bookings    *******************////
-    Route::get("bookings", [BookingController::class, 'index'])->name('admin.bookings.index');
-    Route::get("bookings-create", [BookingController::class, 'create'])->name('admin.bookings.create');
-    Route::put("bookings-{booking}", [BookingController::class, 'update'])->name('admin.bookings.update');
-    Route::delete("bookings-{booking}", [BookingController::class, 'destroy'])->name('admin.bookings.delete');
-    Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
+     ////*****************     Start Bookings    *******************////
+        Route::get("bookings",[BookingController::class,'index'])->name('admin.bookings.index');
+        Route::get("bookings-create",[BookingController::class,'create'])->name('admin.bookings.create');
+        Route::put("bookings-{booking}",[BookingController::class,'update'])->name('admin.bookings.update');
+        Route::delete("bookings-{booking}",[BookingController::class,'destroy'])->name('admin.bookings.delete');
+        Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
+        Route::patch('bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
+
 
     ////*****************     End Bookings    *******************////
 
@@ -108,6 +113,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('services-update/{id}', [ServiceController::class, 'update'])->name('admin.services.update');
     Route::delete('services/{id}', [ServiceController::class, 'delete'])->name('admin.services.delete');
     Route::get('services-search', [ServiceController::class, 'search'])->name('admin.services.search');
+    Route::patch('services/{id}/status', [ServiceController::class, 'updateStatus'])->name('admin.services.update-status');
 
     ////*****************     End Services    *******************////
 

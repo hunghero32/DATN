@@ -235,4 +235,16 @@ class ServiceController extends Controller
             return redirect()->route('admin.services.index')->with('error', 'Không thể xóa dịch vụ đang hoạt động!');
         }
     }
+    public function updateStatus(Request $request, $id)
+{
+    try {
+        $service = Services::findOrFail($id);
+        $service->status = $request->status;
+        $service->save();
+
+        return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật trạng thái');
+    }
+}
 }
