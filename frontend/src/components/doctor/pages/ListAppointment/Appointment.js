@@ -3,38 +3,52 @@ import { Button, Table, Form, Modal, Nav } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from "axios";
 
 const Appointment = () => {
   const [date, setDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [activeTab, setActiveTab] = useState('send');
   const [file, setFile] = useState(null);
 
-  const appointments = [
-    {
-      time: '16h - 17h',
-      no: 1,
-      name: 'eric pham',
-      gender: 'Female',
-      phone: '0321456789',
-      email: 'haryphamdev@gmail.com',
-      reason: 'bla bla',
-      address: 'ha noi',
-      respiratory: 'abadasdf',
-      note: '',
-      photo: '1606226395211-cat.jpg'
+
+
+  // Xử lý xác nhận nhận bệnh
+  const handleAcceptAppointment = (appointment) => {
+    setSelectedAppointment(appointment);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmAccept = async () => {
+    if (!selectedAppointment) return;
+  
+    try {
+      await axios.put(
+        `http://127.0.0.1:8000/api/doctor/bookings/${selectedAppointment.id}`,
+        { status: "confirmed" },
+        {
+          headers: {
+            Authorization: `Bearer SUwjNXVyzhC0fhrpNXEFQ8dY5RWGCulmcNfcXsj8f34ff3c4`,
+          },
+        }
+      );
+  
+      // Cập nhật danh sách
+      setAppointments((prev) => prev.filter((app) => app.id !== selectedAppointment.id));
+      setAcceptedAppointments((prev) => [...prev, { ...selectedAppointment, status: "confirmed" }]);
+  
+      alert(`${selectedAppointment.guest?.guest_name} đã được nhận.`);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái:", error);
+      alert("Lỗi khi cập nhật trạng thái.");
+    } finally {
+      setShowConfirmModal(false);
     }
-  ];
-
-  const handleDateChange = (date) => {
-    setDate(date);
   };
-
-  const handleSearch = () => {
-    console.log('Searching appointments for:', date);
-  };
+  
 
   const handleShowDetail = (appointment) => {
     setSelectedAppointment(appointment);
@@ -54,7 +68,7 @@ const Appointment = () => {
     <div className="container mt-5">
       <h3 className="mb-4">List of Appointment Appointments</h3>
       <div className="card p-4">
-        <h5 className="mb-3 text-primary">List of Appointment Appointments</h5>
+        <h5 className="mb-3 text-primary">Danh sách chờ duyệt</h5>
         <Form className="d-flex align-items-center mb-4">
           <div className="me-3">
             <DatePicker
@@ -94,6 +108,7 @@ const Appointment = () => {
         </Table>
       </div>
 
+      {/* Modal Chi Tiết */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
   <Modal.Header closeButton>
     <Modal.Title>Patient Information</Modal.Title>
@@ -163,8 +178,23 @@ const Appointment = () => {
   </Modal.Footer>
 </Modal>
 
+      {/* Modal Xác Nhận Nhận Bệnh */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận nhận bệnh</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Bạn có chắc chắn muốn nhận bệnh nhân này không?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="success" onClick={handleConfirmAccept}>
+            Xác nhận
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
-
+      {/* Modal Gửi Hóa Đơn */}
       <Modal show={showInvoiceModal} onHide={() => setShowInvoiceModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Send Invoice</Modal.Title>
@@ -178,15 +208,15 @@ const Appointment = () => {
               <Nav.Link eventKey="sent">Sent</Nav.Link>
             </Nav.Item>
           </Nav>
-          {activeTab === 'send' && (
+          {activeTab === "send" && (
             <Form className="mt-3">
               <Form.Group>
                 <Form.Label>Email:</Form.Label>
-                <Form.Control type="email" value={selectedAppointment?.email} readOnly />
+                <Form.Control type="email" value={selectedAppointment?.email || ""} readOnly />
               </Form.Group>
               <Form.Group>
                 <Form.Label>Choose files:</Form.Label>
-                <Form.Control type="file" onChange={handleFileChange} />
+                <Form.Control type="file" onChange={(e) => setFile(e.target.files[0])} />
               </Form.Group>
               {file && <div className="mt-2">{file.name}</div>}
             </Form>
