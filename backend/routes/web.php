@@ -54,6 +54,7 @@ Route::prefix('admin')->group(function () {
     // Xóa bác sĩ
 
     Route::delete('delete-doctor/{id}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
+    Route::patch('doctors/{id}/status', [DoctorController::class, 'updateStatus'])->name('admin.doctors.update-status');
 
 
 
@@ -67,8 +68,8 @@ Route::prefix('admin')->group(function () {
      Route::get("doctor-schedule-{schedule}/edit",[SchedulesController::class,'edit'])->name('admin.schedule.edit');
      Route::put("doctor-schedule-{schedule}",[SchedulesController::class,'update'])->name('admin.schedule.update');
      Route::delete("doctor-schedule-{schedule}",[SchedulesController::class,'destroy'])->name('admin.schedule.delete');
-     Route::get("doctor-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
-
+     Route::get("doctor-schedule-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
+     Route::patch('doctor-schedule-{id}/status',[SchedulesController::class,'updateStatus'])->name('admin.schedule.update-status');
 
 
 

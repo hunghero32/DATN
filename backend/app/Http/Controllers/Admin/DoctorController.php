@@ -232,4 +232,16 @@ class DoctorController extends Controller
         }
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        try {
+            $doctor = Doctor::findOrFail($id);
+            $doctor->approve = $request->status;
+            $doctor->save();
+
+            return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật trạng thái');
+        }
+    }
 }

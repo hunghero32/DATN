@@ -78,23 +78,42 @@
                         @foreach ($columns as $column)
                             <td>
                                 {{-- Hiển thị trạng thái --}}
-                                @if ($column['key'] == 'status')
+                                @if ($column['key'] == 'status' && isset($column['status_config']))
                                     @php
                                         $status = $row[$column['name']] ?? 'default';
-                                        $statusConfig = config(
-                                            "common.statuses.$status",
-                                            config('common.statuses.default'),
-                                        );
-                                        $statusText = $statusConfig['text'] ?? 'Unknown';
-                                        $badgeClass = $statusConfig['class'] ?? 'badge badge-dark';
+                                        $statusConfig = $column['status_config'];
+                                        $currentState = $statusConfig['states'][$status] ?? ['text' => 'Unknown', 'class' => 'badge bg-secondary'];
                                     @endphp
-                                    <span class="{{ $badgeClass }}">{{ $statusText }}</span>
-
-                                {{-- Hiển thị hình ảnh nếu có --}}
-                                @elseif (
-                                    !empty($row[$column['key']]) &&
-                                        is_string($row[$column['key']]) &&
-                                        preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$column['key']]))
+                                    <div class="status-dropdown">
+                                        <button type="button"
+                                                class="{{ $currentState['class'] }} status-btn"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false">
+                                            {{ $currentState['text'] }}
+                                            <i class='bx bx-chevron-down ms-2'></i>
+                                        </button>
+                                        <ul class="dropdown-menu status-menu">
+                                            @foreach($statusConfig['states'] as $stateKey => $stateValue)
+                                                @if($stateKey != $status)
+                                                    <li>
+                                                        <form action="{{ route($statusConfig['route'], ['id' => $row['id']]) }}"
+                                                              method="POST"
+                                                              class="status-form">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="status" value="{{ $stateKey }}">
+                                                            <button type="submit" class="dropdown-item status-item">
+                                                                {{ $stateValue['text'] }}
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @elseif (!empty($row[$column['key']]) &&
+                                    is_string($row[$column['key']]) &&
+                                    preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$column['key']]))
                                     <img src="{{ Storage::url($row[$column['key']]) }}" alt="Image" class="img-thumbnail" width="100">
 
                                 {{-- Hiển thị dữ liệu khác --}}
@@ -311,5 +330,53 @@
     background: #f1f1f1; /* Màu nền */
     border-radius: 4px;
 }
+.status-dropdown {
+    position: relative;
+    display: inline-block;
+}
 
+.status-btn {
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: auto;
+    font-weight: 500;
+}
+
+.status-menu {
+    min-width: 140px;
+    padding: 0.25rem 0;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-item {
+    padding: 0.4rem 0.75rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+.status-item:hover {
+    background-color: #f8f9fa;
+}
+
+.status-form {
+    margin: 0;
+    padding: 0;
+}
+
+/* Status colors */
+.badge.bg-success { --status-color: #28a745; }
+.badge.bg-danger { --status-color: #dc3545; }
+.badge.bg-warning { --status-color: #ffc107; }
+.badge.bg-info { --status-color: #17a2b8; }
+.badge.bg-secondary { --status-color: #6c757d; }
 </style>
+
+
+

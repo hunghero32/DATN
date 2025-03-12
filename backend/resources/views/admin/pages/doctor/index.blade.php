@@ -27,7 +27,21 @@
 
     $specialties = $data->pluck('specialty_id', 'specialty_name')->toArray();
 
-    // Định nghĩa cấu trúc modal chi tiết cố định
+    // Add status configuration
+    $statusConfig = [
+        'route' => 'admin.doctors.update-status',
+        'states' => [
+            '1' => [
+                'text' => 'Hoạt động',
+                'class' => 'badge bg-success'
+            ],
+            '0' => [
+                'text' => 'Không hoạt động',
+                'class' => 'badge bg-danger'
+            ]
+        ]
+    ];
+
     $detailModal = [
         'fields' => [
             ['name' => 'doctor_avatar', 'label' => 'Ảnh đại diện', 'type' => 'avatar'],
@@ -49,7 +63,7 @@
         ['key' => 'doctor_name', 'label' => 'Họ và Tên'],
         ['key' => 'doctor_avatar', 'label' => 'Ảnh đại diện'],
         ['key' => 'exp', 'label' => 'Kinh nghiệm (Năm)'],
-        ['key' => 'status', 'name' => 'approve', 'label' => 'Trạng thái'],
+        ['key' => 'status', 'name' => 'approve', 'label' => 'Trạng thái', 'status_config' => $statusConfig],
         ['key' => 'created_at', 'label' => 'Ngày tạo'],
     ]"
     :data="$data"
