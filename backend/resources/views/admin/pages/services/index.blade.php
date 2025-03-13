@@ -90,4 +90,4 @@ $detailModal=[
         ],
     ]"
 />
-@endsection
+@endsection 
