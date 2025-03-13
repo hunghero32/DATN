@@ -7,37 +7,14 @@
         [
             'id' => 'status',
             'name' => 'status',
-            'options' => [
-                '' => 'Tất cả trạng thái',
-                'pending' => 'Đang chờ',
-                'confirmed' => 'Đã xác nhận',
-                'completed' => 'Hoàn thành',
-                'canceled' => 'Đã hủy',
-            ]
+            'options' =>config('app.order_statuses'),
         ]
     ];
 
     // Add status configuration
     $statusConfig = [
         'route' => 'admin.bookings.update-status',
-        'states' => [
-            'pending' => [
-                'text' => 'Đang chờ',
-                'class' => 'badge bg-warning'
-            ],
-            'confirmed' => [
-                'text' => 'Đã xác nhận',
-                'class' => 'badge bg-info'
-            ],
-            'completed' => [
-                'text' => 'Hoàn thành',
-                'class' => 'badge bg-success'
-            ],
-            'canceled' => [
-                'text' => 'Đã hủy',
-                'class' => 'badge bg-danger'
-            ]
-        ]
+        'states' => config('common.order_statuses')
     ];
 
     $detailModal=[

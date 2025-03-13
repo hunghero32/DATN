@@ -24,11 +24,7 @@ class ServiceController extends Controller
 
         $specialties = Specialty::where('isDeleted', 0)->pluck('name', 'id')->toArray();
         $categories = Category::where('isDeleted', 0)->pluck('name', 'id')->toArray();
-        $statuses = [
-            '' => 'Tất cả trạng thái',
-            '0' => 'Không hoạt động',
-            '1' => 'Hoạt động'
-        ];
+        $statuses = config('app.statuses');
 
         return view('admin.pages.services.index', compact('data', 'specialties', 'categories', 'statuses'));
     }
@@ -85,11 +81,7 @@ class ServiceController extends Controller
 
         $specialties = Specialty::where('isDeleted', 0)->pluck('name', 'id')->toArray();
         $categories = Category::where('isDeleted', 0)->pluck('name', 'id')->toArray();
-        $statuses = [
-            '' => 'Tất cả trạng thái',
-            '0' => 'Không hoạt động',
-            '1' => 'Hoạt động'
-        ];
+        $statuses = config('app.statuses');
 
         return view('admin.pages.services.index', compact('data', 'specialties', 'categories', 'statuses'));
     }
