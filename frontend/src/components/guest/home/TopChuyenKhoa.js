@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../../ultils/api/axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -10,15 +11,21 @@ const SpecialtiesSection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAll, setShowAll] = useState(false); // Trạng thái hiển thị tất cả chuyên khoa
+  const navigate = useNavigate(); // Điều hướng đến trang chi tiết chuyên khoa
 
   useEffect(() => {
     const fetchSpecialties = async () => {
       try {
-        const response = await api.get("api/client/home");
-        console.log("Dữ liệu chuyên khoa từ API:", response.data.specialties);
-        setSpecialties(response.data.specialties || []); // Lưu dữ liệu từ API
+        const response = await api.get("/api/client/list-specialty");
+        console.log("Dữ liệu từ API:", response.data);
+        // Update to handle the correct API response structure
+        if (response.data.status && response.data.data) {
+          setSpecialties(response.data.data.data || []); // Access paginated data
+        } else {
+          setSpecialties([]);
+        }
       } catch (error) {
-        console.error("Lỗi tải dữ liệu:", error.response?.data || error.message);
+        console.error("Lỗi tải dữ liệu:", error);
         setError("Không thể tải danh sách chuyên khoa.");
       } finally {
         setLoading(false);
@@ -27,6 +34,11 @@ const SpecialtiesSection = () => {
 
     fetchSpecialties();
   }, []);
+
+  // Update image handling in the render section
+  const handleSpecialtyClick = (id) => {
+    navigate(`/detail-specialty/${id}`);  // This should now match the route path
+  };
 
   if (loading) return <p className="text-center text-gray-500">Đang tải danh sách chuyên khoa...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
@@ -51,10 +63,14 @@ const SpecialtiesSection = () => {
           >
             {specialties.length > 0 ? (
               specialties.map((specialty) => (
+                // In the Swiper section, update the image source
                 <SwiperSlide key={specialty.id}>
-                  <div className="bg-white shadow-lg rounded-xl p-4 flex flex-col items-center hover:scale-105 transition-transform">
+                  <div 
+                    className="bg-white shadow-lg rounded-xl p-4 flex flex-col items-center hover:scale-105 transition-transform cursor-pointer"
+                    onClick={() => handleSpecialtyClick(specialty.id)}
+                  >
                     <img
-                      src={specialty.icon || "https://via.placeholder.com/100"}
+                      src={specialty.image || "/default-image.png"} 
                       alt={specialty.name}
                       className="w-16 h-16 object-cover rounded-full mb-2"
                     />
@@ -80,9 +96,13 @@ const SpecialtiesSection = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {specialties.length > 0 ? (
             specialties.map((specialty) => (
-              <div key={specialty.id} className="bg-white shadow-lg rounded-xl p-4 flex flex-col items-center hover:scale-105 transition-transform">
+              <div 
+                key={specialty.id} 
+                className="bg-white shadow-lg rounded-xl p-4 flex flex-col items-center hover:scale-105 transition-transform cursor-pointer"
+                onClick={() => handleSpecialtyClick(specialty.id)}
+              >
                 <img
-                  src={specialty.icon || "https://via.placeholder.com/100"}
+                  src={specialty.image || "/default-image.png"} 
                   alt={specialty.name}
                   className="w-16 h-16 object-cover rounded-full mb-2"
                 />

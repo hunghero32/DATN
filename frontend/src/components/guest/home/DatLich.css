@@ -1,0 +1,24 @@
+.appointment-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .card {
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  button {
+    background-color: #007bff;
+    color: white;
+  }
+  .ant-select-dropdown, .ant-picker-dropdown {
+    z-index: 1050 !important;
+    position: absolute !important;
+  }
+  
