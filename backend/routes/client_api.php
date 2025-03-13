@@ -22,7 +22,7 @@ Route::get('/list-service',[ServiceController::class,'listService']);
 Route::get('/detail-service/{id}',[ServiceController::class,'detailService']);
 
 
-Route::middleware('web')->group(function () {
+Route::middleware('api')->group(function () {
     Route::post('/temp-booking', [BookingController::class, 'tempBooking']);
     Route::get('/get-temp-booking', [BookingController::class, 'getTempBooking']);
     Route::post('/confirm-booking', [BookingController::class, 'confirmBooking']);

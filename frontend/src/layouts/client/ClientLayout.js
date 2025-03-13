@@ -105,7 +105,7 @@ const ClientLayout = () => {
         <Route path="/specialties" element={<TopSpecialties/>}/> 
         <Route path="/topServices" element={<TopBookedServices/>}/>
         <Route path="/clinicDetail" element={<ClinicDetail/>}/>
-        <Route path="/datlich" element={<DatLich/>}/>  {/* Trang đặt lịch khám */}
+        <Route path="/booking/:serviceId" element={<DatLich />} /> {/* Trang đặt lịch khám */}
         <Route path="/services" element={<Services/>}/>  {/* Trang dịch vụ */}
         <Route path="/contact" element={<HomeMainContact />} />
         {/* Update the route path to match the navigation */}

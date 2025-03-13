@@ -16,19 +16,11 @@ return [
     */
 
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
-
     'allowed_methods' => ['*'],
-
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
-
-    'allowed_origins_patterns' => [],
-
+    'allowed_origins' => ['*'], // Cho phép tất cả domain truy cập (có thể giới hạn lại sau)
     'allowed_headers' => ['*'],
-
     'exposed_headers' => [],
-
     'max_age' => 0,
-
     'supports_credentials' => true,
 
 ];

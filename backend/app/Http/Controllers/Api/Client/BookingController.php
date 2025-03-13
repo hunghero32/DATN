@@ -59,7 +59,7 @@ class BookingController extends Controller
         $validated = $request->validate([
             'guest_name' => 'required|string|max:255',
             'gender' => 'required|in:male,female,other',
-            'birthday' => 'required|date',
+            'birthday' => 'required|date_format:Y-m-d', 
             'guest_phone' => 'required|string|max:20',
             'guest_email' => 'required|email',
             'address' => 'required|array',
