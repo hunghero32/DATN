@@ -68,10 +68,7 @@ $detailModal=[
             'label' => 'Chỉnh sửa',
             'route' => fn($id) => route('admin.services.edit', $id),
             'method' => 'GET',
-<<<<<<< HEAD
             'modal' => true,
-=======
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
             'type' => 'row',
             'class' => 'btn btn-primary btn-sm'
         ],
