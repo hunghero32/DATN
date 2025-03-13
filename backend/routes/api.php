@@ -141,4 +141,6 @@ Route::middleware(['auth:sanctum'])->prefix('doctor')->group(function () {
     Route::put('bookings/{bookings}', [Doctor\BookingController::class, 'update']);
     // Hiển thị, thêm và sửa kết quả khám của bác sĩ
     Route::apiResource('results', Doctor\ResultController::class);
+    Route::apiResource('medical-records', Doctor\MedicalRecordController::class);
+    Route::apiResource('schedules', Doctor\ScheduleController::class);
 });
