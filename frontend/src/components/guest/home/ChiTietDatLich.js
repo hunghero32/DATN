@@ -84,7 +84,7 @@ const DoctorBooking = ({ schedules }) => {
   );
 };
 
-const Booking = () => {
+const ChiTietDatLich = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -123,4 +123,4 @@ const Booking = () => {
   );
 };
 
-export default Booking;
+export default ChiTietDatLich;
