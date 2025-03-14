@@ -160,7 +160,7 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{route('admin.schedule.index')}}" class="menu-link">
+                    <a href="{{route('admin.schedules.index')}}" class="menu-link">
                         <div data-i18n="Account">Danh sách đặt lịch</div>
                     </a>
                 </li>
@@ -217,7 +217,7 @@
         <li class="menu-item">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý Notification</div>
+                <div data-i18n="Account Settings">Quản lý thông báo</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
