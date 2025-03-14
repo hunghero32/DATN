@@ -25,6 +25,6 @@ class Schedule extends Model
     // Quan hệ với bảng Doctor
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class);
+        return $this->belongsTo(Doctor::class,'doctor_id');
     }
 }
