@@ -143,4 +143,5 @@ Route::middleware(['auth:sanctum'])->prefix('doctor')->group(function () {
     Route::apiResource('results', Doctor\ResultController::class);
     Route::apiResource('medical-records', Doctor\MedicalRecordController::class);
     Route::apiResource('schedules', Doctor\ScheduleController::class);
+    Route::apiResource('posts', Doctor\PostController::class);
 });
