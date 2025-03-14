@@ -14,18 +14,19 @@ class UpdateInvoiceRequest extends FormRequest
     public function rules()
     {
         return [
-            'total_amount' => 'sometimes|numeric|min:0',
-            'discount' => 'sometimes|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
+            'tax_percent' => 'nullable|numeric|min:0|max:100',
         ];
     }
 
     public function messages()
     {
         return [
-            'total_amount.numeric' => 'Tổng số tiền phải là số.',
-            'total_amount.min' => 'Tổng số tiền không được âm.',
             'discount.numeric' => 'Giảm giá phải là số.',
-            'discount.min' => 'Giảm giá không được âm.',
+            'discount.min' => 'Giảm giá không thể âm.',
+            'tax_percent.numeric' => 'Thuế phải là số.',
+            'tax_percent.min' => 'Thuế không thể âm.',
+            'tax_percent.max' => 'Thuế không thể lớn hơn 100%.',
         ];
     }
 }
