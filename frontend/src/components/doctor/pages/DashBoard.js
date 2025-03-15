@@ -1,517 +1,362 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Line, Pie } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
+  // State to hold the API data
+  const [dashboardData, setDashboardData] = useState({
+    total_patients: 0,
+    monthly_patients: 0,
+    total_appointments: 0,
+    completed_appointments: 0,
+    days_off: 0,
+    available_slots: 0,
+    appointments_by_status: {},
+    patients_by_month: {},
+    appointments_by_day: {},
+    patients_today: [],
+    upcoming_appointments: [],
+    completed_appointments_list: [],
+  });
+
+  // Fetch data when the component mounts
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/doctor/dashboard", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setDashboardData(response.data);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Prepare data for the Patients by Month chart (Line chart)
+  const patientsByMonthData = {
+    labels: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
+    datasets: [
+      {
+        label: "Patients Per Month",
+        data: Array.from({ length: 12 }, (_, index) =>
+          dashboardData.patients_by_month[index + 1] || 0
+        ),
+        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        fill: true,
+      },
+    ],
+  };
+
+  // Prepare data for the Appointments by Status chart (Pie chart)
+  const appointmentsByStatusData = {
+    labels: Object.keys(dashboardData.appointments_by_status),
+    datasets: [
+      {
+        label: "Appointments by Status",
+        data: Object.values(dashboardData.appointments_by_status),
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(54, 162, 235, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+          "rgba(75, 192, 192, 0.6)",
+        ],
+        borderColor: [
+          "rgba(255, 99, 132, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(75, 192, 192, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
   return (
     <div className="content-inner container-fluid pb-0" id="page_layout">
       <div>
+        {/* Summary Statistics Section */}
         <div className="row">
-          <div className="col-sm-12">
-            <div className="row">
-              <div className="col-md-6 col-lg-3">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="progress-bar-vertical bg-primary-subtle">
-                      <div
-                        className="custom-progress-bar bg-primary"
-                        data-toggle="progress-bar-vertical"
-                        role="progressbar"
-                        aria-valuemin="0"
-                        aria-valuenow="70"
-                      ></div>
-                    </div>
-                    <span className="d-block line-height-4">10 Feb, 2020</span>
-                    <h4 className="mb-2 mt-2">Hypertensive Crisis</h4>
-                    <p className="mb-0 line-height">Ongoing treatment</p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-6 col-lg-3">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="progress-bar-vertical bg-danger-subtle">
-                      <div
-                        className="custom-progress-bar bg-danger"
-                        data-toggle="progress-bar-vertical"
-                        role="progressbar"
-                        aria-valuemin="0"
-                        aria-valuenow="70"
-                      ></div>
-                    </div>
-                    <span className="d-block line-height-4">12 Jan, 2020</span>
-                    <h4 className="mb-2 mt-2">Osteoporosis</h4>
-                    <p className="mb-0 line-height">Incurable</p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-6 col-lg-3">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="progress-bar-vertical bg-warning-subtle">
-                      <div
-                        className="custom-progress-bar bg-warning"
-                        data-toggle="progress-bar-vertical"
-                        role="progressbar"
-                        aria-valuemin="0"
-                        aria-valuenow="70"
-                      ></div>
-                    </div>
-                    <span className="d-block line-height-4">15 Feb, 2020</span>
-                    <h4 className="mb-2 mt-2">Hypertensive Crisis</h4>
-                    <p className="mb-0 line-height">Examination</p>
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-6 col-lg-3">
-                <div className="card">
-                  <div
-                    className="card-body p-0 rounded"
-                    style={{
-                        backgroundImage: "url('assets/images/page-img/38.png')",
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "center center",
-                        backgroundSize: "contain",
-                        minHeight: "152px"
-                      }}
-                      
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-4">
-            <div className="card user-profile-block">
-              <div className="card-body">
-                <div className="user-details-block">
-                  <div className="user-profile text-center">
-                    <img
-                      src="https://templates.iqonic.design/xray-dist/html/assets/images/user/11.png"
-                      alt={String("Logo")}
-                      className="rounded-circle img-fluid"
-                      style={{ width: "130px" }}
-
-                    />
-                  </div>
-                  <div className="text-center mt-3 pb-3">
-                    <h4><b>Bini Jets</b></h4>
-                    <p>Doctor</p>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
-                      in arcu turpis. Nunc
-                    </p>
-                    <a href="#" className="btn btn-primary-subtle">Assign</a>
-                  </div>
-                  <hr />
-                  <ul
-                    className="doctoe-sedual d-flex align-items-center justify-content-between p-0 m-0"
-                  >
-                    <li className="text-center">
-                      <h3 className="counter">4500</h3>
-                      <span>Operations</span>
-                    </li>
-                    <li className="text-center">
-                      <h3 className="counter">3.9</h3>
-                      <span>Medical Rating</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-8">
+          <div className="col-md-6 col-lg-3">
             <div className="card">
-              <div className="card-header d-flex justify-content-between">
-                <div className="header-title">
-                  <h4 className="card-title">Health Curve</h4>
-                </div>
+              <div className="card-body text-center">
+                <h6 className="text-uppercase">Total Patients Seen</h6>
+                <h3 className="mb-0">{dashboardData.total_patients}</h3>
               </div>
-              <div className="card-body" style={{ position: "relative" }}
-              >
-                <div
-                  id="home-chart-06"
-                  className="h-100"
-                  style={{ height: "350px", minHeight: "355px" }}
-                  ></div>
+            </div>
+          </div>
+          <div className="col-md-6 col-lg-3">
+            <div className="card">
+              <div className="card-body text-center">
+                <h6 className="text-uppercase">Patients This Month</h6>
+                <h3 className="mb-0">{dashboardData.monthly_patients}</h3>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6 col-lg-3">
+            <div className="card">
+              <div className="card-body text-center">
+                <h6 className="text-uppercase">Total Appointments</h6>
+                <h3 className="mb-0">{dashboardData.total_appointments}</h3>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6 col-lg-3">
+            <div className="card">
+              <div className="card-body text-center">
+                <h6 className="text-uppercase">Completed Appointments</h6>
+                <h3 className="mb-0">{dashboardData.completed_appointments}</h3>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Additional Statistics Section */}
         <div className="row">
-          <div className="col-lg-4">
+          <div className="col-md-6 col-lg-3">
             <div className="card">
-              <div className="card-header d-flex justify-content-between">
-                <h4 className="card-title">Nearest Treatment</h4>
+              <div className="card-body text-center">
+                <h6 className="text-uppercase">Days Off This Month</h6>
+                <h3 className="mb-0">{dashboardData.days_off}</h3>
               </div>
-              <div className="course-picker card-body d-flex">
-                <input
-                  type="hidden"
-                  name="inline"
-                  className="d-none inline_flatpickr"
+            </div>
+          </div>
+          <div className="col-md-6 col-lg-3">
+            <div className="card">
+              <div className="card-body text-center">
+                <h6 className="text-uppercase">Available Slots</h6>
+                <h3 className="mb-0">{dashboardData.available_slots}</h3>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-6 col-lg-6">
+            <div className="card">
+              <div className="card-header">
+                <h4 className="card-title">Appointments by Status</h4>
+              </div>
+              <div className="card-body" style={{ height: "200px" }}>
+                <Pie
+                  data={appointmentsByStatusData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: "top",
+                      },
+                      title: {
+                        display: true,
+                        text: "Appointments by Status",
+                      },
+                    },
+                  }}
                 />
               </div>
             </div>
           </div>
-          <div className="col-lg-4">
-            <div className="card">
-              <div className="card-body">
-                <h6>APPOINTMENTS</h6>
-                <h3><b>5075</b></h3>
-              </div>
-              <div className="wave-chart-container" style={{ height: "80px" }}
-              >
-                <div id="wave-chart-7"></div>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card-body">
-                <h6>NEW PATIENTS</h6>
-                <h3><b>1200</b></h3>
-              </div>
-              <div className="wave-chart-container" style={{ height: "80px" }}
-              >
-                <div id="wave-chart-8"></div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-4">
-            <div className="card">
-              <div className="card-header d-flex justify-content-between">
-                <div className="header-title">
-                  <h4 className="card-title">Hospital Management</h4>
-                </div>
-              </div>
-              <div className="card-body hospital-mgt">
-                <div className="progress mb-4" style={{ height: "30px" }}
-                >
-                  <div
-                    className="progress-bar bg-primary"
-                    role="progressbar"
-                    style={{ width: "20%" }}
-                    aria-valuenow="15"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    OPD
-                  </div>
-                  <div
-                    className="progress-bar bg-warning"
-                    role="progressbar"
-                    style={{ width: "80%" }}
-                    aria-valuenow="30"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    80%
-                  </div>
-                </div>
-                <div className="progress mb-4" style={{ height: "30px" }}
-                >
-                  <div
-                    className="progress-bar bg-primary"
-                    role="progressbar"
-                    style={{ width: "30%" }}
-                    aria-valuenow="15"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    Treatment
-                  </div>
-                  <div
-                    className="progress-bar bg-warning"
-                    role="progressbar"
-                    style={{ width: "70%" }}
-                    aria-valuenow="30"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    70%
-                  </div>
-                </div>
-                <div className="progress mb-4" style={{ height: "30px" }}
-                >
-                  <div
-                    className="progress-bar bg-primary"
-                    role="progressbar"
-                    style={{ width: "40%" }}
-                    aria-valuenow="15"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    Laboratory Test
-                  </div>
-                  <div
-                    className="progress-bar bg-warning"
-                    role="progressbar"
-                    style={{ width: "40%" }}
-                    aria-valuenow="30"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    85%
-                  </div>
-                </div>
-                <div className="progress mb-4" style={{ height: "30px" }}
-                >
-                  <div
-                    className="progress-bar bg-primary"
-                    role="progressbar"
-                    style={{ width: "40%" }}
-                    aria-valuenow="15"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    New Patient
-                  </div>
-                  <div
-                    className="progress-bar bg-warning"
-                    role="progressbar"
-                    style={{ width: "60%" }}
-                    aria-valuenow="30"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    70%
-                  </div>
-                </div>
-                <div className="progress mb-4" style={{ height: "30px" }}
-                >
-                  <div
-                    className="progress-bar bg-primary"
-                    role="progressbar"
-                    style={{ width: "35%" }}
-                    aria-valuenow="15"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    Doctors
-                  </div>
-                  <div
-                    className="progress-bar bg-warning"
-                    role="progressbar"
-                    style={{ width: "65%" }}
-                    aria-valuenow="30"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    95%
-                  </div>
-                </div>
-                <div className="progress" style={{ height: "30px" }}
-                >
-                  <div
-                    className="progress-bar bg-primary"
-                    role="progressbar"
-                    style={{ width: "28%" }}
-                    aria-valuenow="15"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    Discharge
-                  </div>
-                  <div
-                    className="progress-bar bg-warning"
-                    role="progressbar"
-                    style={{ width: "70%" }}
-
-                    aria-valuenow="30"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                  >
-                    35%
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
+
+        {/* Charts and Lists Section */}
         <div className="row">
-          <div className="col-lg-3">
-            <div className="card">
-              <div className="card-header d-flex justify-content-between">
-                <div className="header-title">
-                  <h4 className="card-title">Patient Progress</h4>
-                </div>
-              </div>
-              <div className="card-body">
-                <ul className="patient-progress m-0 p-0">
-                  <li
-                    className="d-flex mb-3 align-items-center justify-content-between"
-                  >
-                    <div className="media-support-info">
-                      <h6>Bud Jet</h6>
-                    </div>
-                    <span className="badge badge-primary">30%</span>
-                  </li>
-                  <li
-                    className="d-flex mb-3 align-items-center justify-content-between"
-                  >
-                    <div className="media-support-info">
-                      <h6>Barney Cull</h6>
-                    </div>
-                    <span className="badge badge-success">70%</span>
-                  </li>
-                  <li
-                    className="d-flex mb-3 align-items-center justify-content-between"
-                  >
-                    <div className="media-support-info">
-                      <h6>Eric Shun</h6>
-                    </div>
-                    <span className="badge badge-danger">15%</span>
-                  </li>
-                  <li
-                    className="d-flex mb-3 align-items-center justify-content-between"
-                  >
-                    <div className="media-support-info">
-                      <h6>Rick Shaw</h6>
-                    </div>
-                    <span className="badge badge-warning">55%</span>
-                  </li>
-                  <li
-                    className="d-flex mb-3 align-items-center justify-content-between"
-                  >
-                    <div className="media-support-info">
-                      <h6>Ben Effit</h6>
-                    </div>
-                    <span className="badge badge-info">45%</span>
-                  </li>
-                  <li
-                    className="d-flex mb-3 align-items-center justify-content-between"
-                  >
-                    <div className="media-support-info">
-                      <h6>Rick Shaw</h6>
-                    </div>
-                    <span className="badge badge-warning">55%</span>
-                  </li>
-                  <li
-                    className="d-flex mb-3 align-items-center justify-content-between"
-                  >
-                    <div className="media-support-info">
-                      <h6>Marge Arita</h6>
-                    </div>
-                    <span className="badge badge-primary">65%</span>
-                  </li>
-                  <li className="d-flex align-items-center justify-content-between">
-                    <div className="media-support-info">
-                      <h6>Barry Cudat</h6>
-                    </div>
-                    <span className="badge badge-danger">15%</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          {/* Patients by Month Chart */}
           <div className="col-lg-6">
             <div className="card">
-              <div className="card-header d-flex justify-content-between">
-                <div className="card-title">
-                  <h4>Patient Overview</h4>
-                </div>
+              <div className="card-header">
+                <h4 className="card-title">Patients by Month</h4>
               </div>
               <div className="card-body">
-                <div id="home-chart-03" className="chart" style={{ height: "280px" }}
-                ></div>
+                <Line
+                  data={patientsByMonthData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: "top",
+                      },
+                      title: {
+                        display: true,
+                        text: "Patients Seen Each Month",
+                      },
+                    },
+                  }}
+                  style={{ height: "280px" }}
+                />
               </div>
             </div>
           </div>
-  
-          <div className="col-lg-3">
+
+          {/* Patients Seen Today */}
+          <div className="col-lg-6">
             <div className="card">
-              <div className="card-header d-flex justify-content-between">
-                <div className="header-title">
-                  <h4 className="card-title">Visits From Countries</h4>
-                </div>
+              <div className="card-header">
+                <h4 className="card-title">Patients Seen Today</h4>
               </div>
               <div className="card-body">
-                <div className="details">
-                  <span className="title text-dark">United States</span>
-                  <div className="percentage float-end text-primary">
-                    95
-                    <span>%</span>
-                  </div>
-                  <div className="progress-bar-linear d-inline-block w-100">
-                    <div
-                      className="progress bg-primary-subtle shadow-none w-100"
-                      style={{ height: "6px" }}
-                      >
-                      <div
-                        className="progress-bar bg-primary"
-                        data-toggle="progress-bar"
-                        role="progressbar"
-                        aria-valuemin="0"
-                        aria-valuenow="90"
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="details mt-4">
-                  <span className="title text-dark">India</span>
-                  <div className="percentage float-end text-warning">
-                    75
-                    <span>%</span>
-                  </div>
-                  <div className="progress-bar-linear d-inline-block w-100">
-                    <div
-                      className="progress bg-warning-subtle shadow-none w-100"
-                      style={{ height: "6px" }}
-                      >
-                      <div
-                        className="progress-bar bg-warning"
-                        data-toggle="progress-bar"
-                        role="progressbar"
-                        aria-valuemin="0"
-                        aria-valuenow="75"
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="details mt-4">
-                  <span className="title text-dark">Australia</span>
-                  <div className="percentage float-end text-success">
-                    55
-                    <span>%</span>
-                  </div>
-                  <div className="progress-bar-linear d-inline-block w-100">
-                    <div
-                      className="progress bg-success-subtle shadow-none w-100"
-                      style={{ height: "6px" }}
-                      >
-                      <div
-                        className="progress-bar bg-success"
-                        data-toggle="progress-bar"
-                        role="progressbar"
-                        aria-valuemin="0"
-                        aria-valuenow="55"
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="details mt-4">
-                  <span className="title text-dark">Brazil</span>
-                  <div className="percentage float-end text-danger">
-                    25
-                    <span>%</span>
-                  </div>
-                  <div className="progress-bar-linear d-inline-block w-100">
-                    <div
-                      className="progress bg-danger-subtle shadow-none w-100"
-                      style={{ height: "6px" }}
-                      >
-                      <div
-                        className="progress-bar bg-danger"
-                        data-toggle="progress-bar"
-                        role="progressbar"
-                        aria-valuemin="0"
-                        aria-valuenow="25"
-                      ></div>
-                    </div>
-                  </div>
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  <table className="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Service</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dashboardData.patients_today.length > 0 ? (
+                        dashboardData.patients_today.map((patient, index) => (
+                          <tr key={index}>
+                            <td>{patient.guest?.guest_name || "Unknown"}</td>
+                            <td>{patient.guest?.guest_phone || "N/A"}</td>
+                            <td>{patient.guest?.guest_email || "N/A"}</td>
+                            <td>{patient.service?.services_name || "N/A"}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="4" className="text-center">
+                            No patients seen today.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
+
+        {/* Upcoming Appointments */}
+        <div className="row">
+          <div className="col-lg-6">
+            <div className="card">
+              <div className="card-header">
+                <h4 className="card-title">Upcoming Appointments</h4>
+              </div>
+              <div className="card-body">
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  <table className="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dashboardData.upcoming_appointments.length > 0 ? (
+                        dashboardData.upcoming_appointments.map((appointment, index) => (
+                          <tr key={index}>
+                            <td>{appointment.booking_date}</td>
+                            <td>{appointment.guest?.guest_name || "Unknown"}</td>
+                            <td>{appointment.guest?.guest_phone || "N/A"}</td>
+                            <td>{appointment.service?.services_name || "N/A"}</td>
+                            <td>{appointment.status}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5" className="text-center">
+                            No upcoming appointments.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Completed Appointments */}
+          <div className="col-lg-6">
+            <div className="card">
+              <div className="card-header">
+                <h4 className="card-title">Completed Appointments</h4>
+              </div>
+              <div className="card-body">
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  <table className="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Service</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dashboardData.completed_appointments_list.length > 0 ? (
+                        dashboardData.completed_appointments_list.map((appointment, index) => (
+                          <tr key={index}>
+                            <td>{appointment.booking_date}</td>
+                            <td>{appointment.guest?.guest_name || "Unknown"}</td>
+                            <td>{appointment.guest?.guest_phone || "N/A"}</td>
+                            <td>{appointment.service?.services_name || "N/A"}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="4" className="text-center">
+                            No completed appointments.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default Dashboard;

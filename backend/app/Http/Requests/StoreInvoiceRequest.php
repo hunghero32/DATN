@@ -14,19 +14,22 @@ class StoreInvoiceRequest extends FormRequest
     public function rules()
     {
         return [
-            'total_amount' => 'required|numeric|min:0',
+            'booking_id' => 'required|exists:bookings,id',
             'discount' => 'nullable|numeric|min:0',
+            'tax_percent' => 'nullable|numeric|min:0|max:100',
         ];
     }
 
     public function messages()
     {
         return [
-            'total_amount.required' => 'Vui lòng nhập tổng số tiền.',
-            'total_amount.numeric' => 'Tổng số tiền phải là số.',
-            'total_amount.min' => 'Tổng số tiền không được âm.',
+            'booking_id.required' => 'Vui lòng chọn một booking.',
+            'booking_id.exists' => 'Booking không tồn tại.',
             'discount.numeric' => 'Giảm giá phải là số.',
-            'discount.min' => 'Giảm giá không được âm.',
+            'discount.min' => 'Giảm giá không thể âm.',
+            'tax_percent.numeric' => 'Thuế phải là số.',
+            'tax_percent.min' => 'Thuế không thể âm.',
+            'tax_percent.max' => 'Thuế không thể lớn hơn 100%.',
         ];
     }
 }

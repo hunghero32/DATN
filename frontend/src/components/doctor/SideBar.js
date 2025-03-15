@@ -9,10 +9,9 @@ const menuItems = [
   { path: "/doctor/CompletedAppointments", icon: "ri-map-pin-user-line", name: "lịch khám Đã Khám xong" },
   { path: "/doctor/doctor-profile", icon: "ri-map-pin-user-line", name: "Hồ Sơ Bác Sĩ" },
   { path: "/doctor/doctor-schedule", icon: "ri-map-pin-user-line", name: "Danh sách lịch khám" },
+  { path: "/doctor/invoices", icon: "ri-user-line", name: "Hoá đơn" },
   { path: "/doctor/schedule", icon: "ri-user-line", name: "lịch làm việc" },
   { path: "/doctor/history-doctor", icon: "ri-message-fill", name: "lịch sử khám" },
-  { path: "/doctor/doctorstatistics", icon: "ri-map-pin-user-line", name: "Thống kê bệnh nhân" },
-  { path: "/doctor/notificationpage", icon: "ri-hospital-line", name: "Thông báo" },
 ];
 
 const SideBar = () => {
