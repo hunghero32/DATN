@@ -84,7 +84,7 @@ const DoctorBooking = ({ schedules }) => {
   );
 };
 
-const ChiTietDatLich = () => {
+const ChiTietDatLich  = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 

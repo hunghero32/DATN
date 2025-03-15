@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Session;
 use App\Models\Booking;
 use App\Models\Guest;
 use Illuminate\Support\Facades\Log;
+use App\Models\Doctor;
+use App\Models\Specialty;
+use App\Models\Schedule;
+use App\Models\Services;
 
 class BookingController extends Controller
 {
@@ -47,10 +51,23 @@ class BookingController extends Controller
 
         $data = Session::get('temp_booking', []);
 
+        if (!empty($data)) {
+            // Load relationships
+            $booking = [
+                'booking' => $data,
+                'doctor' => Doctor::find($data['doctor_id']),
+                'specialty' => Specialty::find($data['specialty_id']),
+                'services' => Services::find($data['service_id']),
+                'schedule' => Schedule::find($data['schedule_id'])
+            ];
+        } else {
+            $booking = [];
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Thông tin đặt lịch tạm thời',
-            'data' => $data
+            'data' => $booking
         ]);
     }
 

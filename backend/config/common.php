@@ -2,12 +2,30 @@
 return [
     'statuses' => [
         '1' => [
-            'text' => 'Hoạt động',
+            'text' => 'Đã phê duyệt',
             'class' => 'badge bg-success'
         ],
         '0' => [
-            'text' => 'Không hoạt động',
+            'text' => 'Chưa phê duyệt',
             'class' => 'badge bg-danger'
         ],
+    ],
+    'order_statuses'=>[
+        'pending' => [
+            'text' => 'Đang chờ',
+            'class' => 'badge bg-warning'
+        ],
+        'confirmed' => [
+            'text' => 'Đã xác nhận',
+            'class' => 'badge bg-info'
+        ],
+        'completed' => [
+            'text' => 'Hoàn thành',
+            'class' => 'badge bg-success'
+        ],
+        'canceled' => [
+            'text' => 'Đã hủy',
+            'class' => 'badge bg-danger'
+        ]
     ]
 ];

@@ -39,6 +39,7 @@ import Services from "../../components/guest/home/Service";
 import ChiTietDatLich from "../../components/guest/home/ChiTietDatLich";
 import DatLich from "../../components/guest/home/DatLich";
 import ChiTietChuyenKhoa from "../../components/guest/home/ChiTietChuyenKhoa";
+import ServiceDetail from "../../components/guest/home/ServiceDetail";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -107,6 +108,7 @@ const ClientLayout = () => {
         <Route path="/clinicDetail" element={<ClinicDetail/>}/>
         <Route path="/booking/:serviceId" element={<DatLich />} /> {/* Trang đặt lịch khám */}
         <Route path="/services" element={<Services/>}/>  {/* Trang dịch vụ */}
+        <Route path="/detail-service/:id" element={<ServiceDetail/>}/>  {/* Trang chi tiet dich vu  */}
         <Route path="/contact" element={<HomeMainContact />} />
         {/* Update the route path to match the navigation */}
         <Route path="/detail-specialty/:id" element={<ChiTietChuyenKhoa />} />

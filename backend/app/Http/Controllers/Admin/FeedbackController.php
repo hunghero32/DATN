@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use App\Models\Guest;
 use App\Models\Doctor;
-use App\Models\Services;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
@@ -50,7 +50,7 @@ class FeedbackController extends Controller
     {
         $guests = Guest::all();
         $doctors = Doctor::all();
-        $services = Services::all();
+        $service = Service::all();
         return view('admin.pages.feedback.create', compact('guests', 'doctors', 'services'));
     }
 
@@ -95,7 +95,7 @@ class FeedbackController extends Controller
         $feedback = Feedback::where('id', $id)->where('isDeleted', 0)->firstOrFail();
         $guests = Guest::all();
         $doctors = Doctor::all();
-        $services = Services::all();
+        $service = Service::all();
         return view('admin.pages.feedback.edit', compact('feedback', 'guests', 'doctors', 'services'));
     }
 

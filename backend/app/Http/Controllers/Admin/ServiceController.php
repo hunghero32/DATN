@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\Services;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use App\Models\Specialty;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +15,7 @@ class ServiceController extends Controller
     public function index()
     {
         $perPage = request()->get('per_page', 10);
-        $data = Services::join('specialties', 'specialties.id', 'services.specialty_id')
+        $data = Service::join('specialties', 'specialties.id', 'services.specialty_id')
             ->join('categories', 'categories.id', 'services.category_id')
             ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
             ->where('services.isDeleted', 0)
@@ -24,11 +24,7 @@ class ServiceController extends Controller
 
         $specialties = Specialty::where('isDeleted', 0)->pluck('name', 'id')->toArray();
         $categories = Category::where('isDeleted', 0)->pluck('name', 'id')->toArray();
-        $statuses = [
-            '' => 'Tất cả trạng thái',
-            '0' => 'Không hoạt động',
-            '1' => 'Hoạt động'
-        ];
+        $statuses = config('app.statuses');
 
         return view('admin.pages.services.index', compact('data', 'specialties', 'categories', 'statuses'));
     }
@@ -43,7 +39,7 @@ class ServiceController extends Controller
         $price_from = $request->input('price_from');
         $price_to = $request->input('price_to');
 
-        $query = Services::join('specialties', 'specialties.id', 'services.specialty_id')
+        $query = Service::join('specialties', 'specialties.id', 'services.specialty_id')
             ->join('categories', 'categories.id', 'services.category_id')
             ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
             ->where('services.isDeleted', 0)
@@ -85,11 +81,7 @@ class ServiceController extends Controller
 
         $specialties = Specialty::where('isDeleted', 0)->pluck('name', 'id')->toArray();
         $categories = Category::where('isDeleted', 0)->pluck('name', 'id')->toArray();
-        $statuses = [
-            '' => 'Tất cả trạng thái',
-            '0' => 'Không hoạt động',
-            '1' => 'Hoạt động'
-        ];
+        $statuses = config('app.statuses');
 
         return view('admin.pages.services.index', compact('data', 'specialties', 'categories', 'statuses'));
     }
@@ -149,14 +141,14 @@ class ServiceController extends Controller
         }
 
         // Lưu vào database
-        Services::create($validatedData);
+        Service::create($validatedData);
 
         return redirect()->route('admin.services.index')->with('success', 'Dịch vụ đã được thêm thành công!');
     }
 
     public function edit($id)
     {
-        $data = Services::findOrFail($id);
+        $data = Service::findOrFail($id);
         return view(
             'admin.pages.services.edit',
             [
@@ -168,7 +160,7 @@ class ServiceController extends Controller
     }
     public function update(Request $request, $id)
     {
-        $service = Services::findOrFail($id);
+        $service = Service::findOrFail($id);
 
         // Quy tắc kiểm tra dữ liệu (validate)
         $validator = Validator::make($request->all(), [
@@ -227,7 +219,7 @@ class ServiceController extends Controller
 
     public function delete($id)
     {
-        $data = Services::findOrFail($id);
+        $data = Service::findOrFail($id);
         if ($data->status == 0) {
             $data->isDeleted = 1;
             return redirect()->route('admin.services.index')->with('success', 'Xóa dịch vụ thành công!');
@@ -238,7 +230,7 @@ class ServiceController extends Controller
     public function updateStatus(Request $request, $id)
 {
     try {
-        $service = Services::findOrFail($id);
+        $service = Service::findOrFail($id);
         $service->status = $request->status;
         $service->save();
 

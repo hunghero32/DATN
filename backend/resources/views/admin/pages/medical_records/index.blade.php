@@ -2,17 +2,21 @@
 @section('title', 'Danh sách hồ sơ bệnh án')
 
 @section('content')
-    <form method="GET" action="{{ route('admin.medical_records.index') }}">
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Tìm theo Tên hoặc SĐT">
-        <button type="submit">Tìm kiếm</button>
+
+    <form class="row g-2" method="GET" action="{{ route('admin.medical_records.index') }}">
+        <div class="col-md-2">
+        <input class="form-control me-3" type="text" name="search" value="{{ request('search') }}" placeholder="Tìm theo Tên hoặc SĐT">
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary " type="submit">Tìm kiếm</button>
+    </div>
     </form>
 
     <a  href="{{ route('admin.medical_records.create') }}" class="btn btn-success" >Thêm mới</a>
 
-    <table>
+    <table class="table">
         <thead>
             <tr>
-
                 <th>ID</th>
                 <th>Tên Khách</th>
                 <th>BHYT</th>
@@ -35,7 +39,7 @@
                         <form action="{{ route('admin.medical_records.destroy', $record->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</button>
+                            <button type="submit" onclick="return confirm('Bạn có chắc muốn xóa?')" class="btn btn-danger btn-sm">Xóa</button>
                         </form>
                     </td>
                 </tr>

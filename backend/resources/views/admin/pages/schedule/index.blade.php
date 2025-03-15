@@ -7,16 +7,7 @@
     // Add status configuration
     $statusConfig = [
         'route' => 'admin.schedule.update-status',
-        'states' => [
-            '1' => [
-                'text' => 'Hoạt động',
-                'class' => 'badge bg-success'
-            ],
-            '0' => [
-                'text' => 'Không hoạt động',
-                'class' => 'badge bg-danger'
-            ]
-        ]
+        'states' => config('common.statuses'),
     ];
 
     $detailModal = [
@@ -26,11 +17,7 @@
         'status' => [
             'id' => 'status',
             'name' => 'status',
-            'options' => [
-                'all' => 'Tất cả trạng thái',
-                '1' => 'Hoạt động',
-                '0' => 'Không hoạt động',
-            ]
+            'options' => config('app.statuses'),
         ]
     ];
     ?>

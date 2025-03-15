@@ -8,16 +8,7 @@ $categories = $data->pluck('category_id', 'category_name')->toArray();
 // Add status configuration
 $statusConfig = [
     'route' => 'admin.services.update-status',
-    'states' => [
-        '1' => [
-            'text' => 'Hoạt động',
-            'class' => 'badge bg-success'
-        ],
-        '0' => [
-            'text' => 'Không hoạt động',
-            'class' => 'badge bg-danger'
-        ]
-    ]
+    'states' => config('common.statuses')
 ];
 
 $detailModal=[
@@ -47,11 +38,7 @@ $detailModal=[
         [
             'id' => 'status',
             'name' => 'status',
-            'options' => [
-                'all' => 'Tất cả trạng thái',
-                '1' => 'Hoạt động',
-                '0' => 'Không hoạt động'
-            ]
+            'options' =>config('app.statuses')
         ]
     ]"
     :data="$data"
@@ -68,10 +55,7 @@ $detailModal=[
             'label' => 'Chỉnh sửa',
             'route' => fn($id) => route('admin.services.edit', $id),
             'method' => 'GET',
-<<<<<<< HEAD
             'modal' => true,
-=======
->>>>>>> 8ff85ea459e84e5c05aaa434423a1a0ee58bc5a6
             'type' => 'row',
             'class' => 'btn btn-primary btn-sm'
         ],
@@ -93,4 +77,4 @@ $detailModal=[
         ],
     ]"
 />
-@endsection
+@endsection 

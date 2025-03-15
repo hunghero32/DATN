@@ -14,3 +14,29 @@
 .ant-form-item-control {
   width: 100% !important;
 }
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+}
+
+.pagination .page-item {
+  margin: 0 5px;
+}
+
+.pagination .page-link {
+  border-radius: 5px;
+  padding: 8px 12px;
+  color: #007bff;
+  border: 1px solid #ddd;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.pagination .page-link:hover {
+  background-color: #f8f9fa;
+}

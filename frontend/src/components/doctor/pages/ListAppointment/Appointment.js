@@ -154,13 +154,196 @@ const Appointment = () => {
       </div>
 
       {/* Modal Chi Tiết */}
-      
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Patient Information</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedAppointment && (
+            <Form>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Thông tin bệnh nhân */}
+                <Form.Group>
+                  <Form.Label>Gender:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={selectedAppointment?.guest?.gender ?? "Không có dữ liệu"}
+                    readOnly
+                  />
+                </Form.Group>
+
+                {/* Thông tin đặt lịch */}
+                <Form.Group>
+                  <Form.Label>Service Name:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={
+                      selectedAppointment.service?.services_name ||
+                      "Không có dữ liệu"
+                    }
+                    readOnly
+                  />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label>Guest Name:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={
+                      selectedAppointment.guest?.guest_name ||
+                      "Không có dữ liệu"
+                    }
+                    readOnly
+                  />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label>Guest Phone:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={
+                      selectedAppointment.guest?.guest_phone ||
+                      "Không có dữ liệu"
+                    }
+                    readOnly
+                  />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label>Guest Email:</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={
+                      selectedAppointment.guest?.guest_email ||
+                      "Không có dữ liệu"
+                    }
+                    readOnly
+                  />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label>Guest Address:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={
+                      selectedAppointment.guest?.address || "Không có dữ liệu"
+                    }
+                    readOnly
+                  />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label>Booking Date:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={selectedAppointment.booking_date}
+                    readOnly
+                  />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label>Booking Time:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={selectedAppointment.booking_time}
+                    readOnly
+                  />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label>Status:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={selectedAppointment.status}
+                    readOnly
+                  />
+                </Form.Group>
+
+                {/* Lý do & lịch sử bệnh */}
+                <Form.Group className="col-span-2">
+                  <Form.Label>Reason:</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    value={selectedAppointment.reason}
+                    readOnly
+                  />
+                </Form.Group>
+
+                <Form.Group className="col-span-2">
+                  <Form.Label>Notes:</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={selectedAppointment?.notes ?? "Không có ghi chú"}
+                    readOnly
+                  />
+                </Form.Group>
+
+
+              </div>
+            </Form>
+          )}
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Modal Xác Nhận Nhận Bệnh */}
-      
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Xác nhận nhận bệnh</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Bạn có chắc chắn muốn nhận bệnh nhân này không?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="success" onClick={handleConfirmAccept}>
+            Xác nhận
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Modal Gửi Hóa Đơn */}
-      
+      <Modal show={showInvoiceModal} onHide={() => setShowInvoiceModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Send Invoice</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Nav variant="tabs" activeKey={activeTab} onSelect={(selectedKey) => setActiveTab(selectedKey)}>
+            <Nav.Item>
+              <Nav.Link eventKey="send">Send invoice</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="sent">Sent</Nav.Link>
+            </Nav.Item>
+          </Nav>
+          {activeTab === "send" && (
+            <Form className="mt-3">
+              <Form.Group>
+                <Form.Label>Email:</Form.Label>
+                <Form.Control type="email" value={selectedAppointment?.email || ""} readOnly />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Choose files:</Form.Label>
+                <Form.Control type="file" onChange={(e) => setFile(e.target.files[0])} />
+              </Form.Group>
+              {file && <div className="mt-2">{file.name}</div>}
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowInvoiceModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary">Send</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
