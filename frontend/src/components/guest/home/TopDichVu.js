@@ -14,7 +14,7 @@ const TopBookedServices = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await api.get("api/client/home");
+        const response = await api.get("/api/client/home");
         console.log(" API trả về:", response.data);
         console.log(" popular_services:", response.data?.popular_services);
 

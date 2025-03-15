@@ -88,6 +88,12 @@ class Booking extends Model
         }
         return $query;
     }
+    // Lọc danh sách bệnh nhân đã "pending" của bác sĩ đang đăng nhập
+    public function scopeFilterDoctorPending($query)
+    {
+        return $query->where('doctor_id', auth()->id())
+            ->where('status', 'pending');
+    }
     // Lọc danh sách bệnh nhân đã "confirmed" của bác sĩ đang đăng nhập
     public function scopeFilterDoctorConfirmed($query)
     {
