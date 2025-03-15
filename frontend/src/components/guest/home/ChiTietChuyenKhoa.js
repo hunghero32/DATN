@@ -4,7 +4,7 @@ import api from "../../../ultils/api/axios";
 
 const SpecialtyDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // ✅ Thêm điều hướng
+  const navigate = useNavigate();
   const [specialty, setSpecialty] = useState(null);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,7 @@ const SpecialtyDetail = () => {
         }
 
         setSpecialty(response.data.specialty);
-        setServices(response.data.services || []); // Thêm danh sách dịch vụ nếu có
+        setServices(response.data.services || []);
       } catch (error) {
         console.error("❌ Lỗi tải API:", error);
         setError("Không thể tải thông tin chuyên khoa.");
@@ -34,9 +34,9 @@ const SpecialtyDetail = () => {
     fetchSpecialtyDetail();
   }, [id]);
 
-  // ✅ Xử lý khi click vào dịch vụ -> Chuyển hướng sang trang đặt lịch
+  // ✅ Điều hướng sang trang chi tiết dịch vụ
   const handleServiceClick = (serviceId) => {
-    navigate(`/booking/${serviceId}`);
+    navigate(`/detail-service/${serviceId}`);
   };
 
   if (loading) return <p className="text-center text-gray-500">Đang tải chi tiết chuyên khoa...</p>;
@@ -67,7 +67,7 @@ const SpecialtyDetail = () => {
           {services.map((service) => (
             <li
               key={service.id}
-              onClick={() => handleServiceClick(service.id)} // ✅ Chuyển hướng khi click
+              onClick={() => handleServiceClick(service.id)}
               className="bg-white shadow-lg rounded-xl p-4 cursor-pointer hover:bg-blue-100 transition"
             >
               <p className="text-md font-semibold text-gray-800">{service.services_name}</p>
