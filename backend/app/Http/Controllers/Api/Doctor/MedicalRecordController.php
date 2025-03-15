@@ -54,34 +54,8 @@ class MedicalRecordController extends Controller
     public function show(MedicalRecord $medicalRecord)
     {
         $results = Result::with(['booking.service:id,services_name', 'doctor:id,doctor_name'])
-            ->where('guest_id', $medicalRecord->guest_id)
-            ->get();
-
-        return response()->json([
-            'medical_record' => $medicalRecord->load('guest'),
-            'results' => $results
-        ], 200);
-    }
-
-    /**
-     * Display the latest medical record for a specific guest.
-     */
-    public function showByGuest($guestId)
-    {
-        $medicalRecord = MedicalRecord::where('guest_id', $guestId)
-            ->where('isDeleted', 0)
-            ->orderBy('updated_at', 'desc')
-            ->first();
-
-        if (!$medicalRecord) {
-            return response()->json([
-                'message' => 'Không tìm thấy hồ sơ y tế cho bệnh nhân này.'
-            ], 404);
-        }
-
-        $results = Result::with(['booking.service:id,services_name', 'doctor:id,doctor_name'])
-            ->where('guest_id', $guestId)
-            ->get();
+        ->where('guest_id', $medicalRecord->guest_id)
+        ->get();
 
         return response()->json([
             'medical_record' => $medicalRecord->load('guest'),

@@ -134,23 +134,14 @@ Route::middleware(['auth:sanctum', 'role:doctor'])->prefix('doctor')->group(func
     // Hiển thị và sửa profile của bác sĩ
     Route::get('profile', [Doctor\ProfileDoctor::class, 'show']);
     Route::put('profile', [Doctor\ProfileDoctor::class, 'update']);
-    
     // Hiển thị dashboard của bác sĩ
     Route::get('dashboard', [Doctor\DashboardController::class, 'index']);
-    
     // Hiển thị và sửa booking của bác sĩ
     Route::get('bookings', [Doctor\BookingController::class, 'index']);
     Route::put('bookings/{bookings}', [Doctor\BookingController::class, 'update']);
-    
     // Hiển thị, thêm và sửa kết quả khám của bác sĩ
     Route::apiResource('results', Doctor\ResultController::class);
-    
-    // Route cho medical-records
     Route::apiResource('medical-records', Doctor\MedicalRecordController::class);
-    Route::get('medical-records/by-guest/{guestId}', [Doctor\MedicalRecordController::class, 'showByGuest']);
-    
-    // Các route khác
-    Route::apiResource('schedules', Doctor\ScheduleController::class);
     Route::apiResource('posts', Doctor\PostController::class);
     Route::apiResource('invoices', Doctor\InvoiceController::class);
 });

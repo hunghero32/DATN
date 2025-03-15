@@ -241,7 +241,7 @@ const Appointment = () => {
 
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/doctor/medical-records/by-guest/${appointment.guest_id}`, // Sử dụng endpoint mới
+        `http://127.0.0.1:8000/api/doctor/medical-records/${appointment.guest_id}`, // Sử dụng endpoint mới
         {
           headers: {
             Authorization: `Bearer ${token}`,

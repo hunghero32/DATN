@@ -18,6 +18,7 @@ class BookingController extends Controller
         // Sử dụng Scope để xử lý tìm kiếm và bộ lọc trong model Booking đọc kỹ vào nhé :))
         $bookings = Booking::with(['doctor', 'service', 'guest'])
             ->where('isDeleted', 0)
+            ->where('doctor_id', auth()->id())
             ->searchGuest($request->search) // search theo tên, sđt, email của guest
             ->filterGender($request->gender) // lọc theo giới tính
             ->filterAge($request->age) // lọc theo độ tuổi
