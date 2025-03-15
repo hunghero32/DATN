@@ -8,8 +8,6 @@
 
         <div class="card-body">
 
-            <h2>Sửa thông báo</h2>
-
             <form action="{{ route('admin.notifications.update', $notification->id) }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -28,7 +26,7 @@
                 
                 <div class="mb-3">
                     <label for="booking_id" class="form-label">Mã đặt lịch</label>
-                    <select class="form-control" id="booking_id" name="booking_id" required>
+                    <select class="form-control" id="booking_id" name="booking_id">
                         <option value="">-- Chọn mã đặt lịch --</option>
                         @foreach ($bookings as $booking)
                             <option value="{{ $booking->id }}" {{ $notification->booking_id == $booking->id ? 'selected' : '' }}>
@@ -50,7 +48,7 @@
 
                 <div class="mb-3">
                     <label for="type" class="form-label">Loại</label>
-                    <select class="form-control" id="type" name="type" required>
+                    <select class="form-control" id="type" name="type">
                         <option value="info" {{ $notification->type == 'info' ? 'selected' : '' }}>Thông tin</option>
                         <option value="warning" {{ $notification->type == 'warning' ? 'selected' : '' }}>Cảnh báo</option>
                     </select>
@@ -58,7 +56,7 @@
 
                 <div class="mb-3">
                     <label for="is_read" class="form-label">Trạng thái</label>
-                    <select class="form-control" id="is_read" name="is_read" required>
+                    <select class="form-control" id="is_read" name="is_read">
                         <option value="1" {{ $notification->is_read == 1 ? 'selected' : '' }}>Đã đọc</option>
                         <option value="0" {{ $notification->is_read == 0 ? 'selected' : '' }}>Chưa đọc</option>
                     </select>

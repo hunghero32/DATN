@@ -36,8 +36,8 @@ class MedicalRecordController extends Controller
     
     public function create()
     {
-        $guests = Guest::all(); // Lấy toàn bộ danh sách khách hàng
-    return view('admin.pages.medical_records.create', compact('guests'));
+        $guests = Guest::pluck('guest_name', 'id')->toArray();
+        return view('admin.pages.medical_records.create', compact('guests'));
     }
 
     public function store(Request $request)
@@ -61,7 +61,7 @@ class MedicalRecordController extends Controller
     public function edit($id)
     {
         $record = MedicalRecord::findOrFail($id);
-        $guests = Guest::all(); // Lấy toàn bộ danh sách khách hàng
+        $guests = Guest::pluck('guest_name', 'id');
         return view('admin.pages.medical_records.edit', compact('record', 'guests'));
     }
 
