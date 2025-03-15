@@ -20,6 +20,8 @@ const Login = () => {
       });
 
       const { token, user } = response.data;
+      localStorage.setItem("authToken", token);
+      alert("Đăng nhập thành công!");
       login(user, token); // Lưu user vào context
 
       if (user.role === "doctor") {

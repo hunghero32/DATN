@@ -16,6 +16,7 @@ import DoctorServices from "../../components/doctor/pages/Services/DoctorService
 import ReceivedAppointments from "../../components/doctor/pages/ListAppointment/ReceivedAppointments";
 import CompletedAppointments from "../../components/doctor/pages/ListAppointment/CompletedAppointments";
 import FillExaminationResult from "../../components/doctor/pages/ListAppointment/FillExaminationResult";
+import Invoices from "../../components/doctor/pages/Invoices/Invoices";
 
 const DoctorLayout = () => {
   const [showModal, setShowModal] = useState(false);
@@ -124,6 +125,8 @@ const DoctorLayout = () => {
           <Route path="/history-doctor" element={<HistoryDoctor />} />
           <Route path="/doctorstatistics" element={<DoctorStatistics />} />
           <Route path="/notificationpage" element={<NotificationPage />} />   
+          <Route path="/invoices" element={<Invoices />} />   
+          
         </Routes>
         <Footer />
       </main>
