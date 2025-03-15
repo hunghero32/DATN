@@ -27,7 +27,3 @@ Route::middleware('api')->group(function () {
     Route::get('/get-temp-booking', [BookingController::class, 'getTempBooking']);
     Route::post('/confirm-booking', [BookingController::class, 'confirmBooking']);
 });
-
-
-
-

@@ -40,7 +40,7 @@
         {{-- Clear Filter Button --}}
         @if(request()->hasAny(['search', 'status', 'per_page']))
             <div class="mb-3">
-                <a href="{{ $route }}" class="badge bg-danger text-decoration-none">
+                <a href="{{ request()->url() }}" class="badge bg-danger text-decoration-none">
                     <i class='bx bx-x-circle'></i> Xóa lọc
                 </a>
             </div>

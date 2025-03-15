@@ -15,9 +15,7 @@ use App\Http\Controllers\Admin\GuestController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\InvoiceDetailController;
 use App\Http\Controllers\Admin\FeedbackController;
-
-
-
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -89,6 +87,10 @@ Route::prefix('admin')->group(function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('medical_records', MedicalRecordController::class);
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('notifications', NotificationController::class);
 });
 
 

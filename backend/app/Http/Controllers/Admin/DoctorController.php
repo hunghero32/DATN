@@ -23,11 +23,7 @@ class DoctorController extends Controller
             ->orderBy('doctors.created_at', 'desc')
             ->paginate($perPage);
 
-        $statuses = [
-            '' => 'Tất cả trạng thái',
-            '0' => 'Chưa phê duyệt',
-            '1' => 'Đã phê duyệt'
-        ];
+        $statuses = config('app.statuses');
 
         return view('admin.pages.doctor.index', compact('data', 'statuses'));
     }
@@ -68,11 +64,7 @@ class DoctorController extends Controller
             ->paginate($perPage);
         $data->appends($request->all());
 
-        $statuses = [
-            '' => 'Tất cả trạng thái',
-            '0' => 'Chưa phê duyệt',
-            '1' => 'Đã phê duyệt'
-        ];
+        $statuses = config('app.statuses');
 
         return view('admin.pages.doctor.index', compact('data', 'statuses'));
     }
@@ -153,11 +145,11 @@ class DoctorController extends Controller
     {
         // Tạo bộ kiểm tra dữ liệu
         $validator = Validator::make($request->all(), [
-            'doctor_avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'doctor_avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'doctor_name' => 'required|string|max:255',
             'doctor_bio' => 'nullable|string|max:1000',
             'exp' => 'required|integer|min:0|max:50', // Giới hạn kinh nghiệm từ 0-50 năm
-            'file' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
+            'file' => 'required|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
             'specialty_id' => 'required|exists:specialties,id'
         ], [
             'doctor_avatar.required' => 'Ảnh đại diện là bắt buộc.',

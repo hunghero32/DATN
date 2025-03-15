@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Services extends Model
 {
-    use HasFactory;
+    use HasFactory; 
     protected $fillable = [
         'specialty_id',
         'category_id',
