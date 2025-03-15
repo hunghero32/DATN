@@ -69,11 +69,14 @@ Route::prefix('admin')->group(function () {
 
 
      ////*****************     Start Schedule    *******************////
-     Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('schedules', SchedulesController::class);
-    });
-
-
+     Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
+     Route::get("doctor-schedule-create",[SchedulesController::class,'create'])->name('admin.schedule.create');
+     Route::post("doctor-schedule-save",[SchedulesController::class,'store'])->name('admin.schedule.store');
+     Route::get("doctor-schedule-{schedule}/edit",[SchedulesController::class,'edit'])->name('admin.schedule.edit');
+     Route::put("doctor-schedule-{schedule}",[SchedulesController::class,'update'])->name('admin.schedule.update');
+     Route::delete("doctor-schedule-{schedule}",[SchedulesController::class,'destroy'])->name('admin.schedule.delete');
+     Route::get("doctor-schedule-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
+     Route::patch('doctor-schedule-{id}/status',[SchedulesController::class,'updateStatus'])->name('admin.schedule.update-status');
 
 
     ////*****************     End Schedule    *******************////
