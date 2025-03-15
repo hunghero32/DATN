@@ -29,17 +29,17 @@
         'states' => config('common.statuses'),
     ];
 
-    $detailModal = [
-        'fields' => [
-            ['name' => 'doctor_avatar', 'label' => 'Ảnh đại diện', 'type' => 'avatar'],
-            ['name' => 'doctor_name', 'label' => 'Họ và tên', 'type' => 'text'],
-            ['name' => 'specialty_id', 'label' => 'Chuyên khoa', 'type' => 'select', 'options' => $specialties],
-            ['name' => 'exp', 'label' => 'Kinh nghiệm (năm)', 'type' => 'text'],
-            ['name' => 'approve', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']],
-            ['name' => 'file', 'label' => 'Tải lên (CV, Chứng chỉ)', 'type' => 'file'],
-            ['name' => 'doctor_bio', 'label' => 'Thông tin', 'type' => 'textarea'],
-        ]
-    ];
+$detailModal = [
+    'fields' => [
+        ['name' => 'doctor_avatar', 'label' => 'Ảnh đại diện', 'type' => 'avatar'],
+        ['name' => 'doctor_name', 'label' => 'Họ và tên', 'type' => 'text'],
+        ['name' => 'specialty_id', 'label' => 'Chuyên khoa', 'type' => 'select', 'options' => $specialties],
+        ['name' => 'exp', 'label' => 'Kinh nghiệm (năm)', 'type' => 'text'],
+        ['name' => 'approve', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']],
+        ['name' => 'file', 'label' => 'Tải lên (CV, Chứng chỉ)', 'type' => 'file'],
+        ['name' => 'doctor_bio', 'label' => 'Thông tin', 'type' => 'textarea'],
+    ]
+];
 @endphp
 
 <x-table-list-component
