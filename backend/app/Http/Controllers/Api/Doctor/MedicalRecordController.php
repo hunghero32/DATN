@@ -36,6 +36,11 @@ class MedicalRecordController extends Controller
     {
         $data = $request->validated();
         $data['doctor_id'] = auth()->id();
+        if (MedicalRecord::where('guest_id', $data['guest_id'])->exists()) {
+            return response()->json([
+                'message' => 'Khách hàng này đã có hồ sơ y tế.',
+            ], 422);
+        }
         if (!isset($data['guest_id'])) {
             return response()->json([
                 'message' => 'Thiếu thông tin bệnh nhân trong hồ sơ y tế.'
@@ -44,7 +49,7 @@ class MedicalRecordController extends Controller
         $medicalRecord = MedicalRecord::create($data);
         return response()->json([
             'message' => 'Tạo hồ sơ y tế thành công.',
-            'data' => $medicalRecord
+            'data' => $medicalRecord->load('guest'),
         ], 201);
     }
 
