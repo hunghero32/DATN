@@ -20,6 +20,9 @@ class ResultController extends Controller
         $results = Result::with(['guest', 'doctor', 'booking'])
             ->where('isDeleted', 0)
             ->where('doctor_id', auth()->id())
+            ->when($request->booking_id, function ($query) use ($request) {
+                return $query->where('booking_id', $request->booking_id);
+            })
             ->searchGuest($request->search)          // Tìm theo tên, sđt, email khách hàng
             ->filterBookingDate($request->booking_date) // Lọc theo ngày đặt lịch
             ->filterBookingTime($request->booking_time) // Lọc theo giờ đặt lịch
@@ -78,9 +81,21 @@ class ResultController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($result)
+    public function show(Result $result)
     {
         return response()->json($result->load(['guest', 'doctor', 'booking']), 200);
+    }
+    public function showByBooking($booking_id)
+    {
+        $result = Result::with(['guest', 'doctor', 'booking'])
+            ->where('booking_id', $booking_id)
+            ->first();
+
+        if (!$result) {
+            return response()->json(['message' => 'Không tìm thấy kết quả cho lịch hẹn này.'], 404);
+        }
+
+        return response()->json($result, 200);
     }
 
     /**

@@ -80,6 +80,8 @@ Route::prefix('admin')->group(function () {
      Route::patch('doctor-schedule-{id}/status',[SchedulesController::class,'updateStatus'])->name('admin.schedule.update-status');
 
 
+
+
     ////*****************     End Schedule    *******************////
 
 
