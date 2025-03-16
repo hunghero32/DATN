@@ -35,13 +35,13 @@ class MedicalRecordController extends Controller
     public function store(StoreMedicalRecordRequest $request)
     {
         $data = $request->validated();
+        $data['doctor_id'] = auth()->id();
         if (!isset($data['guest_id'])) {
             return response()->json([
                 'message' => 'Thiếu thông tin bệnh nhân trong hồ sơ y tế.'
             ], 422);
         }
         $medicalRecord = MedicalRecord::create($data);
-
         return response()->json([
             'message' => 'Tạo hồ sơ y tế thành công.',
             'data' => $medicalRecord
@@ -54,9 +54,7 @@ class MedicalRecordController extends Controller
     public function show(MedicalRecord $medicalRecord)
     {
         $results = Result::with(['booking.service:id,services_name', 'doctor:id,doctor_name'])
-        ->where('guest_id', $medicalRecord->guest_id)
-        ->get();
-
+        ->where('guest_id', $medicalRecord->guest_id)->get();
         return response()->json([
             'medical_record' => $medicalRecord->load('guest'),
             'results' => $results
@@ -69,6 +67,7 @@ class MedicalRecordController extends Controller
     public function update(UpdateMedicalRecordRequest $request, MedicalRecord $medicalRecord)
     {
         $data = $request->validated();
+        unset($data['doctor_id']);
         unset($data['guest_id']);
         $medicalRecord->update($data);
 
