@@ -43,36 +43,63 @@ class BookingController extends Controller
         return response()->json($bookings, 200);
     }
     /**
+     * Hiển thị chi tiết đặt lịch.
+     */
+    public function show(Booking $booking)
+    {
+        // Kiểm tra quyền truy cập (chỉ cho phép bác sĩ xem lịch của mình)
+        if (auth()->user()->role === 'doctor' && $booking->doctor_id !== auth()->id()) {
+            return response()->json(['message' => 'Bạn không có quyền xem lịch hẹn này.'], 403);
+        }
+
+        // Load thông tin chi tiết với các quan hệ liên quan
+        $booking->load(['doctor', 'service', 'guest', 'result']);
+
+        return response()->json([
+            'booking' => $booking
+        ], 200);
+    }
+    /**
      * Cập nhật đặt lịch.
      */
-    public function update(UpdateBookingRequest $request, Booking $booking)
+    public function update(Request $request, Booking $booking)
     {
-        $validatedData = $request->validated();
-        // Chỉ bác sĩ mới có quyền cập nhật booking
-        if (auth()->user()->role === 'doctor') {
-            if ($validatedData['status'] === 'confirmed') {
-                // Khi xác nhận thì gán doctor_id cho bác sĩ đăng nhập
-                $validatedData['doctor_id'] = auth()->id();
-            } elseif ($validatedData['status'] === 'completed') {
-                // Chỉ cho phép hoàn thành nếu booking đã được xác nhận trước đó
-                if ($booking->status !== 'confirmed') {
-                    return response()->json([
-                        'message' => 'Lịch hẹn phải được xác nhận trước khi hoàn thành.'
-                    ], 400);
-                }
-                $this->createResultForBooking($booking);
-            }
-        } else {
-            return response()->json([
-                'message' => 'Bạn không có quyền cập nhật lịch hẹn này.'
-            ], 403);
+        // Kiểm tra xem có đúng là bác sĩ không
+        if (!auth()->check() || auth()->user()->role !== 'doctor') {
+            return response()->json(['message' => 'Bạn không có quyền cập nhật lịch hẹn này.'], 403);
         }
-        $booking->update($validatedData);
+        // Kiểm tra quyền sở hữu booking
+        if ($booking->doctor_id !== auth()->id()) {
+            return response()->json(['message' => 'Bạn không thể cập nhật lịch hẹn của bác sĩ khác.'], 403);
+        }
+        // Validate trạng thái
+        $validate = $request->validate([
+            'status' => 'required|in:pending,confirmed,completed,cancelled'
+        ]);
+        if ($booking->status === 'completed') {
+            return response()->json([
+                'message' => 'Lịch hẹn đã hoàn thành và kết quả đã được tạo trước đó.'
+            ], 400);
+        }
+        // Kiểm tra logic cập nhật status
+        if ($validate['status'] === 'completed' && $booking->status !== 'confirmed') {
+            return response()->json(['message' => 'Lịch hẹn phải được xác nhận trước khi hoàn thành.'], 400);
+        }
+        // Nếu trạng thái là completed, tạo kết quả
+        if ($validate['status'] === 'completed') {
+            $this->createResultForBooking($booking);
+        }
+        // Cập nhật trạng thái
+        $booking->update(['status' => $validate['status']]);
+        // Load lại dữ liệu để đảm bảo trạng thái mới nhất
+        $updatedBooking = Booking::with('doctor', 'service', 'guest')->find($booking->id);
         return response()->json([
-            'booking' => $booking,
+            'booking' => $updatedBooking,
             'message' => 'Cập nhật trạng thái lịch hẹn thành công.'
         ], 200);
     }
+
+
     private function createResultForBooking(Booking $booking)
     {
         // Kiểm tra nếu đã có Result thì không tạo lại

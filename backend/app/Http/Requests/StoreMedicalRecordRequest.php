@@ -22,7 +22,7 @@ class StoreMedicalRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'guest_id' => 'required|exists:guests,id',
+            'guest_id' => 'required|exists:guests,id|unique:medical_records,guest_id',
             'BHYT' => 'nullable|string|max:50|unique:medical_records,BHYT',
             'medical_condition' => 'required|string|max:500',
             'medications' => 'nullable|string|max:500',
@@ -37,6 +37,7 @@ class StoreMedicalRecordRequest extends FormRequest
         return [
             'guest_id.required' => 'Khách hàng là bắt buộc.',
             'guest_id.exists' => 'Khách hàng không tồn tại.',
+            'guest_id.unique' => 'Khách hàng này đã có hồ sơ y tế.',
             'BHYT.max' => 'Mã BHYT không được vượt quá 50 ký tự.',
             'BHYT.unique' => 'Mã BHYT đã tồn tại.',
             'medical_condition.required' => 'Tình trạng bệnh không được để trống.',
