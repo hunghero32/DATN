@@ -14,7 +14,7 @@
                         :value="request()->get('search')"
                     />
                 </div>
-
+                 @if($selects)
                 {{-- Select Search --}}
                 @foreach ($selects as $select)
                     <div class="flex-grow-1">
@@ -26,6 +26,7 @@
                         />
                     </div>
                 @endforeach
+                @endif
 
                 {{-- Hidden input for per_page --}}
                 <input type="hidden" name="per_page" value="{{ request()->get('per_page', 10) }}">
@@ -212,45 +213,53 @@
                                 <div class="card-body">
                                     <div class="row mt-3">
                                         @foreach ($detailModal['fields'] as $field)
-                                            @if ($field['type'] == 'avatar')
-                                                <!-- Giao diện Avatar -->
-                                                <div class="mb-3 col-md-12">
-                                                    <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
-                                                    <div class="d-flex align-items-center gap-3">
-                                                        <img src="{{ !empty($row[$field['name']]) ? Storage::url($row[$field['name']]) : asset('admin/assets/img/avatars/1.png') }}"
-                                                            alt="user-avatar" class="avatar-preview rounded-circle" id="uploadedAvatar{{ $row['id'] }}" />
+                                            @if (isset($field['type']))
+                                                @if ($field['type'] == 'avatar')
+                                                    <!-- Giao diện Avatar -->
+                                                    <div class="mb-3 col-md-12">
+                                                        <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
+                                                        <div class="d-flex align-items-center gap-3">
+                                                            <img src="{{ !empty($row[$field['name']]) ? Storage::url($row[$field['name']]) : asset('admin/assets/img/avatars/1.png') }}"
+                                                                alt="user-avatar" class="avatar-preview rounded-circle" id="uploadedAvatar{{ $row['id'] }}" />
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            @elseif ($field['type'] == 'file')
-                                                <!-- Giao diện hiển thị ảnh -->
-                                                <div class="mb-3 col-md-12">
-                                                    <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
-                                                    <div class="image-upload-container">
-                                                        @if (!empty($row[$field['name']]) && preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$field['name']]))
-                                                            <img src="{{ Storage::url($row[$field['name']]) }}"
-                                                                alt="{{ $field['label'] }}" class="image-preview-large" />
+                                                @elseif ($field['type'] == 'file')
+                                                    <!-- Giao diện hiển thị ảnh -->
+                                                    <div class="mb-3 col-md-12">
+                                                        <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
+                                                        <div class="image-upload-container">
+                                                            @if (!empty($row[$field['name']]) && preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $row[$field['name']]))
+                                                                <img src="{{ Storage::url($row[$field['name']]) }}"
+                                                                    alt="{{ $field['label'] }}" class="image-preview-large" />
+                                                            @else
+                                                                <img src="{{ asset('admin/assets/img/default-image.png') }}"
+                                                                    alt="{{ $field['label'] }}" class="image-preview-large" />
+                                                                <p class="text-muted">Chưa có ảnh</p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @elseif ($field['type'] == 'textarea')
+                                                    <!-- Giao diện textarea -->
+                                                    <div class="mb-3 col-md-12">
+                                                        <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
+                                                        <textarea class="form-control" id="{{ $field['name'] }}{{ $row['id'] }}" readonly>{{ $row[$field['name']] ?? 'Chưa cập nhật' }}</textarea>
+                                                    </div>
+                                                @else
+                                                    <!-- Giao diện input/select thông thường -->
+                                                    <div class="mb-3 col-md-6">
+                                                        <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
+                                                        @if ($field['type'] == 'select')
+                                                            <input type="text" class="form-control" value="{{ $field['options'][$row[$field['name']]] ?? 'Chưa cập nhật' }}" readonly>
                                                         @else
-                                                            <img src="{{ asset('admin/assets/img/default-image.png') }}"
-                                                                alt="{{ $field['label'] }}" class="image-preview-large" />
-                                                            <p class="text-muted">Chưa có ảnh</p>
+                                                            <input type="text" class="form-control" value="{{ $row[$field['name']] ?? 'Chưa cập nhật' }}" readonly>
                                                         @endif
                                                     </div>
-                                                </div>
-                                            @elseif ($field['type'] == 'textarea')
-                                                <!-- Giao diện textarea -->
-                                                <div class="mb-3 col-md-12">
-                                                    <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
-                                                    <textarea class="form-control" id="{{ $field['name'] }}{{ $row['id'] }}" readonly>{{ $row[$field['name']] ?? 'Chưa cập nhật' }}</textarea>
-                                                </div>
+                                                @endif
                                             @else
-                                                <!-- Giao diện input/select thông thường -->
+                                                <!-- Default display for fields without type -->
                                                 <div class="mb-3 col-md-6">
                                                     <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
-                                                    @if ($field['type'] == 'select')
-                                                        <input type="text" class="form-control" value="{{ $field['options'][$row[$field['name']]] ?? 'Chưa cập nhật' }}" readonly>
-                                                    @else
-                                                        <input type="text" class="form-control" value="{{ $row[$field['name']] ?? 'Chưa cập nhật' }}" readonly>
-                                                    @endif
+                                                    <input type="text" class="form-control" value="{{ $row[$field['name']] ?? 'Chưa cập nhật' }}" readonly>
                                                 </div>
                                             @endif
                                         @endforeach

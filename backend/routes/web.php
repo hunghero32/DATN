@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DoctorController;
 
+use App\Http\Controllers\Admin\DoctorServiceController;
 use App\Http\Controllers\Admin\SchedulesController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
@@ -83,7 +84,7 @@ Route::prefix('admin')->group(function () {
 
     ////*****************     End Schedule    *******************////
 
-     
+
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('medical_records', MedicalRecordController::class);
@@ -189,6 +190,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('specialties/{id}/edit', [SpecialtyController::class, 'edit'])->name('admin.specialties.edit');
     Route::put('specialties/{id}', [SpecialtyController::class, 'update'])->name('admin.specialties.update');
     Route::delete('specialties/{id}', [SpecialtyController::class, 'delete'])->name('admin.specialties.delete');
+
+    Route::get('doctor-service',[DoctorServiceController::class,'index'])->name('admin.doctor_service.index');
+    Route::get('doctor-service/create',[DoctorServiceController::class,'create'])->name('admin.doctor_service.create');
+    Route::post('doctor-service',[DoctorServiceController::class,'store'])->name('admin.doctor_service.store');
+    Route::get('doctor-service/{id}/edit',[DoctorServiceController::class,'edit'])->name('admin.doctor_service.edit');
+    Route::put('doctor-service/{id}',[DoctorServiceController::class,'update'])->name('admin.doctor_service.update');
+    Route::delete('doctor-service/{id}',[DoctorServiceController::class,'destroy'])->name('admin.doctor_service.destroy');
 
 });
 

@@ -32,44 +32,97 @@ class BookingController extends Controller
             'time' => 'required'
         ]);
 
+        // Store in session
         Session::put('temp_booking', $data);
         Session::save();
 
-        // Debug
-        Log::info('Temp booking saved: ' . json_encode(Session::get('temp_booking')));
+        // Get additional data for immediate response
+        $doctor = Doctor::find($data['doctor_id']);
+        $specialty = Specialty::find($data['specialty_id']);
+        $service = Services::find($data['service_id']);
+        $schedule = Schedule::find($data['schedule_id']);
+
+        // Prepare response data
+        $responseData = [
+            'doctor_id' => $data['doctor_id'],
+            'service_id' => $data['service_id'],
+            'schedule_id' => $data['schedule_id'],
+            'date' => $data['date'],
+            'time' => $data['time'],
+            'specialty_id' => $data['specialty_id'],
+            'doctor_name' => $doctor ? $doctor->doctor_name : null,
+            'doctor_avatar' => $doctor ? $doctor->doctor_avatar : null,
+            'doctor_bio' => $doctor ? $doctor->doctor_bio : null,
+            'doctor_exp' => $doctor ? $doctor->exp : null,
+            'service_name' => $service ? $service->services_name : null,
+            'specialty_name' => $specialty ? $specialty->name : null,
+            'price' => $service ? $service->price : null,
+            'duration' => $service ? $service->duration : null,
+            'max_patients' => $schedule ? $schedule->max_patients : null,
+            'time_start' => $schedule ? $schedule->time_start : null,
+            'time_end' => $schedule ? $schedule->time_end : null,
+            'booking_time' => $schedule ? "{$schedule->time_start} - {$schedule->time_end}" : null
+        ];
 
         return response()->json([
             'status' => true,
             'message' => 'Lưu thông tin đặt lịch tạm thời thành công',
-            'data' => $data
+            'data' => $responseData
         ]);
     }
 
     public function getTempBooking()
     {
-        // Debug
-        Log::info('Session in getTempBooking: ' . json_encode(Session::all()));
+        try {
+            $tempBooking = Session::get('temp_booking');
 
-        $data = Session::get('temp_booking', []);
+            if (!$tempBooking) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy thông tin đặt lịch tạm thời'
+                ]);
+            }
 
-        if (!empty($data)) {
-            // Load relationships
-            $booking = [
-                'booking' => $data,
-                'doctor' => Doctor::find($data['doctor_id']),
-                'specialty' => Specialty::find($data['specialty_id']),
-                'service' => Services::find($data['service_id']),
-                'schedule' => Schedule::find($data['schedule_id'])
+            // Get related data
+            $doctor = Doctor::find($tempBooking['doctor_id']);
+            $specialty = Specialty::find($tempBooking['specialty_id']);
+            $service = Services::find($tempBooking['service_id']);
+            $schedule = Schedule::find($tempBooking['schedule_id']);
+
+            // Format response data to match localStorage structure
+            $bookingData = [
+                'doctor_id' => $tempBooking['doctor_id'],
+                'service_id' => $tempBooking['service_id'],
+                'schedule_id' => $tempBooking['schedule_id'],
+                'date' => $tempBooking['date'],
+                'time' => $tempBooking['time'],
+                'specialty_id' => $tempBooking['specialty_id'],
+                'doctor_name' => $doctor ? $doctor->doctor_name : null,
+                'doctor_avatar' => $doctor ? $doctor->doctor_avatar : null,
+                'doctor_bio' => $doctor ? $doctor->doctor_bio : null,
+                'doctor_exp' => $doctor ? $doctor->exp : null,
+                'service_name' => $service ? $service->services_name : null,
+                'specialty_name' => $specialty ? $specialty->name : null,
+                'price' => $service ? $service->price : null,
+                'duration' => $service ? $service->duration : null,
+                'max_patients' => $schedule ? $schedule->max_patients : null,
+                'time_start' => $schedule ? $schedule->time_start : null,
+                'time_end' => $schedule ? $schedule->time_end : null,
+                'booking_time' => $schedule ? "{$schedule->time_start} - {$schedule->time_end}" : null
             ];
-        } else {
-            $booking = [];
-        }
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Thông tin đặt lịch tạm thời',
-            'data' => $booking
-        ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Thông tin đặt lịch tạm thời',
+                'data' => $bookingData
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getTempBooking: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Lỗi khi lấy thông tin đặt lịch: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function confirmBooking(Request $request)

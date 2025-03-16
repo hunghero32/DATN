@@ -269,7 +269,24 @@
         </li>
         {{-- End guest --}}
 
+        {{-- Start doctor_service --}}
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Doctor service</span>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                <div data-i18n="Account Settings">Quản lý dịch vụ cho bác sĩ</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.doctor_service.index')}}" class="menu-link">
+                        <div data-i18n="Account">Danh sách dịch vụ cho bác sĩ</div>
+                    </a>
+                </li>
 
+            </ul>
+        </li>
 
 
 
