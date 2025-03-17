@@ -42,9 +42,9 @@ class InvoiceController extends Controller
         $validatedData = $request->validated();
         // Lấy thông tin booking, chỉ cho phép bác sĩ tạo hóa đơn cho booking của họ
         $booking = Booking::where('id', $validatedData['booking_id'])
-            ->where('doctor_id', auth()->id()) // Kiểm tra quyền sở hữu
-            ->first();
-    
+        ->whereHas('doctor', function ($query) {
+            $query->where('user_id', auth()->id());
+        })->first();
         if (!$booking) {
             return response()->json([
                 'message' => 'Bạn chỉ có thể tạo hóa đơn cho booking của bác sĩ đăng nhập.',
@@ -104,8 +104,9 @@ class InvoiceController extends Controller
         }
         // Lấy thông tin booking, chỉ cập nhật nếu là booking của bác sĩ đăng nhập
         $booking = Booking::where('id', $invoiceDetail->booking_id)
-            ->where('doctor_id', auth()->id()) // Kiểm tra quyền sở hữu
-            ->first();
+        ->whereHas('doctor', function ($query) {
+            $query->where('user_id', auth()->id());
+        })->first();
         if (!$booking) {
             return response()->json([
                 'message' => 'Bạn chỉ có thể cập nhật hóa đơn cho booking của bác sĩ đăng nhập.',
@@ -137,6 +138,7 @@ class InvoiceController extends Controller
      */
     public function destroy(Invoice $invoice)
     {
+        
         $invoice->delete();
 
         return response()->json([

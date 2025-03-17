@@ -14,7 +14,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $doctorId = auth()->id();
+        $doctorId = Doctor::where('user_id', auth()->id())->value('id');
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
         $today = Carbon::now()->toDateString();
