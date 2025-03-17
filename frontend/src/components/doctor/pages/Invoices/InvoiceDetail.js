@@ -2,7 +2,6 @@ import React from 'react';
 import { Modal, Button, Table } from 'react-bootstrap';
 
 const InvoiceDetail = ({ invoice, onClose }) => {
-  // Kiểm tra dữ liệu để tránh lỗi khi invoice hoặc các thuộc tính không tồn tại
   const getDetailValue = (value) => value || 'Không có thông tin';
 
   return (
@@ -14,20 +13,28 @@ const InvoiceDetail = ({ invoice, onClose }) => {
         <Table striped bordered hover responsive>
           <tbody>
             <tr>
+              <td><strong>ID Hóa đơn:</strong></td>
+              <td>{getDetailValue(invoice.id)}</td>
+            </tr>
+            <tr>
               <td><strong>Tổng tiền:</strong></td>
-              <td>{getDetailValue(invoice.total_amount)}</td>
+              <td>{getDetailValue(invoice.total_amount)} VNĐ</td>
             </tr>
             <tr>
               <td><strong>Giảm giá:</strong></td>
-              <td>{getDetailValue(invoice.discount)}</td>
+              <td>{getDetailValue(invoice.discount)} VNĐ</td>
             </tr>
             <tr>
               <td><strong>Thuế:</strong></td>
-              <td>{getDetailValue(invoice.tax)}</td>
+              <td>{getDetailValue(invoice.tax)} VNĐ</td>
             </tr>
             <tr>
               <td><strong>Ngày đặt lịch:</strong></td>
               <td>{getDetailValue(invoice.details?.[0]?.booking?.booking_date)}</td>
+            </tr>
+            <tr>
+              <td><strong>Thời gian đặt lịch:</strong></td>
+              <td>{getDetailValue(invoice.details?.[0]?.booking?.booking_time)}</td>
             </tr>
             <tr>
               <td><strong>Khách hàng:</strong></td>
@@ -36,6 +43,10 @@ const InvoiceDetail = ({ invoice, onClose }) => {
             <tr>
               <td><strong>Dịch vụ:</strong></td>
               <td>{getDetailValue(invoice.details?.[0]?.booking?.service?.services_name)}</td>
+            </tr>
+            <tr>
+              <td><strong>Bác sĩ:</strong></td>
+              <td>{getDetailValue(invoice.details?.[0]?.booking?.doctor?.doctor_name)}</td>
             </tr>
           </tbody>
         </Table>
