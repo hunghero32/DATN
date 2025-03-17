@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Result;
 use App\Models\Booking;
+use App\Models\Doctor;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreResultRequest;
 use App\Http\Requests\UpdateResultRequest;
@@ -19,7 +20,9 @@ class ResultController extends Controller
     {
         $results = Result::with(['guest', 'doctor', 'booking'])
             ->where('isDeleted', 0)
-            ->where('doctor_id', auth()->id())
+            ->whereHas('doctor', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
             ->when($request->booking_id, function ($query) use ($request) {
                 return $query->where('booking_id', $request->booking_id);
             })
@@ -38,7 +41,7 @@ class ResultController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Thêm kết quả khám thủ công chắc không dùng tới đâu
      */
     public function store(StoreResultRequest $request)
     {
@@ -83,6 +86,16 @@ class ResultController extends Controller
      */
     public function show(Result $result)
     {
+        // Kiểm tra xem người dùng có đăng nhập và có vai trò là bác sĩ không
+        if (!auth()->check() || auth()->user()->role !== 'doctor') {
+            return response()->json(['message' => 'Bạn không có quyền xem kết quả này.'], 403);
+        }
+        // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
+        $doctorId = Doctor::where('user_id', auth()->id())->value('id');
+        // Kiểm tra quyền sở hữu kết quả
+        if (!$doctorId || $result->doctor_id !== $doctorId) {
+            return response()->json(['message' => 'Bạn không thể xem kết quả của bác sĩ khác.'], 403);
+        }
         return response()->json($result->load(['guest', 'doctor', 'booking']), 200);
     }
     public function showByBooking($booking_id)
@@ -103,8 +116,15 @@ class ResultController extends Controller
      */
     public function update(UpdateResultRequest $request, Result $result)
     {
-        if ($result->doctor_id !== auth()->id()) {
+        // Kiểm tra xem người dùng có đăng nhập và có vai trò là bác sĩ không
+        if (!auth()->check() || auth()->user()->role !== 'doctor') {
             return response()->json(['message' => 'Bạn không có quyền chỉnh sửa kết quả này.'], 403);
+        }
+        // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
+        $doctorId = Doctor::where('user_id', auth()->id())->value('id');
+        // Kiểm tra quyền sở hữu kết quả
+        if (!$doctorId || $result->doctor_id !== $doctorId) {
+            return response()->json(['message' => 'Bạn không thể chỉnh sửa kết quả của bác sĩ khác.'], 403);
         }
         $data = $request->validated();
         if ($request->hasFile('file')) {
@@ -125,8 +145,15 @@ class ResultController extends Controller
      */
     public function destroy($result)
     {
-        if ($result->doctor_id !== auth()->id()) {
+        // Kiểm tra xem người dùng có đăng nhập và có vai trò là bác sĩ không
+        if (!auth()->check() || auth()->user()->role !== 'doctor') {
             return response()->json(['message' => 'Bạn không có quyền xóa kết quả này.'], 403);
+        }
+        // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
+        $doctorId = Doctor::where('user_id', auth()->id())->value('id');
+        // Kiểm tra quyền sở hữu kết quả
+        if (!$doctorId || $result->doctor_id !== $doctorId) {
+            return response()->json(['message' => 'Bạn không thể xóa kết quả của bác sĩ khác.'], 403);
         }
         if ($result->file) {
             Storage::disk('public')->delete($result->file);
