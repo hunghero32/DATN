@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Doctor;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use App\Models\Doctor;
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
 
@@ -18,7 +19,9 @@ class BookingController extends Controller
         // Sử dụng Scope để xử lý tìm kiếm và bộ lọc trong model Booking đọc kỹ vào nhé :))
         $bookings = Booking::with(['doctor', 'service', 'guest'])
             ->where('isDeleted', 0)
-            ->where('doctor_id', auth()->id())
+            ->whereHas('doctor', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
             ->searchGuest($request->search) // search theo tên, sđt, email của guest
             ->filterGender($request->gender) // lọc theo giới tính
             ->filterAge($request->age) // lọc theo độ tuổi
@@ -47,11 +50,16 @@ class BookingController extends Controller
      */
     public function show(Booking $booking)
     {
-        // Kiểm tra quyền truy cập (chỉ cho phép bác sĩ xem lịch của mình)
-        if (auth()->user()->role === 'doctor' && $booking->doctor_id !== auth()->id()) {
+        // Kiểm tra xem người dùng có đăng nhập và có vai trò là bác sĩ không
+        if (!auth()->check() || auth()->user()->role !== 'doctor') {
             return response()->json(['message' => 'Bạn không có quyền xem lịch hẹn này.'], 403);
         }
-
+        // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
+        $doctorId = Doctor::where('user_id', auth()->id())->value('id');
+        // Kiểm tra quyền sở hữu lịch hẹn
+        if (!$doctorId || $booking->doctor_id !== $doctorId) {
+            return response()->json(['message' => 'Bạn không thể xem lịch hẹn của bác sĩ khác.'], 403);
+        }
         // Load thông tin chi tiết với các quan hệ liên quan
         $booking->load(['doctor', 'service', 'guest', 'result']);
 
@@ -64,12 +72,14 @@ class BookingController extends Controller
      */
     public function update(Request $request, Booking $booking)
     {
-        // Kiểm tra xem có đúng là bác sĩ không
+        // Kiểm tra xem người dùng có đăng nhập và có vai trò là bác sĩ không
         if (!auth()->check() || auth()->user()->role !== 'doctor') {
             return response()->json(['message' => 'Bạn không có quyền cập nhật lịch hẹn này.'], 403);
         }
-        // Kiểm tra quyền sở hữu booking
-        if ($booking->doctor_id !== auth()->id()) {
+        // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
+        $doctorId = Doctor::where('user_id', auth()->id())->value('id');
+        // Kiểm tra quyền sở hữu lịch hẹn
+        if (!$doctorId || $booking->doctor_id !== $doctorId) {
             return response()->json(['message' => 'Bạn không thể cập nhật lịch hẹn của bác sĩ khác.'], 403);
         }
         // Validate trạng thái

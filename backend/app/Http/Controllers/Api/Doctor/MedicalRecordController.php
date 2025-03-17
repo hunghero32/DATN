@@ -35,7 +35,6 @@ class MedicalRecordController extends Controller
     public function store(StoreMedicalRecordRequest $request)
     {
         $data = $request->validated();
-        $data['doctor_id'] = auth()->id();
         if (MedicalRecord::where('guest_id', $data['guest_id'])->exists()) {
             return response()->json([
                 'message' => 'Khách hàng này đã có hồ sơ y tế.',
