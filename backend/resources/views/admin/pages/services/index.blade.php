@@ -26,7 +26,6 @@ $detailModal=[
     :title="'Danh sách dịch vụ'"
     :route="route('admin.services.search')"
     :columns="[
-        ['key' => 'id', 'label' => 'ID'],
         ['key' => 'specialty_name', 'label' => 'Tên Chuyên khoa'],
         ['key' => 'category_name', 'label' => 'Tên Danh mục'],
         ['key' => 'services_name', 'label' => 'Tên dịch vụ'],
@@ -55,7 +54,6 @@ $detailModal=[
             'label' => 'Chỉnh sửa',
             'route' => fn($id) => route('admin.services.edit', $id),
             'method' => 'GET',
-            'modal' => true,
             'type' => 'row',
             'class' => 'btn btn-primary btn-sm'
         ],
@@ -77,4 +75,4 @@ $detailModal=[
         ],
     ]"
 />
-@endsection 
+@endsection

@@ -185,7 +185,7 @@
                             Bạn có chắc muốn xóa mục này không?
                         </div>
                         <div class="modal-footer">
-                            <form action="{{ route('admin.doctors.delete', $row['id']) }}" method="POST">
+                            <form action="{{ collect($actions)->where('type', 'row')->where('method', 'DELETE')->first()['route']($row['id']) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger">Xóa</button>

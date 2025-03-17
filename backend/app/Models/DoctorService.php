@@ -14,6 +14,7 @@ class DoctorService extends Model
     protected $fillable = [
         'doctor_id',
         'service_id',
+        'isDeleted'
     ];
 
     // Relationship with Doctor model

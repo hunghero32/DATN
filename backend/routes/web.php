@@ -196,7 +196,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('doctor-service',[DoctorServiceController::class,'store'])->name('admin.doctor_service.store');
     Route::get('doctor-service/{id}/edit',[DoctorServiceController::class,'edit'])->name('admin.doctor_service.edit');
     Route::put('doctor-service/{id}',[DoctorServiceController::class,'update'])->name('admin.doctor_service.update');
-    Route::delete('doctor-service/{id}',[DoctorServiceController::class,'destroy'])->name('admin.doctor_service.destroy');
+    Route::delete('doctor-service-deleted/{id}',[DoctorServiceController::class,'destroy'])->name('admin.doctor_service.destroy');
 
 });
 
