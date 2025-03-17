@@ -13,7 +13,6 @@ $detailModal = [
 <x-table-list-component
     :title="'Dịch vụ cho bác sĩ'"
     :columns="[
-        ['key' => 'id', 'label' => 'ID'],
         ['key' => 'doctor_name', 'label' => 'Họ và tên bác sĩ'],
         ['key' => 'services_name', 'label' => 'Tên dịch vụ'],
         ['key' => 'created_at', 'label' => 'Ngày tạo'],
