@@ -13,10 +13,8 @@ import DoctorProfile from "../../components/doctor/pages/DoctorProfile/DoctorPro
 import EditDoctorProfile from "../../components/doctor/pages/DoctorProfile/EditDoctorProfile";
 import Appointment from "../../components/doctor/pages/ListAppointment/Appointment";
 import DoctorServices from "../../components/doctor/pages/Services/DoctorServices";
-import ReceivedAppointments from "../../components/doctor/pages/ListAppointment/ReceivedAppointments";
-import CompletedAppointments from "../../components/doctor/pages/ListAppointment/CompletedAppointments";
-import FillExaminationResult from "../../components/doctor/pages/ListAppointment/FillExaminationResult";
 import Invoices from "../../components/doctor/pages/Invoices/Invoices";
+import Posts from "../../components/doctor/pages/Post/Posts";
 
 const DoctorLayout = () => {
   const [showModal, setShowModal] = useState(false);
@@ -115,9 +113,6 @@ const DoctorLayout = () => {
             }
           />
           <Route path="/appointment" element={<Appointment/>} />
-          <Route path="/ReceivedAppointments" element={<ReceivedAppointments />} />
-          <Route path="/CompletedAppointments" element={<CompletedAppointments />} />
-          <Route path="/FillExaminationResult" element={<FillExaminationResult />} />
           <Route path="/doctor-profile" element={<DoctorProfile/>} />
           <Route path="/doctor-profile/edit/:id" element={<EditDoctorProfile />} /> {/* Route mới */}
           <Route path="/doctor-schedule" element={<DoctorSchedule/>} />
@@ -126,6 +121,7 @@ const DoctorLayout = () => {
           <Route path="/doctorstatistics" element={<DoctorStatistics />} />
           <Route path="/notificationpage" element={<NotificationPage />} />   
           <Route path="/invoices" element={<Invoices />} />   
+          <Route path="/posts" element={<Posts />} />  
           
         </Routes>
         <Footer />
