@@ -174,6 +174,11 @@ class BookingController extends Controller
 
         Session::forget('temp_booking');
 
+        // Store guest information in session for appointments lookup
+        Session::put('last_booking_guest', [
+            'guest_id' => $guest->id
+        ]);
+
         return response()->json([
             'status' => true,
             'message' => 'Đặt lịch thành công',
@@ -182,5 +187,52 @@ class BookingController extends Controller
                 'guest' => $guest
             ]
         ]);
+    }
+
+    public function appointments()
+    {
+        try {
+            // Get the last confirmed booking's guest information from session
+            $lastBooking = Session::get('last_booking_guest');
+
+            if (!$lastBooking) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy thông tin đặt lịch'
+                ], 404);
+            }
+
+            $bookings = Booking::with(['doctor', 'service', 'guest'])
+                ->where('guest_id', $lastBooking['guest_id'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($booking) {
+                    return [
+                        'id' => $booking->id,
+                        'doctor_name' => $booking->doctor->doctor_name,
+                        'doctor_avatar' => $booking->doctor->doctor_avatar,
+                        'service_name' => $booking->service->services_name,
+                        'guest_name' => $booking->guest->guest_name,
+                        'guest_phone' => $booking->guest->guest_phone,
+                        'booking_date' => $booking->booking_date,
+                        'booking_time' => $booking->booking_time,
+                        'status' => $booking->status,
+                        'notes' => $booking->notes,
+                        'created_at' => $booking->created_at
+                    ];
+                });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Danh sách lịch hẹn',
+                'data' => $bookings
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in appointments: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Lỗi khi lấy danh sách lịch hẹn: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
