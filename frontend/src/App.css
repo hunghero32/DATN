@@ -1,6 +1,8 @@
 Đảm bảo Form.Item không dùng flex
 .ant-form-item {
-  display: block !important;
+  display: flex !important; /* Đảm bảo không làm layout bị vỡ */
+  flex-direction: column; /* Nếu cần hiển thị theo cột */
+  width: auto;
 }
 
 .ant-form-item-explain {

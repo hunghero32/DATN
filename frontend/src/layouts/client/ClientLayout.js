@@ -40,6 +40,7 @@ import ChiTietDatLich from "../../components/guest/home/ChiTietDatLich";
 import DatLich from "../../components/guest/home/DatLich";
 import ChiTietChuyenKhoa from "../../components/guest/home/ChiTietChuyenKhoa";
 import ServiceDetail from "../../components/guest/home/ServiceDetail";
+import ThongBao from "../../components/guest/home/ThongBao";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -98,15 +99,16 @@ const ClientLayout = () => {
         <Route path="/password-reset/:token" element={<ResetPassword />} />
         <Route path="/register" element={<Register/>}/>
         <Route path="login" element={<Login/>}/>
-
-        {/* <Route path="/booking/:serviceId" element={<Booking />} /> */}
+        <Route path="/booking/:serviceId" element={<DatLich />}  />
         <Route path="/chitietdatlich" element={<ChiTietDatLich/>} />
         <Route path="/patientProfile" element={<PatientProfile/>} />  {/* Trang hồ sơ bệnh nhân */}
         <Route path="/articles" element={<ArticleList/>} />
         <Route path="/specialties" element={<TopSpecialties/>}/> 
         <Route path="/topServices" element={<TopBookedServices/>}/>
         <Route path="/clinicDetail" element={<ClinicDetail/>}/>
-        <Route path="/booking/:serviceId" element={<DatLich />} /> {/* Trang đặt lịch khám */}
+        <Route path="/thongbao" element={<ThongBao/>}/>  {/* Thông báo đặt lịch thành công !}
+
+        <Route path="/booking/:serviceId" element={<DatLich />} 
         <Route path="/services" element={<Services/>}/>  {/* Trang dịch vụ */}
         <Route path="/detail-service/:id" element={<ServiceDetail/>}/>  {/* Trang chi tiet dich vu  */}
         <Route path="/contact" element={<HomeMainContact />} />
