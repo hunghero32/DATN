@@ -1,5 +1,7 @@
 <?php
 
+
+use App\Http\Controllers\Api\Client\InvoiceController ;
 use App\Http\Controllers\Api\Client\PostController;
 use App\Http\Controllers\Api\Client\ServiceController;
 use App\Http\Controllers\Api\Client\SpecialtyController;
@@ -29,9 +31,14 @@ Route::get('detail-post/{slug}-{id}', [PostController::class, 'detailPost'])
     ->where('slug', '[a-zA-Z0-9\-]+')
     ->where('id', '[0-9]+');
 
+
 Route::middleware('web')->group(function () {
     Route::post('/temp-booking', [BookingController::class, 'tempBooking']);
     Route::get('/get-temp-booking', [BookingController::class, 'getTempBooking']);
     Route::post('/confirm-booking', [BookingController::class, 'confirmBooking']);
     Route::get('/appointments', [BookingController::class, 'appointments']);
+
+
+    //*************** Lấy ra chi tiết bài viết  ************/
+    Route::get('invoice',[InvoiceController::class,'invoice']);
 });
