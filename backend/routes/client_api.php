@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\Api\Client\ResultController;
 use App\Http\Controllers\Api\Client\InvoiceController ;
 use App\Http\Controllers\Api\Client\PostController;
 use App\Http\Controllers\Api\Client\ServiceController;
@@ -33,6 +33,8 @@ Route::get('detail-post/{slug}-{id}', [PostController::class, 'detailPost'])
 
 
 Route::middleware('web')->group(function () {
+
+    //*****************  Xử lí đặt lịch khám ******************/
     Route::post('/temp-booking', [BookingController::class, 'tempBooking']);
     Route::get('/get-temp-booking', [BookingController::class, 'getTempBooking']);
     Route::post('/confirm-booking', [BookingController::class, 'confirmBooking']);
@@ -41,4 +43,7 @@ Route::middleware('web')->group(function () {
 
     //*************** Lấy ra chi tiết bài viết  ************/
     Route::get('invoice',[InvoiceController::class,'invoice']);
+
+    //****************** Lấy ra kết quả khám  **********************/
+    Route::get('result',[ResultController::class,'result']);
 });
