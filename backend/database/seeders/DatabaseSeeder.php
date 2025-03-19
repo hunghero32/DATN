@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             ResultSeeder::class,
             NotificationSeeder::class,
             DoctorSpecialtySeeder::class,
+            DoctorServiceSeeder::class,
             ScheduleSeeder::class,
             InvoiceSeeder::class,
             InvoiceDetailSeeder::class,

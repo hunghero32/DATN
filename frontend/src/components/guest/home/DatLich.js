@@ -31,39 +31,48 @@ const DatLich = () => {
             const parsedData = JSON.parse(storedData);
             if (parsedData?.doctor_id && parsedData?.service_id && parsedData?.schedule_id) {
                 setBookingData(parsedData);
+                setDoctorDetails(parsedData); // Set doctor details directly from localStorage
             } else {
                 console.error("❌ Dữ liệu bookingData không hợp lệ:", parsedData);
                 message.error("Dữ liệu đặt lịch bị lỗi. Vui lòng đặt lại!");
-                navigate("/services"); // Điều hướng về trang chọn dịch vụ
+                navigate("/services");
             }
         } catch (error) {
             console.error("❌ Lỗi parse dữ liệu bookingData:", error);
             message.error("Lỗi dữ liệu. Vui lòng thử lại!");
             navigate("/services");
         }
+    } else {
+        message.error("Không tìm thấy thông tin đặt lịch!");
+        navigate("/services");
     }
 }, []);
 
-
+// Remove or comment out the fetchDoctorDetails function and its useEffect
   const [doctorDetails, setDoctorDetails] = useState(null);
 
   useEffect(() => {
     fetchDoctorDetails();
   }, []);
 
-  // Hàm lấy thông tin bác sĩ từ API
   const fetchDoctorDetails = async () => {
     try {
-      const response = await api.get("/api/client/get-temp-booking");
-      console.log("API Response:", response.data); // Debug log
-      if (response.data.status) {
-        setDoctorDetails(response.data.data);
-      }
+      console.log("lay ra du lieu !")
+        const response = await api.get("/api/client/get-temp-booking");
+        console.log("API Response:", response.data);
+        
+        if (response.data.status === true && response.data.data) {
+            setDoctorDetails(response.data.data);
+            setBookingData(response.data.data);
+        } else {
+            throw new Error(response.data.message || "Không tìm thấy thông tin đặt lịch tạm thời");
+        }
     } catch (error) {
-      console.error("❌ Lỗi lấy thông tin bác sĩ:", error.response || error);
-      message.error("Không thể lấy thông tin bác sĩ");
+        console.error("❌ Lỗi lấy thông tin bác sĩ:", error);
+        message.error(error.message);
+        // navigate("/services");
     }
-  };
+};
 
   // Hàm xác nhận đặt lịch
   const onFinish = async (values) => {
@@ -101,7 +110,7 @@ const DatLich = () => {
       if (response.data.status) {
         message.success("🎉 Đặt lịch thành công!");
         localStorage.removeItem("bookingData");
-        navigate("/booking-success");
+        navigate("/thongbao");
       } else {
         throw new Error(response.data.message || "Có lỗi xảy ra");
       }
@@ -123,16 +132,41 @@ const DatLich = () => {
         <div className="bg-blue-50 p-4 rounded-lg mb-4">
           <Title level={4} className="text-blue-500 mb-2">{bookingData?.service_name}</Title>
           <Text className="block mb-2">💰 Giá khám: {parseInt(bookingData?.price).toLocaleString()}đ</Text>
+          <Text className="block mb-2">⏱️ Thời gian khám: {bookingData?.duration} phút</Text>
+          {bookingData?.specialty_name && (
+            <Text className="block mb-2">🏥 Chuyên khoa: {bookingData?.specialty_name}</Text>
+          )}
         </div>
 
         <Row gutter={24}>
           <Col span={18}>
-            <Title level={4} className="text-blue-500 font-semibold">
-              {bookingData?.doctor_name}
-            </Title>
-            <Text className="block text-gray-600 mb-2">
-              🕒 Thời gian khám: {bookingData?.date} | {bookingData?.time}
-            </Text>
+            <div className="flex items-start space-x-4">
+              {bookingData?.doctor_avatar && (
+                <img
+                  src={bookingData.doctor_avatar}
+                  alt={bookingData.doctor_name}
+                  className="w-20 h-20 rounded-full object-cover"
+                  onError={(e) => { e.target.src = "https://via.placeholder.com/150" }}
+                />
+              )}
+              <div>
+                <Title level={4} className="text-blue-500 font-semibold mb-2">
+                  {bookingData?.doctor_name}
+                </Title>
+                {bookingData?.doctor_bio && (
+                  <Text className="block text-gray-600 mb-2">{bookingData.doctor_bio}</Text>
+                )}
+                {bookingData?.doctor_exp && (
+                  <Text className="block text-gray-600 mb-2">
+                    ✨ Kinh nghiệm: {bookingData.doctor_exp} năm
+                  </Text>
+                )}
+                <Text className="block text-gray-600 mb-2">
+                  🕒 Thời gian khám: {bookingData?.date} | {bookingData?.time}
+                </Text>
+              </div>
+            </div>
+            <Divider />
             <Text className="block font-semibold">🏥 Phòng khám Spinetech Clinic</Text>
             <Text className="block">📍 Tòa nhà GP, 257 Giải Phóng, Phương Mai, Đống Đa, Hà Nội</Text>
           </Col>

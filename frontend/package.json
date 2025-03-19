@@ -19,6 +19,7 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.8",
     "cra-template": "1.2.0",
+    "framer-motion": "^12.5.0",
     "jquery": "^3.7.1",
     "lucide-react": "^0.476.0",
     "moment": "^2.30.1",
@@ -35,6 +36,7 @@
     "react-redux": "^9.2.0",
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
+    "remixicon": "^4.6.0",
     "swiper": "^11.2.5"
   },
   "scripts": {

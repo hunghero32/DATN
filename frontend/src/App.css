@@ -1,6 +1,8 @@
 Đảm bảo Form.Item không dùng flex
 .ant-form-item {
-  display: block !important;
+  display: flex !important; /* Đảm bảo không làm layout bị vỡ */
+  flex-direction: column; /* Nếu cần hiển thị theo cột */
+  width: auto;
 }
 
 .ant-form-item-explain {
@@ -39,4 +41,15 @@
 
 .pagination .page-link:hover {
   background-color: #f8f9fa;
+}
+/* //Fix loi giao dien bi khoang trong tren top  */
+section.Toastify {
+  padding: 0 !important;
+  margin: 0 !important;
+  position: fixed !important; /* Đảm bảo không chiếm không gian layout */
+  top: 10px !important; /* Đặt Toast lên trên */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  z-index: 9999;
 }

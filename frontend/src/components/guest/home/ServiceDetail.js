@@ -1,55 +1,91 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { message } from "antd"; // Add this import
 import api from "../../../ultils/api/axios";
 
 const ServiceDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  console.log("🆔 ID nhận được:", id);
   const [service, setService] = useState(null);
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const handleScheduleClick = (doctor, schedule) => {
+  const handleScheduleClick = async (doctor, schedule) => {
     if (schedule.status === 1) {
       const bookingData = {
         doctor_id: doctor.id,
-        doctor_name: doctor.doctor_name,
         service_id: service.id,
-        service_name: service.services_name,
         schedule_id: schedule.id,
-        date: schedule.working_date,
-        time: `${schedule.time_start} - ${schedule.time_end}`,
-        price: service.price
+        date: schedule.working_date,         // Changed from booking_date
+        time: schedule.time_start,           // Changed to match API requirement
+        specialty_id: service.specialty?.id, // Added as required field
+        status: "pending",
+        // Additional data for localStorage
+        fullData: {
+          doctor_name: doctor.doctor_name,
+          doctor_avatar: doctor.doctor_avatar,
+          doctor_bio: doctor.doctor_bio,
+          doctor_exp: doctor.exp,
+          service_name: service.services_name,
+          specialty_name: service.specialty?.name,
+          price: service.price,
+          duration: service.duration,
+          max_patients: schedule.max_patients,
+          time_start: schedule.time_start,
+          time_end: schedule.time_end,
+          booking_time: `${schedule.time_start} - ${schedule.time_end}`
+        }
       };
       
-      localStorage.setItem('bookingData', JSON.stringify(bookingData));
-      navigate(`/booking/${service.id}`);
+      try {
+        const response = await api.post('/api/client/temp-booking', bookingData);
+        if (response.data.status === true) {
+            // Store the complete data returned from the API
+            localStorage.setItem('bookingData', JSON.stringify(response.data.data));
+            message.success("Đã lưu thông tin đặt lịch tạm thời");
+            navigate(`/booking/${id}`);
+        } else {
+            throw new Error(response.data.message || "Có lỗi xảy ra");
+        }
+    } catch (error) {
+        console.error("Booking error:", error.response?.data || error);
+        message.error(error.response?.data?.message || "Không thể đặt lịch. Vui lòng thử lại!");
+    }
     }
   };
 
   useEffect(() => {
     const fetchServiceDetail = async () => {
         try {
-            // Match the exact API endpoint from your Laravel route
+            setLoading(true);
             const response = await api.get(`/api/client/detail-service/${id}`);
             console.log("🔍 API Response:", response.data);
 
-            if (response.data) {
+            if (response.data) {  // Changed condition since the API returns data directly
                 setService(response.data);
                 if (response.data.doctors) {
                     setDoctors(response.data.doctors);
                 }
+            } else {
+                throw new Error("Invalid data format received");
             }
         } catch (error) {
             console.error("❌ Chi tiết lỗi:", error);
-            setError("Không thể tải thông tin dịch vụ. Vui lòng thử lại sau.");
+            if (error.code === 'ERR_NETWORK') {
+                setError("Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.");
+            } else {
+                setError("Không thể tải thông tin dịch vụ. Vui lòng thử lại sau.");
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    fetchServiceDetail();
+    if (id) {
+        fetchServiceDetail();
+    }
 }, [id]);
 
 
@@ -58,68 +94,80 @@ const ServiceDetail = () => {
   if (!service) return <p className="text-center text-gray-500">Không có thông tin dịch vụ.</p>;
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Thông tin dịch vụ */}
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-blue-800 mb-4">{service.services_name}</h1>
-        <p className="text-gray-600">{service.description}</p>
-        <div className="mt-4">
-          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-            {service.specialty?.name || "Chuyên khoa"}
-          </span>
-          <span className="ml-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
-            {service.category?.name || "Danh mục"}
-          </span>
+    <div className="container mx-auto p-6 max-w-6xl">
+      {/* Service Information - Enhanced layout */}
+      <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-blue-800 mb-4">{service.services_name}</h1>
+          <div className="flex justify-center gap-3 mb-4">
+            <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium">
+              {service.specialty?.name || "Chuyên khoa"}
+            </span>
+            <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium">
+              {service.category?.name || "Danh mục"}
+            </span>
+          </div>
+          <p className="text-gray-700 text-lg leading-relaxed max-w-3xl mx-auto">
+            {service.description}
+          </p>
         </div>
       </div>
 
+      {/* Doctors Section */}
       {doctors && doctors.length > 0 && doctors.map((doctor) => (
-        <div key={doctor.id} className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="flex items-start space-x-6">
-            {/* Thông tin bác sĩ */}
+        <div key={doctor.id} className="bg-white rounded-lg shadow-lg p-8 mb-6">
+          {/* Doctor Header */}
+          <div className="flex items-start space-x-8">
             <div className="flex-shrink-0">
               <img
-                src={doctor.doctor_avatar || "https://via.placeholder.com/150"}
+                src={doctor.doctor_avatar || "/images/default-avatar.png"}
                 alt={doctor.doctor_name}
-                className="w-24 h-24 rounded-full object-cover border-4 border-blue-100"
-                onError={(e) => { e.target.src = "https://via.placeholder.com/150"; }}
-              />
+                className="w-32 h-32 rounded-lg object-cover shadow-md"
+                onError={(e) => {
+                    e.target.src = "/images/default-avatar.png";
+                    e.onerror = null; // Prevents infinite loop if default image also fails
+                }}
+                />
             </div>
 
             <div className="flex-grow">
-              <div className="flex items-center mb-2">
-                <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm mr-2">YÊU THÍCH</span>
-                <h2 className="text-xl font-bold text-blue-800">{doctor.doctor_name}</h2>
+              <div className="flex items-center gap-3 mb-3">
+                <h2 className="text-2xl font-bold text-blue-800">{doctor.doctor_name}</h2>
+                <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                  Bác sĩ nổi bật
+                </span>
               </div>
-              <p className="text-gray-600 mb-2">{doctor.doctor_bio}</p>
-              <p className="text-gray-600 mb-2">
-                <span className="font-semibold">Chuyên khoa:</span> {service.specialty?.name}
-              </p>
-              <p className="text-gray-600 mb-2">Bác sĩ có {doctor.exp} năm kinh nghiệm về các cốt sống, thần kinh, cơ xương khớp</p>
-              <p className="text-gray-600">Địa chỉ: Hà Nội</p>
+              <p className="text-gray-700 mb-3 text-lg">{doctor.doctor_bio}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <p className="text-gray-700">
+                  <span className="font-semibold">Chuyên khoa:</span> {service.specialty?.name}
+                </p>
+                <p className="text-gray-700">
+                  <span className="font-semibold">Kinh nghiệm:</span> {doctor.exp} năm
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Lịch khám */}
-          <div className="mt-6">
-            <h3 className="font-semibold text-lg mb-4">LỊCH KHÁM</h3>
-            {/* Update the schedules section */}
-            <div className="grid grid-cols-4 gap-4">
+          {/* Schedule Section - Enhanced Grid Layout */}
+          <div className="mt-8">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Lịch khám</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {doctor.schedules && doctor.schedules.map((schedule) => (
                 <div 
                   key={schedule.id} 
-                  className={`p-3 rounded text-center cursor-pointer transition-all duration-300 transform hover:-translate-y-1 ${
+                  className={`p-4 rounded-lg text-center cursor-pointer transition-all duration-300 ${
                     schedule.status === 1 
-                      ? 'bg-gray-100 hover:bg-blue-500 hover:text-white hover:shadow-lg' 
-                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                      ? 'bg-white border-2 border-blue-200 hover:border-blue-500 hover:shadow-lg' 
+                      : 'bg-gray-100 border-2 border-gray-200 cursor-not-allowed'
                   }`}
                   onClick={() => handleScheduleClick(doctor, schedule)}
                 >
-                  <p className="font-semibold">{schedule.working_date}</p>
-                  <p className="text-sm">{schedule.time_start} - {schedule.time_end}</p>
-                  <p className="text-xs mt-1">
+                  <p className="font-bold text-lg mb-2">{schedule.working_date}</p>
+                  <p className="text-gray-600">{schedule.time_start} - {schedule.time_end}</p>
+                  <p className={`mt-2 text-sm font-medium ${schedule.status === 1 ? 'text-green-600' : 'text-red-500'}`}>
                     {schedule.status === 1 
-                      ? `Còn ${schedule.max_patients} chỗ` 
+                      ? `Còn ${schedule.max_patients} chỗ trống` 
                       : 'Đã kín lịch'}
                   </p>
                 </div>
@@ -127,23 +175,27 @@ const ServiceDetail = () => {
             </div>
           </div>
 
-          {/* Địa chỉ khám */}
-          <div className="mt-6">
-            <h3 className="font-semibold text-lg mb-2">ĐỊA CHỈ KHÁM</h3>
-            <div className="bg-blue-50 p-4 rounded">
-              <p className="font-semibold text-blue-800">Phòng khám Spinetech Clinic</p>
-              <p className="text-gray-600">Tòa nhà GP, 257 Giải Phóng, Phương Mai, Đống Đa, Hà Nội</p>
+          {/* Clinic Information */}
+          <div className="mt-8">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Địa điểm khám</h3>
+            <div className="bg-blue-50 p-6 rounded-lg">
+              <h4 className="font-bold text-blue-800 text-lg mb-2">Phòng khám Spinetech Clinic</h4>
+              <p className="text-gray-700">Tòa nhà GP, 257 Giải Phóng, Phương Mai, Đống Đa, Hà Nội</p>
             </div>
           </div>
 
-          {/* Giá khám */}
-          <div className="mt-6 flex items-center justify-between">
+          {/* Price Section */}
+          <div className="mt-8 flex items-center justify-between bg-gray-50 p-6 rounded-lg">
             <div>
-              <span className="text-gray-600">GIÁ KHÁM: </span>
-              <span className="text-blue-800 font-semibold">{parseInt(service.price).toLocaleString()}đ</span>
-              <span className="text-gray-500 text-sm ml-2">({service.duration} phút)</span>
+              <span className="text-lg text-gray-700">Giá khám: </span>
+              <span className="text-2xl font-bold text-blue-800 ml-2">
+                {parseInt(service.price).toLocaleString()}đ
+              </span>
+              <span className="text-gray-600 ml-3">({service.duration} phút)</span>
             </div>
-            <a href="#" className="text-blue-600 hover:underline">Xem chi tiết</a>
+            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              Xem chi tiết
+            </button>
           </div>
         </div>
       ))}
