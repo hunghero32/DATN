@@ -39,5 +39,28 @@ class ServiceController extends Controller
 
     return response()->json($service);
 }
+public function searchByKeyword(Request $request)
+{
+    $keyword = trim(urldecode($request->input('keyword'))); // Giải mã URL và loại bỏ khoảng trắng thừa
+
+    if (!$keyword) {
+        return response()->json(['message' => 'Vui lòng nhập từ khóa'], 400);
+    }
+
+    // Đảm bảo encoding UTF-8 khi tìm kiếm
+    $keyword = mb_strtolower($keyword, 'UTF-8');
+
+    // Chia nhỏ từ khóa theo khoảng trắng
+    $words = preg_split('/\s+/', $keyword);
+
+    $services = Services::where(function($query) use ($words) {
+        foreach ($words as $word) {
+            $query->orWhereRaw("LOWER(services_name) LIKE LOWER(?)", ["%{$word}%"]);
+        }
+    })->get();
+
+    return response()->json(['services' => $services]);
+}
+
 
 }
