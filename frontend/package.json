@@ -36,6 +36,7 @@
     "react-redux": "^9.2.0",
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
+    "remixicon": "^4.6.0",
     "swiper": "^11.2.5"
   },
   "scripts": {

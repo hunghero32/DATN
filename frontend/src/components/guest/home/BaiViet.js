@@ -42,7 +42,9 @@ const articles = [
 const ArticleList = () => {
   return (
     <div className="container mx-auto p-6">
-      <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">Danh Sách Bài Viết</h2>
+      <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
+        Danh Sách Bài Viết
+      </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {articles.map((article, index) => (

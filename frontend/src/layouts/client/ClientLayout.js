@@ -41,6 +41,7 @@ import DatLich from "../../components/guest/home/DatLich";
 import ChiTietChuyenKhoa from "../../components/guest/home/ChiTietChuyenKhoa";
 import ServiceDetail from "../../components/guest/home/ServiceDetail";
 import ThongBao from "../../components/guest/home/ThongBao";
+import LichHen from "../../components/guest/home/LichHen";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -107,12 +108,10 @@ const ClientLayout = () => {
         <Route path="/topServices" element={<TopBookedServices/>}/>
         <Route path="/clinicDetail" element={<ClinicDetail/>}/>
         <Route path="/thongbao" element={<ThongBao/>}/>  {/* Thông báo đặt lịch thành công !}
-
-        <Route path="/booking/:serviceId" element={<DatLich />} 
         <Route path="/services" element={<Services/>}/>  {/* Trang dịch vụ */}
         <Route path="/detail-service/:id" element={<ServiceDetail/>}/>  {/* Trang chi tiet dich vu  */}
         <Route path="/contact" element={<HomeMainContact />} />
-        {/* Update the route path to match the navigation */}
+        <Route path="/lichhen" element={<LichHen/>} />  {/* Trang lịch hẹn */}
         <Route path="/detail-specialty/:id" element={<ChiTietChuyenKhoa />} />
         <Route path="aboutus" element={<AboutUsSection />} />
         <Route path="ourprocess" element={<OurProcess />} />
