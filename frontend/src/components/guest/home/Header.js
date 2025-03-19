@@ -1,14 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-
+import "remixicon/fonts/remixicon.css"; 
 export default function Header() {
   const navigate = useNavigate();
   const [token, setToken] = useState(null);
-  const [username, setUsername] = useState(""); // Thêm state lưu tên người dùng
+  const [username, setUsername] = useState("");
 
-  // Kiểm tra token khi component được mount và theo dõi sự thay đổi
   useEffect(() => {
-    // Lấy token và username từ localStorage ngay khi component mount
     const storedToken = localStorage.getItem("token");
     const storedUsername = localStorage.getItem("username");
 
@@ -16,31 +14,14 @@ export default function Header() {
       setToken(storedToken);
       setUsername(storedUsername || "User");
     }
-  }, []); // Chỉ chạy 1 lần khi component mount
+  }, []);
 
-  // Hàm đăng xuất
   const thoatTrang = () => {
-    // Xóa token khỏi localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("username");
-    
-    // Cập nhật lại state và UI
     setToken(null);
     setUsername("");
-
-    // Chuyển hướng về trang chủ
     navigate("/");
-  };
-
-  // Hàm đăng nhập (Giả định bạn có một hàm login để test)
-  const login = () => {
-    // Sau khi đăng nhập thành công
-    localStorage.setItem("token", "yourToken");
-    localStorage.setItem("username", "yourUsername");
-
-    // Cập nhật lại state
-    setToken("yourToken");
-    setUsername("yourUsername");
   };
 
   return (
@@ -60,7 +41,7 @@ export default function Header() {
                 </li>
                 <li className="pq-top-contact-list-item">
                   <div className="pq-icon">
-                    <i className="ti-timer"></i>
+                    <i className="ri-time-line"></i> {/* Sửa icon thời gian */}
                   </div>
                   <span>Monday - Friday 10:00 to 6:00</span>
                 </li>
@@ -69,10 +50,10 @@ export default function Header() {
 
             <div className="pq-top-header-social-icon">
               <ul className="pq-social-list">
-                <li><a href="https://www.instagram.com/peacefulqode/"><i className="fab fa-instagram"></i></a></li>
-                <li><a href="https://www.facebook.com/people/Peaceful-Qode/100060082803109/"><i className="fab fa-facebook-f"></i></a></li>
-                <li><a href="https://www.instagram.com/peacefulqode/"><i className="fab fa-pinterest"></i></a></li>
-                <li><a href="https://in.linkedin.com/company/peacefulqode"><i className="fab fa-linkedin-in"></i></a></li>
+                <li><a href="#"><i className="fab fa-instagram"></i></a></li>
+                <li><a href="#"><i className="fab fa-facebook-f"></i></a></li>
+                <li><a href="#"><i className="fab fa-pinterest"></i></a></li>
+                <li><a href="#"><i className="fab fa-linkedin-in"></i></a></li>
               </ul>
             </div>
           </div>
@@ -103,6 +84,18 @@ export default function Header() {
                   </div>
                 </div>
 
+                {/* Nút icon lịch hẹn */}
+                {token && (
+                  <Link
+                    to="/lichhen"
+                    className="flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition duration-200"
+                    title="Lịch hẹn của bạn"
+                  >
+                    <i className="ri-calendar-line text-xl"></i> {/* Remixicon */}
+                    <span className="ml-2 hidden md:inline">Lịch hẹn</span>
+                  </Link>
+                )}
+
                 <div className="pq-header-right">
                   {token ? (
                     <div className="flex items-center gap-4">
@@ -131,6 +124,7 @@ export default function Header() {
                     <span className="pq-button-line"></span>
                   </button>
                 </div>
+
               </div>
             </div>
           </div>
