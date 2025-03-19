@@ -18,10 +18,6 @@ class Schedule extends Model
         'isDeleted',
     ];
 
-    protected $casts = [
-        'working_date' => 'array', // Đảm bảo working_date được chuyển đổi thành mảng khi truy xuất
-    ];
-
     // Quan hệ với bảng Doctor
     public function doctor()
     {
