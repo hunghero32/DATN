@@ -31,7 +31,10 @@ class Services extends Model
     {
         return $this->belongsTo(Category::class);
     }
-
+    public function doctorServices()
+    {
+        return $this->hasMany(DoctorService::class, 'service_id', 'id');
+    }
 
     public function doctors()
     {

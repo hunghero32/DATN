@@ -15,25 +15,32 @@ class HomeController extends Controller
     public function index()
     {
         // Lấy chuyên khoa có liên kết với dịch vụ và bác sĩ
-        $specialties = Specialty::get();
+        $specialties = Specialty::whereHas('doctors', function ($query) {
+            $query->where('approve', 1)
+                  ->where('isDeleted', 0)
+                  ->whereHas('doctorServices', function ($q) {
+                      $q->where('doctor_service.isDeleted', 0)
+                        ->whereHas('service', function ($s) {
+                            $s->where('status', 1) // Hoặc 'completed' tùy kiểu dữ liệu
+                              ->where('isDeleted', 0);
+                        });
+                  });
+        })
+        ->where('isDeleted', 0) // Điều kiện cho bảng specialties
+        ->get();
 
         // Lấy dịch vụ có số lượng đặt lịch nhiều nhất
-        $popularServices = Services::withCount('bookings')
-            ->where('status', 'completed')
-            ->where('isDeleted', 0)
-            ->has('bookings')
-            ->with('specialty')
-            ->orderByDesc('bookings_count')
-            ->get();
+        $popularServices = Services::where('status', 1) // Hoặc 'completed' tùy kiểu dữ liệu
+        ->where('isDeleted', 0)
+        ->whereHas('doctorServices', function ($query) {
+            $query->where('doctor_service.isDeleted', 0)
+                  ->whereHas('doctor', function ($q) {
+                      $q->where('approve', 1)
+                        ->where('isDeleted', 0);
+                  });
+        })
+        ->get();
 
-        // If no popular services found, get random services
-        if ($popularServices->isEmpty()) {
-            $popularServices = Services::where('status', 'completed')
-                ->where('isDeleted', 0)
-                ->with('specialty')
-                ->inRandomOrder()
-                ->get();
-        }
 
         // Lấy danh sách tất cả bác sĩ
         $doctors = Doctor::with('specialty')

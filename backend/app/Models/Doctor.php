@@ -40,5 +40,9 @@ class Doctor extends Model
     {
     return $this->belongsToMany(Services::class, 'doctor_service', 'doctor_id', 'service_id');
     }
-
+    // Định nghĩa mối quan hệ với bảng doctor_service
+    public function doctorServices()
+    {
+        return $this->hasMany(DoctorService::class, 'doctor_id', 'id');
+    }
 }
