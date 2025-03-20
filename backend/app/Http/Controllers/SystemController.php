@@ -59,7 +59,7 @@ class SystemController extends Controller
     public function show(System $system)
     {
         $system = System::first();
-        return view('layouts.app', compact('system'));
+        return view('admin.pages.system.index', compact('system'));
     }
 
     /**
