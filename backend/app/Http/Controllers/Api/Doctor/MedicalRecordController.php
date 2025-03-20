@@ -19,6 +19,7 @@ class MedicalRecordController extends Controller
         $medicalRecords = MedicalRecord::with('guest')
             ->where('isDeleted', 0)
             ->searchGuest($request->search)
+            ->latest('updated_at')
             ->paginate(10);
 
         if ($medicalRecords->isEmpty()) {
