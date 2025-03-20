@@ -43,6 +43,8 @@ import ServiceDetail from "../../components/guest/home/ServiceDetail";
 import ThongBao from "../../components/guest/home/ThongBao";
 import LichHen from "../../components/guest/home/LichHen";
 import HoaDon from "../../components/guest/home/HoaDon";
+import ChiTietBaiViet from "../../components/guest/home/ChiTietBaiViet";
+import BaiViet from "../../components/guest/home/BaiViet";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -104,11 +106,12 @@ const ClientLayout = () => {
         <Route path="/booking/:serviceId" element={<DatLich />}  />
         <Route path="/chitietdatlich" element={<ChiTietDatLich/>} />
         <Route path="/patientProfile" element={<PatientProfile/>} />  {/* Trang hồ sơ bệnh nhân */}
-        <Route path="/articles" element={<ArticleList/>} />
+        <Route path="/baiviet" element={<BaiViet/>} />
         <Route path="/specialties" element={<TopSpecialties/>}/> 
         <Route path="/topServices" element={<TopBookedServices/>}/>
         <Route path="/clinicDetail" element={<ClinicDetail/>}/>
         <Route path="/hoadon/:id" element={<HoaDon/>}/>
+        <Route path="/chitietbaiviet/:slug-:id" component={ChiTietBaiViet} />
         <Route path="/thongbao" element={<ThongBao/>}/>  {/* Thông báo đặt lịch thành công !}
         <Route path="/services" element={<Services/>}/>  {/* Trang dịch vụ */}
         <Route path="/detail-service/:id" element={<ServiceDetail/>}/>  {/* Trang chi tiet dich vu  */}

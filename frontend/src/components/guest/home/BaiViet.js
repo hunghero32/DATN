@@ -1,45 +1,50 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../../../ultils/api/axios";
 
-const articles = [
-  {
-    title: "7 bác sĩ Tiêu hóa giỏi và uy tín ở TP.HCM (Phần 1)",
-    description: "Danh sách bác sĩ Tiêu hóa giỏi và uy tín tại TP.HCM, giúp bạn tìm được bác sĩ tốt.",
-    image: "https://via.placeholder.com/300x200",
-    link: "#",
-  },
-  {
-    title: "Tiêm cằm bao nhiêu tiền? Chi phí tiêm cằm tại Top địa chỉ uy tín",
-    description: "Tiêm cằm bao nhiêu tiền và các địa chỉ uy tín tại TP.HCM, giúp bạn có cái nhìn rõ hơn.",
-    image: "https://via.placeholder.com/300x200",
-    link: "#",
-  },
-  {
-    title: "Top 6 spa massage chuẩn Đông y uy tín, nhiều review tốt",
-    description: "Khám phá top 6 spa massage chuẩn Đông y uy tín tại Hà Nội, giúp bạn thư giãn và làm đẹp.",
-    image: "https://via.placeholder.com/300x200",
-    link: "#",
-  },
-  {
-    title: "Liệu trình tắm trắng giá bao nhiêu? Tham khảo chi phí tắm trắng",
-    description: "Cập nhật giá tắm trắng tại các cơ sở làm đẹp uy tín, giúp bạn dễ dàng lựa chọn.",
-    image: "https://via.placeholder.com/300x200",
-    link: "#",
-  },
-  {
-    title: "Lập kế hoạch bữa ăn cho người bệnh tiểu đường",
-    description: "Cách lập kế hoạch bữa ăn khoa học cho người mắc bệnh tiểu đường, giúp cải thiện sức khỏe.",
-    image: "https://via.placeholder.com/300x200",
-    link: "#",
-  },
-  {
-    title: "Tiêm filler mới là gì? Những điều cần biết khi tiêm filler môi",
-    description: "Cập nhật những thông tin cơ bản về tiêm filler môi và các lợi ích khi sử dụng dịch vụ này.",
-    image: "https://via.placeholder.com/300x200",
-    link: "#",
-  },
-];
+const BaiViet = () => {
+  const [articles, setArticles] = useState([]); // State để lưu danh sách bài viết
+  const [loading, setLoading] = useState(true); // Trạng thái loading
+  const [error, setError] = useState(null); // Trạng thái lỗi
+  const navigate = useNavigate();  // Sử dụng useNavigate để chuyển hướng đến chi tiết bài viết
 
-const ArticleList = () => {
+  // Gọi API để lấy bài viết
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await api.get("/api/client/home");
+        if (response.data && response.data.posts) {
+          setArticles(response.data.posts);  // Lưu danh sách bài viết vào state
+        } else {
+          setError("Không có bài viết nào.");
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu bài viết:", error);
+        setError("Không thể tải bài viết. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  // Nếu đang tải, hiển thị loading
+  if (loading) return <p className="text-center text-gray-500">Đang tải bài viết...</p>;
+
+  // Nếu có lỗi, hiển thị thông báo lỗi
+  if (error) return <p className="text-center text-red-500">{error}</p>;
+
+  // Nếu không có bài viết, hiển thị thông báo
+  if (!articles || articles.length === 0) return <p className="text-center text-gray-500">Không có bài viết nào.</p>;
+
+  // Chuyển hướng đến trang chi tiết bài viết
+  const handleArticleClick = (slug, id) => {
+    const url = `/chitietbaiviet/${slug}-${id}`;
+    console.log("Navigating to:", url);  // Kiểm tra URL
+    navigate(url);
+  };
+
   return (
     <div className="container mx-auto p-6">
       <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
@@ -47,31 +52,32 @@ const ArticleList = () => {
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {articles.map((article, index) => (
-          <div
-            key={index}
-            className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300"
-          >
-            <img
-              src={article.image}
-              alt={article.title}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-2">{article.title}</h3>
-              <p className="text-gray-600 mb-4">{article.description}</p>
-              <a
-                href={article.link}
-                className="text-blue-600 hover:text-blue-700 transition"
-              >
-                Xem thêm
-              </a>
-            </div>
-          </div>
-        ))}
+      {articles.map((article) => (
+  <div
+    key={article.id}
+    className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300"
+    onClick={() => handleArticleClick(article.slug, article.id)}  // Truyền cả slug và id
+  >
+    <img
+      src={article.image || "https://via.placeholder.com/300x200"}
+      alt={article.title}
+      className="w-full h-48 object-cover"
+    />
+    <div className="p-4">
+      <h3 className="text-xl font-semibold mb-2">{article.title}</h3>
+      <p className="text-gray-600 mb-4">{article.content || article.description || "Không có mô tả"}</p>
+      <a
+        href="#"
+        className="text-blue-600 hover:text-blue-700 transition"
+      >
+        Xem thêm
+      </a>
+    </div>
+  </div>
+))}
       </div>
     </div>
   );
 };
 
-export default ArticleList;
+export default BaiViet;
