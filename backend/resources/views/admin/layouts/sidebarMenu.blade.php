@@ -287,6 +287,24 @@
 
             </ul>
         </li>
+          {{-- Start doctor_service --}}
+          <li class="menu-header small text-uppercase">
+            <span class="menu-header-text"> systems</span>
+        </li>
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                <div data-i18n="Account Settings">Quản lý  systems</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.systems.index')}}" class="menu-link">
+                        <div data-i18n="Account">Danh sách systems</div>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
 
 
 

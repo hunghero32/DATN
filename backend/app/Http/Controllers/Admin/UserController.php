@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\StoreUserRequest;
+use Illuminate\Support\Facades\Hash;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -65,9 +66,13 @@ class UserController extends Controller
 
 
 
+
     public function store(StoreUserRequest $request)
     {
-        User::create($request->validated());
+        $data = $request->validated();
+        $data['password'] = Hash::make($request->password); // Mã hóa mật khẩu
+
+        User::create($data);
 
         return redirect()->route('admin.users.index')->with('success', 'Người dùng đã được thêm thành công!');
     }

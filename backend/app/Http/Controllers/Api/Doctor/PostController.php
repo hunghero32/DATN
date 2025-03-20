@@ -25,7 +25,7 @@ class PostController extends Controller
             ->filter($request->only(['category_id', 'status', 'published_at']))
             ->latest('published_at')
             ->select(['id', 'category_id', 'title', 'views', 'status', 'published_at'])
-            ->paginate(10);
+            ->latest('updated_at')->paginate(10);
         return response()->json([
             'message' => 'Lấy danh sách bài viết thành công.',
             'data' => $posts

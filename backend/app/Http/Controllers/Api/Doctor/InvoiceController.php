@@ -24,10 +24,13 @@ class InvoiceController extends Controller
             'details.booking.doctor:id,doctor_name',
             'details.booking.guest:id,guest_name'
         ])
+        ->whereHas('details.booking.doctor', function ($query) {
+            $query->where('user_id', auth()->id());
+        })
             ->select(['id', 'total_amount', 'discount', 'tax'])
             ->search($request->search)
             ->filterDate($request->date)  
-            ->latest()->paginate(10);
+            ->latest('updated_at')->paginate(10);
 
         return response()->json([
             'message' => 'Lấy danh sách hóa đơn thành công.',
