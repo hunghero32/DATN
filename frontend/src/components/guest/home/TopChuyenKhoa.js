@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../ultils/api/axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+import api from "../../../ultils/api/axios";
 
 const SpecialtiesSection = () => {
   const [specialties, setSpecialties] = useState([]); // Lưu danh sách chuyên khoa
@@ -17,12 +17,13 @@ const SpecialtiesSection = () => {
     const fetchSpecialties = async () => {
       try {
         const response = await api.get("/api/client/list-specialty");
-        console.log("Dữ liệu từ API:", response.data);
-        // Update to handle the correct API response structure
-        if (response.data.status && response.data.data) {
-          setSpecialties(response.data.data.data || []); // Access paginated data
+        console.log("Dữ liệu từ API:", response.data); // In dữ liệu API để kiểm tra
+
+        // Kiểm tra cấu trúc dữ liệu và xử lý đúng cách
+        if (response.data.status && response.data.data && response.data.data.data) {
+          setSpecialties(response.data.data.data); // Cập nhật danh sách chuyên khoa từ API
         } else {
-          setSpecialties([]);
+          setSpecialties([]); // Nếu không có dữ liệu, set chuyên khoa là mảng rỗng
         }
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
@@ -35,11 +36,16 @@ const SpecialtiesSection = () => {
     fetchSpecialties();
   }, []);
 
-  // Update image handling in the render section
+  // Kiểm tra dữ liệu đã được tải thành công
+  console.log("Danh sách chuyên khoa sau khi tải:", specialties);
+
+  // Xử lý khi nhấn vào chuyên khoa
   const handleSpecialtyClick = (id) => {
-    navigate(`/detail-specialty/${id}`);  // This should now match the route path
+    console.log("Chuyên khoa được chọn:", id); // Log ID chuyên khoa được chọn
+    navigate(`/detail-specialty/${id}`);  // Điều hướng đến trang chi tiết chuyên khoa
   };
 
+  // Kiểm tra lỗi hoặc trạng thái loading
   if (loading) return <p className="text-center text-gray-500">Đang tải danh sách chuyên khoa...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
 

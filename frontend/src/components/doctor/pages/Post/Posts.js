@@ -3,12 +3,11 @@ import axios from 'axios';
 import { Table, Button, Form, Pagination, Container, Row, Col, Alert } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import PostForm from './PostForm'; // Component để tạo/sửa bài viết
-import PostDetail from './PostDetail'; // Component để xem chi tiết bài viết
+import PostForm from './PostForm';
+import PostDetail from './PostDetail';
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
-  const [filteredPosts, setFilteredPosts] = useState([]); // Dữ liệu đã lọc để hiển thị
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
@@ -17,72 +16,104 @@ const Posts = () => {
   const [showDetail, setShowDetail] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [userId, setUserId] = useState(null); // Lưu user_id của người dùng hiện tại
 
   const token = localStorage.getItem('authToken');
 
   const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api/doctor',
+    baseURL: 'http://127.0.0.1:8000/api',
     headers: {
       Authorization: token ? `Bearer ${token}` : '',
       'Content-Type': 'application/json',
     },
   });
 
-  // Lấy danh sách bài viết
-  useEffect(() => {
+  // Lấy thông tin user từ token hoặc API
+  const fetchUserInfo = async () => {
+    if (token) {
+      try {
+        const response = await api.get('/user'); // Giả sử có endpoint /api/user để lấy thông tin người dùng
+        setUserId(response.data.id); // Lấy user_id từ phản hồi
+      } catch (error) {
+        console.error('Lỗi khi lấy thông tin người dùng:', error);
+        setError('Không thể tải thông tin người dùng.');
+      }
+    }
+  };
+
+  const fetchPosts = async () => {
     if (!token) {
       setError('Vui lòng đăng nhập để truy cập danh sách bài viết.');
       return;
     }
 
-    const fetchPosts = async () => {
-      try {
-        const response = await api.get(`/posts?page=${currentPage}&search=${search}&status=${status}`);
-        setPosts(response.data.data.data || []); // Lấy mảng bài viết từ data.data
-        setTotalPages(response.data.data.last_page || 1); // Lấy tổng số trang
-        setError(null);
-      } catch (error) {
-        setError(error.response?.data?.message || 'Không thể tải danh sách bài viết.');
-      }
-    };
-
-    fetchPosts();
-  }, [currentPage, status, token]); // Loại bỏ `search` khỏi dependency vì sẽ lọc cục bộ
-
-  // Lọc dữ liệu bài viết dựa trên giá trị search
-  useEffect(() => {
-    if (!search) {
-      setFilteredPosts(posts); // Nếu không có từ khóa tìm kiếm, hiển thị toàn bộ dữ liệu
-      return;
-    }
-
-    const lowerCaseSearch = search.toLowerCase();
-    const filtered = posts.filter((post) => {
-      return (
-        String(post.id).toLowerCase().includes(lowerCaseSearch) || // Tìm kiếm theo ID
-        (post.title?.toLowerCase() || '').includes(lowerCaseSearch) // Tìm kiếm theo tiêu đề
-      );
-    });
-
-    setFilteredPosts(filtered);
-  }, [posts, search]);
-
-  // Tạo bài viết mới
-  const handleCreate = async (formData) => {
     try {
-      const response = await api.post('/posts', formData);
-      setPosts((prev) => [response.data.data, ...prev]); // Thêm bài viết mới vào danh sách
-      setShowForm(false);
-      toast.success('Tạo bài viết thành công!');
+      const response = await api.get('/doctor/posts', {
+        params: {
+          page: currentPage,
+          search: search,
+          status: status,
+        },
+      });
+      setPosts(response.data.data.data || []);
+      setTotalPages(response.data.data.last_page || 1);
+      setError(null);
     } catch (error) {
-      setError('Lỗi khi tạo bài viết: ' + (error.response?.data?.message || error.message));
+      setError(error.response?.data?.message || 'Không thể tải danh sách bài viết.');
     }
   };
 
-  // Cập nhật bài viết
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/categories');
+      setCategories(response.data.data || response.data);
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách danh mục:', error);
+      setError('Không thể tải danh sách danh mục: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  useEffect(() => {
+    fetchUserInfo(); // Lấy user_id khi component mount
+    fetchPosts();
+    fetchCategories();
+  }, [currentPage, search, status, token]);
+
+  const handleCreate = async (formData) => {
+    try {
+      if (!userId) {
+        setError('Không thể xác định người dùng hiện tại.');
+        return;
+      }
+
+      const formattedData = {
+        ...formData,
+        user_id: userId, // Thêm user_id vào dữ liệu gửi lên
+        published_at: `${formData.published_at} 00:00:00`,
+      };
+      const response = await api.post('/doctor/posts', formattedData);
+      setPosts((prev) => [response.data.data, ...prev]);
+      setShowForm(false);
+      toast.success('Tạo bài viết thành công!');
+      await fetchPosts();
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message;
+      setError(`Lỗi khi tạo bài viết: ${errorMessage}`);
+      if (error.response?.data?.errors) {
+        console.error('Chi tiết lỗi:', error.response.data.errors);
+      }
+    }
+  };
+
   const handleUpdate = async (formData) => {
     try {
-      const response = await api.put(`/posts/${selectedPost.id}`, formData);
+      const formattedData = {
+        ...formData,
+        user_id: userId, // Đảm bảo user_id được giữ nguyên khi cập nhật
+        published_at: `${formData.published_at} 00:00:00`,
+      };
+      const response = await api.put(`/doctor/posts/${selectedPost.id}`, formattedData);
       setPosts((prev) =>
         prev.map((post) => (post.id === response.data.data.id ? response.data.data : post))
       );
@@ -90,35 +121,24 @@ const Posts = () => {
       setSelectedPost(null);
       toast.success('Cập nhật bài viết thành công!');
     } catch (error) {
-      setError('Lỗi khi cập nhật bài viết: ' + (error.response?.data?.message || error.message));
-    }
-  };
-
-  // Xóa bài viết
-  const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
-      try {
-        await api.delete(`/posts/${id}`);
-        setPosts((prev) => prev.filter((post) => post.id !== id));
-        toast.success('Xóa bài viết thành công!');
-      } catch (error) {
-        setError('Lỗi khi xóa bài viết: ' + (error.response?.data?.message || error.message));
+      const errorMessage = error.response?.data?.message || error.message;
+      setError(`Lỗi khi cập nhật bài viết: ${errorMessage}`);
+      if (error.response?.data?.errors) {
+        console.error('Chi tiết lỗi:', error.response.data.errors);
       }
     }
   };
 
-  // Xem chi tiết bài viết
   const handleViewDetail = async (post) => {
     try {
-      const response = await api.get(`/posts/${post.id}`);
-      setSelectedPost(response.data.data); // Lấy dữ liệu chi tiết từ API
+      const response = await api.get(`/doctor/posts/${post.id}`);
+      setSelectedPost(response.data.data);
       setShowDetail(true);
     } catch (error) {
       setError('Lỗi khi xem chi tiết bài viết: ' + (error.response?.data?.message || error.message));
     }
   };
 
-  // Chuyển trang
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
@@ -139,7 +159,7 @@ const Posts = () => {
         <Col md={4}>
           <Form.Control
             type="text"
-            placeholder="Tìm kiếm (ID, tiêu đề)..."
+            placeholder="Tìm kiếm (Tiêu đề)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -147,8 +167,9 @@ const Posts = () => {
         <Col md={4}>
           <Form.Select value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="">Tất cả trạng thái</option>
-            <option value="Đã đăng">Đã đăng</option>
-            <option value="Cao">Cao</option>
+            <option value="published">Đã đăng</option>
+            <option value="draft">Nháp</option>
+            <option value="archived">Đã lưu trữ</option>
           </Form.Select>
         </Col>
         <Col md={4} className="text-end">
@@ -164,26 +185,38 @@ const Posts = () => {
             <tr>
               <th style={{ width: '5%' }}>ID</th>
               <th style={{ width: '25%' }}>Tiêu đề</th>
+              <th style={{ width: '10%' }}>Lượt xem</th>
               <th style={{ width: '15%' }}>Ngày xuất bản</th>
               <th style={{ width: '15%' }}>Trạng thái</th>
               <th style={{ width: '15%' }}>Danh mục</th>
-              <th style={{ width: '25%' }}>Hành động</th>
+              <th style={{ width: '15%' }}>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            {filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => (
+            {posts.length > 0 ? (
+              posts.map((post) => (
                 <tr key={post.id}>
                   <td>{post.id}</td>
                   <td>{post.title}</td>
+                  <td>{post.views}</td>
                   <td>{post.published_at}</td>
                   <td>
                     <span
                       className={`badge ${
-                        post.status === 'Đã đăng' ? 'bg-success' : 'bg-warning'
+                        post.status === 'published'
+                          ? 'bg-success'
+                          : post.status === 'draft'
+                          ? 'bg-warning'
+                          : post.status === 'archived'
+                          ? 'bg-secondary'
+                          : ''
                       }`}
                     >
-                      {post.status}
+                      {post.status === 'published'
+                        ? 'Đã đăng'
+                        : post.status === 'archived'
+                        ? 'Đã lưu trữ'
+                        : post.status}
                     </span>
                   </td>
                   <td>{post.category?.name || 'Không có danh mục'}</td>
@@ -207,19 +240,12 @@ const Posts = () => {
                     >
                       Sửa
                     </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDelete(post.id)}
-                    >
-                      Xóa
-                    </Button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="text-center">
+                <td colSpan="7" className="text-center">
                   Không có bài viết nào.
                 </td>
               </tr>
@@ -253,6 +279,8 @@ const Posts = () => {
       {showForm && (
         <PostForm
           post={selectedPost}
+          categories={categories}
+          userId={userId} // Truyền userId vào PostForm
           onSubmit={selectedPost ? handleUpdate : handleCreate}
           onCancel={() => {
             setShowForm(false);
