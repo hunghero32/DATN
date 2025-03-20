@@ -42,6 +42,7 @@ import ChiTietChuyenKhoa from "../../components/guest/home/ChiTietChuyenKhoa";
 import ServiceDetail from "../../components/guest/home/ServiceDetail";
 import ThongBao from "../../components/guest/home/ThongBao";
 import LichHen from "../../components/guest/home/LichHen";
+import HoaDon from "../../components/guest/home/HoaDon";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -107,6 +108,7 @@ const ClientLayout = () => {
         <Route path="/specialties" element={<TopSpecialties/>}/> 
         <Route path="/topServices" element={<TopBookedServices/>}/>
         <Route path="/clinicDetail" element={<ClinicDetail/>}/>
+        <Route path="/hoadon/:id" element={<HoaDon/>}/>
         <Route path="/thongbao" element={<ThongBao/>}/>  {/* Thông báo đặt lịch thành công !}
         <Route path="/services" element={<Services/>}/>  {/* Trang dịch vụ */}
         <Route path="/detail-service/:id" element={<ServiceDetail/>}/>  {/* Trang chi tiet dich vu  */}

@@ -28,4 +28,27 @@ class DoctorService extends Model
     {
         return $this->belongsTo(Services::class, 'service_id', 'id');
     }
+        /**
+     * Scope lọc theo chuyên khoa
+     */
+    public function scopeFilterBySpecialty($query, $specialtyId)
+    {
+        return $query->when($specialtyId, function ($query) use ($specialtyId) {
+            $query->whereHas('doctor', function ($subQuery) use ($specialtyId) {
+                $subQuery->where('specialty_id', $specialtyId);
+            });
+        });
+    }
+
+    /**
+     * Scope tìm kiếm theo tên dịch vụ
+     */
+    public function scopeSearchByServiceName($query, $serviceName)
+    {
+        return $query->when($serviceName, function ($query) use ($serviceName) {
+            $query->whereHas('service', function ($subQuery) use ($serviceName) {
+                $subQuery->where('name', 'LIKE', '%' . $serviceName . '%');
+            });
+        });
+    }
 }
