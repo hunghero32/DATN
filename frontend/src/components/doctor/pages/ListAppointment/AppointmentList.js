@@ -7,11 +7,10 @@ const AppointmentList = ({
   loading,
   error,
   handleShowDetail,
-  handleAcceptAppointment,
   handleCompleteAppointment,
-  handleDeleteAppointment,
   handleShowMedicalRecord,
   handleShowExamResult,
+  handleTransferAppointment,
 }) => {
   const renderTable = (appointments, title, status) => (
     <div className="card p-4 mb-4">
@@ -57,11 +56,11 @@ const AppointmentList = ({
                   </Button>
                   {status === "pending" && (
                     <Button
-                      variant="success"
+                      variant="primary"
                       className="me-2"
-                      onClick={() => handleAcceptAppointment(app)}
+                      onClick={() => handleTransferAppointment(app)}
                     >
-                      Nhận Bệnh
+                      Chuyển Bệnh
                     </Button>
                   )}
                   {status === "confirmed" && (
@@ -100,9 +99,6 @@ const AppointmentList = ({
                       </Button>
                     </>
                   )}
-                  <Button variant="danger" onClick={() => handleDeleteAppointment(app)}>
-                    Delete
-                  </Button>
                 </td>
               </tr>
             ))}

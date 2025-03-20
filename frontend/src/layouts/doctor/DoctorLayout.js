@@ -1,5 +1,4 @@
 import { Route, Routes, useNavigate } from "react-router-dom";
-import Footer from "../../components/doctor/Footer";
 import Header from "../../components/doctor/Header";
 import Dashboard from "../../components/doctor/pages/DashBoard";
 import SideBar from "../../components/doctor/SideBar";
@@ -124,7 +123,7 @@ const DoctorLayout = () => {
           <Route path="/posts" element={<Posts />} />  
           
         </Routes>
-        <Footer />
+
       </main>
     </div>
   );
