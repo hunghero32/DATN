@@ -82,9 +82,10 @@ const Dashboard = () => {
         data: Array.from({ length: 12 }, (_, index) =>
           dashboardData.patients_by_month[index + 1] || 0
         ),
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: "rgba(52, 152, 219, 1)", // Màu xanh dương nhẹ
+        backgroundColor: "rgba(52, 152, 219, 0.2)",
         fill: true,
+        tension: 0.4,
       },
     ],
   };
@@ -97,16 +98,14 @@ const Dashboard = () => {
         label: "Appointments by Status",
         data: Object.values(dashboardData.appointments_by_status),
         backgroundColor: [
-          "rgba(255, 99, 132, 0.6)",
-          "rgba(54, 162, 235, 0.6)",
-          "rgba(255, 206, 86, 0.6)",
-          "rgba(75, 192, 192, 0.6)",
+          "rgba(255, 182, 193, 0.6)", // Pink for "completed"
+          "rgba(135, 206, 250, 0.6)", // Light blue for "confirmed"
+          "rgba(255, 215, 0, 0.6)", // Yellow for "canceled"
         ],
         borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
+          "rgba(255, 182, 193, 1)",
+          "rgba(135, 206, 250, 1)",
+          "rgba(255, 215, 0, 1)",
         ],
         borderWidth: 1,
       },
@@ -114,68 +113,44 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="content-inner container-fluid pb-0" id="page_layout">
+    <div className="content-inner container-fluid pb-0" id="page_layout" style={{ backgroundColor: "#f0f4f8", padding: "20px" }}>
       <div>
-        {/* Summary Statistics Section */}
+        {/* Summary Statistics Section (3 cards only) */}
         <div className="row">
-          <div className="col-md-6 col-lg-3">
-            <div className="card">
+          <div className="col-md-4 mb-4">
+            <div className="card shadow-sm hover-shadow" style={{ borderRadius: "10px", transition: "all 0.3s" }}>
               <div className="card-body text-center">
-                <h6 className="text-uppercase">Total Patients Seen</h6>
-                <h3 className="mb-0">{dashboardData.total_patients}</h3>
+                <h6 className="text-uppercase text-muted mb-2">Total Patients Seen</h6>
+                <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.total_patients}</h3>
               </div>
             </div>
           </div>
-          <div className="col-md-6 col-lg-3">
-            <div className="card">
+          <div className="col-md-4 mb-4">
+            <div className="card shadow-sm hover-shadow" style={{ borderRadius: "10px", transition: "all 0.3s" }}>
               <div className="card-body text-center">
-                <h6 className="text-uppercase">Patients This Month</h6>
-                <h3 className="mb-0">{dashboardData.monthly_patients}</h3>
+                <h6 className="text-uppercase text-muted mb-2">Patients This Month</h6>
+                <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.monthly_patients}</h3>
               </div>
             </div>
           </div>
-          <div className="col-md-6 col-lg-3">
-            <div className="card">
+          <div className="col-md-4 mb-4">
+            <div className="card shadow-sm hover-shadow" style={{ borderRadius: "10px", transition: "all 0.3s" }}>
               <div className="card-body text-center">
-                <h6 className="text-uppercase">Total Appointments</h6>
-                <h3 className="mb-0">{dashboardData.total_appointments}</h3>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-6 col-lg-3">
-            <div className="card">
-              <div className="card-body text-center">
-                <h6 className="text-uppercase">Completed Appointments</h6>
-                <h3 className="mb-0">{dashboardData.completed_appointments}</h3>
+                <h6 className="text-uppercase text-muted mb-2">Total Appointments</h6>
+                <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.total_appointments}</h3>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Additional Statistics Section */}
+        {/* Appointments by Status (4 cols) and Patients Seen Today (8 cols) */}
         <div className="row">
-          <div className="col-md-6 col-lg-3">
-            <div className="card">
-              <div className="card-body text-center">
-                <h6 className="text-uppercase">Days Off This Month</h6>
-                <h3 className="mb-0">{dashboardData.days_off}</h3>
+          <div className="col-md-4 mb-4">
+            <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
+              <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
+                <h4 className="card-title" style={{ color: "#2c3e50" }}>Appointments by Status</h4>
               </div>
-            </div>
-          </div>
-          <div className="col-md-6 col-lg-3">
-            <div className="card">
-              <div className="card-body text-center">
-                <h6 className="text-uppercase">Available Slots</h6>
-                <h3 className="mb-0">{dashboardData.available_slots}</h3>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-6 col-lg-6">
-            <div className="card">
-              <div className="card-header">
-                <h4 className="card-title">Appointments by Status</h4>
-              </div>
-              <div className="card-body" style={{ height: "200px" }}>
+              <div className="card-body" style={{ height: "250px" }}>
                 <Pie
                   data={appointmentsByStatusData}
                   options={{
@@ -184,10 +159,16 @@ const Dashboard = () => {
                     plugins: {
                       legend: {
                         position: "top",
+                        labels: {
+                          font: { size: 12 }, // Giảm kích thước font để vừa với cột 4
+                          color: "#2c3e50",
+                        },
                       },
                       title: {
                         display: true,
                         text: "Appointments by Status",
+                        font: { size: 14 }, // Giảm kích thước tiêu đề
+                        color: "#2c3e50",
                       },
                     },
                   }}
@@ -195,47 +176,14 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Charts and Lists Section */}
-        <div className="row">
-          {/* Patients by Month Chart */}
-          <div className="col-lg-6">
-            <div className="card">
-              <div className="card-header">
-                <h4 className="card-title">Patients by Month</h4>
-              </div>
-              <div className="card-body">
-                <Line
-                  data={patientsByMonthData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: "top",
-                      },
-                      title: {
-                        display: true,
-                        text: "Patients Seen Each Month",
-                      },
-                    },
-                  }}
-                  style={{ height: "280px" }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Patients Seen Today */}
-          <div className="col-lg-6">
-            <div className="card">
-              <div className="card-header">
-                <h4 className="card-title">Patients Seen Today</h4>
+          <div className="col-md-8 mb-4">
+            <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
+              <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
+                <h4 className="card-title" style={{ color: "#2c3e50" }}>Patients Seen Today</h4>
               </div>
               <div className="card-body">
                 <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                  <table className="table table-striped">
+                  <table className="table table-striped table-hover">
                     <thead>
                       <tr>
                         <th>Name</th>
@@ -257,7 +205,7 @@ const Dashboard = () => {
                       ) : (
                         <tr>
                           <td colSpan="4" className="text-center">
-                            No patients seen today.
+                            Không có bệnh nhân trong ngày hôm nay
                           </td>
                         </tr>
                       )}
@@ -269,16 +217,63 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Upcoming Appointments */}
+        {/* Patients by Month (full 12 columns) */}
         <div className="row">
-          <div className="col-lg-6">
-            <div className="card">
-              <div className="card-header">
-                <h4 className="card-title">Upcoming Appointments</h4>
+          <div className="col-12 mb-4">
+            <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
+              <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
+                <h4 className="card-title" style={{ color: "#2c3e50" }}>Patients by Month</h4>
+              </div>
+              <div className="card-body">
+                <Line
+                  data={patientsByMonthData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: "top",
+                        labels: {
+                          font: { size: 14 },
+                          color: "#2c3e50",
+                        },
+                      },
+                      title: {
+                        display: true,
+                        text: "Patients Seen Each Month",
+                        font: { size: 16 },
+                        color: "#2c3e50",
+                      },
+                    },
+                    scales: {
+                      x: {
+                        ticks: { color: "#2c3e50" },
+                        grid: { display: false },
+                      },
+                      y: {
+                        ticks: { color: "#2c3e50" },
+                        grid: { color: "rgba(0, 0, 0, 0.05)" },
+                      },
+                    },
+                  }}
+                  style={{ height: "300px" }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Upcoming Appointments and Completed Appointments */}
+        <div className="row">
+          {/* Upcoming Appointments */}
+          <div className="col-lg-6 mb-4">
+            <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
+              <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
+                <h4 className="card-title" style={{ color: "#2c3e50" }}>Upcoming Appointments</h4>
               </div>
               <div className="card-body">
                 <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                  <table className="table table-striped">
+                  <table className="table table-striped table-hover">
                     <thead>
                       <tr>
                         <th>Date</th>
@@ -296,13 +291,25 @@ const Dashboard = () => {
                             <td>{appointment.guest?.guest_name || "Unknown"}</td>
                             <td>{appointment.guest?.guest_phone || "N/A"}</td>
                             <td>{appointment.service?.services_name || "N/A"}</td>
-                            <td>{appointment.status}</td>
+                            <td>
+                              <span
+                                className={`badge ${
+                                  appointment.status === "confirmed"
+                                    ? "bg-success"
+                                    : appointment.status === "canceled"
+                                    ? "bg-danger"
+                                    : "bg-warning"
+                                }`}
+                              >
+                                {appointment.status}
+                              </span>
+                            </td>
                           </tr>
                         ))
                       ) : (
                         <tr>
                           <td colSpan="5" className="text-center">
-                            No upcoming appointments.
+                            Không có lịch hẹn sắp tới
                           </td>
                         </tr>
                       )}
@@ -314,14 +321,14 @@ const Dashboard = () => {
           </div>
 
           {/* Completed Appointments */}
-          <div className="col-lg-6">
-            <div className="card">
-              <div className="card-header">
-                <h4 className="card-title">Completed Appointments</h4>
+          <div className="col-lg-6 mb-4">
+            <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
+              <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
+                <h4 className="card-title" style={{ color: "#2c3e50" }}>Completed Appointments</h4>
               </div>
               <div className="card-body">
                 <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                  <table className="table table-striped">
+                  <table className="table table-striped table-hover">
                     <thead>
                       <tr>
                         <th>Date</th>
@@ -343,7 +350,7 @@ const Dashboard = () => {
                       ) : (
                         <tr>
                           <td colSpan="4" className="text-center">
-                            No completed appointments.
+                            Không có lịch hẹn đã hoàn thành
                           </td>
                         </tr>
                       )}

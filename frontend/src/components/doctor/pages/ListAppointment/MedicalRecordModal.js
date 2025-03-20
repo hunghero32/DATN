@@ -126,7 +126,7 @@ const MedicalRecordModal = ({
                       <Form.Control
                         as="textarea"
                         rows={3}
-                        value={result.notes || "Không có ghi chú"}
+                        value={result.note || "Không có ghi chú"} // Sửa "notes" thành "note"
                         readOnly
                       />
                     </Form.Group>

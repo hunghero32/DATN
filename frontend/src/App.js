@@ -5,23 +5,13 @@ import DoctorLayout from './layouts/doctor/DoctorLayout';
 import { AuthProvider } from "./components/guest/auth/AuthContext";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import 'react-quill/dist/quill.snow.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
   return (
     <div>
-      {/* ToastContainer được đặt ngoài cùng để không ảnh hưởng đến layout , fix loi giao dien bi khoang trong tren top   */}
-      <ToastContainer 
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-
+      <ToastContainer />
       <AuthProvider>
         <Routes>
           <Route path="*" element={<ClientLayout />} />
