@@ -14,30 +14,30 @@ const ServiceDetail = () => {
 
   const handleScheduleClick = async (doctor, schedule) => {
     if (schedule.status === 1) {
-      const bookingData = {
-        doctor_id: doctor.id,
-        service_id: service.id,
-        schedule_id: schedule.id,
-        date: new Date(schedule.working_date).toISOString().split('T')[0],  // Đảm bảo định dạng ngày đúng
-        time: schedule.time_start,           
-        specialty_id: service.specialty?.id || 0, // Added fallback value for specialty_id
-        status: "pending",
-        // Additional data for localStorage
-        fullData: {
-          doctor_name: doctor.doctor_name,
-          doctor_avatar: doctor.doctor_avatar,
-          doctor_bio: doctor.doctor_bio,
-          doctor_exp: doctor.exp,
-          service_name: service.services_name,
-          specialty_name: service.specialty?.name || "Chuyên khoa không xác định", // Fallback text
-          price: service.price,
-          duration: service.duration,
-          max_patients: schedule.max_patients,
-          time_start: schedule.time_start,
-          time_end: schedule.time_end,
-          booking_time: `${schedule.time_start} - ${schedule.time_end}`
-        }
-      };
+    const bookingData = {
+  doctor_id: doctor.id,
+  service_id: service.id,
+  schedule_id: schedule.id,
+  date: new Date(schedule.working_date).toISOString().split('T')[0],  // Đảm bảo định dạng ngày đúng
+  time: schedule.time_start,           
+  specialty_id: service.specialty?.id || 0, // Added fallback value for specialty_id
+  status: "pending",
+  // Additional data for localStorage
+  fullData: {
+    doctor_name: doctor.doctor_name,
+    doctor_avatar: doctor.doctor_avatar,
+    doctor_bio: doctor.doctor_bio,
+    doctor_exp: doctor.exp,
+    service_name: service.services_name,
+    specialty_name: service.specialty?.name || "Chuyên khoa không xác định", // Fallback text
+    price: service.price,
+    duration: service.duration,
+    max_patients: schedule.max_patients,
+    time_start: schedule.time_start,
+    time_end: schedule.time_end,
+    booking_time: `${schedule.time_start} - ${schedule.time_end}`
+  }
+};
 
       try {
         const response = await api.post('/api/client/temp-booking', bookingData);

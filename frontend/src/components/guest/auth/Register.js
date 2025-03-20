@@ -30,9 +30,9 @@ export default function Register() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Đăng Ký</h1>
+    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+     <div className="bg-violet-950 p-8 rounded-xl shadow-xl w-full max-w-md">
+        <h1 className="text-2xl font-bold text-center text-white mb-6">Đăng Ký</h1>
         <Form
           form={form}
           layout="vertical"
