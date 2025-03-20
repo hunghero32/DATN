@@ -42,14 +42,372 @@
 .pagination .page-link:hover {
   background-color: #f8f9fa;
 }
-/* //Fix loi giao dien bi khoang trong tren top  */
-section.Toastify {
-  padding: 0 !important;
-  margin: 0 !important;
-  position: fixed !important; /* Đảm bảo không chiếm không gian layout */
-  top: 10px !important; /* Đặt Toast lên trên */
-  left: 50%;
-  transform: translateX(-50%);
-  width: auto;
-  z-index: 9999;
+
+
+/* Tùy chỉnh thẻ card */
+.card {
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-header {
+  border-bottom: none !important;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Tùy chỉnh bảng */
+.table th,
+.table td {
+  vertical-align: middle;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* Hiệu ứng hover cho thẻ thống kê */
+.hover-shadow:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Tùy chỉnh badge */
+.badge {
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 12px;
+}
+
+
+/*  */
+/* Tùy chỉnh thẻ card */
+.card {
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-header {
+  border-bottom: none !important;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Tùy chỉnh bảng */
+.table th,
+.table td {
+  vertical-align: middle;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.table thead th {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* Hiệu ứng hover cho nút và thẻ */
+.hover-shadow:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Tùy chỉnh modal */
+.modal-content {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Tùy chỉnh nút trong modal */
+.modal-footer, .modal-body {
+  border: none !important;
+}
+
+/* Tùy chỉnh form input */
+.form-control, .form-select {
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Tùy chỉnh hóa đơn */
+.invoice-container {
+  font-family: 'Roboto', sans-serif;
+  border: 1px solid #e0e0e0;
+}
+
+/* Tùy chỉnh bảng trong hóa đơn */
+.invoice-container .table th,
+.invoice-container .table td {
+  vertical-align: middle;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.invoice-container .table thead th {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.invoice-container .table-hover tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* Tùy chỉnh modal hóa đơn */
+.modal-content {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Ẩn các phần không cần thiết khi in */
+@media print {
+  .modal-footer {
+    display: none !important;
+  }
+  .modal-body {
+    padding: 0 !important;
+  }
+  .invoice-container {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+
+/* sliderbar */
+/* Reset mặc định */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Desktop styles */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 20px;
+}
+
+.hamburger-btn {
+  display: none;
+  position: fixed;
+  left: 15px;
+  top: 15px;
+  z-index: 1100;
+  background: #007bff;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sidebar-body {
+  padding: 15px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  color: #333;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background: #e6f0ff; /* Màu nhạt hơn khi hover */
+  color: #007bff;
+}
+
+.nav-link.active {
+  background: #007bff;
+  color: white;
+}
+
+.nav-link i {
+  margin-right: 12px;
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+}
+
+.nav-link .item-name {
+  font-size: 14px;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .hamburger-btn {
+    display: block;
+  }
+
+  .sidebar {
+    width: 250px;
+    left: -260px; /* Ẩn hoàn toàn khỏi màn hình */
+    transition: all 0.3s ease;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  /* Overlay khi sidebar mở */
+  .sidebar.active::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 250px;
+    width: calc(100vw - 250px);
+    height: 100vh;
+    background: rgba(0,0,0,0.3);
+    z-index: -1;
+  }
+
+  /* Đảm bảo content không bị đè */
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
+
+/* Animation */
+.sidebar {
+  transition: left 0.3s ease;
+}
+
+
+/* profile */
+.doctor-profile-container {
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.doctor-profile-card {
+  border-radius: 15px;
+  background: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.doctor-profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.doctor-avatar img,
+.no-avatar {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border: 4px solid #007bff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-avatar {
+  background: #f0f0f0;
+}
+
+.doctor-info p {
+  font-size: 16px;
+  color: #555;
+}
+
+.doctor-info strong {
+  color: #333;
+}
+
+.btn-primary {
+  background: #007bff;
+  border: none;
+  transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-danger {
+  background: #dc3545;
+  border: none;
+  transition: background 0.3s ease;
+}
+
+.btn-danger:hover {
+  background: #b02a37;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .doctor-avatar img,
+  .no-avatar {
+      width: 120px;
+      height: 120px;
+  }
+
+  .doctor-info p {
+      font-size: 14px;
+  }
+
+  .btn {
+      padding: 8px 20px;
+      font-size: 14px;
+  }
+}
+
+.input-group {
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+
+.input-group-text {
+  background-color: #f8f9fa;
+}
+
+.form-control {
+  border-radius: 0.25rem;
 }

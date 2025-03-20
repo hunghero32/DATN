@@ -16,6 +16,7 @@ const ExamResultModal = ({
   setFile,
   handleUpdateExamResult,
   loading,
+  error,
 }) => {
   return (
     <>
@@ -26,14 +27,16 @@ const ExamResultModal = ({
         <Modal.Body>
           {loading ? (
             <Spinner animation="border" />
-          ) : selectedAppointment?.examResult ? (
+          ) : error ? (
+            <p className="text-danger">{error}</p>
+          ) : diagnosis || notes || file ? (
             <Form>
               <Form.Group className="mb-3">
                 <Form.Label>Chẩn đoán:</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={2}
-                  value={selectedAppointment.examResult.diagnosis || "Không có dữ liệu"}
+                  value={diagnosis || ""}
                   readOnly
                 />
               </Form.Group>
@@ -42,15 +45,15 @@ const ExamResultModal = ({
                 <Form.Control
                   as="textarea"
                   rows={3}
-                  value={selectedAppointment.examResult.notes || "Không có ghi chú"}
+                  value={notes || ""}
                   readOnly
                 />
               </Form.Group>
               <Form.Group className="mb-3">
                 <Form.Label>Tệp đính kèm:</Form.Label>
-                {selectedAppointment.examResult.file ? (
+                {file ? (
                   <a
-                    href={`http://127.0.0.1:8000/storage/${selectedAppointment.examResult.file}`}
+                    href={`http://127.0.0.1:8000/storage/${file}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -71,9 +74,12 @@ const ExamResultModal = ({
           </Button>
           <Button
             variant="primary"
-            onClick={() => setShowEditResultModal(true)}
+            onClick={() => {
+              setShowEditResultModal(true);
+              onHideView();
+            }}
           >
-            {selectedAppointment?.examResult ? "Sửa" : "Thêm Kết Quả Khám"}
+            {(diagnosis || notes || file) ? "Sửa" : "Thêm Kết Quả Khám"}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -81,7 +87,7 @@ const ExamResultModal = ({
       <Modal show={showEdit} onHide={onHideEdit} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            {selectedAppointment?.examResult ? "Sửa Kết Quả Khám" : "Thêm Kết Quả Khám"}
+            {(diagnosis || notes || file) ? "Sửa Kết Quả Khám" : "Thêm Kết Quả Khám"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -91,7 +97,7 @@ const ExamResultModal = ({
               <Form.Control
                 as="textarea"
                 rows={2}
-                value={diagnosis}
+                value={diagnosis || ""}
                 onChange={(e) => setDiagnosis(e.target.value)}
               />
             </Form.Group>
@@ -100,7 +106,7 @@ const ExamResultModal = ({
               <Form.Control
                 as="textarea"
                 rows={3}
-                value={notes}
+                value={notes || ""}
                 onChange={(e) => setNotes(e.target.value)}
               />
             </Form.Group>
@@ -110,6 +116,18 @@ const ExamResultModal = ({
                 type="file"
                 onChange={(e) => setFile(e.target.files[0])}
               />
+              {file && typeof file === "string" && (
+                <p>
+                  Tệp hiện tại:{" "}
+                  <a
+                    href={`http://127.0.0.1:8000/storage/${file}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Xem tệp
+                  </a>
+                </p>
+              )}
             </Form.Group>
           </Form>
         </Modal.Body>
