@@ -17,11 +17,12 @@ use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\InvoiceDetailController;
 use App\Http\Controllers\Admin\FeedbackController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SpecialtyController;
-use App\Http\Controllers\SystemController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -69,15 +70,15 @@ Route::prefix('admin')->group(function () {
 
 
 
-     ////*****************     Start Schedule    *******************////
-     Route::get("doctor-schedule",[SchedulesController::class,'index'])->name('admin.schedule.index');
-     Route::get("doctor-schedule-create",[SchedulesController::class,'create'])->name('admin.schedule.create');
-     Route::post("doctor-schedule-save",[SchedulesController::class,'store'])->name('admin.schedule.store');
-     Route::get("doctor-schedule-{schedule}/edit",[SchedulesController::class,'edit'])->name('admin.schedule.edit');
-     Route::put("doctor-schedule-{schedule}",[SchedulesController::class,'update'])->name('admin.schedule.update');
-     Route::delete("doctor-schedule-{schedule}",[SchedulesController::class,'destroy'])->name('admin.schedule.delete');
-     Route::get("doctor-schedule-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
-     Route::patch('doctor-schedule-{id}/status',[SchedulesController::class,'updateStatus'])->name('admin.schedule.update-status');
+    ////*****************     Start Schedule    *******************////
+    Route::get("doctor-schedule", [SchedulesController::class, 'index'])->name('admin.schedule.index');
+    Route::get("doctor-schedule-create", [SchedulesController::class, 'create'])->name('admin.schedule.create');
+    Route::post("doctor-schedule-save", [SchedulesController::class, 'store'])->name('admin.schedule.store');
+    Route::get("doctor-schedule-{schedule}/edit", [SchedulesController::class, 'edit'])->name('admin.schedule.edit');
+    Route::put("doctor-schedule-{schedule}", [SchedulesController::class, 'update'])->name('admin.schedule.update');
+    Route::delete("doctor-schedule-{schedule}", [SchedulesController::class, 'destroy'])->name('admin.schedule.delete');
+    Route::get("doctor-schedule-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
+    Route::patch('doctor-schedule-{id}/status', [SchedulesController::class, 'updateStatus'])->name('admin.schedule.update-status');
 
 
 
@@ -86,22 +87,22 @@ Route::prefix('admin')->group(function () {
 
 
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('medical_records', MedicalRecordController::class);
-});
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('medical_records', MedicalRecordController::class);
+    });
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('notifications', NotificationController::class);
-});
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('notifications', NotificationController::class);
+    });
 
 
-     ////*****************     Start Bookings    *******************////
-        Route::get("bookings",[BookingController::class,'index'])->name('admin.bookings.index');
-        Route::get("bookings-create",[BookingController::class,'create'])->name('admin.bookings.create');
-        Route::put("bookings-{booking}",[BookingController::class,'update'])->name('admin.bookings.update');
-        Route::delete("bookings-{booking}",[BookingController::class,'destroy'])->name('admin.bookings.delete');
-        Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
-        Route::patch('bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
+    ////*****************     Start Bookings    *******************////
+    Route::get("bookings", [BookingController::class, 'index'])->name('admin.bookings.index');
+    Route::get("bookings-create", [BookingController::class, 'create'])->name('admin.bookings.create');
+    Route::put("bookings-{booking}", [BookingController::class, 'update'])->name('admin.bookings.update');
+    Route::delete("bookings-{booking}", [BookingController::class, 'destroy'])->name('admin.bookings.delete');
+    Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
+    Route::patch('bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
 
 
     ////*****************     End Bookings    *******************////
@@ -159,9 +160,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('guests', [GuestController::class, 'index'])->name('admin.guests.index');
     Route::get('guests-create', [GuestController::class, 'create'])->name('admin.guests.create');
     Route::post('guests', [GuestController::class, 'store'])->name('admin.guests.store');
-    Route::delete('guests-delete/{id}',[GuestController::class,'delete'])->name('admin.guests.delete');
+    Route::delete('guests-delete/{id}', [GuestController::class, 'delete'])->name('admin.guests.delete');
     route::get('guests-edit/{id}', [GuestController::class, 'edit'])->name('admin.guests.edit');
     route::put('guests-update/{id}', [GuestController::class, 'update'])->name('admin.guests.update');
+    // =========== System =======================
+    route::get('systems', [SystemController::class, 'index'])->name('admin.systems.index');
+    route::get('systems-create', [SystemController::class, 'create'])->name('admin.systems.create');
+    route::post('systems-store', [SystemController::class, 'store'])->name('admin.systems.store');
+    route::delete('systems-delete/{id}', [SystemController::class, 'delete'])->name('admin.systems.delete');
+    Route::get('systems-edit/{id}', [SystemController::class, 'edit'])->name('admin.systems.edit');
+    Route::put('systems-update/{id}', [SystemController::class, 'update'])->name('admin.systems.update');
+
+
+
+
+
 
     Route::get('invoices', [InvoiceController::class, 'index'])->name('admin.invoices.index');
     Route::get('invoices/create', [InvoiceController::class, 'create'])->name('admin.invoices.create');
@@ -191,13 +204,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('specialties/{id}', [SpecialtyController::class, 'update'])->name('admin.specialties.update');
     Route::delete('specialties/{id}', [SpecialtyController::class, 'delete'])->name('admin.specialties.delete');
 
-    Route::get('doctor-service',[DoctorServiceController::class,'index'])->name('admin.doctor_service.index');
-    Route::get('doctor-service/create',[DoctorServiceController::class,'create'])->name('admin.doctor_service.create');
-    Route::post('doctor-service',[DoctorServiceController::class,'store'])->name('admin.doctor_service.store');
-    Route::get('doctor-service/{id}/edit',[DoctorServiceController::class,'edit'])->name('admin.doctor_service.edit');
-    Route::put('doctor-service/{id}',[DoctorServiceController::class,'update'])->name('admin.doctor_service.update');
-    Route::delete('doctor-service-deleted/{id}',[DoctorServiceController::class,'destroy'])->name('admin.doctor_service.destroy');
-
+    Route::get('doctor-service', [DoctorServiceController::class, 'index'])->name('admin.doctor_service.index');
+    Route::get('doctor-service/create', [DoctorServiceController::class, 'create'])->name('admin.doctor_service.create');
+    Route::post('doctor-service', [DoctorServiceController::class, 'store'])->name('admin.doctor_service.store');
+    Route::get('doctor-service/{id}/edit', [DoctorServiceController::class, 'edit'])->name('admin.doctor_service.edit');
+    Route::put('doctor-service/{id}', [DoctorServiceController::class, 'update'])->name('admin.doctor_service.update');
+    Route::delete('doctor-service-deleted/{id}', [DoctorServiceController::class, 'destroy'])->name('admin.doctor_service.destroy');
 });
 
 
@@ -206,9 +218,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 // =========== System =======================
-Route::get('system', [SystemController::class, 'show'])->name('systems.show');
-Route::get('system', [SystemController::class, 'edit'])->name('system.edit');
-Route::put('system', [SystemController::class, 'update'])->name('system.update');
+// Route::get('system', [SystemController::class, 'show'])->name('systems.show');
+// Route::get('system', [SystemController::class, 'edit'])->name('system.edit');
+// Route::put('system', [SystemController::class, 'update'])->name('system.update');
 
 Route::resource('specialties', SpecialtyController::class); // Chuyên khoa
 Route::resource('doctor_specialties', DoctorSpecialtyController::class); // Các Chuyên khoa
