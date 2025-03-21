@@ -4,6 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import api from "../../../ultils/api/axios";
 
 const SpecialtiesSection = () => {
@@ -11,19 +12,19 @@ const SpecialtiesSection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAll, setShowAll] = useState(false); // Trạng thái hiển thị tất cả chuyên khoa
-  const navigate = useNavigate(); // Điều hướng đến trang chi tiết chuyên khoa
+  const navigate = useNavigate();
 
+  // Gọi API để lấy danh sách chuyên khoa
   useEffect(() => {
     const fetchSpecialties = async () => {
       try {
         const response = await api.get("/api/client/list-specialty");
-        console.log("Dữ liệu từ API:", response.data); // In dữ liệu API để kiểm tra
+        console.log("Dữ liệu từ API:", response.data);
 
-        // Kiểm tra cấu trúc dữ liệu và xử lý đúng cách
         if (response.data.status && response.data.data && response.data.data.data) {
-          setSpecialties(response.data.data.data); // Cập nhật danh sách chuyên khoa từ API
+          setSpecialties(response.data.data.data);
         } else {
-          setSpecialties([]); // Nếu không có dữ liệu, set chuyên khoa là mảng rỗng
+          setSpecialties([]);
         }
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
@@ -36,133 +37,179 @@ const SpecialtiesSection = () => {
     fetchSpecialties();
   }, []);
 
-  // Kiểm tra dữ liệu đã được tải thành công
-  console.log("Danh sách chuyên khoa sau khi tải:", specialties);
-
-  // Xử lý khi nhấn vào chuyên khoa
   const handleSpecialtyClick = (id) => {
-    console.log("Chuyên khoa được chọn:", id); // Log ID chuyên khoa được chọn
-    navigate(`/detail-specialty/${id}`);  // Điều hướng đến trang chi tiết chuyên khoa
+    console.log("Chuyên khoa được chọn:", id);
+    navigate(`/detail-specialty/${id}`);
   };
 
-  // Kiểm tra lỗi hoặc trạng thái loading
   if (loading) return <p className="text-center text-gray-500">Đang tải danh sách chuyên khoa...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <div className="bg-gray-50 py-12">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Chuyên Khoa Nổi Bật
-          </h2>
-          <p className="text-gray-600 text-lg">
-            Các chuyên khoa hàng đầu với đội ngũ bác sĩ giàu kinh nghiệm
-          </p>
-        </div>
+    <div className="container py-4">
+      {/* Tiêu đề và nút "Xem thêm" */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="fw-bold m-0">Chuyên khoa</h2>
+        <button
+          className="btn rounded-pill px-4 py-2"
+          style={{ backgroundColor: "#e6f7fa", color: "#0096b2" }}
+          onClick={() => setShowAll(!showAll)}
+        >
+          {showAll ? "Thu gọn" : "Xem thêm"}
+        </button>
+      </div>
 
-        {!showAll ? (
-          <div className="relative px-8">
-            <Swiper
-              slidesPerView={1}
-              spaceBetween={24}
-              navigation={{ nextEl: ".next-button", prevEl: ".prev-button" }}
-              breakpoints={{
-                640: { slidesPerView: 2 },
-                768: { slidesPerView: 3 },
-                1024: { slidesPerView: 4 }
-              }}
-              modules={[Navigation]}
-              className="my-6"
-            >
-              {specialties.length > 0 ? (
-                specialties.map((specialty) => (
-                  <SwiperSlide key={specialty.id}>
-                    <div 
-                      className="bg-white rounded-2xl shadow-md hover:shadow-xl p-6 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer h-[280px] flex flex-col justify-between"
-                      onClick={() => handleSpecialtyClick(specialty.id)}
-                    >
-                      <div className="flex flex-col items-center">
-                        <div className="mb-4 p-2 bg-blue-50 rounded-full w-24 h-24 flex items-center justify-center">
-                          <img
-                            src={specialty.image || "/default-image.png"}
-                            alt={specialty.name}
-                            className="w-16 h-16 object-cover rounded-full"
-                          />
-                        </div>
-                        <h5 className="text-lg font-semibold text-gray-800 mb-3 text-center">{specialty.name}</h5>
-                        <p className="text-sm text-gray-600 text-center line-clamp-3">{specialty.description}</p>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))
-              ) : (
-                <p className="text-gray-500 text-center py-8">Không có chuyên khoa nào.</p>
-              )}
-            </Swiper>
-
-            <button className="prev-button absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-lg text-blue-600 w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-50 transition-all z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button className="next-button absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-lg text-blue-600 w-10 h-10 rounded-full flex items-center justify-center hover:bg-blue-50 transition-all z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
+      {/* Hiển thị chuyên khoa */}
+      {!showAll ? (
+        <div className="position-relative">
+          <Swiper
+            slidesPerView={3}
+            spaceBetween={16}
+            navigation={{ nextEl: ".next-button", prevEl: ".prev-button" }}
+            breakpoints={{
+              0: { slidesPerView: 1 }, // Mobile: 1 chuyên khoa
+              640: { slidesPerView: 2 }, // Tablet: 2 chuyên khoa
+              1024: { slidesPerView: 3 }, // Desktop: 3 chuyên khoa
+            }}
+            modules={[Navigation]}
+            className="my-4"
+          >
             {specialties.length > 0 ? (
               specialties.map((specialty) => (
-                <div 
-                  key={specialty.id} 
-                  className="bg-white rounded-2xl shadow-md hover:shadow-xl p-6 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer h-[280px] flex flex-col justify-between"
-                  onClick={() => handleSpecialtyClick(specialty.id)}
-                >
-                  <div className="flex flex-col items-center">
-                    <div className="mb-4 p-2 bg-blue-50 rounded-full w-24 h-24 flex items-center justify-center">
-                      <img
-                        src={specialty.image || "/default-image.png"}
-                        alt={specialty.name}
-                        className="w-16 h-16 object-cover rounded-full"
-                      />
+                <SwiperSlide key={specialty.id}>
+                  <div
+                    className="card border-0 shadow-sm rounded-xl"
+                    onClick={() => handleSpecialtyClick(specialty.id)}
+                    style={{ cursor: "pointer", height: "250px" }} // Đặt chiều cao cố định
+                  >
+                    <div className="card-body text-center p-4 d-flex flex-column justify-content-center align-items-center">
+                      <div className="mb-4">
+                        <div
+                          style={{ width: "150px", height: "150px", backgroundColor: "#f8f9fa" }}
+                          className="d-flex justify-content-center align-items-center rounded-circle"
+                        >
+                          <img
+                            src={specialty.image || "/placeholder.svg"}
+                            alt={specialty.name}
+                            className="img-fluid"
+                            style={{ maxWidth: "100px" }}
+                          />
+                        </div>
+                      </div>
+                      <h4 className="fw-bold">{specialty.name}</h4>
                     </div>
-                    <h5 className="text-lg font-semibold text-gray-800 mb-3 text-center">{specialty.name}</h5>
-                    <p className="text-sm text-gray-600 text-center line-clamp-3">{specialty.description}</p>
                   </div>
-                </div>
+                </SwiperSlide>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-8 col-span-full">Không có chuyên khoa nào.</p>
+              <p className="text-gray-500 text-center py-8">Không có chuyên khoa nào.</p>
             )}
-          </div>
-        )}
+          </Swiper>
 
-        <div className="text-center mt-8">
+          {/* Nút điều hướng */}
           <button
-            onClick={() => setShowAll(!showAll)}
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-300"
+            className="prev-button position-absolute d-none d-md-block"
+            style={{
+              left: "10px", // Đặt bên trong container, sát mép trái
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 10,
+              width: "40px",
+              height: "40px",
+              backgroundColor: "white",
+              border: "2px solid #e6f7fa",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0, // Loại bỏ padding
+            }}
           >
-            {showAll ? (
-              <>
-                <span>Thu gọn</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
-              </>
-            ) : (
-              <>
-                <span>Xem tất cả</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </>
-            )}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="#0096b2"
+              style={{
+                display: "block", // Đảm bảo SVG căn giữa
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+          <button
+            className="next-button position-absolute d-none d-md-block"
+            style={{
+              right: "10px", // Đặt bên trong container, sát mép phải
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 10,
+              width: "40px",
+              height: "40px",
+              backgroundColor: "white",
+              border: "2px solid #e6f7fa",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0, // Loại bỏ padding
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="#0096b2"
+              style={{
+                display: "block", // Đảm bảo SVG căn giữa
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
           </button>
         </div>
-      </div>
+      ) : (
+        <div className="row justify-content-center">
+          {specialties.map((specialty) => (
+            <div key={specialty.id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+              <div
+                className="card border-0 shadow-sm rounded-xl"
+                onClick={() => handleSpecialtyClick(specialty.id)}
+                style={{ cursor: "pointer", height: "250px" }} // Đặt chiều cao cố định
+              >
+                <div className="card-body text-center p-4 d-flex flex-column justify-content-center align-items-center">
+                  <div className="mb-4">
+                    <div
+                      style={{ width: "150px", height: "150px", backgroundColor: "#f8f9fa" }}
+                      className="d-flex justify-content-center align-items-center rounded-circle"
+                    >
+                      <img
+                        src={specialty.image || "/placeholder.svg"}
+                        alt={specialty.name}
+                        className="img-fluid"
+                        style={{ maxWidth: "100px" }}
+                      />
+                    </div>
+                  </div>
+                  <h4 className="fw-bold">{specialty.name}</h4>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
