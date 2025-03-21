@@ -42,8 +42,10 @@
     "react-quill": "^2.0.0",
     "react-redux": "^9.2.0",
     "react-scripts": "5.0.1",
+    "react-slick": "^0.30.3",
     "react-toastify": "^11.0.5",
     "remixicon": "^4.6.0",
+    "slick-carousel": "^1.8.1",
     "swiper": "^11.2.5"
   },
   "scripts": {

@@ -31,11 +31,9 @@ import Login from "../../components/guest/auth/Login";
 import ForgotPassword from "../../components/guest/auth/Forgot-password";
 import ResetPassword from "../../components/guest/auth/ResetPassword";
 import PatientProfile from "../../components/guest/home/HoSoBenhNhan";
-import ArticleList from "../../components/guest/home/BaiViet";
 import TopSpecialties from "../../components/guest/home/TopChuyenKhoa";
 import TopBookedServices from "../../components/guest/home/TopDichVu";
 import ClinicDetail from "../../components/guest/home/GioiThieuPhongKham";
-import Services from "../../components/guest/home/Service";
 import ChiTietDatLich from "../../components/guest/home/ChiTietDatLich";
 import DatLich from "../../components/guest/home/DatLich";
 import ChiTietChuyenKhoa from "../../components/guest/home/ChiTietChuyenKhoa";
@@ -102,7 +100,7 @@ const ClientLayout = () => {
         <Route path="/forgot-password" element={<ForgotPassword/>}/>
         <Route path="/password-reset/:token" element={<ResetPassword />} />
         <Route path="/register" element={<Register/>}/>
-        <Route path="login" element={<Login/>}/>
+        <Route path="/login" element={<Login/>}/>
         <Route path="/booking/:serviceId" element={<DatLich />}  />
         <Route path="/chitietdatlich" element={<ChiTietDatLich/>} />
         <Route path="/patientProfile" element={<PatientProfile/>} />  {/* Trang hồ sơ bệnh nhân */}
