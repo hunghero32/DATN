@@ -26,6 +26,7 @@ class UpdateResultRequest extends FormRequest
             'doctor_id' => 'sometimes|exists:doctors,id',
             'guest_id' => 'sometimes|exists:guests,id',
             'diagnosis' => 'nullable|string',
+            'prescription' => 'nullable|string',
             'note' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ];
