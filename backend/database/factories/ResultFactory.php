@@ -27,6 +27,7 @@ class ResultFactory extends Factory
             'doctor_id' => Doctor::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID bác sĩ
             'guest_id' => Guest::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID khách hàng
             'diagnosis' => $this->faker->sentence(), // Chẩn đoán
+            'prescription' => $this->faker->sentence(), // Đơn thuốc
             'note' => $this->faker->optional()->sentence(), // Ghi chú
             'file' => $this->faker->optional()->word() . '.pdf', // Tên tệp (PDF)
         ];

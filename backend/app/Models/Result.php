@@ -13,6 +13,7 @@ class Result extends Model
         'doctor_id',
         'guest_id',
         'diagnosis',
+        'prescription',
         'note',
         'file',
         'isDeleted'

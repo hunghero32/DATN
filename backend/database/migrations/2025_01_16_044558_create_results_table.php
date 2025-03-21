@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('doctor_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng doctors
             $table->foreignId('guest_id')->constrained()->onDelete('cascade'); // Khóa ngoại tham chiếu đến bảng guests
             $table->text('diagnosis')->nullable(); // Chẩn đoán
+            $table->text('prescription')->nullable(); // Đơn thuốc
             $table->text('note')->nullable(); // Ghi chú
             $table->string('file')->nullable(); // Tệp kết quả (PDF, hình ảnh...)
             $table->timestamps();

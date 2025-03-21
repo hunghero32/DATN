@@ -43,6 +43,7 @@ class ResultController extends Controller
                             'phone' => $result->guest->guest_phone ?? 'N/A'
                         ],
                         'diagnosis' => $result->diagnosis,
+                        'prescription' => $result->prescription,
                         'note' => $result->note,
                         'file' => $result->file,
                         'created_at' => $result->created_at,
