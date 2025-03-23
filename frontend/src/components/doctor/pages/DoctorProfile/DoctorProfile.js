@@ -89,23 +89,27 @@ const DoctorProfile = () => {
     };
 
     return (
-        <div className="container mt-5 doctor-profile-container">
+        <div className="container mt-5 doctor-profile-container" style={{ backgroundColor: "white" }}>
             <h2 className="text-center mb-5 text-primary fw-bold">Hồ Sơ Bác Sĩ</h2>
             {selectedDoctor ? (
                 <div className="row justify-content-center">
                     <div className="col-lg-8 col-md-10">
-                        <div className="card shadow-lg border-0 doctor-profile-card">
+                        <div className="card shadow-lg border-0 doctor-profile-card" style={{ backgroundColor: "white" }}>
                             <div className="card-body text-center">
                                 {/* Avatar */}
-                                <div className="doctor-avatar mb-4">
+                                <div className="doctor-avatar mb-4 d-flex justify-content-center align-items-center">
                                     {selectedDoctor.doctor_avatar ? (
                                         <img
                                             src={selectedDoctor.doctor_avatar}
                                             alt="Doctor Avatar"
                                             className="rounded-circle img-fluid"
+                                            style={{ width: "150px", height: "150px" }}
                                         />
                                     ) : (
-                                        <div className="no-avatar rounded-circle d-flex align-items-center justify-content-center">
+                                        <div
+                                            className="no-avatar rounded-circle d-flex align-items-center justify-content-center"
+                                            style={{ width: "150px", height: "150px", backgroundColor: "#e9ecef" }}
+                                        >
                                             <i className="fas fa-user-md fa-3x text-muted"></i>
                                         </div>
                                     )}

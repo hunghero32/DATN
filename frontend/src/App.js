@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
+import "./styles/Doctor/Calendar.css";
 import ClientLayout from "./layouts/client/ClientLayout";
 import DoctorLayout from './layouts/doctor/DoctorLayout';
 import { AuthProvider } from "./components/guest/auth/AuthContext";
