@@ -100,9 +100,8 @@ const DoctorLayout = () => {
   
   return (
     <div className="wrapper">
-      
+      <ToastContainer />
       <SideBar />
-            <ToastContainer />
       <main className="main-content content-page ">
         <Header user={user}/>
         <Routes>
