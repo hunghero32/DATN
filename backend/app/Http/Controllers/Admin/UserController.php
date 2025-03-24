@@ -39,21 +39,21 @@ class UserController extends Controller
         $users = $query->orderBy('created_at', 'desc')->paginate($perPage);
         $users->appends($request->all()); // Giữ nguyên bộ lọc khi phân trang
 
-        $roles = [
+        $role = [
             '' => 'Tất cả vai trò',
             'admin' => 'Quản trị viên',
             'doctor' => 'Bác sĩ',
             'guest' => 'Bệnh nhân'
         ];
 
-        return view('admin.pages.users.index', compact('users', 'roles'));
+        return view('admin.pages.users.index', compact('users', 'role'));
     }
 
 
 
     public function create()
     {
-        $role = [
+        $roled = [
             'admin' => 'Quản trị viên',
             'doctor' => 'Bác sĩ',
             'guest' => 'Bệnh nhân'
@@ -61,7 +61,7 @@ class UserController extends Controller
 
         $user = new User(); // Tạo user rỗng để tránh lỗi khi thêm mới
 
-        return view('admin.pages.users.create', compact('user', 'role'));
+        return view('admin.pages.users.create', compact('user', 'roled'));
     }
 
 
