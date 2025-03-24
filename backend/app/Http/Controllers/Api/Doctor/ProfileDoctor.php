@@ -27,7 +27,18 @@ class ProfileDoctor extends Controller
                 'approve' => true,
             ]
         );
-        return response()->json($doctor, 200);
+        return response()->json([
+            'doctor_id' => $doctor->id,
+            'doctor_name' => $doctor->doctor_name,
+            'doctor_avatar' => $doctor->doctor_avatar ? Storage::url($doctor->doctor_avatar) : null,
+            'doctor_bio' => $doctor->doctor_bio,
+            'specialty' =>  $doctor->specialty->name ?? 'Chưa cập nhật',
+            'exp' => $doctor->exp,
+            'file' => $doctor->file ? Storage::url($doctor->file) : null,
+            'approve' => $doctor->approve,
+            'created_at' => $doctor->created_at,
+            'updated_at' => $doctor->updated_at,
+        ], 200);
     }
 
     /**
@@ -52,7 +63,10 @@ class ProfileDoctor extends Controller
             $validatedData['file'] = $request->file('file')->store('documents');
         }
         $doctor->update($validatedData);
-
+        // Nếu có thay đổi tên bác sĩ thì cập nhật cả tên user
+        if (isset($validatedData['doctor_name'])) {
+            $doctor->user()->update(['name' => $validatedData['doctor_name']]);
+        }
         return response()->json([
             'message' => 'Cập nhật hồ sơ thành công.',
             'doctor' => $doctor,
