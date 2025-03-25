@@ -47,14 +47,7 @@
                                             value="{{ $user->phone }}" placeholder="vui long nhap so dien thoai">
                                     </div>
                                     <div class="mb-3 col-md-6">
-                                        <label for="password" class="form-label">Mật khẩu </label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control" id="password" name="password"
-                                                placeholder="Nhập mật khẩu " value="{{ $user->password }}">
-                                            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
-                                                👁
-                                            </button>
-                                        </div>
+                                        
                                     </div>
 
                                     <script>

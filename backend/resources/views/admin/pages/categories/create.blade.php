@@ -15,6 +15,32 @@
                             <form action="{{ route('admin.categories.store') }}" method="POST">
                                 @csrf
 
+                                <!-- Datalist -->
+                                <!-- Thêm Select2 -->
+                                <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css"
+                                    rel="stylesheet" />
+                                <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+                                <!-- Select2 Dropdown -->
+                                <div class="mb-3">
+                                    <label for="parent_id" class="form-label">Danh mục cha</label>
+                                    <select class="form-control select2" name="parent_id" id="parent_id">
+                                        <option value="">-- Chọn danh mục cha --</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <script>
+                                    $(document).ready(function() {
+                                        $('#parent_id').select2({
+                                            placeholder: "Chọn danh mục cha",
+                                            allowClear: true
+                                        });
+                                    });
+                                </script>
+
                                 <!-- Tên danh mục -->
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Tên danh mục</label>

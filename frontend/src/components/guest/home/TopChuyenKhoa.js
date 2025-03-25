@@ -4,19 +4,22 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
 import api from "../../../ultils/api/axios";
 
 const SpecialtiesSection = () => {
   const [specialties, setSpecialties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(false); // Trạng thái hiển thị tất cả chuyên khoa
   const navigate = useNavigate();
 
+  // Gọi API để lấy danh sách chuyên khoa
   useEffect(() => {
     const fetchSpecialties = async () => {
       try {
         const response = await api.get("/api/client/list-specialty");
+        console.log("Dữ liệu từ API:", response.data);
         if (response.data.status && response.data.data && response.data.data.data) {
           setSpecialties(response.data.data.data);
         } else {
@@ -32,6 +35,7 @@ const SpecialtiesSection = () => {
   }, []);
 
   const handleSpecialtyClick = (id) => {
+    console.log("Chuyên khoa được chọn:", id);
     navigate(`/detail-specialty/${id}`);
   };
 
@@ -105,8 +109,7 @@ const SpecialtiesSection = () => {
             ))}
           </div>
         )}
-
-        <div className="text-center mt-8">
+          {/* Nút điều hướng */}
           <button
             onClick={() => setShowAll(!showAll)}
             className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all duration-300"
@@ -114,7 +117,36 @@ const SpecialtiesSection = () => {
             {showAll ? "Thu gọn" : "Xem tất cả"}
           </button>
         </div>
-      </div>
+      ) : (
+        <div className="row justify-content-center">
+          {specialties.map((specialty) => (
+            <div key={specialty.id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+              <div
+                className="card border-0 shadow-sm rounded-xl"
+                onClick={() => handleSpecialtyClick(specialty.id)}
+                style={{ cursor: "pointer", height: "250px" }} // Đặt chiều cao cố định
+              >
+                <div className="card-body text-center p-4 d-flex flex-column justify-content-center align-items-center">
+                  <div className="mb-4">
+                    <div
+                      style={{ width: "150px", height: "150px", backgroundColor: "#f8f9fa" }}
+                      className="d-flex justify-content-center align-items-center rounded-circle"
+                    >
+                      <img
+                        src={specialty.image || "/placeholder.svg"}
+                        alt={specialty.name}
+                        className="img-fluid"
+                        style={{ maxWidth: "100px" }}
+                      />
+                    </div>
+                  </div>
+                  <h4 className="fw-bold">{specialty.name}</h4>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

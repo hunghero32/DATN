@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
+import "./styles/Doctor/Calendar.css";
 import ClientLayout from "./layouts/client/ClientLayout";
 import DoctorLayout from './layouts/doctor/DoctorLayout';
 import { AuthProvider } from "./components/guest/auth/AuthContext";
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-quill/dist/quill.snow.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';

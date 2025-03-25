@@ -149,5 +149,6 @@ Route::middleware(['auth:sanctum', 'role:doctor'])->prefix('doctor')->group(func
     Route::apiResource('invoices', Doctor\InvoiceController::class);
     Route::apiResource('services', Doctor\DoctorServiceController::class);
     Route::apiResource('schedules', Doctor\ScheduleController::class);
+    Route::patch('schedules/leave/{date}',[Doctor\ScheduleController::class,'leave'] );
     Route::apiResource('services', Doctor\DoctorServiceController::class);
 });

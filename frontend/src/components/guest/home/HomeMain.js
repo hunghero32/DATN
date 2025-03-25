@@ -4,7 +4,6 @@ import ArticleList from "./BaiViet";
 import Categori from "./Categori";
 import ClinicDetail from "./GioiThieuPhongKham";
 import Banner from "./HomeBanner";
-import ServiceOut from "./ServiceOut";
 import TopSpecialties from "./TopChuyenKhoa";
 import TopBookedServices from "./TopDichVu";
 import { MessageCircle } from "lucide-react";
@@ -20,7 +19,6 @@ export default function HomeMain() {
       <TopSpecialties />
       <TopBookedServices />
       <Categori />
-      <ServiceOut />
       {/* <Appointment />   // Trang đặt lịch khám  */}
       <ClinicDetail />    { /* Trang giới thiệu phòng khám */}
       <ArticleList />

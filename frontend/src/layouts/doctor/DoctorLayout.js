@@ -14,6 +14,7 @@ import Appointment from "../../components/doctor/pages/ListAppointment/Appointme
 import DoctorServices from "../../components/doctor/pages/Services/DoctorServices";
 import Invoices from "../../components/doctor/pages/Invoices/Invoices";
 import Posts from "../../components/doctor/pages/Post/Posts";
+import { ToastContainer } from 'react-toastify';
 
 const DoctorLayout = () => {
   const [showModal, setShowModal] = useState(false);
@@ -99,7 +100,7 @@ const DoctorLayout = () => {
   
   return (
     <div className="wrapper">
-      
+      <ToastContainer />
       <SideBar />
       <main className="main-content content-page ">
         <Header user={user}/>

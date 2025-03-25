@@ -26,6 +26,7 @@ class StoreResultRequest extends FormRequest
             'doctor_id' => 'required|exists:doctors,id',
             'guest_id' => 'required|exists:guests,id',
             'diagnosis' => 'nullable|string',
+            'prescription' => 'nullable|string',
             'note' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ];

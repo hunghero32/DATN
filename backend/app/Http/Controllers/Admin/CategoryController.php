@@ -29,8 +29,11 @@ class CategoryController extends Controller
 
     public function create()
     {
-        return view('admin.pages.categories.create');
+        $categories = Category::whereNull('parent_id')->get(); // Lấy các danh mục cha (parent_id = NULL)
+        return view('admin.pages.categories.create', compact('categories'));
     }
+
+
     public function store(StoreCategoryRequest $request)
     {
         // Lấy dữ liệu đã được validate
@@ -69,5 +72,4 @@ class CategoryController extends Controller
             'succers' => 'Ban da xoa thanh cong'
         ]);
     }
-
 }
