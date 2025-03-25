@@ -38,7 +38,7 @@ const Login = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
       <div className="bg-violet-950 p-8 rounded-xl shadow-xl w-full max-w-md">
-      <h2 className="text-3xl font-bold text-center text-white mb-8">Đăng Nhập</h2>
+        <h2 className="text-3xl font-bold text-center text-white mb-8">Đăng Nhập</h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleLogin}>
           <div className="mb-6">
@@ -68,6 +68,7 @@ const Login = () => {
             Đăng nhập
           </button>
         </form>
+        
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
             Chưa có tài khoản?{" "}
@@ -76,6 +77,15 @@ const Login = () => {
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
               Đăng ký ngay
+            </a>
+          </p>
+          <p className="text-sm text-gray-600 mt-2">
+            Quên mật khẩu?{" "}
+            <a
+              href="/forgot-password"
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Khôi phục mật khẩu
             </a>
           </p>
         </div>
