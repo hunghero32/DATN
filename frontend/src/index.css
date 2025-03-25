@@ -11,19 +11,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-body {
-  margin: 0;
-  padding: 0;
-}
-#root {
-  margin: 0;
-  padding: 0;
-}
-.Toastify__toast-container {
-  margin: 0 !important;
-  padding: 0 !important;
-  position: fixed;
-  z-index: 9999;
-  top: 10px; /* Điều chỉnh vị trí nếu cần */
-  right: 10px;
+.Toastify {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 }

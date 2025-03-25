@@ -126,7 +126,7 @@ const DatLich = () => {
   return (
     <div className="appointment-container p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg">
       <Card className="p-4">
-        <Title level={3} className="text-blue-600 font-bold">📅 Đặt lịch khám</Title>
+        <Title level={3} className="text-blue-600 font-bold mb-2">📅 Đặt lịch khám</Title>
         
         {/* Thông tin dịch vụ và bác sĩ */}
         <div className="bg-blue-50 p-4 rounded-lg mb-4">
@@ -189,11 +189,11 @@ const DatLich = () => {
 </Form.Item>
 
 <Form.Item name="gender" label="Giới tính" rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}>
-    <Radio.Group>
-        <Radio value="male">Nam</Radio>
-        <Radio value="female">Nữ</Radio>
-        <Radio value="other">Khác</Radio>
-    </Radio.Group>
+<Radio.Group>
+  <Radio value="male" style={{ marginRight: "10px" }}>Nam</Radio>
+  <Radio value="female" style={{ marginRight: "10px" }}>Nữ</Radio>
+  <Radio value="other" style={{ marginRight: "10px" }}>Khác</Radio>
+</Radio.Group>
 </Form.Item>
 
 <Form.Item name="guest_phone" label="Số Điện Thoại" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>

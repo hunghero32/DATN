@@ -44,16 +44,16 @@ const SpecialtyDetail = () => {
   if (!specialty) return <p className="text-center text-gray-500">Không có thông tin chuyên khoa.</p>;
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 bg-blue-50">  
       {/* Tiêu đề */}
       <h2 className="text-4xl font-bold text-blue-600 text-center">{specialty.name}</h2>
 
-      {/* Hình ảnh */}
-      <div className="flex justify-center my-4">
+      {/* Hình ảnh ngẫu nhiên từ Lorem Picsum */}
+      <div className="flex justify-center my-6">
         <img
-          src={specialty.icon || "https://via.placeholder.com/100x100.png"}
+          src={`https://picsum.photos/200?random=${id}`}  // Sử dụng ảnh ngẫu nhiên với ID để đảm bảo tính duy nhất
           alt={specialty.name}
-          className="w-32 h-32 object-cover rounded-full"
+          className="w-48 h-48 object-cover rounded-full"  
         />
       </div>
 
@@ -63,17 +63,22 @@ const SpecialtyDetail = () => {
       {/* Danh sách dịch vụ */}
       <h3 className="text-2xl font-semibold text-blue-500 mt-6 text-center">Danh Sách Dịch Vụ</h3>
       {services.length > 0 ? (
-        <ul className="mt-4 space-y-4 text-center">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
           {services.map((service) => (
-            <li
+            <div
               key={service.id}
               onClick={() => handleServiceClick(service.id)}
-              className="bg-white shadow-lg rounded-xl p-4 cursor-pointer hover:bg-blue-100 transition"
+              className="bg-white shadow-lg rounded-xl p-4 text-center cursor-pointer hover:bg-blue-100 transition ease-in-out duration-300"
             >
+              <img
+                src={`https://picsum.photos/100?random=${service.id}`} // Ảnh ngẫu nhiên cho dịch vụ
+                alt={service.services_name}
+                className="w-24 h-24 object-cover mx-auto mb-4"  
+              />
               <p className="text-md font-semibold text-gray-800">{service.services_name}</p>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
         <p className="text-gray-500 text-center">Không có dịch vụ nào trong chuyên khoa này.</p>
       )}
