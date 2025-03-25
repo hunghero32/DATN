@@ -1,9 +1,13 @@
 @extends('admin.index')
 
 @section('content')
+
 <div class="container mt-4">
-    <h2 class="mb-3">Chi tiết Hồ sơ bệnh án</h2>
+
+    <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Hồ sơ bệnh án /</span>Chi tiết</h4>
+
     <div class="card">
+
         <div class="card-body">
             <p><strong>ID:</strong> {{ $record->id }}</p>
             <p><strong>Tên bệnh nhân:</strong> {{ $record->guest->guest_name }}</p>
@@ -17,7 +21,9 @@
             <p><strong>Ghi chú:</strong> {{ $record->note }}</p>
             <p><strong>Ngày tạo:</strong> {{ $record->created_at->format('d/m/Y H:i') }}</p>
         </div>
+
     </div>
     <a href="{{ route('admin.medical_records.index') }}" class="btn btn-secondary mt-3">Quay lại</a>
 </div>
+
 @endsection
