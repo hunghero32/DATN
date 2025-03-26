@@ -16,6 +16,7 @@ class SchedulesController extends Controller
         $data = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
             ->select('schedules.*', 'doctors.doctor_name')
             ->where('schedules.isDeleted', 0)
+            ->orderBy('schedules.doctor_id')
             ->paginate($perPage);
 
         return view('admin.pages.schedule.index', [
@@ -42,7 +43,7 @@ class SchedulesController extends Controller
             $query->where('schedules.status', (int)$status);
         }
 
-        $data = $query->paginate($perPage);
+        $data = $query->orderBy('schedules.doctor_id')->paginate($perPage);
         $data->appends($request->all());
 
         return view('admin.pages.schedule.index', [
@@ -70,9 +71,25 @@ class SchedulesController extends Controller
 
         try {
             $formattedDate = date('Y-m-d', strtotime($request->working_date));
+            $duplicateFound = false;
+            $duplicateTimeSlots = [];
 
             foreach ($request->time_slots as $timeSlot) {
                 list($timeStart, $timeEnd) = explode(',', $timeSlot);
+
+                // Check if schedule already exists
+                $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
+                    ->where('working_date', $formattedDate)
+                    ->where('time_start', $timeStart . ':00')
+                    ->where('time_end', $timeEnd . ':00')
+                    ->where('isDeleted', 0)
+                    ->first();
+
+                if ($existingSchedule) {
+                    $duplicateFound = true;
+                    $duplicateTimeSlots[] = $timeStart . ' - ' . $timeEnd;
+                    continue;
+                }
 
                 Schedule::create([
                     'doctor_id' => $request->doctor_id,
@@ -83,6 +100,11 @@ class SchedulesController extends Controller
                     'status' => 1,
                     'isDeleted' => 0
                 ]);
+            }
+
+            if ($duplicateFound) {
+                $message = 'Lịch làm việc cho khung giờ: ' . implode(', ', $duplicateTimeSlots) . ' đã tồn tại từ trước đó!';
+                return redirect()->back()->with('error', $message)->withInput();
             }
 
             return redirect()->route('admin.schedule.index')
@@ -132,6 +154,21 @@ class SchedulesController extends Controller
 
         // Tìm lịch làm việc cần cập nhật
         $schedule = Schedule::findOrFail($id);
+
+        // Check if schedule already exists with the same time slot (excluding the current schedule)
+        $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
+            ->where('working_date', $request->working_date)
+            ->where('time_start', $request->time_start)
+            ->where('time_end', $request->time_end)
+            ->where('isDeleted', 0)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($existingSchedule) {
+            return redirect()->back()
+                ->with('error', 'Lịch làm việc cho khung giờ này đã tồn tại từ trước đó!')
+                ->withInput();
+        }
 
         // Cập nhật thông tin lịch làm việc
         $schedule->update($request->all());
