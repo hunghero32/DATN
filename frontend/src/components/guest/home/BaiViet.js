@@ -53,7 +53,7 @@ const BaiViet = () => {
                   dangerouslySetInnerHTML={{ __html: article.content || "Không có mô tả" }}
                 ></p>
                 <Link
-                  to={`/chitietbaiviet/${article.slug}-${article.id}`}
+                  to={`/chitietbaiviet/${article.id}`}
                   className="text-blue-600 hover:text-blue-700 transition"
                 >
                   Xem thêm
