@@ -77,9 +77,9 @@ export default function Header() {
             <div className={`absolute md:static top-16 left-0 w-full bg-white md:bg-transparent md:flex transition-all duration-300
               ${menuOpen ? "block" : "hidden"} md:block`}>
               <ul id="pq-main-menu" className="navbar-nav flex flex-col md:flex-row md:gap-6 text-lg font-semibold p-4 md:p-0">
-                <li className="menu-item"><Link to="/">Home</Link></li>
-                <li className="menu-item"><Link to="/aboutus">About Us</Link></li>
-                <li className="menu-item"><Link to="/contact">Contact Us</Link></li>
+                <li className="menu-item"><Link to="/">Trang Chủ</Link></li>
+                <li className="menu-item"><Link to="/aboutus">Thông Tin</Link></li>
+                <li className="menu-item"><Link to="/contact">Liên Hệ</Link></li>
               </ul>
             </div>
 
@@ -101,7 +101,7 @@ export default function Header() {
       onClick={thoatTrang}
       className="btn-header bg-red-500 hover:bg-red-600"
     >
-      Logout
+      Thoát
     </button>
   ) : (
     <Link to="/login" className="btn-header bg-gray-800 hover:bg-gray-900">
