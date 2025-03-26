@@ -77,11 +77,11 @@
                                     <td>{{ $guest->guest_email ?? 'N/A' }}</td>
                                     <td>
                                         @php
-                                            $address = json_decode($guest->address, true);
-                                        @endphp
-                                        {{ is_array($address) ? implode(', ', $address) : $guest->address ?? 'Không có địa chỉ' }}
-                                    </td>
+                                        $address = is_string($guest->address) ? json_decode($guest->address, true) : $guest->address;
+                                    @endphp
+                                    {{ is_array($address) ? implode(', ', $address) : ($guest->address ?? 'Không có địa chỉ') }}
 
+                                    </td>
 
                                     <td>
                                         <img src={{ Storage::Url($guest->file) }} width="70px">
@@ -90,14 +90,8 @@
                                     <td>{{ $guest->created_at->format('d-m-Y') }}</td>
                                     <td>
                                         <a href="{{ route('admin.guests.edit', $guest->id) }}"
-                                            class="btn btn-sm btn-warning">Sửa</a>
-                                        <form action="{{ route('admin.guests.delete', $guest->id) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</button>
-                                        </form>
+                                            class="btn btn-sm btn-warning">show</a>
+
                                     </td>
                                 </tr>
                             @endforeach

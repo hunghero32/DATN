@@ -128,15 +128,13 @@
                         @enderror
                     </div>
 
-                
+
 
                     <div class="text-end">
                         <a href="{{ route('admin.systems.index') }}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Hủy
+                            <i class="bi bi-arrow-left"></i> quay lại
                         </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Cập nhật
-                        </button>
+
                     </div>
                 </form>
             </div>
