@@ -1,71 +1,70 @@
 export default function Breadcrumb() {
-  return (
-    <>
-       <section class="breadcrumb">
-        <div class="container">
-            <div class="pq-breadcrumb pq-style-1">
-                <h2 class="pq-breadcrumb-title">Contact Us</h2>
-                <ol class="pq-breadcrumb-container">
-                    <li class="pq-breadcrumb-item">
-                        <a href="index.html">
-                            <span>home </span>
-                        </a>
-                    </li>
-                    <li class="pq-breadcrumb-item active">
-                        Contact Us
-                    </li>
-                </ol>
+    return (
+      <>
+        <section className="breadcrumb">
+          <div className="container">
+            <div className="pq-breadcrumb pq-style-1">
+              <h2 className="pq-breadcrumb-title">Liên Hệ</h2>
+              <ol className="pq-breadcrumb-container">
+                <li className="pq-breadcrumb-item">
+                  <a href="index.html">
+                    <span>Trang chủ</span>
+                  </a>
+                </li>
+                <li className="pq-breadcrumb-item active">Liên Hệ</li>
+              </ol>
             </div>
-        </div>
-    </section>
-
-
-    <section class="Contact-Us pb-0">
-        <div class="container">
-            <div class="pq-contact-list-2">
-                <div class="pq-Contact-box pq-style-2">
-                    <div class="pq-icon-box">
-                        <div class="pq-contact-icon">
-                            <i class=" flaticon-mail"></i>
-                        </div>
-                        <h3 class="pq-icon-box-title"> Mail Us 24 /7 </h3>
-                    </div>
-                    <div class="pq-contact-email">
-                        <span class="pq-email">Email :</span>
-                        <span class="pq-email">medicen@peacefulqode.com</span>
-                        <span class="pq-email">info@peacefulqode.com</span>
-                    </div>
+          </div>
+        </section>
+  
+        <section className="Contact-Us pb-0">
+          <div className="container">
+            <div className="pq-contact-list-2">
+              <div className="pq-Contact-box pq-style-2">
+                <div className="pq-icon-box">
+                  <div className="pq-contact-icon">
+                    <i className="flaticon-mail"></i>
+                  </div>
+                  <h3 className="pq-icon-box-title">Gửi Mail 24/7</h3>
                 </div>
-                <div class="pq-Contact-box pq-style-2">
-                    <div class="pq-icon-box">
-                        <div class="pq-contact-icon">
-                            <i class=" flaticon-phone-call"></i>
-                        </div>
-                        <h3 class="pq-icon-box-title"> call Us 24 /7 </h3>
-                    </div>
-                    <div class="pq-contact-email">
-                        <span class="pq-email">Mobile :</span>
-                        <span class="pq-email">+0 123 457 8965</span>
-                        <span class="pq-email">+1 987 654 3210</span>
-                    </div>
+                <div className="pq-contact-email">
+                  <span className="pq-email">Email:</span>
+                  <span className="pq-email">medicen@peacefulqode.com</span>
+                  <span className="pq-email">info@peacefulqode.com</span>
                 </div>
-                <div class="pq-Contact-box pq-style-2">
-                    <div class="pq-icon-box">
-                        <div class="pq-contact-icon">
-                            <i class=" flaticon-location"></i>
-                        </div>
-                        <h3 class="pq-icon-box-title"> Our Location </h3>
-                    </div>
-                    <div class="pq-contact-email">
-                        <span class="pq-email">Address :</span>
-                        <span class="pq-email">1012 Pebda Parkway, Mirpur 2Dhaka,</span>
-                        <span class="pq-email">Bangladesh</span>
-                    </div>
+              </div>
+  
+              <div className="pq-Contact-box pq-style-2">
+                <div className="pq-icon-box">
+                  <div className="pq-contact-icon">
+                    <i className="flaticon-phone-call"></i>
+                  </div>
+                  <h3 className="pq-icon-box-title">Gọi Điện 24/7</h3>
                 </div>
+                <div className="pq-contact-email">
+                  <span className="pq-email">Di động:</span>
+                  <span className="pq-email">+0 123 457 8965</span>
+                  <span className="pq-email">+1 987 654 3210</span>
+                </div>
+              </div>
+  
+              <div className="pq-Contact-box pq-style-2">
+                <div className="pq-icon-box">
+                  <div className="pq-contact-icon">
+                    <i className="flaticon-location"></i>
+                  </div>
+                  <h3 className="pq-icon-box-title">Địa Chỉ Của Chúng Tôi</h3>
+                </div>
+                <div className="pq-contact-email">
+                  <span className="pq-email">Địa chỉ:</span>
+                  <span className="pq-email">1012 Pebda Parkway, Mirpur 2, Dhaka,</span>
+                  <span className="pq-email">Bangladesh</span>
+                </div>
+              </div>
             </div>
-        </div>
-    </section>
-
-    </>
-  );
-}
+          </div>
+        </section>
+      </>
+    );
+  }
+  
