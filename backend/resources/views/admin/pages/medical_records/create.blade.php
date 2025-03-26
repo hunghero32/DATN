@@ -87,18 +87,11 @@
 
 <script>
     $.noConflict();
-jQuery(document).ready(function($) {
-    console.log("jQuery version:", $.fn.jquery);
-    console.log("Select2 type:", typeof $.fn.select2);
-
-    if (typeof $.fn.select2 !== "undefined") {
-        $(".select2").select2();
-        console.log("Select2 initialized!");
-    } else {
-        console.error("Select2 chưa được load!");
-    }
-});
-
+        jQuery(document).ready(function($) {
+            $(".select2").each(function() {
+                $(this).select2();
+            });
+        });
 </script>
 
 @endsection
