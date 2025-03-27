@@ -37,6 +37,12 @@ class NotificationController extends Controller
         return view('admin.pages.notifications.index', compact('data'));
     }
 
+    public function show($id)
+    {
+        $data = Notification::with(['user', 'booking'])->findOrFail($id);
+        return view('admin.pages.notifications.show', compact('data'));
+    }
+
     public function create()
     {
         $users = User::all(); // Lấy tất cả người dùng
