@@ -21,8 +21,84 @@ const ExamResultModal = ({
   return (
     <>
       <Modal show={showView} onHide={onHideView} size="lg">
+        <style>
+          {`
+            .modal-content {
+              border-radius: 15px;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            }
+
+            .modal-header {
+              background-color: #f9fafb;
+              border-bottom: 1px solid #e5e7eb;
+            }
+
+            .modal-title {
+              font-size: 1.5rem;
+              font-weight: 600;
+              color: #1f2937;
+            }
+
+            .modal-body {
+              padding: 2rem;
+            }
+
+            .form-label {
+              font-weight: 600;
+              color: #374151;
+              margin-bottom: 0.5rem;
+            }
+
+            .form-control {
+              border-radius: 8px;
+              border: 1px solid #e0e4e8;
+              background-color: #f9fafb;
+              font-size: 15px;
+              color: #374151;
+              padding: 0.75rem;
+            }
+
+            .form-control:focus {
+              border-color: #3b82f6;
+              box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+            }
+
+            .modal-footer {
+              border-top: 1px solid #e5e7eb;
+              padding: 1rem 2rem;
+            }
+
+            .btn {
+              padding: 0.5rem 1.2rem;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              transition: all 0.3s ease;
+            }
+
+            .btn-primary {
+              background-color: #3b82f6;
+              border-color: #3b82f6;
+            }
+
+            .btn-primary:hover {
+              background-color: #2563eb;
+              border-color: #2563eb;
+            }
+
+            .btn-secondary {
+              background-color: #6b7280;
+              border-color: #6b7280;
+            }
+
+            .btn-secondary:hover {
+              background-color: #4b5563;
+              border-color: #4b5563;
+            }
+          `}
+        </style>
         <Modal.Header closeButton>
-          <Modal.Title>Kết Quả Khám</Modal.Title>
+          <Modal.Title>Kết quả khám</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {loading ? (
@@ -79,7 +155,7 @@ const ExamResultModal = ({
               onHideView();
             }}
           >
-            {(diagnosis || notes || file) ? "Sửa" : "Thêm Kết Quả Khám"}
+            {(diagnosis || notes || file) ? "Sửa" : "Thêm kết quả khám"}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -87,7 +163,7 @@ const ExamResultModal = ({
       <Modal show={showEdit} onHide={onHideEdit} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            {(diagnosis || notes || file) ? "Sửa Kết Quả Khám" : "Thêm Kết Quả Khám"}
+            {(diagnosis || notes || file) ? "Sửa kết quả khám" : "Thêm kết quả khám"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>

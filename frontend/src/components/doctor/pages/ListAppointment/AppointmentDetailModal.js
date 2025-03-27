@@ -1,7 +1,6 @@
 import React from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 
-// Component hiển thị chi tiết thông tin cuộc hẹn
 const AppointmentDetailModal = ({
   show,
   onHide,
@@ -10,7 +9,6 @@ const AppointmentDetailModal = ({
   handleDeleteAppointment,
   handleTransferAppointment,
 }) => {
-  // Nếu không có selectedAppointment, hiển thị modal với thông báo không có dữ liệu
   if (!selectedAppointment) {
     return (
       <Modal show={show} onHide={onHide} size="lg">
@@ -29,168 +27,250 @@ const AppointmentDetailModal = ({
     );
   }
 
-  // Kiểm tra trạng thái của cuộc hẹn
   const isCompleted = selectedAppointment.status === "completed";
   const isPending = selectedAppointment.status === "pending";
   const isConfirmed = selectedAppointment.status === "confirmed";
 
   return (
     <Modal show={show} onHide={onHide} size="lg">
+      <style>
+        {`
+          .modal-content {
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          }
+
+          .modal-header {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+          }
+
+          .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+          }
+
+          .modal-body {
+            padding: 2rem;
+          }
+
+          .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+          }
+
+          .form-control {
+            border-radius: 8px;
+            border: 1px solid #e0e4e8;
+            background-color: #f9fafb;
+            font-size: 15px;
+            color: #374151;
+            padding: 0.75rem;
+          }
+
+          .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+          }
+
+          .modal-footer {
+            border-top: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+          }
+
+          .btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+          }
+
+          .btn-primary {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+          }
+
+          .btn-primary:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+          }
+
+          .btn-success {
+            background-color: #10b981;
+            border-color: #10b981;
+          }
+
+          .btn-success:hover {
+            background-color: #059669;
+            border-color: #059669;
+          }
+
+          .btn-danger {
+            background-color: #ef4444;
+            border-color: #ef4444;
+          }
+
+          .btn-danger:hover {
+            background-color: #dc2626;
+            border-color: #dc2626;
+          }
+
+          .btn-secondary {
+            background-color: #6b7280;
+            border-color: #6b7280;
+          }
+
+          .btn-secondary:hover {
+            background-color: #4b5563;
+            border-color: #4b5563;
+          }
+
+          .status-pending {
+            color: #d97706;
+            font-weight: 600;
+          }
+
+          .status-confirmed {
+            color: #059669;
+            font-weight: 600;
+          }
+
+          .status-completed {
+            color: #4f46e5;
+            font-weight: 600;
+          }
+        `}
+      </style>
       <Modal.Header closeButton>
         <Modal.Title>Thông tin bệnh nhân</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Giới tính */}
             <Form.Group>
-              <Form.Label className="font-semibold">Giới tính:</Form.Label>
+              <Form.Label>Giới tính:</Form.Label>
               <Form.Control
                 type="text"
                 value={selectedAppointment.guest?.gender || "Không có dữ liệu"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
 
-            {/* Tên dịch vụ */}
             <Form.Group>
-              <Form.Label className="font-semibold">Tên dịch vụ:</Form.Label>
+              <Form.Label>Tên dịch vụ:</Form.Label>
               <Form.Control
                 type="text"
                 value={selectedAppointment.service?.services_name || "Không có dữ liệu"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
 
-            {/* Tên khách hàng */}
             <Form.Group>
-              <Form.Label className="font-semibold">Tên khách hàng:</Form.Label>
+              <Form.Label>Tên khách hàng:</Form.Label>
               <Form.Control
                 type="text"
                 value={selectedAppointment.guest?.guest_name || "Không có dữ liệu"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
 
-            {/* Số điện thoại */}
             <Form.Group>
-              <Form.Label className="font-semibold">Số điện thoại:</Form.Label>
+              <Form.Label>Số điện thoại:</Form.Label>
               <Form.Control
                 type="text"
                 value={selectedAppointment.guest?.guest_phone || "Không có dữ liệu"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
 
-            {/* Email */}
             <Form.Group>
-              <Form.Label className="font-semibold">Email:</Form.Label>
+              <Form.Label>Email:</Form.Label>
               <Form.Control
                 type="email"
                 value={selectedAppointment.guest?.guest_email || "Không có dữ liệu"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
 
-            {/* Địa chỉ */}
             <Form.Group>
-              <Form.Label className="font-semibold">Địa chỉ:</Form.Label>
+              <Form.Label>Địa chỉ:</Form.Label>
               <Form.Control
                 type="text"
                 value={selectedAppointment.guest?.address || "Không có dữ liệu"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
 
-            {/* Ngày đặt */}
             <Form.Group>
-              <Form.Label className="font-semibold">Ngày đặt:</Form.Label>
+              <Form.Label>Ngày đặt:</Form.Label>
               <Form.Control
                 type="text"
                 value={selectedAppointment.booking_date || "Không có dữ liệu"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
 
-            {/* Thời gian */}
             <Form.Group>
-              <Form.Label className="font-semibold">Thời gian:</Form.Label>
+              <Form.Label>Thời gian:</Form.Label>
               <Form.Control
                 type="text"
                 value={selectedAppointment.booking_time || "Không có dữ liệu"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
 
-            {/* Trạng thái */}
             <Form.Group>
-              <Form.Label className="font-semibold">Trạng thái:</Form.Label>
+              <Form.Label>Trạng thái:</Form.Label>
               <Form.Control
                 type="text"
                 value={
-                  selectedAppointment.status
-                    ? selectedAppointment.status.charAt(0).toUpperCase() +
-                      selectedAppointment.status.slice(1)
-                    : "Không có dữ liệu"
+                  selectedAppointment.status === "pending"
+                    ? "Chờ xử lý"
+                    : selectedAppointment.status === "confirmed"
+                    ? "Đã xác nhận"
+                    : "Hoàn thành"
                 }
                 readOnly
-                className={`bg-gray-100 ${
-                  selectedAppointment.status === "pending"
-                    ? "text-warning"
-                    : selectedAppointment.status === "confirmed"
-                    ? "text-success"
-                    : "text-info"
-                }`}
+                className={`status-${selectedAppointment.status}`}
               />
             </Form.Group>
 
-            {/* Lý do */}
             <Form.Group className="md:col-span-2">
-              <Form.Label className="font-semibold">Lý do:</Form.Label>
+              <Form.Label>Lý do:</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={2}
                 value={selectedAppointment.reason || "Không có lý do"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
 
-            {/* Ghi chú */}
             <Form.Group className="md:col-span-2">
-              <Form.Label className="font-semibold">Ghi chú:</Form.Label>
+              <Form.Label>Ghi chú:</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
                 value={selectedAppointment.notes || "Không có ghi chú"}
                 readOnly
-                className="bg-gray-100"
               />
             </Form.Group>
           </div>
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        {/* Nút hành động cho trạng thái Pending */}
         {isPending && (
           <Button
             variant="primary"
             className="me-2"
             onClick={() => handleTransferAppointment(selectedAppointment)}
           >
-            Chuyển Bệnh
+            Chuyển bệnh
           </Button>
         )}
 
-        {/* Nút hành động cho trạng thái Completed */}
         {isCompleted && (
           <>
             <Button
@@ -198,30 +278,28 @@ const AppointmentDetailModal = ({
               className="me-2"
               onClick={() => handleReacceptAppointment(selectedAppointment)}
             >
-              Nhận Lại Bệnh Nhân
+              Nhận lại bệnh nhân
             </Button>
             <Button
               variant="danger"
               className="me-2"
               onClick={() => handleDeleteAppointment(selectedAppointment)}
             >
-              Xóa Cuộc Hẹn
+              Xóa cuộc hẹn
             </Button>
           </>
         )}
 
-        {/* Nút hành động cho trạng thái Confirmed */}
         {isConfirmed && (
           <Button
-            variant="warning"
+            variant="primary"
             className="me-2"
             onClick={() => handleTransferAppointment(selectedAppointment)}
           >
-            Chuyển Bệnh
+            Chuyển bệnh
           </Button>
         )}
 
-        {/* Nút Đóng luôn hiển thị */}
         <Button variant="secondary" onClick={onHide}>
           Đóng
         </Button>

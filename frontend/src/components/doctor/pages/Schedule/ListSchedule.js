@@ -8,31 +8,29 @@ import "react-toastify/dist/ReactToastify.css";
 const ListSchedule = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false); // New state for details modal
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 2)); // March 2025
+  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 2));
   const [selectedDate, setSelectedDate] = useState(null);
-  const [scheduleData, setScheduleData] = useState(null); // Lưu dữ liệu lịch từ API
+  const [scheduleData, setScheduleData] = useState(null);
+  const [bookingsData, setBookingsData] = useState(null); // New state for bookings data
   const [today, setToday] = useState(new Date());
 
   const navigate = useNavigate();
 
   const getAuthToken = () => localStorage.getItem("authToken");
 
-  // Helper function to determine the shift based on time_start
   const getShiftLabel = (timeStart) => {
-    const [hours] = timeStart.split(":").map(Number); // Extract hours from "HH:MM:SS" or "HH:MM"
-    if (hours < 12) {
-      return "Ca Sáng"; // Morning shift (before 12:00)
-    } else if (hours >= 12 && hours < 17) {
-      return "Ca Chiều"; // Afternoon shift (12:00 - 16:59)
-    } else {
-      return "Ca Tối"; // Evening shift (17:00 and later)
-    }
+    const [hours] = timeStart.split(":").map(Number);
+    if (hours < 12) return "Ca Sáng";
+    else if (hours >= 12 && hours < 17) return "Ca Chiều";
+    else return "Ca Tối";
   };
+  
 
-  // Lấy danh sách lịch làm việc trong tháng
+
   useEffect(() => {
     const fetchSchedules = async () => {
       setLoading(true);
@@ -49,7 +47,7 @@ const ListSchedule = () => {
         const month = currentMonth.getMonth() + 1;
         const year = currentMonth.getFullYear();
 
-        const response = await axios.get("http://localhost:8000/api/doctor/schedules", {
+        const response = await axios.get("http://127.0.0.1:8000/api/doctor/schedules", {
           params: { month, year },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -58,12 +56,11 @@ const ListSchedule = () => {
         });
 
         if (response.data && Array.isArray(response.data.data)) {
-          console.log("Dữ liệu từ API:", response.data.data);
           const parsedSchedules = response.data.data.map((schedule) => {
             const maxPatients = Number(schedule.max_patients);
             return {
               ...schedule,
-              max_patients: isNaN(maxPatients) ? 10 : maxPatients, // Default to 10 if parsing fails
+              max_patients: isNaN(maxPatients) ? 10 : maxPatients,
             };
           });
           setSchedules(parsedSchedules);
@@ -83,7 +80,6 @@ const ListSchedule = () => {
         } else {
           setError("Không thể kết nối đến server!");
         }
-        console.error("API Error:", err);
       } finally {
         setLoading(false);
       }
@@ -92,7 +88,6 @@ const ListSchedule = () => {
     fetchSchedules();
   }, [currentMonth, navigate]);
 
-  // Lấy chi tiết lịch theo ngày (working_date)
   const fetchScheduleByDate = async (working_date) => {
     const token = getAuthToken();
     if (!token) {
@@ -101,7 +96,7 @@ const ListSchedule = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8000/api/doctor/schedules/${working_date}`, {
+      const response = await axios.get(`http://127.0.0.1:8000/api/doctor/schedules/${working_date}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
@@ -110,7 +105,6 @@ const ListSchedule = () => {
 
       if (response.data && response.data.data && response.data.data.schedule.length > 0) {
         const schedule = response.data.data.schedule[0];
-        console.log("Dữ liệu lịch theo ngày:", schedule);
         return {
           id: schedule.id,
           working_date: schedule.working_date,
@@ -124,6 +118,35 @@ const ListSchedule = () => {
     } catch (err) {
       toast.error(err.response?.data?.message || "Lỗi khi lấy chi tiết lịch!");
       return null;
+    }
+  };
+
+  const fetchBookingsByDate = async (working_date) => {
+    const token = getAuthToken();
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để tiếp tục!");
+      return;
+    }
+
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/api/doctor/schedules/${working_date}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (response.data && response.data.data) {
+        setBookingsData({
+          schedule: response.data.data.schedule,
+          bookings: response.data.data.bookings,
+          total_bookings: response.data.data.total_bookings,
+          completed_bookings: response.data.data.completed_bookings,
+        });
+        setIsDetailsOpen(true);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Lỗi khi lấy chi tiết đặt lịch!");
     }
   };
 
@@ -148,7 +171,7 @@ const ListSchedule = () => {
       const dateEvents = schedules
         .filter((s) => s.working_date === dateStr)
         .map((s) => ({
-          title: getShiftLabel(s.time_start), // Display shift instead of max_patients
+          title: getShiftLabel(s.time_start),
           time: `${s.time_start.slice(0, 5)} - ${s.time_end.slice(0, 5)}`,
           color: s.status === 0 ? "gray" : "purple",
           status: s.status,
@@ -172,7 +195,7 @@ const ListSchedule = () => {
     return weeks;
   };
 
-  const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const weekDays = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
 
   const handleAddNew = () => {
     setIsOpen(true);
@@ -181,6 +204,8 @@ const ListSchedule = () => {
   const toggleModal = () => setIsOpen(!isOpen);
 
   const toggleEditModal = () => setIsEditOpen(!isEditOpen);
+
+  const toggleDetailsModal = () => setIsDetailsOpen(!isDetailsOpen);
 
   const handlePrevMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
@@ -199,7 +224,6 @@ const ListSchedule = () => {
 
     setSelectedDate(date);
 
-    // Lấy dữ liệu lịch theo ngày
     const scheduleDetails = await fetchScheduleByDate(dateStr);
     if (scheduleDetails) {
       setScheduleData(scheduleDetails);
@@ -223,12 +247,19 @@ const ListSchedule = () => {
       return;
     }
 
+    const startTime = new Date(`1970-01-01T${scheduleData.time_start}:00`);
+    const endTime = new Date(`1970-01-01T${scheduleData.time_end}:00`);
+    if (endTime <= startTime) {
+      toast.error("Thời gian kết thúc phải sau thời gian bắt đầu!");
+      return;
+    }
+
     try {
       const month = currentMonth.getMonth() + 1;
       const year = currentMonth.getFullYear();
 
       const response = await axios.post(
-        "http://localhost:8000/api/doctor/schedules",
+        "http://127.0.0.1:8000/api/doctor/schedules",
         {
           time_start: scheduleData.time_start,
           time_end: scheduleData.time_end,
@@ -247,8 +278,7 @@ const ListSchedule = () => {
       if (response.status === 201) {
         toast.success("Tạo lịch làm việc thành công!");
 
-        // Làm mới danh sách lịch
-        const schedulesResponse = await axios.get("http://localhost:8000/api/doctor/schedules", {
+        const schedulesResponse = await axios.get("http://127.0.0.1:8000/api/doctor/schedules", {
           params: { month, year },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -279,9 +309,16 @@ const ListSchedule = () => {
       return;
     }
 
+    const startTime = new Date(`1970-01-01T${scheduleData.time_start}:00`);
+    const endTime = new Date(`1970-01-01T${scheduleData.time_end}:00`);
+    if (endTime <= startTime) {
+      toast.error("Thời gian kết thúc phải sau thời gian bắt đầu!");
+      return;
+    }
+
     try {
       const response = await axios.patch(
-        `http://localhost:8000/api/doctor/schedules/${scheduleData.working_date}`,
+        `http://127.0.0.1:8000/api/doctor/schedules/${scheduleData.working_date}`,
         {
           time_start: scheduleData.time_start,
           time_end: scheduleData.time_end,
@@ -298,10 +335,9 @@ const ListSchedule = () => {
       if (response.status === 200) {
         toast.success("Cập nhật lịch làm việc thành công!");
 
-        // Làm mới danh sách lịch
         const month = currentMonth.getMonth() + 1;
         const year = currentMonth.getFullYear();
-        const schedulesResponse = await axios.get("http://localhost:8000/api/doctor/schedules", {
+        const schedulesResponse = await axios.get("http://127.0.0.1:8000/api/doctor/schedules", {
           params: { month, year },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -333,7 +369,7 @@ const ListSchedule = () => {
 
     try {
       const response = await axios.patch(
-        `http://localhost:8000/api/doctor/schedules/leave/${scheduleData.working_date}`,
+        `http://127.0.0.1:8000/api/doctor/schedules/leave/${scheduleData.working_date}`,
         {},
         {
           headers: {
@@ -346,10 +382,9 @@ const ListSchedule = () => {
       if (response.status === 200) {
         toast.success("Yêu cầu nghỉ thành công!");
 
-        // Làm mới danh sách lịch
         const month = currentMonth.getMonth() + 1;
         const year = currentMonth.getFullYear();
-        const schedulesResponse = await axios.get("http://localhost:8000/api/doctor/schedules", {
+        const schedulesResponse = await axios.get("http://127.0.0.1:8000/api/doctor/schedules", {
           params: { month, year },
           headers: {
             Authorization: `Bearer ${token}`,
@@ -381,11 +416,11 @@ const ListSchedule = () => {
   }
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+    "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
   ];
   const dayNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
-  const displayMonth = `${monthNames[currentMonth.getMonth()]}, ${currentMonth.getFullYear()}`;
+  const displayMonth = `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`;
 
   const selectedDayInfo = selectedDate
     ? `${dayNames[selectedDate.getDay()]}, ${selectedDate.getDate()}/${selectedDate.getMonth() + 1}/${selectedDate.getFullYear()}`
@@ -483,7 +518,6 @@ const ListSchedule = () => {
         </div>
       </div>
 
-      {/* Modal Thêm Lịch Cho Cả Tháng */}
       {isOpen && (
         <div
           style={{
@@ -614,7 +648,7 @@ const ListSchedule = () => {
                       color: "#333",
                     }}
                   >
-                    Giờ bắt đầu
+                    Thời gian bắt đầu
                   </label>
                   <input
                     type="time"
@@ -646,7 +680,7 @@ const ListSchedule = () => {
                       color: "#333",
                     }}
                   >
-                    Giờ kết thúc
+                    Thời gian kết thúc
                   </label>
                   <input
                     type="time"
@@ -697,7 +731,8 @@ const ListSchedule = () => {
                     id="max_patients"
                     value={scheduleData?.max_patients || 10}
                     onChange={(e) => setScheduleData({ ...scheduleData, max_patients: e.target.value })}
-                    min="1"
+                    min="0"
+                    max="10"
                     required
                   />
                 </div>
@@ -744,7 +779,6 @@ const ListSchedule = () => {
         </div>
       )}
 
-      {/* Modal Sửa Lịch và Xin Nghỉ */}
       {isEditOpen && scheduleData && (
         <div
           style={{
@@ -838,7 +872,7 @@ const ListSchedule = () => {
                       color: "#333",
                     }}
                   >
-                    Giờ bắt đầu
+                    Thời gian bắt đầu
                   </label>
                   <input
                     type="time"
@@ -871,7 +905,7 @@ const ListSchedule = () => {
                       color: "#333",
                     }}
                   >
-                    Giờ kết thúc
+                    Thời gian kết thúc
                   </label>
                   <input
                     type="time"
@@ -923,7 +957,8 @@ const ListSchedule = () => {
                     id="edit_max_patients"
                     value={scheduleData.max_patients}
                     onChange={(e) => setScheduleData({ ...scheduleData, max_patients: e.target.value })}
-                    min="1"
+                    min="0"
+                    max="10"
                     required
                     disabled={scheduleData.status === 0}
                   />
@@ -946,6 +981,24 @@ const ListSchedule = () => {
                     onMouseOut={(e) => (e.target.style.backgroundColor = "#f8f9fa")}
                   >
                     Hủy
+                  </button>
+                  <button
+                    type="button"
+                    style={{
+                      padding: "10px 20px",
+                      borderRadius: "4px",
+                      border: "none",
+                      backgroundColor: "#28a745",
+                      color: "white",
+                      fontSize: "1rem",
+                      cursor: "pointer",
+                      transition: "background-color 0.2s",
+                    }}
+                    onClick={() => fetchBookingsByDate(scheduleData.working_date)}
+                    onMouseOver={(e) => (e.target.style.backgroundColor = "#218838")}
+                    onMouseOut={(e) => (e.target.style.backgroundColor = "#28a745")}
+                  >
+                    Xem Chi Tiết
                   </button>
                   {scheduleData.status !== 0 && (
                     <>
@@ -992,6 +1045,157 @@ const ListSchedule = () => {
           </div>
         </div>
       )}
+
+{isDetailsOpen && bookingsData && (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 1050,
+    }}
+  >
+    <div
+      style={{
+        backgroundColor: "white",
+        borderRadius: "8px",
+        width: "100%",
+        maxWidth: "500px", // Adjusted to match the image width
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "15px 20px",
+          backgroundColor: "#f8f9fa",
+          borderBottom: "1px solid #dee2e6",
+        }}
+      >
+        <h5 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 500 }}>
+          Chi Tiết Lịch Làm Việc - {selectedDayInfo}
+        </h5>
+        <button
+          style={{
+            border: "none",
+            background: "none",
+            fontSize: "1.5rem",
+            color: "#6c757d",
+            cursor: "pointer",
+          }}
+          onClick={toggleDetailsModal}
+        >
+          ×
+        </button>
+      </div>
+      <div style={{ padding: "20px" }}>
+        <div style={{ marginBottom: "1.5rem" }}>
+          <h6 style={{ fontWeight: 500, color: "#333", marginBottom: "10px" }}>
+            Thông Tin Lịch
+          </h6>
+          {bookingsData.schedule.length > 0 ? (
+            <div>
+              <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
+                <strong>Thời gian:</strong>{" "}
+                {bookingsData.schedule[0].time_start.slice(0, 5)} -{" "}
+                {bookingsData.schedule[0].time_end.slice(0, 5)}
+              </p>
+              <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
+                <strong>Số bệnh nhân tối đa:</strong>{" "}
+                {bookingsData.schedule[0].max_patients}
+              </p>
+              <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
+                <strong>Trạng thái:</strong>{" "}
+                {bookingsData.schedule[0].status === 0 ? "Nghỉ" : "Làm việc"}
+              </p>
+            </div>
+          ) : (
+            <p style={{ fontSize: "0.9rem", color: "#666" }}>
+              Không có lịch làm việc trong ngày này.
+            </p>
+          )}
+        </div>
+        <div style={{ marginBottom: "1.5rem" }}>
+          <h6 style={{ fontWeight: 500, color: "#333", marginBottom: "10px" }}>
+            Danh Sách Đặt Lịch ({bookingsData.total_bookings} tổng,{" "}
+            {bookingsData.completed_bookings} hoàn thành)
+          </h6>
+          {bookingsData.bookings.length > 0 ? (
+            bookingsData.bookings.map((booking) => (
+              <div
+                key={booking.id}
+                style={{
+                  padding: "10px 0",
+                  borderBottom: "1px solid #eee",
+                }}
+              >
+                <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
+                  <strong>Bệnh nhân:</strong> {booking.guest.guest_name}
+                </p>
+                <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
+                  <strong>Thời gian đặt:</strong>{" "}
+                  {new Date(booking.created_at).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}{" "}
+                  {new Date(booking.created_at).toLocaleDateString("vi-VN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
+                </p>
+                <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
+                  <strong>Ngày đặt lịch:</strong> {booking.booking_date}
+                </p>
+                <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
+                  <strong>Thời gian khám:</strong>{" "}
+                  {booking.booking_time.slice(0, 5)}
+                </p>
+                <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
+                  <strong>Ghi chú:</strong>{" "}
+                  {booking.notes || "Không có ghi chú"}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p style={{ fontSize: "0.9rem", color: "#666" }}>
+              Không có đặt lịch trong ngày này.
+            </p>
+          )}
+        </div>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <button
+            style={{
+              padding: "10px 20px",
+              borderRadius: "4px",
+              border: "1px solid #ced4da",
+              backgroundColor: "#f8f9fa",
+              color: "#6c757d",
+              fontSize: "1rem",
+              cursor: "pointer",
+              transition: "background-color 0.2s",
+            }}
+            onClick={toggleDetailsModal}
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#e9ecef")}
+            onMouseOut={(e) => (e.target.style.backgroundColor = "#f8f9fa")}
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center", marginBottom: "10px" }}>
         {weekDays.map((day, index) => (
