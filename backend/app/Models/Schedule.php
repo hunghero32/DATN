@@ -18,7 +18,14 @@ class Schedule extends Model
         'isDeleted',
     ];
 
-    // Quan hệ với bảng Doctor
+    protected $casts = [
+        'working_date' => 'datetime:Y-m-d',
+    ];
+
+    protected $dates = [
+        'working_date',
+    ];
+
     public function doctor()
     {
         return $this->belongsTo(Doctor::class);
