@@ -2,7 +2,6 @@
 @section('title', 'Tạo mới')
 @section('content')
     <div class="content-wrapper">
-
         <div class="container-xxl flex-grow-1 container-p-y">
             <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Settings /</span> Thêm danh mục</h4>
 
@@ -15,31 +14,20 @@
                             <form action="{{ route('admin.categories.store') }}" method="POST">
                                 @csrf
 
-                                <!-- Datalist -->
-                                <!-- Thêm Select2 -->
-                                <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css"
-                                    rel="stylesheet" />
-                                <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
-
                                 <!-- Select2 Dropdown -->
                                 <div class="mb-3">
                                     <label for="parent_id" class="form-label">Danh mục cha</label>
-                                    <select class="form-control select2" name="parent_id" id="parent_id">
-                                        <option value="">-- Chọn danh mục cha --</option>
+                                    <select class="form-select select2 @error('parent_id') is-invalid @enderror" name="parent_id" id="parent_id" required>
                                         @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                            <option value="{{ $category->id }}" {{ old('parent_id') == $category->id ? 'selected' : '' }}>
+                                                {{ $category->id }} | {{ $category->name }}
+                                            </option>
                                         @endforeach
                                     </select>
+                                    @error('parent_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
-
-                                <script>
-                                    $(document).ready(function() {
-                                        $('#parent_id').select2({
-                                            placeholder: "Chọn danh mục cha",
-                                            allowClear: true
-                                        });
-                                    });
-                                </script>
 
                                 <!-- Tên danh mục -->
                                 <div class="mb-3">
@@ -64,8 +52,7 @@
 
                                 <div class="mt-2">
                                     <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                                    <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-secondary">Quay
-                                        lại</a>
+                                    <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-secondary">Quay lại</a>
                                 </div>
                             </form>
                         </div>
@@ -76,4 +63,15 @@
         </div>
 
     </div>
+@endsection
+
+@section('JS')
+    <script>
+        $(document).ready(function() {
+            $('#parent_id').select2({
+                placeholder: "Chọn danh mục cha",
+                allowClear: true
+            });
+        });
+    </script>
 @endsection

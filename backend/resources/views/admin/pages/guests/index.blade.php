@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between">
                     <h5 class="mb-0">Danh sách khách mời</h5>
-                    <a href="{{ route('admin.guests.create') }}" class="btn btn-primary">Thêm khách mời</a>
+                    <a href="{{ route('admin.guests.create') }}" class="btn btn-primary">Thêm khách mới</a>
                 </div>
 
                 <!-- FORM TÌM KIẾM & BỘ LỌC -->
