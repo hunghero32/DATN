@@ -75,7 +75,7 @@
                         </div>
 
                         <div class="mt-3">
-                            <button type="submit" class="btn btn-primary">Cập nhật</button>
+                          
                             <a href="{{ route('admin.guests.index') }}" class="btn btn-secondary">Quay lại</a>
                         </div>
                     </form>
