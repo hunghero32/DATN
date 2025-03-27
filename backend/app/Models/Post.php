@@ -17,6 +17,7 @@ class Post extends Model
         'slug',
         'title',
         'content',
+        'image',
         'views',
         'status',
         'published_at',

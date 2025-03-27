@@ -87,11 +87,11 @@ Route::prefix('admin')->group(function () {
 
 
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::name('admin.')->group(function () {
         Route::resource('medical_records', MedicalRecordController::class);
     });
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::name('admin.')->group(function () {
         Route::resource('notifications', NotificationController::class);
     });
 
