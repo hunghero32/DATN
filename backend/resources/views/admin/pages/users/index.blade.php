@@ -5,79 +5,116 @@
 @section('content')
     <div class="content-wrapper">
         <div class="container-xxl">
-            <h4 class="fw-bold py-3 mb-4">Danh sách người dùng</h4>
+            <h3 class="fw-bold py-3 mb-4 text-center text-primary">📋 Danh sách Người Dùng</h3>
 
             <!-- Thanh tìm kiếm & bộ lọc -->
-            <form action="{{ route('admin.users.index') }}" method="GET" class="mb-4">
-                <div class="row">
-                    <div class="col-md-4">
-                        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm theo tên, email, SĐT"
-                            value="{{ request('search') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <select name="role" class="form-control">
-                            <option value="">-- Chọn vai trò --</option>
-                            <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="doctor" {{ request('role') == 'doctor' ? 'selected' : '' }}>Doctor</option>
-                            <option value="guest" {{ request('role') == 'guest' ? 'selected' : '' }}>Guest</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <input type="date" name="created_at" class="form-control" value="{{ request('created_at') }}">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary">Lọc</button>
-                    </div>
+            <div class="card shadow-lg border-0 mb-4 rounded">
+                <div class="card-body bg-white">
+                    <form action="{{ route('admin.users.index') }}" method="GET">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-primary text-white"><i class="bi bi-search"></i></span>
+                                    <input type="text" name="search" class="form-control"
+                                        placeholder="Tìm kiếm theo tên, email, SĐT" value="{{ request('search') }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select name="role" class="form-select">
+                                    <option value="">-- Chọn vai trò --</option>
+                                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                    <option value="doctor" {{ request('role') == 'doctor' ? 'selected' : '' }}>Doctor
+                                    </option>
+                                    <option value="guest" {{ request('role') == 'guest' ? 'selected' : '' }}>Guest</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="date" name="created_at" class="form-control"
+                                    value="{{ request('created_at') }}">
+                            </div>
+                            <div class="col-md-2 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i>
+                                    Lọc</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Nút Quay Lại, chỉ hiển thị nếu có bộ lọc được áp dụng -->
+                    @if (request('search') || request('role') || request('created_at'))
+                        <div class="text-end mt-2">
+                            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary"><i
+                                    class="bi bi-arrow-counterclockwise"></i> Quay lại</a>
+                        </div>
+                    @endif
                 </div>
-            </form>
-            <div class="text-end mb-3">
-                <a href="{{ route('admin.users.create') }}" class="btn btn-success">Thêm mới</a>
             </div>
 
-            <!-- Bảng danh sách người dùng -->
-            <div class="card">
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>STT</th>
-                                <th>Tên</th>
-                                <th>Email</th>
-                                <th>SĐT</th>
-                                <th>Vai trò</th>
-                                <th>Ngày tạo</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($users as $user)
-                                <tr>
-                                    {{-- <td>{{ $user->id }}</td> --}}
-                                    <td>{{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}</td>
 
-                                    <td>{{ $user->name }}</td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>{{ $user->phone }}</td>
-                                    <td>{{ $user->role ?? 'Không có vai trò' }}</td>
-                                    <td>{{ $user->created_at->format('d-m-Y') }}</td>
-                                    <td>
-                                        <a href="{{ route('admin.users.edit', $user->id) }}"
-                                            class="btn btn-primary btn-sm">Sửa</a>
-                                        <form action="{{ route('admin.users.delete', $user->id) }}" method="POST"
-                                            onsubmit="return confirm('Bạn có chắc không?')" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-danger btn-sm">Xóa</button>
-                                        </form>
-                                    </td>
+            <!-- Nút thêm mới -->
+
+
+            <!-- Bảng danh sách người dùng -->
+            <div class="card shadow-lg border-1 rounded">
+                <div class="d-flex justify-content-end mt-2 mb-1">
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-success shadow-sm px-4 py-2 fw-bold">
+                        <i class="bi bi-plus-circle"></i> <span class="ms-1">Thêm Mới</span>
+                    </a>
+                </div>
+
+
+                <div class="card-body bg-light">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped table-bordered align-middle text-center rounded">
+                            <thead class="table bg-primary text-dark">
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên</th>
+                                    <th>Email</th>
+                                    <th>SĐT</th>
+                                    <th>Vai trò</th>
+                                    
+                                    <th>Ngày tạo</th>
+                                    <th>Hành động</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="table-light">
+                                @foreach ($users as $user)
+                                    <tr>
+                                        <td class="fw-bold text-primary">
+                                            {{ ($users->currentPage() - 1) * $users->perPage() + $loop->iteration }}
+                                        </td>
+                                        <td>{{ $user->name }}</td>
+                                        <td>{{ $user->email }}</td>
+                                        <td>{{ $user->phone }}</td>
+                                        <td>
+                                            <span class="badge bg-info text-dark px-3 py-2">
+                                                {{ $user->role ?? 'Không có vai trò' }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $user->created_at->format('d-m-Y') }}</td>
+                                        <td>
+                                            <a href="{{ route('admin.users.edit', $user->id) }}"
+                                                class="btn btn-outline-primary btn-sm px-3">
+                                                <i class="bi bi-pencil-square"></i> Sửa
+                                            </a>
+                                            <form action="{{ route('admin.users.delete', $user->id) }}" method="POST"
+                                                onsubmit="return confirm('Bạn có chắc không?')" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-outline-danger btn-sm px-3">
+                                                    <i class="bi bi-trash"></i> Xóa
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Phân trang -->
-                <div class="card-footer">
+                <div class="card-footer d-flex justify-content-center bg-white">
                     {{ $users->links() }}
                 </div>
             </div>

@@ -123,10 +123,10 @@ Route::prefix('admin')->group(function () {
 
     ////****************   Start  Categories  **************////
     Route::get('categories', [CategoryController::class, 'index'])->name('admin.categories.index');
-    Route::get('categories-create', [CategoryController::class, 'create'])->name('admin.categories.create');
+    Route::get('categories/create', [CategoryController::class, 'create'])->name('admin.categories.create');
     Route::post('categories', [CategoryController::class, 'store'])->name('admin.categories.store');
-    Route::get('categories-edit/{id}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
-    Route::put('categories-update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::get('categories/edit/{id}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
+    Route::put('categories/update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
     Route::delete('doctors/{id}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
 
     ////*****************     End categorycategory    *******************////
@@ -137,11 +137,11 @@ Route::prefix('admin')->group(function () {
     ////****************   Start  POST  **************////
 
     Route::get('posts', [PostController::class, 'index'])->name('admin.posts.index');
-    Route::get('posts-create', [PostController::class, 'create'])->name('admin.posts.create');
+    Route::get('posts/create', [PostController::class, 'create'])->name('admin.posts.create');
     Route::post('posts', [PostController::class, 'store'])->name('admin.posts.store');
     Route::delete('posts/{id}', [PostController::class, 'delete'])->name('admin.posts.delete');
-    Route::get('post-edit/{id}', [PostController::class, 'edit'])->name('admin.posts.edit');
-    Route::put('posts-update/{id}', [PostController::class, 'update'])->name('admin.posts.update');
+    Route::get('post/edit/{id}', [PostController::class, 'edit'])->name('admin.posts.edit');
+    Route::put('posts/update/{id}', [PostController::class, 'update'])->name('admin.posts.update');
     ////*****************     End postpost    *******************////
 
 
@@ -149,27 +149,27 @@ Route::prefix('admin')->group(function () {
 
     ////****************   Start  useruser  **************////
     Route::get('users', [UserController::class, 'index'])->name('admin.users.index');
-    Route::get('users-create', [UserController::class, 'create'])->name('admin.users.create');
-    Route::post('users-store', [UserController::class, 'store'])->name('admin.users.store');
-    route::delete('users-delete/{id}', [UserController::class, 'delete'])->name('admin.users.delete');
-    route::get('users-edit/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
-    route::put('users-update/{id}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::get('users/create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('users/store', [UserController::class, 'store'])->name('admin.users.store');
+    route::delete('users/delete/{id}', [UserController::class, 'delete'])->name('admin.users.delete');
+    route::get('users/edit/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
+    route::put('users/update/{id}', [UserController::class, 'update'])->name('admin.users.update');
 
 
     ////****************   Start  geust   **************////
     Route::get('guests', [GuestController::class, 'index'])->name('admin.guests.index');
-    Route::get('guests-create', [GuestController::class, 'create'])->name('admin.guests.create');
+    Route::get('guests/create', [GuestController::class, 'create'])->name('admin.guests.create');
     Route::post('guests', [GuestController::class, 'store'])->name('admin.guests.store');
-    Route::delete('guests-delete/{id}', [GuestController::class, 'delete'])->name('admin.guests.delete');
-    route::get('guests-edit/{id}', [GuestController::class, 'edit'])->name('admin.guests.edit');
-    route::put('guests-update/{id}', [GuestController::class, 'update'])->name('admin.guests.update');
+    Route::delete('guests/delete/{id}', [GuestController::class, 'delete'])->name('admin.guests.delete');
+    route::get('guests/edit/{id}', [GuestController::class, 'edit'])->name('admin.guests.edit');
+    route::put('guests/update/{id}', [GuestController::class, 'update'])->name('admin.guests.update');
     // =========== System =======================
     route::get('systems', [SystemController::class, 'index'])->name('admin.systems.index');
-    route::get('systems-create', [SystemController::class, 'create'])->name('admin.systems.create');
-    route::post('systems-store', [SystemController::class, 'store'])->name('admin.systems.store');
-    route::delete('systems-delete/{id}', [SystemController::class, 'delete'])->name('admin.systems.delete');
-    Route::get('systems-edit/{id}', [SystemController::class, 'edit'])->name('admin.systems.edit');
-    Route::put('systems-update/{id}', [SystemController::class, 'update'])->name('admin.systems.update');
+    route::get('systems/create', [SystemController::class, 'create'])->name('admin.systems.create');
+    route::post('systems/store', [SystemController::class, 'store'])->name('admin.systems.store');
+    route::delete('systems/delete/{id}', [SystemController::class, 'delete'])->name('admin.systems.delete');
+    Route::get('systems/edit/{id}', [SystemController::class, 'edit'])->name('admin.systems.edit');
+    Route::put('systems/update/{id}', [SystemController::class, 'update'])->name('admin.systems.update');
 
 
 

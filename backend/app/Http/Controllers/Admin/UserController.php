@@ -53,7 +53,7 @@ class UserController extends Controller
 
     public function create()
     {
-        $roled = [
+        $role = [
             'admin' => 'Quản trị viên',
             'doctor' => 'Bác sĩ',
             'guest' => 'Bệnh nhân'
@@ -61,7 +61,7 @@ class UserController extends Controller
 
         $user = new User(); // Tạo user rỗng để tránh lỗi khi thêm mới
 
-        return view('admin.pages.users.create', compact('user', 'roled'));
+        return view('admin.pages.users.create', compact('user', 'role'));
     }
 
 

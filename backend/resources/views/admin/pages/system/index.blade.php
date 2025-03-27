@@ -8,7 +8,6 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Danh sách cài đặt</h5>
-                <a href="{{ route('admin.systems.create') }}" class="btn btn-success">Thêm mới</a>
             </div>
 
             <div class="table-responsive text-nowrap">
