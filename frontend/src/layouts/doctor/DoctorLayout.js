@@ -99,13 +99,15 @@ const DoctorLayout = () => {
   if (loading) return <p>Đang tải...</p>;
   
   return (
-    <div className="wrapper">
+    <div>
       <ToastContainer />
+      <div className="wrapper">
+      
       <SideBar />
       <main className="main-content content-page ">
         <Header user={user}/>
         <Routes>
-          <Route path="/db" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard />} />
           <Route
             path="/doctor-services"
             element={
@@ -126,6 +128,7 @@ const DoctorLayout = () => {
         </Routes>
 
       </main>
+    </div>
     </div>
   );
 };

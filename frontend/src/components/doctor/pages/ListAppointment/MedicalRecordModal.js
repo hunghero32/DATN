@@ -17,15 +17,107 @@ const MedicalRecordModal = ({
   return (
     <>
       <Modal show={show} onHide={onHide} size="lg">
+        <style>
+          {`
+            .modal-content {
+              border-radius: 15px;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            }
+
+            .modal-header {
+              background-color: #f9fafb;
+              border-bottom: 1px solid #e5e7eb;
+            }
+
+            .modal-title {
+              font-size: 1.5rem;
+              font-weight: 600;
+              color: #1f2937;
+            }
+
+            .modal-body {
+              padding: 2rem;
+              max-height: 70vh;
+              overflow-y: auto;
+            }
+
+            .form-label {
+              font-weight: 600;
+              color: #374151;
+              margin-bottom: 0.5rem;
+            }
+
+            .form-control {
+              border-radius: 8px;
+              border: 1px solid #e0e4e8;
+              background-color: #f9fafb;
+              font-size: 15px;
+              color: #374151;
+              padding: 0.75rem;
+            }
+
+            .form-control:focus {
+              border-color: #3b82f6;
+              box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+            }
+
+            .modal-footer {
+              border-top: 1px solid #e5e7eb;
+              padding: 1rem 2rem;
+            }
+
+            .btn {
+              padding: 0.5rem 1.2rem;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              transition: all 0.3s ease;
+            }
+
+            .btn-primary {
+              background-color: #3b82f6;
+              border-color: #3b82f6;
+            }
+
+            .btn-primary:hover {
+              background-color: #2563eb;
+              border-color: #2563eb;
+            }
+
+            .btn-secondary {
+              background-color: #6b7280;
+              border-color: #6b7280;
+            }
+
+            .btn-secondary:hover {
+              background-color: #4b5563;
+              border-color: #4b5563;
+            }
+
+            .record-section {
+              background-color: #fff;
+              border: 1px solid #e5e7eb;
+              border-radius: 10px;
+              padding: 1.5rem;
+            }
+
+            .record-section h6 {
+              font-size: 1.25rem;
+              font-weight: 600;
+              color: #1f2937;
+              margin-bottom: 1rem;
+            }
+          `}
+        </style>
         <Modal.Header closeButton>
-          <Modal.Title>Hồ Sơ Bệnh Án</Modal.Title>
+          <Modal.Title>Hồ sơ bệnh án</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
+        <Modal.Body>
           {error && <p className="text-danger">{error}</p>}
           {medicalRecord ? (
-            <div className="mb-4 p-3 border rounded">
+            <div className="mb-4 record-section">
               <h6 className="text-primary">
-                Hồ Sơ Bệnh Án (Cập nhật: {medicalRecord.updated_at})
+                Hồ sơ bệnh án (Cập nhật: {medicalRecord.updated_at})
               </h6>
               <Form>
                 <div className="grid grid-cols-2 gap-4">
@@ -93,12 +185,11 @@ const MedicalRecordModal = ({
             <p className="text-muted">Chưa có hồ sơ y tế.</p>
           )}
 
-          {/* Hiển thị danh sách kết quả khám */}
           {results.length > 0 && (
             <div className="mt-4">
-              <h6 className="text-primary">Kết Quả Khám</h6>
+              <h6 className="text-primary">Kết quả khám</h6>
               {results.map((result, index) => (
-                <div key={index} className="mb-4 p-3 border rounded">
+                <div key={index} className="mb-4 record-section">
                   <h6 className="text-info">
                     Kết quả #{index + 1} (Ngày: {result.updated_at})
                   </h6>
@@ -126,7 +217,7 @@ const MedicalRecordModal = ({
                       <Form.Control
                         as="textarea"
                         rows={3}
-                        value={result.note || "Không có ghi chú"} // Sửa "notes" thành "note"
+                        value={result.note || "Không có ghi chú"}
                         readOnly
                       />
                     </Form.Group>
@@ -157,7 +248,7 @@ const MedicalRecordModal = ({
             Đóng
           </Button>
           <Button variant="primary" onClick={() => setShowForm(true)}>
-            {medicalRecord ? "Chỉnh Sửa Hồ Sơ" : "Điền Hồ Sơ Bệnh Án"}
+            {medicalRecord ? "Chỉnh sửa hồ sơ" : "Điền hồ sơ bệnh án"}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -165,7 +256,7 @@ const MedicalRecordModal = ({
       <Modal show={showForm} onHide={() => setShowForm(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            {medicalRecord ? "Chỉnh Sửa Hồ Sơ Bệnh Án" : "Điền Hồ Sơ Bệnh Án"}
+            {medicalRecord ? "Chỉnh sửa hồ sơ bệnh án" : "Điền hồ sơ bệnh án"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>

@@ -16,10 +16,10 @@ const ServiceDetail = () => {
     const fetchServiceDetail = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get(`/api/client/detail-service/${id}`);
-        if (data?.services_name) {
-          setService(data);
-          setDoctors(data.doctors || []);
+        const response = await api.get(`/api/client/detail-service/${id}`);
+        if (response.data && response.data.services_name) {
+          setService(response.data);
+          setDoctors(response.data.doctors || []);
         } else {
           throw new Error("Invalid data format received");
         }
@@ -33,55 +33,24 @@ const ServiceDetail = () => {
     if (id) fetchServiceDetail();
   }, [id]);
 
-  const generateTimeSlots = (schedule) => {
-    const slots = [];
-    let startTime = new Date(`1970-01-01T${schedule.time_start}`);
-    const endTime = new Date(`1970-01-01T${schedule.time_end}`);
-    const duration = service?.duration || 30;
+  const today = new Date().toISOString().split("T")[0];
 
-    while (startTime < endTime) {
-      const slotEnd = new Date(startTime.getTime() + duration * 60000);
-      if (slotEnd > endTime) break;
+  const handleScheduleClick = async (doctor, schedule) => {
+    if (schedule.status !== 1) return;
 
-      slots.push({
-        id: `${schedule.id}-${startTime.toTimeString().slice(0, 5)}`,
-        time_start: startTime.toTimeString().slice(0, 5),
-        time_end: slotEnd.toTimeString().slice(0, 5),
-      });
-      startTime.setMinutes(startTime.getMinutes() + duration);
-    }
-    return slots;
-  };
-
-  const handleScheduleClick = async (doctor, slot, schedule) => {
-    if (!selectedDate) {
-      message.error("Vui lòng chọn ngày trước khi đặt lịch!");
-      return;
-    }
-  
     const bookingData = {
       doctor_id: doctor.id,
       service_id: service.id,
-      schedule_id: schedule.id, // ✅ Lấy đúng schedule_id từ lịch trình
-      date: selectedDate.replace(/['"]+/g, ""),
-      time: slot.time_start,
-      specialty_id: service.specialty?.id || null,
+      schedule_id: schedule.id,
+      date: selectedDate || JSON.parse(schedule.working_date)[0],
+      time: schedule.time_start,
+      specialty_id: service.specialty?.id || 0,
       status: "pending",
     };
-  
-    console.log("📌 Dữ liệu gửi lên API:", bookingData);
-  
-    if (!bookingData.schedule_id) {
-      console.error("🚨 Lỗi: schedule_id bị null!");
-      return;
-    }
-  
+
     try {
-      const response = await api.post("/api/client/temp-booking", bookingData, {
-        headers: { "Content-Type": "application/json" },
-      });
-  
-      if (response.data.status) {
+      const response = await api.post("/api/client/temp-booking", bookingData);
+      if (response.data.status === true) {
         localStorage.setItem("bookingData", JSON.stringify(response.data.data));
         message.success("Đã lưu thông tin đặt lịch tạm thời");
         navigate(`/booking/${id}`);
@@ -89,56 +58,99 @@ const ServiceDetail = () => {
         message.error(response.data.message || "Có lỗi xảy ra. Vui lòng thử lại!");
       }
     } catch (error) {
-      console.error("Lỗi API:", error.response?.data || error.message);
+      console.error("Booking error:", error.response?.data || error);
       message.error(error.response?.data?.message || "Không thể đặt lịch. Vui lòng thử lại!");
     }
   };
-  
 
   if (loading) return <p className="text-center text-gray-500">Đang tải...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
   if (!service) return <p className="text-center text-gray-500">Không có dữ liệu.</p>;
+  if (!doctors.length) return <p className="text-center text-gray-500">Không có bác sĩ.</p>;
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
-      <h1 className="text-4xl font-bold text-blue-800 mb-4 text-center">{service.services_name}</h1>
-      <p className="text-gray-700 text-lg text-center">{service.description}</p>
+      <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <h1 className="text-4xl font-bold text-blue-800 mb-4 text-center">
+          {service.services_name}
+        </h1>
+        <p className="text-gray-700 text-lg leading-relaxed text-center">
+          {service.description}
+        </p>
+      </div>
 
-      {doctors.map((doctor) => (
-        <div key={doctor.id} className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-blue-800">{doctor.doctor_name}</h2>
-          <p className="text-gray-700">{doctor.doctor_bio}</p>
-
-          <label className="block text-gray-700 font-semibold mb-2">Chọn ngày khám:</label>
-          <select
-            className="w-full p-2 border rounded-md mb-4"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
+      <div className="container mx-auto px-4 py-6">
+        {doctors.map((doctor) => (
+          <div
+            key={doctor.id}
+            className="bg-white rounded-lg shadow-lg p-6 mb-8 flex flex-col md:flex-row items-center md:items-start md:gap-x-2"
           >
-            <option value="">Chọn ngày</option>
-            {[...new Set(doctor.schedules.map((s) => s.working_date))].map((date) => (
-              <option key={date} value={date}>{date}</option>
-            ))}
-          </select>
+            <div className="w-32 h-32 flex-shrink-0">
+              <img
+                src={doctor.doctor_avatar || "https://via.placeholder.com/150"}
+                alt={doctor.doctor_name}
+                className="w-full h-full object-cover rounded-lg shadow-md"
+              />
+            </div>
 
-          <div className="grid grid-cols-3 gap-2">
-          {doctor.schedules
-  .filter((s) => s.working_date === selectedDate)
-  .flatMap((schedule) => 
-    generateTimeSlots(schedule).map((slot) => (
-      <button
-        key={slot.id}
-        className="p-2 rounded-lg bg-blue-100 border hover:border-blue-500 hover:shadow-md"
-        onClick={() => handleScheduleClick(doctor, slot, schedule)} // ✅ Truyền thêm schedule
-      >
-        {slot.time_start} - {slot.time_end}
-      </button>
-    ))
-  )}
+            <div className="flex-1 md:w-2/3">
+              <h2 className="text-2xl font-bold text-blue-800">{doctor.doctor_name}</h2>
+              <p className="text-gray-700 mt-3 text-lg">{doctor.doctor_bio}</p>
+              <p className="text-gray-700">
+                <span className="font-semibold">Kinh nghiệm:</span> {doctor.exp} năm
+              </p>
+            </div>
 
+            <div className="w-full md:w-1/3">
+              <label className="block text-gray-700 font-semibold mb-2">Chọn ngày khám:</label>
+              <select
+                className="w-full p-2 border rounded-md mb-4"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              >
+                <option value="">Chọn ngày</option>
+                {[...
+                  new Set(
+                    doctor.schedules
+                      .flatMap((s) => JSON.parse(s.working_date))
+                      .filter((date) => date >= today)
+                  ),
+                ].map((date) => (
+                  <option key={date} value={date}>
+                    {date}
+                  </option>
+                ))}
+              </select>
+
+              <div className="grid grid-cols-3 gap-2">
+                {doctor.schedules
+                  .filter((schedule) =>
+                    JSON.parse(schedule.working_date).includes(selectedDate)
+                  )
+                  .map((schedule) => (
+                    <button
+                      key={schedule.id}
+                      className={`p-2 rounded-lg text-center transition-all duration-300 text-sm font-medium ${
+                        schedule.status === 1
+                          ? "bg-white border border-blue-200 hover:border-blue-500 hover:shadow-md"
+                          : "bg-gray-100 border border-gray-200 cursor-not-allowed"
+                      }`}
+                      disabled={schedule.status !== 1}
+                      onClick={() => handleScheduleClick(doctor, schedule)}
+                    >
+                      <p className="font-semibold text-xs">
+                        {schedule.time_start} - {schedule.time_end}
+                      </p>
+                      <p className={`mt-1 text-xs ${schedule.status === 1 ? "text-green-600" : "text-red-500"}`}>
+                        {schedule.status === 1 ? `Còn ${schedule.max_patients} chỗ` : "Đã kín lịch"}
+                      </p>
+                    </button>
+                  ))}
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

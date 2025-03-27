@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const menuItems = [
-  { path: "/doctor/db", icon: "fa-solid fa-house-medical", name: "Doctor Dashboard" },
+  { path: "/doctor", icon: "fa-solid fa-house-medical", name: "Doctor Dashboard" },
   { path: "/doctor/doctor-services", icon: "fa-solid fa-list-check", name: "Danh sách Dịch Vụ" },
   { path: "/doctor/appointment", icon: "fa-solid fa-calendar-check", name: "Danh sách lịch khám" },
   { path: "/doctor/doctor-profile", icon: "fa-solid fa-user-doctor", name: "Hồ Sơ Bác Sĩ" },
@@ -26,7 +26,7 @@ const SideBar = () => {
 
       <aside className={`sidebar sidebar-base sidebartab ${isOpen ? 'active' : ''}`} id="first-tour">
         <div className="sidebar-header d-flex align-items-center justify-content-start">
-          <Link to="/db" className="navbar-brand me-5 pt-3">
+          <Link to="/doctor" className="navbar-brand me-5 pt-3">
             <div className="logo-main">
               <img
                 className="logo-normal img-fluid mb-3"

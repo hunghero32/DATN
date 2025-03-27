@@ -29,7 +29,7 @@ class CategoryController extends Controller
 
     public function create()
     {
-        $categories = Category::whereNull('parent_id')->get(); // Lấy các danh mục cha (parent_id = NULL)
+        $categories= Category::all();
         return view('admin.pages.categories.create', compact('categories'));
     }
 
@@ -49,17 +49,21 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $category = Category::find($id);
+        $categories= Category::all();
         return view('admin.pages.categories.edit')->with([
-            'category' => $category
+            'category' => $category,
+            'categories'=> $categories
 
         ]);
     }
     public function update($id, Request $rep)
     {
         $category = Category::find($id);
+
         $data = [
             'name' => $rep->name,
-            'description' => $rep->description
+            'description' => $rep->description,
+            'parent_id'=>$rep->parent_id
         ];
         $category->update($data);
         return redirect()->route('admin.categories.index');

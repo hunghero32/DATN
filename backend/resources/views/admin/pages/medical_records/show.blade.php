@@ -19,7 +19,6 @@
             <p><strong>Tiền sử gia đình:</strong> {{ $record->family_history }}</p>
             <p><strong>Phương pháp điều trị:</strong> {{ $record->treatment }}</p>
             <p><strong>Ghi chú:</strong> {{ $record->note }}</p>
-            <p><strong>Ngày tạo:</strong> {{ $record->created_at->format('d/m/Y H:i') }}</p>
         </div>
 
     </div>
