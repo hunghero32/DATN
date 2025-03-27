@@ -1,29 +1,31 @@
 import React from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { Form, Button } from "react-bootstrap";
+import { FaCalendarAlt } from "react-icons/fa";
 
-const AppointmentFilter = ({ date, setDate, statusFilter, setStatusFilter }) => {
+const AppointmentFilter = ({ date, setDate }) => {
+  // Format the date to YYYY-MM-DD for the input type="date"
+  const formatDate = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleDateChange = (e) => {
+    const newDate = new Date(e.target.value);
+    setDate(newDate);
+  };
+
   return (
-    <Form className="d-flex align-items-center mb-4">
-      <div className="me-3">
-        <DatePicker
-          selected={date}
-          onChange={(newDate) => setDate(newDate)}
-          className="form-control"
-          dateFormat="dd/MM/yyyy"
-          placeholderText="Chọn ngày"
-        />
-      </div>
-      <div className="me-3">
-        <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="completed">Completed</option>
-        </Form.Select>
-      </div>
-      <Button variant="primary">Tìm kiếm</Button>
-    </Form>
+    <div className="custom-input-group">
+      <input
+        type="date"
+        value={formatDate(date)}
+        onChange={handleDateChange}
+        className="custom-input"
+      />
+    </div>
   );
 };
 

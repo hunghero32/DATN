@@ -9,7 +9,8 @@ import AppointmentDetailModal from "./AppointmentDetailModal";
 import ConfirmModal from "./ConfirmModal";
 import MedicalRecordModal from "./MedicalRecordModal";
 import ExamResultModal from "./ExamResultModal";
-import { Form, InputGroup } from "react-bootstrap";
+import { Form } from "react-bootstrap";
+import { FaSearch } from "react-icons/fa";
 
 const getAuthToken = () => localStorage.getItem("authToken");
 
@@ -505,10 +506,8 @@ const Appointment = () => {
 
       console.log("Dữ liệu từ API PUT:", response.data);
 
-      // Lấy dữ liệu từ response của API PUT
       const updatedResult = response.data.data;
 
-      // Cập nhật state trực tiếp từ response của API PUT
       if (updatedResult) {
         setDiagnosis(updatedResult.diagnosis || "");
         setNotes(updatedResult.note || "");
@@ -525,7 +524,6 @@ const Appointment = () => {
         }
       );
 
-      // Đóng modal chỉnh sửa và mở lại modal xem
       setShowEditResultModal(false);
       setShowResultViewModal(true);
     } catch (error) {
@@ -558,20 +556,127 @@ const Appointment = () => {
   return (
     <div className="container mt-5 table-responsive">
       <ToastContainer />
-      <div className="mb-4">
-        <InputGroup>
-          <InputGroup.Text>
-            <i className="bi bi-search"></i>
-          </InputGroup.Text>
+      <style>
+        {`
+          /* General Styling */
+          body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7fc;
+          }
+
+          /* Filter Row Styling */
+          .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          }
+
+          .custom-input, .custom-select {
+            width: 220px !important;
+            height: 45px !important;
+            border: 1px solid #e0e4e8 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+            font-size: 15px !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+            background-color: #fff !important;
+            padding: 0 15px !important;
+            margin: 0 !important;
+            line-height: 45px !important;
+            color: #333;
+            appearance: none; /* Remove default select arrow */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+          }
+
+          .custom-input:hover, .custom-select:hover {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          .custom-input:focus, .custom-select:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
+            outline: none !important;
+          }
+
+          .custom-input-group {
+            width: 220px !important;
+            position: relative;
+          }
+
+          .custom-input-group .form-control {
+            width: 100% !important;
+            padding-left: 40px !important;
+            height: 45px !important;
+            border: 1px solid #e0e4e8 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+            font-size: 15px !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+            background-color: #fff !important;
+            margin: 0 !important;
+            line-height: 45px !important;
+            color: #333;
+          }
+
+          .custom-input-group .form-control:hover {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          .custom-input-group .form-control:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
+            outline: none !important;
+          }
+
+          .custom-input-group .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            z-index: 10;
+          }
+
+          .custom-input::placeholder {
+            color: #9ca3af;
+            font-weight: 400;
+          }
+        `}
+      </style>
+      <div className="filter-row">
+        <AppointmentFilter date={date} setDate={setDate} />
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="custom-select"
+        >
+          <option value="pending">Chờ xử lý</option>
+          <option value="confirmed">Đã xác nhận</option>
+          <option value="completed">Hoàn thành</option>
+        </select>
+        <div className="custom-input-group">
+          <FaSearch className="input-icon" />
           <Form.Control
             type="text"
-            placeholder="Tìm kiếm theo tên khách hàng..."
+            placeholder="Tìm kiếm theo tên khách..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </InputGroup>
+        </div>
       </div>
-      <AppointmentFilter date={date} setDate={setDate} statusFilter={statusFilter} setStatusFilter={setStatusFilter} />
       <AppointmentList
         filteredAppointments={filteredAppointments}
         statusFilter={statusFilter}
