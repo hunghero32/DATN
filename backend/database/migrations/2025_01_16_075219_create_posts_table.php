@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('slug')->unique(); // Slug bài viết (duy nhất)
             $table->string('title'); // Tiêu đề bài viết
             $table->text('content'); // Nội dung bài viết
+            $table->string('image')->nullable(); // Ảnh đại diện bài viết
             $table->integer('views')->default(0); // Lượt xem bài viết
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft'); // Trạng thái bài viết
             $table->timestamp('published_at')->nullable(); // Thời gian xuất bản (nếu có)

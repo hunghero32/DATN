@@ -10,6 +10,7 @@ use App\Http\Requests\UpdatePostRequest;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -24,7 +25,7 @@ class PostController extends Controller
             ->search($request->search)
             ->filter($request->only(['category_id', 'status', 'published_at']))
             ->latest('published_at')
-            ->select(['id', 'category_id', 'title', 'views', 'status', 'published_at'])
+            ->select(['id', 'category_id','image', 'title', 'views', 'status', 'published_at'])
             ->latest('updated_at')->paginate(10);
         return response()->json([
             'message' => 'Lấy danh sách bài viết thành công.',
@@ -40,10 +41,16 @@ class PostController extends Controller
         $data = $request->validated();
         $data['user_id'] = auth()->id();
         $data['slug'] = $this->generateUniqueSlug($data['title']);
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('posts', 'public');
+        }
+        if ($data['status'] === 'published') {
+            $data['published_at'] = Carbon::now();
+        }
         $post = Post::create($data);
         return response()->json([
             'message' => 'Tạo bài viết thành công.',
-            'data' => $post->only(['id', 'title', 'slug', 'status', 'published_at'])
+            'data' => $post->only(['id', 'image','title', 'slug', 'status', 'published_at'])
         ], 201);
     }
 
@@ -59,7 +66,7 @@ class PostController extends Controller
         return response()->json([
             'message' => 'Lấy bài viết thành công.',
             'data' => $post->only([
-                'id', 'title', 'slug', 'content', 'views', 'status', 'published_at', 'category'
+                'id','image', 'title', 'slug', 'content', 'views', 'status', 'published_at', 'category'
             ])
         ], 200);
     }
@@ -78,11 +85,17 @@ class PostController extends Controller
         if (isset($data['title']) && $data['title'] !== $post->title) {
             $data['slug'] = $this->generateUniqueSlug($data['title']);
         }
+        if ($request->hasFile('image')) {
+            if (!empty($post->image)) {
+                Storage::delete('public/' . $post->image);
+            }
+            $data['image'] = $request->file('image')->store('posts', 'public');
+        }
         $post->update($data);
         $post->load(['category:id,name']);
         return response()->json([
             'message' => 'Cập nhật bài viết thành công.',
-            'data' => $post->only(['id', 'title', 'slug','content', 'status', 'published_at', 'category'])
+            'data' => $post->only(['id', ,'image','title', 'slug','content', 'status', 'published_at', 'category'])
         ], 200);
     }
 

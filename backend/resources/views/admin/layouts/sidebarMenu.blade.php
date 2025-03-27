@@ -57,23 +57,21 @@
 
     <ul class="menu-inner py-1">
         <!-- Dashboard -->
-        <li class="menu-item active">
+        <li class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
             <a href="{{ route('admin.dashboard') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <i class="menu-icon tf-icons bx bxs-dashboard"></i>
                 <div data-i18n="Analytics">Dashboard</div>
             </a>
         </li>
 
-
-
         {{-- Start user --}}
         <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Users</span>
+            <span class="menu-header-text">Tài Khoản</span>
         </li>
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('admin.users.index') ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lí tài khoản</div>
+                <i class="menu-icon tf-icons bx bxs-user-account"></i>
+                <div data-i18n="Account Settings">Tài khoản</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
@@ -84,17 +82,11 @@
 
             </ul>
         </li>
-
-        {{-- end user --}}
-
         {{-- Start doctor --}}
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Doctors</span>
-        </li>
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs(['admin.doctors.index', 'admin.schedule.index', 'admin.doctor_service.index']) ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý bác sĩ</div>
+            <i class="menu-icon tf-icons bx bx-plus-medical"></i>
+                <div data-i18n="Account Settings">Bác sĩ</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
@@ -102,142 +94,54 @@
                         <div data-i18n="Account">Danh sách bác sĩ</div>
                     </a>
                 </li>
-
             </ul>
-        </li>
-        {{-- End doctor --}}
-        {{-- Start category --}}
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Categories</span>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý danh muc</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{{ route('admin.categories.index') }}" class="menu-link">
-                        <div data-i18n="Account">Danh sách danh muc</div>
-                    </a>
-                </li>
-
-            </ul>
-        </li>
-
-
-        {{-- End category --}}
-        {{-- Start category --}}
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">POST</span>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý bài viết</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{{route('admin.posts.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách bài viết</div>
-                    </a>
-                </li>
-
-            </ul>
-        </li>
-
-
-        {{-- End category --}}
-
-          {{-- Start doctor --}}
-          <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Schedule</span>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý lịch làm việc của bác sĩ</div>
-            </a>
             <ul class="menu-sub">
                 <li class="menu-item">
                     <a href="{{route('admin.schedule.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách đặt lịch</div>
+                        <div data-i18n="Account">Lịch Làm Việc</div>
                     </a>
                 </li>
-
+            </ul>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.doctor_service.index')}}" class="menu-link">
+                        <div data-i18n="Account">Dịch vụ bác sĩ</div>
+                    </a>
+                </li>
             </ul>
         </li>
-        {{-- End doctor --}}
-
-
-        {{-- Start Booking --}}
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Booking</span>
-        </li>
-        <li class="menu-item">
+        {{-- end doctor --}}
+        {{-- Start guest --}}
+        <li class="menu-item {{ request()->routeIs(['admin.guests.index', 'admin.medical_records.index']) ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý đặt lịch</div>
+                <i class="menu-icon tf-icons bx bxs-user-circle"></i>
+                <div data-i18n="Account Settings">Khách hàng</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{route('admin.bookings.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách đặt lịch</div>
+                    <a href="{{route('admin.guests.index')}}" class="menu-link">
+                        <div data-i18n="Account">Danh sách khách hàng</div>
                     </a>
                 </li>
-
             </ul>
-        </li>
-        {{-- End Booking --}}
-
-        {{-- Start medical_records --}}
-        <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">medical_records</span>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý hồ sơ y tế</div>
-            </a>
             <ul class="menu-sub">
                 <li class="menu-item">
                     <a href="{{route('admin.medical_records.index')}}" class="menu-link">
                         <div data-i18n="Account">Danh sách hồ sơ y tế</div>
                     </a>
                 </li>
-
             </ul>
         </li>
-        {{-- End medical_records --}}
-
-        {{-- Start Notification --}}
+        {{-- end guest --}}
+        {{-- end user --}}
+        {{-- Start Booking --}}
         <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Notification</span>
+            <span class="menu-header-text">Dịch Vụ</span>
         </li>
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('admin.services.index') ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý Notification</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{{route('admin.notifications.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách Notification</div>
-                    </a>
-                </li>
-
-            </ul>
-        </li>
-        {{-- End Notification --}}
-
-         {{-- Start Booking --}}
-         <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Sevices</span>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý dịch vụ</div>
+                <div data-i18n="Account Settings">Dịch vụ</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
@@ -248,58 +152,71 @@
 
             </ul>
         </li>
-        {{-- End Booking --}}
-         {{-- Start guest --}}
-         <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Sevices</span>
-        </li>
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('admin.bookings.index') ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý  người khách hàng</div>
+                <i class="menu-icon tf-icons bx bx-calendar"></i>
+                <div data-i18n="Account Settings">Đặt lịch</div>
+            </a>
+        <ul class="menu-sub">
+            <li class="menu-item">
+                <a href="{{route('admin.bookings.index')}}" class="menu-link">
+                    <div data-i18n="Account">Danh sách đặt lịch</div>
+                </a>
+            </li>
+        </ul>
+        </li>
+        <li class="menu-item {{ request()->routeIs('admin.notifications.index') ? 'active' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bxs-bell-ring"></i>
+                <div data-i18n="Account Settings">Thông báo</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{route('admin.guests.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách khách hàng</div>
+                    <a href="{{route('admin.notifications.index')}}" class="menu-link">
+                        <div data-i18n="Account">Danh sách thông báo</div>
                     </a>
                 </li>
-
             </ul>
         </li>
-        {{-- End guest --}}
+        {{-- End Booking --}}
+        {{-- Start category --}}
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text">Nội Dung</span>
+        </li>
+        <li class="menu-item {{ request()->routeIs(['admin.categories.index','admin.posts.index']) ? 'active' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-edit-alt"></i>
+                <div data-i18n="Account Settings">Danh Mục - Bài Viết</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{ route('admin.categories.index') }}" class="menu-link">
+                        <div data-i18n="Account">Danh mục</div>
+                    </a>
+                </li>
+            </ul>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.posts.index')}}" class="menu-link">
+                        <div data-i18n="Account">Bài viết</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
         {{-- Start doctor_service --}}
         <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Doctor service</span>
+            <span class="menu-header-text">Hệ Thống</span>
         </li>
-        <li class="menu-item">
+        <li class="menu-item {{ request()->routeIs('admin.systems.index') ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý dịch vụ cho bác sĩ</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item">
-                    <a href="{{route('admin.doctor_service.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách dịch vụ cho bác sĩ</div>
-                    </a>
-                </li>
-
-            </ul>
-        </li>
-          {{-- Start doctor_service --}}
-          <li class="menu-header small text-uppercase">
-            <span class="menu-header-text"> systems</span>
-        </li>
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bx-dock-top"></i>
-                <div data-i18n="Account Settings">Quản lý  systems</div>
+                <i class="menu-icon tf-icons bx bxs-cog"></i>
+                <div data-i18n="Account Settings">Hệ Thống</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
                     <a href="{{route('admin.systems.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách systems</div>
+                        <div data-i18n="Account">Cấu Hình Web</div>
                     </a>
                 </li>
 

@@ -27,6 +27,7 @@ class PostFactory extends Factory
             'slug' => $this->faker->slug, // Slug ngẫu nhiên
             'title' => $this->faker->sentence, // Tiêu đề 
             'content' => $this->faker->paragraphs(3, true), // Nội dung bài viết 
+            'image' => $this->faker->imageUrl(800, 600, 'specialties'), // Hình ảnh 
             'views' => $this->faker->numberBetween(0, 10000), // Lượt xem bài viết 
             'status' => $this->faker->randomElement(['draft', 'published', 'archived']), // Trạng thái 
             'published_at' => $this->faker->optional()->dateTime, // Thời gian xuất bản  (ngẫu nhiên hoặc null)
