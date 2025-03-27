@@ -244,6 +244,14 @@
                                                         <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
                                                         <textarea class="form-control" id="{{ $field['name'] }}{{ $row['id'] }}" readonly>{{ $row[$field['name']] ?? 'Chưa cập nhật' }}</textarea>
                                                     </div>
+                                                @elseif ($field['type'] == 'custom' && isset($field['template']))
+                                                    <!-- Giao diện tùy chỉnh với template -->
+                                                    <div class="mb-3 col-md-12">
+                                                        <label class="form-label">{{ $field['label'] }}</label>
+                                                        <div class="custom-field-container">
+                                                            @include($field['template'], ['item' => $row])
+                                                        </div>
+                                                    </div>
                                                 @else
                                                     <!-- Giao diện input/select thông thường -->
                                                     <div class="mb-3 col-md-6">
@@ -318,10 +326,32 @@
         border: 2px solid #ddd;
     }
 
+    /* Custom field container styling */
+    .custom-field-container {
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        padding: 15px;
+        margin-top: 8px;
+    }
+
+    .custom-field-container .table {
+        margin-bottom: 0;
+    }
+
+    .custom-field-container .table th {
+        background-color: #e9ecef;
+        font-size: 0.85rem;
+    }
+
+    .custom-field-container .table td {
+        font-size: 0.85rem;
+        vertical-align: middle;
+    }
+
    /* Thu nhỏ thanh cuộn */
-.modal-scrollable::-webkit-scrollbar {
-    width: 6px; /* Độ rộng của thanh cuộn dọc */
-}
+   .modal-scrollable::-webkit-scrollbar {
+       width: 6px; /* Độ rộng của thanh cuộn dọc */
+   }
 
 /* Định dạng phần kéo của thanh cuộn */
 .modal-scrollable::-webkit-scrollbar-thumb {

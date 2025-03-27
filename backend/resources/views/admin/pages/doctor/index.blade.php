@@ -38,6 +38,7 @@ $detailModal = [
         ['name' => 'approve', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']],
         ['name' => 'file', 'label' => 'Tải lên (CV, Chứng chỉ)', 'type' => 'file'],
         ['name' => 'doctor_bio', 'label' => 'Thông tin', 'type' => 'textarea'],
+        ['name' => 'schedules', 'label' => 'Lịch làm việc', 'type' => 'custom', 'template' => 'admin.pages.doctor.partials.schedules'],
     ]
 ];
 @endphp

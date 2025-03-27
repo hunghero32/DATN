@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Specialty;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\FilterTrait;
@@ -22,6 +23,15 @@ class DoctorController extends Controller
             ->where('doctors.isDeleted', 0)
             ->orderBy('doctors.created_at', 'desc')
             ->paginate($perPage);
+
+        // Get schedules for each doctor
+        foreach ($data as $doctor) {
+            $doctor->schedules = Schedule::where('doctor_id', $doctor->id)
+                ->where('isDeleted', 0)
+                ->orderBy('working_date')
+                ->orderBy('time_start')
+                ->get();
+        }
 
         $statuses = config('app.statuses');
 
@@ -63,6 +73,15 @@ class DoctorController extends Controller
         $data = $query->orderBy('doctors.created_at', 'desc')
             ->paginate($perPage);
         $data->appends($request->all());
+
+        // Get schedules for each doctor
+        foreach ($data as $doctor) {
+            $doctor->schedules = Schedule::where('doctor_id', $doctor->id)
+                ->where('isDeleted', 0)
+                ->orderBy('working_date')
+                ->orderBy('time_start')
+                ->get();
+        }
 
         $statuses = config('app.statuses');
 
