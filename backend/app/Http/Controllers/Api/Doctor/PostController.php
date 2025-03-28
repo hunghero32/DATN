@@ -50,8 +50,7 @@ class PostController extends Controller
         $post = Post::create($data);
         return response()->json([
             'message' => 'Tạo bài viết thành công.',
-            'data' => $post->only(['id', 'image','title', 'slug', 'status', 'published_at'])
-        ], 201);
+            'data' => $post], 201);
     }
 
     /**
@@ -65,10 +64,7 @@ class PostController extends Controller
         $post->load(['category:id,name']);
         return response()->json([
             'message' => 'Lấy bài viết thành công.',
-            'data' => $post->only([
-                'id','image', 'title', 'slug', 'content', 'views', 'status', 'published_at', 'category'
-            ])
-        ], 200);
+            'data' => $post], 200);
     }
 
     /**
@@ -95,8 +91,7 @@ class PostController extends Controller
         $post->load(['category:id,name']);
         return response()->json([
             'message' => 'Cập nhật bài viết thành công.',
-            'data' => $post->only(['id', ,'image','title', 'slug','content', 'status', 'published_at', 'category'])
-        ], 200);
+            'data' => $post], 200);
     }
 
     /**
