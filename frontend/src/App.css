@@ -5,14 +5,16 @@
   width: auto;
 }
 
+/* 
 .ant-form-item-explain {
   display: block !important;
   margin-top: 4px;
   color: red !important; 
   text-align: left !important;
   font-size: 14px; 
+  overflow: hidden !important;
   width: 100%;
-}
+} */
 .btn-header {
   padding: 10px 16px;
   text-align: center;
