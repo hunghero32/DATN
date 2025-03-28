@@ -47,14 +47,14 @@ class Handler extends ExceptionHandler
         });
     }
     public function render($request, Throwable $exception)
-{
-    if ($exception instanceof ValidationException) {
-        return response()->json([
-            'message' => 'Dữ liệu không hợp lệ.',
-            'errors' => $exception->errors(),
-        ], 422);
+    {
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => $exception->getMessage(),
+            ], 500);
+        }
+    
+        return parent::render($request, $exception);
     }
-
-    return parent::render($request, $exception);
-}
 }
