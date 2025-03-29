@@ -86,12 +86,26 @@ const Posts = () => {
         return;
       }
 
-      const formattedData = {
-        ...formData,
-        user_id: userId,
-        published_at: `${formData.published_at} 00:00:00`,
-      };
-      const response = await api.post('/doctor/posts', formattedData);
+      const submissionData = new FormData();
+      submissionData.append('title', formData.title);
+      submissionData.append('content', formData.content);
+      submissionData.append('status', formData.status);
+      submissionData.append('slug', formData.slug);
+      submissionData.append('user_id', userId);
+      submissionData.append('category_id', formData.category_id);
+      if (formData.published_at) {
+        submissionData.append('published_at', `${formData.published_at} 00:00:00`);
+      }
+      if (formData.image && formData.image instanceof File) {
+        submissionData.append('image', formData.image);
+      }
+
+      const response = await api.post('/doctor/posts', submissionData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       setPosts((prev) => [response.data.data, ...prev]);
       setShowForm(false);
       toast.success('Tạo bài viết thành công!');
@@ -107,18 +121,34 @@ const Posts = () => {
 
   const handleUpdate = async (formData) => {
     try {
-      const formattedData = {
-        ...formData,
-        user_id: userId,
-        published_at: `${formData.published_at} 00:00:00`,
-      };
-      const response = await api.put(`/doctor/posts/${selectedPost.id}`, formattedData);
+      const submissionData = new FormData();
+      submissionData.append('title', formData.title);
+      submissionData.append('content', formData.content);
+      submissionData.append('status', formData.status);
+      submissionData.append('slug', formData.slug);
+      submissionData.append('user_id', userId);
+      submissionData.append('category_id', formData.category_id);
+      if (formData.published_at) {
+        submissionData.append('published_at', `${formData.published_at} 00:00:00`);
+      }
+      if (formData.image && formData.image instanceof File) {
+        submissionData.append('image', formData.image);
+      }
+      submissionData.append('_method', 'PUT');
+
+      const response = await api.post(`/doctor/posts/${selectedPost.id}`, submissionData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       setPosts((prev) =>
         prev.map((post) => (post.id === response.data.data.id ? response.data.data : post))
       );
       setShowForm(false);
       setSelectedPost(null);
       toast.success('Cập nhật bài viết thành công!');
+      await fetchPosts();
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message;
       setError(`Lỗi khi cập nhật bài viết: ${errorMessage}`);
@@ -131,10 +161,22 @@ const Posts = () => {
   const handleViewDetail = async (post) => {
     try {
       const response = await api.get(`/doctor/posts/${post.id}`);
+      console.log('Dữ liệu chi tiết bài viết:', response.data.data);
       setSelectedPost(response.data.data);
       setShowDetail(true);
     } catch (error) {
       setError('Lỗi khi xem chi tiết bài viết: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleEdit = async (post) => {
+    try {
+      const response = await api.get(`/doctor/posts/${post.id}`);
+      console.log('Dữ liệu bài viết để sửa:', response.data.data);
+      setSelectedPost(response.data.data);
+      setShowForm(true);
+    } catch (error) {
+      setError('Lỗi khi lấy dữ liệu bài viết để sửa: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -246,10 +288,7 @@ const Posts = () => {
                           variant="primary"
                           size="sm"
                           className="me-2 hover-shadow"
-                          onClick={() => {
-                            setSelectedPost(post);
-                            setShowForm(true);
-                          }}
+                          onClick={() => handleEdit(post)}
                           style={{ borderRadius: "6px", transition: "all 0.3s" }}
                         >
                           Sửa
