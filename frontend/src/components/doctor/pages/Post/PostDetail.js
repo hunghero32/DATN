@@ -3,8 +3,20 @@ import { Modal, Button, Row, Col, Form } from 'react-bootstrap';
 import DOMPurify from 'dompurify'; // Đảm bảo đã cài đặt dompurify
 
 const PostDetail = ({ post, onClose }) => {
-  // Làm sạch nội dung HTML để tránh XSS
   const sanitizedContent = DOMPurify.sanitize(post.content);
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return 'Chưa có dữ liệu';
+    const date = new Date(dateString);
+    return date.toLocaleString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  };
 
   return (
     <Modal show onHide={onClose} size="xl" centered>
@@ -15,9 +27,7 @@ const PostDetail = ({ post, onClose }) => {
       </Modal.Header>
       <Modal.Body style={{ padding: "30px" }}>
         <Row>
-          {/* Cột chính: ID, Tiêu đề và Nội dung */}
           <Col md={8}>
-            {/* Tiêu đề */}
             <Form.Group className="mb-3">
               <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
                 ID bài viết
@@ -30,7 +40,6 @@ const PostDetail = ({ post, onClose }) => {
               />
             </Form.Group>
 
-            {/* Tiêu đề */}
             <Form.Group className="mb-3">
               <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
                 Tiêu đề
@@ -43,7 +52,27 @@ const PostDetail = ({ post, onClose }) => {
               />
             </Form.Group>
 
-            {/* Nội dung (Hiển thị dưới dạng văn bản, không có công cụ soạn thảo) */}
+            {post.image ? (
+              <Form.Group className="mb-3">
+                <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
+                  Ảnh bài viết
+                </Form.Label>
+                <img
+                  src={`http://127.0.0.1:8000/storage/${post.image}`} // Thêm base URL
+                  alt={post.title}
+                  style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '10px' }}
+                  onError={(e) => console.log('Lỗi tải ảnh:', e)} // Debug lỗi tải ảnh
+                />
+              </Form.Group>
+            ) : (
+              <Form.Group className="mb-3">
+                <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
+                  Ảnh bài viết
+                </Form.Label>
+                <p>Không có ảnh</p>
+              </Form.Group>
+            )}
+
             <Form.Group className="mb-3">
               <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
                 Nội dung
@@ -65,9 +94,7 @@ const PostDetail = ({ post, onClose }) => {
             </Form.Group>
           </Col>
 
-          {/* Cột phụ: Các thông tin khác */}
           <Col md={4}>
-            {/* Slug */}
             <Form.Group className="mb-3">
               <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
                 Slug
@@ -80,7 +107,6 @@ const PostDetail = ({ post, onClose }) => {
               />
             </Form.Group>
 
-            {/* Lượt xem */}
             <Form.Group className="mb-3">
               <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
                 Lượt xem
@@ -93,7 +119,6 @@ const PostDetail = ({ post, onClose }) => {
               />
             </Form.Group>
 
-            {/* Trạng thái */}
             <Form.Group className="mb-3">
               <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
                 Trạng thái
@@ -106,7 +131,6 @@ const PostDetail = ({ post, onClose }) => {
               />
             </Form.Group>
 
-            {/* Ngày xuất bản */}
             <Form.Group className="mb-3">
               <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
                 Ngày xuất bản
@@ -119,7 +143,30 @@ const PostDetail = ({ post, onClose }) => {
               />
             </Form.Group>
 
-            {/* Danh mục */}
+            <Form.Group className="mb-3">
+              <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
+                Thời gian tạo
+              </Form.Label>
+              <Form.Control
+                type="text"
+                value={formatDateTime(post.created_at)}
+                readOnly
+                style={{ borderRadius: "8px", borderColor: "#ced4da", backgroundColor: "#f8f9fa" }}
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
+                Cập nhật gần nhất
+              </Form.Label>
+              <Form.Control
+                type="text"
+                value={formatDateTime(post.updated_at)}
+                readOnly
+                style={{ borderRadius: "8px", borderColor: "#ced4da", backgroundColor: "#f8f9fa" }}
+              />
+            </Form.Group>
+
             <Form.Group className="mb-3">
               <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
                 Danh mục
