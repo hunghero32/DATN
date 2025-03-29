@@ -75,6 +75,18 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div class="mb-3 col-md-6">
+                                        <label for="image" class="form-label">Ảnh</label>
+                                        <input type="file" class="form-control" id="image" name="image">
+
+                                        @if (isset($post) && $post->image)
+                                            <div class="mt-2">
+                                                <img src="{{ Storage::url($post->image) }}" width="100px"
+                                                    style="border-radius: 5px;">
+                                            </div>
+                                        @endif
+                                    </div>
+
 
                                     <div class="mb-3 col-md-6">
                                         <label for="slug" class="form-label">slug</label>

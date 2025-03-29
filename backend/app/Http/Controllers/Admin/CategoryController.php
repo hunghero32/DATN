@@ -29,7 +29,11 @@ class CategoryController extends Controller
 
     public function create()
     {
-        $categories= Category::all();
+        $categories = Category::all();
+
+        // Kiểm tra dữ liệu
+
+
         return view('admin.pages.categories.create', compact('categories'));
     }
 
@@ -48,11 +52,13 @@ class CategoryController extends Controller
 
     public function edit($id)
     {
-        $category = Category::find($id);
-        $categories= Category::all();
+        $category = Category::with('parent')->findOrFail($id);
+
+
+
         return view('admin.pages.categories.edit')->with([
             'category' => $category,
-            'categories'=> $categories
+
 
         ]);
     }
@@ -63,7 +69,7 @@ class CategoryController extends Controller
         $data = [
             'name' => $rep->name,
             'description' => $rep->description,
-            'parent_id'=>$rep->parent_id
+            'parent_id' => $rep->parent_id
         ];
         $category->update($data);
         return redirect()->route('admin.categories.index');
@@ -75,5 +81,17 @@ class CategoryController extends Controller
         return redirect()->route('admin.categories.index')->with([
             'succers' => 'Ban da xoa thanh cong'
         ]);
+    }
+    public function search(Request $request)
+    {
+        $query = $request->input('q');
+
+        if (!$query) {
+            return response()->json(['error' => 'Chưa nhập từ khóa tìm kiếm'], 400);
+        }
+
+        $categories = Category::where('name', 'LIKE', "%{$query}%")->get();
+
+        return response()->json($categories);
     }
 }

@@ -64,6 +64,7 @@
                                 <th>Tiêu đề</th>
                                 <th>Nội dung</th>
                                 <th>Lượt xem</th>
+                                <th>IMG</th>
                                 <th>Trạng thái</th>
                                 <th>Ngày xuất bản</th>
                                 <th>Hành động</th>
@@ -81,6 +82,9 @@
                                     <td>{{ $post->title }}</td>
                                     <td>{{ Str::limit($post->content, 50) }}</td>
                                     <td class="text-center">{{ $post->views }}</td>
+                                    <td>
+                                        <img src={{ Storage::Url($post->image) }} width="70px">
+                                    </td>
                                     <td class="text-center">
                                         <span
                                             class="badge {{ $post->status == 'published' ? 'bg-success' : 'bg-warning text-dark' }}">

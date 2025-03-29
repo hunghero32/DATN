@@ -65,18 +65,18 @@
                 <div class="card-body bg-light">
                     <div class="table-responsive">
                         <table class="table table-hover table-striped table-bordered align-middle text-center rounded">
-                            <thead class="table bg-primary text-dark">
+                            <thead class="table-primary">
                                 <tr>
                                     <th>STT</th>
                                     <th>Tên</th>
                                     <th>Email</th>
                                     <th>SĐT</th>
                                     <th>Vai trò</th>
-                                    
                                     <th>Ngày tạo</th>
                                     <th>Hành động</th>
                                 </tr>
                             </thead>
+
                             <tbody class="table-light">
                                 @foreach ($users as $user)
                                     <tr>

@@ -128,6 +128,9 @@ Route::prefix('admin')->group(function () {
     Route::get('categories/edit/{id}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
     Route::put('categories/update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
     Route::delete('doctors/{id}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
+    Route::get('/categories/search', [CategoryController::class, 'search'])->name('admin.categories.search');
+
+
 
     ////*****************     End categorycategory    *******************////
 
@@ -164,12 +167,15 @@ Route::prefix('admin')->group(function () {
     route::get('guests/edit/{id}', [GuestController::class, 'edit'])->name('admin.guests.edit');
     route::put('guests/update/{id}', [GuestController::class, 'update'])->name('admin.guests.update');
     // =========== System =======================
-    route::get('systems', [SystemController::class, 'index'])->name('admin.systems.index');
-    route::get('systems/create', [SystemController::class, 'create'])->name('admin.systems.create');
-    route::post('systems/store', [SystemController::class, 'store'])->name('admin.systems.store');
-    route::delete('systems/delete/{id}', [SystemController::class, 'delete'])->name('admin.systems.delete');
-    Route::get('systems/edit/{id}', [SystemController::class, 'edit'])->name('admin.systems.edit');
-    Route::put('systems/update/{id}', [SystemController::class, 'update'])->name('admin.systems.update');
+
+
+    //route::get('systems', [SystemController::class, 'index'])->name('admin.systems.index');
+    //route::get('systems-create', [SystemController::class, 'create'])->name('admin.systems.create');
+    //route::post('systems-store', [SystemController::class, 'store'])->name('admin.systems.store');
+    //route::delete('systems-delete/{id}', [SystemController::class, 'delete'])->name('admin.systems.delete');
+    Route::get('systems-edit/{id}', [SystemController::class, 'edit'])->name('admin.systems.edit');
+    Route::put('systems-update/{id}', [SystemController::class, 'update'])->name('admin.systems.update');
+
 
 
 
