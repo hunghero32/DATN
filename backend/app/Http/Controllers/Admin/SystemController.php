@@ -21,11 +21,7 @@ class SystemController extends Controller
 
         return view('admin.pages.system.index', compact('systems'));
     }
-    public function create()
-    {
 
-        return view('admin.pages.system.create');
-    }
 
     public function store(StoreSystemRequest $request)
     {
@@ -105,6 +101,6 @@ class SystemController extends Controller
             'company_email' => $request->company_email,
         ]);
 
-        return redirect()->route('admin.systems.index')->with('success', 'Cấu hình hệ thống đã được cập nhật thành công!');
+        return redirect()->route('admin.systems.edit',$id)->with('success', 'Cấu hình hệ thống đã được cập nhật thành công!');
     }
 }

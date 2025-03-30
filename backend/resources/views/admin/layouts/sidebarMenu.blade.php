@@ -215,7 +215,7 @@
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{route('admin.systems.index')}}" class="menu-link">
+                    <a href="{{route('admin.systems.edit',[$id=1])}}" class="menu-link">
                         <div data-i18n="Account">Cấu Hình Web</div>
                     </a>
                 </li>

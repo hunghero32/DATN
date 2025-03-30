@@ -14,19 +14,14 @@
                             <form action="{{ route('admin.categories.store') }}" method="POST">
                                 @csrf
 
-                                <!-- Select2 Dropdown -->
-                                <div class="mb-3">
-                                    <label for="parent_id" class="form-label">Danh mục cha</label>
-                                    <select class="form-select select2 @error('parent_id') is-invalid @enderror" name="parent_id" id="parent_id" required>
-                                        @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}" {{ old('parent_id') == $category->id ? 'selected' : '' }}>
-                                                {{ $category->id }} | {{ $category->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('parent_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                <!-- Danh mục cha -->
+                                <div class="mb-3 position-relative">
+                                    <label for="parent_name" class="form-label">Danh mục cha</label>
+                                    <input type="text" class="form-control" id="parent_name" name="parent_name"
+                                        placeholder="Nhập để tìm danh mục cha">
+                                    <input type="hidden" id="parent_id" name="parent_id">
+                                    <ul id="parent-results" class="list-group position-absolute w-100 bg-white border"
+                                        style="display: none; z-index: 1000;"></ul>
                                 </div>
 
                                 <!-- Tên danh mục -->
@@ -61,16 +56,58 @@
                 </div>
             </div>
         </div>
-
     </div>
-@endsection
 
-@section('JS')
+    <!-- Thư viện jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
     <script>
         $(document).ready(function() {
-            $('#parent_id').select2({
-                placeholder: "Chọn danh mục cha",
-                allowClear: true
+            // Xử lý tìm kiếm danh mục cha
+            $('#parent_name').on('keyup', function() {
+                let query = $(this).val().trim();
+                if (query.length < 2) {
+                    $('#parent-results').hide();
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('admin.categories.search') }}",
+                    type: "GET",
+                    data: { q: query },
+                    success: function(response) {
+                        let results = $('#parent-results');
+                        results.empty().show();
+
+                        if (response.length === 0) {
+                            results.append('<li class="list-group-item text-muted">Không tìm thấy danh mục</li>');
+                        } else {
+                            response.forEach(category => {
+                                results.append(`<li class="list-group-item list-group-item-action" data-id="${category.id}">${category.name}</li>`);
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
+
+            // Chọn danh mục cha từ danh sách kết quả
+            $(document).on('click', '#parent-results li', function() {
+                let selectedText = $(this).text();
+                let selectedId = $(this).data('id');
+
+                $('#parent_name').val(selectedText);
+                $('#parent_id').val(selectedId);
+                $('#parent-results').hide();
+            });
+
+            // Ẩn danh sách khi click ra ngoài
+            $(document).on('click', function(event) {
+                if (!$(event.target).closest('#parent_name, #parent-results').length) {
+                    $('#parent-results').hide();
+                }
             });
         });
     </script>
