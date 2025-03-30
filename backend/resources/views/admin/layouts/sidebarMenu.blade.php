@@ -138,18 +138,24 @@
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Dịch Vụ</span>
         </li>
-        <li class="menu-item {{ request()->routeIs('admin.services.index') ? 'active' : '' }}">
+        <li class="menu-item {{ request()->routeIs(['admin.services.index','admin.specialties.index']) ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-dock-top"></i>
                 <div data-i18n="Account Settings">Dịch vụ</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
+                    <a href="{{route('admin.specialties.index')}}" class="menu-link">
+                        <div data-i18n="Account">Danh sách chuyên khoa</div>
+                    </a>
+                </li>
+            </ul>
+            <ul class="menu-sub">
+                <li class="menu-item">
                     <a href="{{route('admin.services.index')}}" class="menu-link">
                         <div data-i18n="Account">Danh sách dịch vụ</div>
                     </a>
                 </li>
-
             </ul>
         </li>
         <li class="menu-item {{ request()->routeIs('admin.bookings.index') ? 'active' : '' }}">

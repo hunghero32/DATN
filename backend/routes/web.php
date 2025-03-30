@@ -18,10 +18,10 @@ use App\Http\Controllers\Admin\InvoiceDetailController;
 use App\Http\Controllers\Admin\FeedbackController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\SystemController;
+use App\Http\Controllers\Admin\SpecialtyController;
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SpecialtyController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -209,6 +209,8 @@ Route::prefix('admin')->group(function () {
     Route::get('specialties/{id}/edit', [SpecialtyController::class, 'edit'])->name('admin.specialties.edit');
     Route::put('specialties/{id}', [SpecialtyController::class, 'update'])->name('admin.specialties.update');
     Route::delete('specialties/{id}', [SpecialtyController::class, 'delete'])->name('admin.specialties.delete');
+    Route::get('specialties/{id}', [SpecialtyController::class, 'show'])->name('admin.specialties.show');
+
 
     Route::get('doctor-service', [DoctorServiceController::class, 'index'])->name('admin.doctor_service.index');
     Route::get('doctor-service/create', [DoctorServiceController::class, 'create'])->name('admin.doctor_service.create');
@@ -228,7 +230,6 @@ Route::prefix('admin')->group(function () {
 // Route::get('system', [SystemController::class, 'edit'])->name('system.edit');
 // Route::put('system', [SystemController::class, 'update'])->name('system.update');
 
-Route::resource('specialties', SpecialtyController::class); // Chuyên khoa
 Route::resource('doctor_specialties', DoctorSpecialtyController::class); // Các Chuyên khoa
 Route::get('/dashboard', function () {
     return view('dashboard');
