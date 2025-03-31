@@ -10,9 +10,17 @@ use App\Models\Doctor;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreResultRequest;
 use App\Http\Requests\UpdateResultRequest;
+use App\Services\NotificationService;
+use Carbon\Carbon;
 
 class ResultController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -104,20 +112,20 @@ class ResultController extends Controller
         if (!auth()->check() || auth()->user()->role !== 'doctor') {
             return response()->json(['message' => 'Bạn không có quyền xem kết quả này.'], 403);
         }
-    
+
         // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
         $doctorId = Doctor::where('user_id', auth()->id())->value('id');
-    
+
         // Tìm kết quả theo booking_id và đảm bảo nó thuộc về bác sĩ hiện tại
         $result = Result::with(['guest', 'doctor', 'booking'])
             ->where('booking_id', $booking_id)
             ->where('doctor_id', $doctorId) // Chỉ lấy kết quả của bác sĩ hiện tại
             ->first();
-    
+
         if (!$result) {
             return response()->json(['message' => 'Không tìm thấy kết quả hoặc bạn không có quyền truy cập.'], 404);
         }
-    
+
         return response()->json($result, 200);
     }
     public function updateByBooking(UpdateResultRequest $request, $booking_id)
@@ -150,7 +158,8 @@ class ResultController extends Controller
         }
 
         $result->update($data);
-
+        // Gửi thông báo
+        $this->sendResultNotification($result->booking);
         return response()->json([
             'message' => 'Cập nhật kết quả thành công.',
             'data'    => $result
@@ -180,6 +189,8 @@ class ResultController extends Controller
             $data['file'] = $request->file('file')->store('results', 'public');
         }
         $result->update($data);
+        // Gửi thông báo
+        $this->sendResultNotification($result->booking);
         return response()->json([
             'message' => 'Cập nhật kết quả thành công.',
             'data' => $result
@@ -206,5 +217,22 @@ class ResultController extends Controller
         }
         $result->delete();
         return response()->json(['message' => 'Xóa kết quả thành công.'], 200);
+    }
+    /**
+     * Gửi thông báo khi có kết quả khám
+     */
+    private function sendResultNotification(Booking $booking)
+    {
+        $bookingDate = Carbon::parse($booking->booking_date)->format('d/m/Y');
+        $bookingTime = Carbon::parse($booking->booking_time)->format('H:i');
+        $title = "Kết quả khám {$booking->service->services_name} đã có";
+        $content = "Lịch khám mã #{$booking->id} vào lúc {$bookingTime} ngày {$bookingDate} về {$booking->service->services_name} đã có kết quả khám. Hãy kiểm tra ngay!";
+        $this->notificationService->sendNotification(
+            $booking->guest->user_id ?? null,
+            $title,
+            $content,
+            "result",
+            $booking->id
+        );
     }
 }
