@@ -93,7 +93,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Tổng Số Bệnh Nhân</div>
+                                Tổng Số Người Đăng Kí</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalPatients }}</div>
                         </div>
                         <div class="col-auto">
@@ -158,6 +158,42 @@
             </div>
         </div>
     </div>
+
+    <!-- Top Revenue Doctor Card -->
+    <!-- Top Revenue Doctors Chart -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Doanh Thu Bác Sĩ ({{ date('Y') }})</h6>
+                <div class="dropdown no-arrow">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                        aria-labelledby="dropdownMenuLink">
+                        <div class="dropdown-header">Tùy Chọn Xuất:</div>
+                        <a class="dropdown-item" href="#"><i class="fas fa-file-csv fa-sm fa-fw mr-2 text-gray-400"></i>CSV</a>
+                        <a class="dropdown-item" href="#"><i class="fas fa-file-pdf fa-sm fa-fw mr-2 text-gray-400"></i>PDF</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                @if(isset($topRevenueDoctors) && $topRevenueDoctors->isNotEmpty())
+                    <div class="chart-container" style="position: relative; height:400px;">
+                        <canvas id="allDoctorsRevenueChart"></canvas>
+                    </div>
+                @else
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-md fa-4x text-gray-300 mb-3"></i>
+                        <p class="text-muted">Chưa có dữ liệu doanh thu bác sĩ trong năm {{ date('Y') }}</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
 
     <!-- Charts Row -->
     <div class="row">
@@ -352,178 +388,120 @@
 </div>
 @endsection
 
-@section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Set new default font family and font color to mimic Bootstrap's default styling
-    Chart.defaults.font.family = 'Nunito, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-    Chart.defaults.color = '#858796';
 
-    // Monthly Appointments Chart
-    var ctx = document.getElementById("appointmentsMonthlyChart");
-    var monthlyData = @json(array_values($appointmentsByMonth));
-    var months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: months,
-            datasets: [{
-                label: "Lịch Hẹn",
-                lineTension: 0.3,
-                backgroundColor: "rgba(78, 115, 223, 0.05)",
-                borderColor: "rgba(78, 115, 223, 1)",
-                pointRadius: 3,
-                pointBackgroundColor: "rgba(78, 115, 223, 1)",
-                pointBorderColor: "rgba(78, 115, 223, 1)",
-                pointHoverRadius: 3,
-                pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
-                pointHoverBorderColor: "rgba(78, 115, 223, 1)",
-                pointHitRadius: 10,
-                pointBorderWidth: 2,
-                data: monthlyData,
-            }],
-        },
-        options: {
-            maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    left: 10,
-                    right: 25,
-                    top: 25,
-                    bottom: 0
+    <script>
+        // Add immediate console log to verify script loading
+        console.log('Script section started');
+
+        // Wrap in try-catch to catch potential errors
+        try {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('Dashboard page loaded.');
+
+                // Doctor Revenue Chart
+                const doctorNames = @json($topRevenueDoctors->pluck('doctor_name'));
+                const revenues = @json($topRevenueDoctors->pluck('total_revenue'));
+
+                console.log('Doctor Names:', doctorNames);
+                console.log('Revenues:', revenues);
+
+                const revenueChartCanvas = document.getElementById('allDoctorsRevenueChart');
+                if (!revenueChartCanvas) {
+                    console.error('Canvas element "allDoctorsRevenueChart" not found!');
+                } else if (doctorNames.length === 0 || revenues.length === 0) {
+                    console.warn('No data available for Doctor Revenue Chart.');
+                } else {
+                    new Chart(revenueChartCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: doctorNames,
+                            datasets: [{
+                                label: 'Tổng Doanh Thu (VNĐ)',
+                                data: revenues,
+                                backgroundColor: 'rgba(78, 115, 223, 0.5)',
+                                borderColor: 'rgba(78, 115, 223, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value.toLocaleString('vi-VN') + ' VNĐ';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
                 }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    ticks: {
-                        maxTicksLimit: 12
-                    }
-                },
-                y: {
-                    ticks: {
-                        maxTicksLimit: 5,
-                        padding: 10,
-                        beginAtZero: true
-                    },
-                    grid: {
-                        color: "rgb(234, 236, 244)",
-                        zeroLineColor: "rgb(234, 236, 244)",
-                        drawBorder: false,
-                        borderDash: [2],
-                        zeroLineBorderDash: [2]
-                    }
-                },
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: "rgb(255,255,255)",
-                    bodyColor: "#858796",
-                    titleMarginBottom: 10,
-                    titleColor: '#6e707e',
-                    titleFontSize: 14,
-                    borderColor: '#dddfeb',
-                    borderWidth: 1,
-                    xPadding: 15,
-                    yPadding: 15,
-                    displayColors: false,
-                    intersect: false,
-                    mode: 'index',
-                    caretPadding: 10,
+
+                // Monthly Appointments Chart
+                const monthlyAppointments = @json(array_values($appointmentsByMonth));
+                console.log('Monthly Appointments:', monthlyAppointments);
+
+                const monthlyChartCanvas = document.getElementById('appointmentsMonthlyChart');
+                if (!monthlyChartCanvas) {
+                    console.error('Canvas element "appointmentsMonthlyChart" not found!');
+                } else {
+                    new Chart(monthlyChartCanvas, {
+                        type: 'line',
+                        data: {
+                            labels: ['Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6', 'Th.7', 'Th.8', 'Th.9', 'Th.10', 'Th.11', 'Th.12'],
+                            datasets: [{
+                                label: 'Số lịch hẹn',
+                                data: monthlyAppointments,
+                                borderColor: 'rgba(78, 115, 223, 1)',
+                                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
                 }
-            }
+
+                // Status Chart
+                const statusChart = new Chart(
+                    document.getElementById('appointmentsByStatusChart'),
+                    {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Đang chờ', 'Đã xác nhận', 'Đã hoàn thành', 'Đã hủy'],
+                            datasets: [{
+                                data: [
+                                    @json($statusStats['pending']),
+                                    @json($statusStats['confirmed']),
+                                    @json($statusStats['completed']),
+                                    @json($statusStats['cancelled'])
+                                ],
+                                backgroundColor: [
+                                    '#f6c23e',
+                                    '#36b9cc',
+                                    '#1cc88a',
+                                    '#e74a3b'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    }
+                );
+            });
+        } catch (error) {
+            console.error('Error in dashboard initialization:', error);
         }
-    });
+    </script>
 
-    // Appointments by Department Chart
-    var deptCtx = document.getElementById("appointmentsByDepartmentChart");
-    var deptData = @json($appointmentsByDepartment);
-    var deptNames = deptData.map(item => item.department);
-    var deptCounts = deptData.map(item => item.count);
-    var backgroundColors = [
-        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-        '#5a5c69', '#6610f2', '#fd7e14', '#20c9a6', '#858796'
-    ];
-
-    new Chart(deptCtx, {
-        type: 'doughnut',
-        data: {
-            labels: deptNames,
-            datasets: [{
-                data: deptCounts,
-                backgroundColor: backgroundColors.slice(0, deptNames.length),
-                hoverBackgroundColor: backgroundColors.slice(0, deptNames.length).map(color => color + 'dd'),
-                hoverBorderColor: "rgba(234, 236, 244, 1)",
-            }],
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    display: true
-                },
-                tooltip: {
-                    backgroundColor: "rgb(255,255,255)",
-                    bodyColor: "#858796",
-                    borderColor: '#dddfeb',
-                    borderWidth: 1,
-                    xPadding: 15,
-                    yPadding: 15,
-                    displayColors: false,
-                    caretPadding: 10,
-                }
-            },
-            cutout: '70%',
-        },
-    });
-
-    // Appointments by Status Chart
-    var statusCtx = document.getElementById("appointmentsByStatusChart");
-    var statusData = @json($statusStats);
-    var statusLabels = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
-    var statusValues = [statusData.pending, statusData.confirmed, statusData.completed, statusData.cancelled];
-    var statusColors = ['#f6c23e', '#1cc88a', '#36b9cc', '#e74a3b'];
-
-    new Chart(statusCtx, {
-        type: 'doughnut',
-        data: {
-            labels: statusLabels,
-            datasets: [{
-                data: statusValues,
-                backgroundColor: statusColors,
-                hoverBackgroundColor: statusColors.map(color => color + 'dd'),
-                hoverBorderColor: "rgba(234, 236, 244, 1)",
-            }],
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    display: true
-                },
-                tooltip: {
-                    backgroundColor: "rgb(255,255,255)",
-                    bodyColor: "#858796",
-                    borderColor: '#dddfeb',
-                    borderWidth: 1,
-                    xPadding: 15,
-                    yPadding: 15,
-                    displayColors: false,
-                    caretPadding: 10,
-                }
-            },
-            cutout: '70%',
-        },
-    });
-</script>
-@endsection
 

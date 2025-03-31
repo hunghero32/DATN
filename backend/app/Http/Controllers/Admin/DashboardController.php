@@ -119,6 +119,21 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Lấy bác sĩ có doanh thu cao nhất trong năm hiện tại
+        $topRevenueDoctors = DB::table('bookings')
+            ->select(
+                'doctors.id',
+                'doctors.doctor_name',
+                DB::raw('SUM(services.price) as total_revenue')
+            )
+            ->join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
+            ->join('services', 'bookings.service_id', '=', 'services.id')
+            ->whereYear('bookings.booking_date', Carbon::now()->year)
+            ->where('bookings.status', 'completed')
+            ->groupBy('doctors.id', 'doctors.doctor_name')
+            ->orderBy('total_revenue', 'desc')
+            ->get();
+
         return view('admin.pages.dashboard', compact(
             'totalAppointments',
             'upcomingAppointments',
@@ -132,7 +147,8 @@ class DashboardController extends Controller
             'appointmentsByDepartment',
             'recentAppointments',
             'statusStats',
-            'topDoctors'
+            'topDoctors',
+            'topRevenueDoctors',
         ));
     }
 }
