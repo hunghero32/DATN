@@ -12,6 +12,8 @@ const ExamResultModal = ({
   setDiagnosis,
   notes,
   setNotes,
+  prescription,
+  setPrescription,
   file,
   setFile,
   handleUpdateExamResult,
@@ -105,7 +107,7 @@ const ExamResultModal = ({
             <Spinner animation="border" />
           ) : error ? (
             <p className="text-danger">{error}</p>
-          ) : diagnosis || notes || file ? (
+          ) : diagnosis || notes || prescription || file ? (
             <Form>
               <Form.Group className="mb-3">
                 <Form.Label>Chẩn đoán:</Form.Label>
@@ -113,6 +115,15 @@ const ExamResultModal = ({
                   as="textarea"
                   rows={2}
                   value={diagnosis || ""}
+                  readOnly
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Đơn thuốc:</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={prescription || ""}
                   readOnly
                 />
               </Form.Group>
@@ -155,7 +166,7 @@ const ExamResultModal = ({
               onHideView();
             }}
           >
-            {(diagnosis || notes || file) ? "Sửa" : "Thêm kết quả khám"}
+            {(diagnosis || notes || prescription || file) ? "Sửa" : "Thêm kết quả khám"}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -163,7 +174,7 @@ const ExamResultModal = ({
       <Modal show={showEdit} onHide={onHideEdit} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            {(diagnosis || notes || file) ? "Sửa kết quả khám" : "Thêm kết quả khám"}
+            {(diagnosis || notes || prescription || file) ? "Sửa kết quả khám" : "Thêm kết quả khám"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -175,6 +186,16 @@ const ExamResultModal = ({
                 rows={2}
                 value={diagnosis || ""}
                 onChange={(e) => setDiagnosis(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Đơn thuốc:</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={prescription || ""}
+                onChange={(e) => setPrescription(e.target.value)}
+                placeholder="Nhập đơn thuốc cho bệnh nhân..."
               />
             </Form.Group>
             <Form.Group className="mb-3">

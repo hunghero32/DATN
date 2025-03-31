@@ -36,6 +36,7 @@ const Appointment = () => {
   const [appointments, setAppointments] = useState([]);
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
+  const [prescription, setPrescription] = useState("");
   const [file, setFile] = useState(null);
   const [medicalForm, setMedicalForm] = useState({
     BHYT: "",
@@ -452,12 +453,14 @@ const Appointment = () => {
       if (result && !result.message) {
         setDiagnosis(result.diagnosis || "");
         setNotes(result.note || "");
+        setPrescription(result.prescription || "");
         setFile(result.file || null);
         setResultId(result.id || null);
       } else {
         setError(result.message || "Không tìm thấy kết quả khám.");
         setDiagnosis("");
         setNotes("");
+        setPrescription("");
         setFile(null);
         setResultId(null);
       }
@@ -467,6 +470,7 @@ const Appointment = () => {
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
       setDiagnosis("");
       setNotes("");
+      setPrescription("");
       setFile(null);
       setResultId(null);
     } finally {
@@ -489,6 +493,7 @@ const Appointment = () => {
       const formData = new FormData();
       formData.append("diagnosis", diagnosis || "");
       formData.append("note", notes || "");
+      formData.append("prescription", prescription || "");
       if (file && file instanceof File) {
         formData.append("file", file);
       }
@@ -752,6 +757,8 @@ const Appointment = () => {
         setDiagnosis={setDiagnosis}
         notes={notes}
         setNotes={setNotes}
+        prescription={prescription}
+        setPrescription={setPrescription}
         file={file}
         setFile={setFile}
         handleUpdateExamResult={handleUpdateExamResult}
