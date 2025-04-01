@@ -8,7 +8,6 @@ const Header = ({ user }) => {
   const { logout } = useAuth();
   const [doctorInfo, setDoctorInfo] = useState(null);
 
-  // Fetch thông tin bác sĩ khi component mount
   useEffect(() => {
     const fetchDoctorInfo = async () => {
       try {
@@ -20,29 +19,12 @@ const Header = ({ user }) => {
         });
         setDoctorInfo(response.data);
       } catch (error) {
-        console.error('Error fetching doctor info:', error);
+        console.error('Lỗi khi lấy thông tin bác sĩ:', error);
       }
     };
 
     fetchDoctorInfo();
   }, []);
-
-  // Style cho trạng thái online
-  const onlineStyle = {
-    color: '#00D100', // Màu xanh cho trạng thái online
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '5px'
-  };
-
-  const onlineDotStyle = {
-    width: '8px',
-    height: '8px',
-    backgroundColor: '#00D100',
-    borderRadius: '50%',
-    display: 'inline-block'
-  };
 
   const handleLogout = () => {
     logout();
@@ -55,6 +37,14 @@ const Header = ({ user }) => {
 
   const handleEditProfile = () => {
     navigate("/doctor/profile/edit");
+  };
+
+  const handleAppointments = () => {
+    navigate("/doctor/appointments");
+  };
+
+  const handleSchedule = () => {
+    navigate("/doctor/schedule");
   };
 
   return (
@@ -71,7 +61,7 @@ const Header = ({ user }) => {
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Type here to search..."
+                    placeholder="Tìm kiếm bệnh nhân..."
                   />
                   <span className="input-group-text">
                     <svg
@@ -366,12 +356,12 @@ const Header = ({ user }) => {
                     className="img-fluid"
                     alt="user"
                   />
-                  <div className="caption ms-3 d-none d-lg-block">
+                  <div className="caption d-none d-lg-block">
                     <h6 className="mb-0 line-height">{doctorInfo?.doctor_name || "Bác sĩ"}</h6>
-                    <div style={onlineStyle}>
-                      <span style={onlineDotStyle}></span>
-                      <span>Online</span>
-                    </div>
+                    <span className="font-size-12 text-success">
+                      <i className="ri-checkbox-circle-fill me-1"></i>
+                      Đang hoạt động
+                    </span>
                   </div>
                 </a>
                 <div
@@ -382,10 +372,10 @@ const Header = ({ user }) => {
                     <div className="py-3 card-header d-flex justify-content-between bg-primary mb-0 rounded-top-3">
                       <div className="header-title">
                         <h5 className="mb-0 text-white">{doctorInfo?.doctor_name || "Bác sĩ"}</h5>
-                        <div style={{...onlineStyle, color: '#fff'}}>
-                          <span style={onlineDotStyle}></span>
-                          <span>Online</span>
-                        </div>
+                        <span className="text-white">
+                          <i className="ri-checkbox-circle-fill me-1"></i>
+                          Đang hoạt động
+                        </span>
                       </div>
                     </div>
                     <div className="p-0 card-body">
@@ -395,8 +385,8 @@ const Header = ({ user }) => {
                             <i className="ri-file-user-line"></i>
                           </div>
                           <div className="ms-3 flex-grow-1 text-start">
-                            <h6 className="mb-0">My Profile</h6>
-                            <p className="mb-0">View personal profile details.</p>
+                            <h6 className="mb-0">Thông tin cá nhân</h6>
+                            <p className="mb-0">Xem thông tin chi tiết.</p>
                           </div>
                         </div>
                       </a>
@@ -406,14 +396,36 @@ const Header = ({ user }) => {
                             <i className="ri-profile-line"></i>
                           </div>
                           <div className="ms-3 flex-grow-1 text-start">
-                            <h6 className="mb-0">Edit Profile</h6>
-                            <p className="mb-0">Modify your personal details.</p>
+                            <h6 className="mb-0">Chỉnh sửa thông tin</h6>
+                            <p className="mb-0">Cập nhật thông tin cá nhân.</p>
+                          </div>
+                        </div>
+                      </a>
+                      <a onClick={handleAppointments} className="iq-sub-card" style={{ cursor: 'pointer' }}>
+                        <div className="d-flex align-items-center">
+                          <div className="bg-primary-subtle px-3 py-2 rounded-1">
+                            <i className="ri-calendar-check-line"></i>
+                          </div>
+                          <div className="ms-3 flex-grow-1 text-start">
+                            <h6 className="mb-0">Quản lý lịch khám</h6>
+                            <p className="mb-0">Xem và quản lý lịch hẹn.</p>
+                          </div>
+                        </div>
+                      </a>
+                      <a onClick={handleSchedule} className="iq-sub-card" style={{ cursor: 'pointer' }}>
+                        <div className="d-flex align-items-center">
+                          <div className="bg-primary-subtle px-3 py-2 rounded-1">
+                            <i className="ri-calendar-line"></i>
+                          </div>
+                          <div className="ms-3 flex-grow-1 text-start">
+                            <h6 className="mb-0">Lịch làm việc</h6>
+                            <p className="mb-0">Quản lý lịch làm việc.</p>
                           </div>
                         </div>
                       </a>
                       <div className="iq-sub-card d-flex justify-content-center">
                         <button onClick={handleLogout} className="btn btn-primary-subtle">
-                          Sign out
+                          Đăng xuất
                           <i className="ri-login-box-line ms-2"></i>
                         </button>
                       </div>
