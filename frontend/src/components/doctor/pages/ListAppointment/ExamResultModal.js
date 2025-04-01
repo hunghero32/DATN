@@ -136,18 +136,29 @@ const ExamResultModal = ({
                   readOnly
                 />
               </Form.Group>
+              // Trong phần Form.Group cho file upload
               <Form.Group className="mb-3">
                 <Form.Label>Tệp đính kèm:</Form.Label>
-                {file ? (
-                  <a
-                    href={`http://127.0.0.1:8000/storage/${file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Xem tệp
-                  </a>
-                ) : (
-                  <p>Không có tệp đính kèm.</p>
+                <Form.Control
+                  type="file"
+                  onChange={(e) => {
+                    const selectedFile = e.target.files[0];
+                    if (selectedFile) {
+                      setFile(selectedFile);
+                    }
+                  }}
+                />
+                {file && typeof file === "string" && (
+                  <p>
+                    Tệp hiện tại:{" "}
+                    <a
+                      href={`http://127.0.0.1:8000/storage/${file}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Xem tệp
+                    </a>
+                  </p>
                 )}
               </Form.Group>
             </Form>

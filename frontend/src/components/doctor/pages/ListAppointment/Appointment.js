@@ -420,12 +420,10 @@ const Appointment = () => {
   };
 
   const handleShowExamResult = async (appointment) => {
+    if (!appointment) return;
+    
     setSelectedAppointment(appointment);
     setShowResultViewModal(true);
-    setDiagnosis("");
-    setNotes("");
-    setResultId(null);
-    setFile(null);
     setLoading(true);
     setError(null);
 
@@ -442,37 +440,28 @@ const Appointment = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Cache-Control": "no-cache",
+            'Accept': 'application/json',
+            "Cache-Control": "no-cache"
           },
         }
       );
 
-      const result = response.data;
-      console.log("Dữ liệu từ API GET:", result);
-
-      if (result && !result.message) {
-        setDiagnosis(result.diagnosis || "");
-        setNotes(result.note || "");
-        setPrescription(result.prescription || "");
-        setFile(result.file || null);
-        setResultId(result.id || null);
+      if (response.data) {
+        setDiagnosis(response.data.diagnosis || "");
+        setNotes(response.data.note || "");
+        setPrescription(response.data.prescription || "");
+        setFile(response.data.file || null);
       } else {
-        setError(result.message || "Không tìm thấy kết quả khám.");
         setDiagnosis("");
         setNotes("");
         setPrescription("");
         setFile(null);
-        setResultId(null);
       }
     } catch (error) {
+      console.error("Error fetching exam result:", error);
       const errorMessage = error.response?.data?.message || "Lỗi khi tải kết quả khám.";
       setError(errorMessage);
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
-      setDiagnosis("");
-      setNotes("");
-      setPrescription("");
-      setFile(null);
-      setResultId(null);
     } finally {
       setLoading(false);
     }
@@ -492,47 +481,51 @@ const Appointment = () => {
     try {
       const formData = new FormData();
       formData.append("diagnosis", diagnosis || "");
-      formData.append("note", notes || "");
       formData.append("prescription", prescription || "");
-      if (file && file instanceof File) {
+      formData.append("note", notes || "");
+      
+      // Chỉ append file nếu có file mới được chọn
+      if (file instanceof File) {
         formData.append("file", file);
       }
 
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
+      const response = await axios({
+        method: 'put',
+        url: `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
+        data: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json'
         }
-      );
+      });
 
-      console.log("Dữ liệu từ API PUT:", response.data);
-
-      const updatedResult = response.data.data;
-
-      if (updatedResult) {
+      if (response.data && response.data.data) {
+        const updatedResult = response.data.data;
+        
+        // Cập nhật state với dữ liệu mới
         setDiagnosis(updatedResult.diagnosis || "");
         setNotes(updatedResult.note || "");
+        setPrescription(updatedResult.prescription || "");
         setFile(updatedResult.file || null);
-        setResultId(updatedResult.id || null);
-      }
 
-      toast.success(
-        response.data.message ||
-        `Lưu kết quả khám thành công cho bệnh nhân ${selectedAppointment.guest?.guest_name || 'N/A'} (Booking ID: ${selectedAppointment.id}).`,
-        {
+        toast.success("Cập nhật kết quả khám thành công!", {
           position: "top-right",
           autoClose: 3000,
-        }
-      );
+        });
 
-      setShowEditResultModal(false);
-      setShowResultViewModal(true);
+        // Đóng modal chỉnh sửa và mở lại modal xem
+        setShowEditResultModal(false);
+        
+        // Đợi một chút trước khi mở modal xem và refresh dữ liệu
+        setTimeout(() => {
+          setShowResultViewModal(true);
+          handleShowExamResult(selectedAppointment);
+        }, 100);
+      }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Lỗi khi lưu kết quả khám.";
+      console.error("Error updating exam result:", error);
+      const errorMessage = error.response?.data?.message || "Lỗi khi cập nhật kết quả khám.";
       setError(errorMessage);
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
     } finally {
