@@ -16,7 +16,7 @@ class DoctorServiceController extends Controller
      */
     public function index(Request $request)
     {
-        $doctorServices = DoctorService::with(['service'])
+        $doctorServices = DoctorService::with(['service.category', 'service.specialty'])
             ->whereHas('doctor', function ($query) {
                 $query->where('user_id', auth()->id());
             })

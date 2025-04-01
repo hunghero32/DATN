@@ -4,10 +4,6 @@ import Dashboard from "../../components/doctor/pages/DashBoard";
 import SideBar from "../../components/doctor/SideBar";
 import { useEffect, useState } from "react";
 import ListSchedule from "../../components/doctor/pages/Schedule/ListSchedule";
-import HistoryDoctor from "../../components/doctor/pages/History/HistoryDoctor";
-import DoctorSchedule from "../../components/doctor/pages/DoctorSchedule/DoctorSchedule";
-import DoctorStatistics from "../../components/doctor/pages/DoctorStatistics/DoctorStatistics";
-import NotificationPage from "../../components/doctor/pages/NotificationPage/NotificationPage";
 import DoctorProfile from "../../components/doctor/pages/DoctorProfile/DoctorProfile";
 import Appointment from "../../components/doctor/pages/ListAppointment/Appointment";
 import DoctorServices from "../../components/doctor/pages/Services/DoctorServices";
@@ -115,11 +111,7 @@ const DoctorLayout = () => {
           />
           <Route path="/appointment" element={<Appointment/>} />
           <Route path="/doctor-profile" element={<DoctorProfile/>} />
-          <Route path="/doctor-schedule" element={<DoctorSchedule/>} />
-          <Route path="/schedule" element={<ListSchedule />} />
-          <Route path="/history-doctor" element={<HistoryDoctor />} />
-          <Route path="/doctorstatistics" element={<DoctorStatistics />} />
-          <Route path="/notificationpage" element={<NotificationPage />} />   
+          <Route path="/schedule" element={<ListSchedule />} /> 
           <Route path="/invoices" element={<Invoices />} />   
           <Route path="/posts" element={<Posts />} />  
           <Route path="/profile" element={<DoctorProfile />} />
