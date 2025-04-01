@@ -17,6 +17,8 @@ class UpdatePostRequest extends FormRequest
             'category_id' => 'sometimes|required|integer|exists:categories,id',
             'user_id' => 'sometimes|required|integer|exists:users,id',
             'slug' => 'sometimes|required|string|max:255|unique:posts,slug,' . $this->route('post')->id,
+            dd($this->route('post')),
+
             'title' => 'sometimes|required|string|max:255',
             'content' => 'sometimes|required|string',
             'views' => 'nullable|integer|min:0',
