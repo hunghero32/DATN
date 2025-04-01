@@ -72,14 +72,26 @@ class DashboardController extends Controller
         $appointmentsByDepartment = DB::table('bookings')
             ->select(
                 'specialties.name as department',
+                DB::raw('MONTH(bookings.booking_date) as month'),
                 DB::raw('COUNT(*) as count')
             )
-            ->join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
-            ->join('doctor_specialties', 'doctors.id', '=', 'doctor_specialties.doctor_id')
-            ->join('specialties', 'doctor_specialties.specialty_id', '=', 'specialties.id')
-            ->groupBy('specialties.name')
-            ->orderBy('count', 'desc')
+            ->join('services', 'bookings.service_id', '=', 'services.id')
+            ->join('specialties', 'services.specialty_id', '=', 'specialties.id')
+            ->whereYear('bookings.booking_date', Carbon::now()->year) // Chỉ lấy dữ liệu trong năm hiện tại (2025)
+            ->where('bookings.status', 'completed') // Chỉ lấy các lịch hẹn đã hoàn thành
+            ->groupBy('specialties.name', DB::raw('MONTH(bookings.booking_date)'))
+            ->orderBy('month', 'asc') // Sắp xếp theo tháng
+            ->orderBy('count', 'desc') // Sắp xếp theo số lượng lịch hẹn giảm dần
             ->get();
+
+        // Transform data for easier use in chart
+        $departmentsByMonth = [];
+        foreach ($appointmentsByDepartment as $record) {
+            if (!isset($departmentsByMonth[$record->department])) {
+                $departmentsByMonth[$record->department] = array_fill(1, 12, 0);
+            }
+            $departmentsByMonth[$record->department][$record->month] = $record->count;
+        }
 
         // Lấy các lịch đặt khám gần đây
         $recentAppointments = DB::table('bookings')
@@ -119,18 +131,19 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Lấy bác sĩ có doanh thu cao nhất trong năm hiện tại
-        $topRevenueDoctors = DB::table('bookings')
+        // Lấy bác sĩ có doanh thu cao nhất trong tháng
+        $topRevenueDoctorsByMonth = DB::table('bookings')
             ->select(
                 'doctors.id',
                 'doctors.doctor_name',
+                DB::raw('MONTH(bookings.booking_date) as month'),
                 DB::raw('SUM(services.price) as total_revenue')
             )
             ->join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
             ->join('services', 'bookings.service_id', '=', 'services.id')
             ->whereYear('bookings.booking_date', Carbon::now()->year)
             ->where('bookings.status', 'completed')
-            ->groupBy('doctors.id', 'doctors.doctor_name')
+            ->groupBy('doctors.id', 'doctors.doctor_name', DB::raw('MONTH(bookings.booking_date)'))
             ->orderBy('total_revenue', 'desc')
             ->get();
 
@@ -145,10 +158,11 @@ class DashboardController extends Controller
             'totalDepartments',
             'appointmentsByMonth',
             'appointmentsByDepartment',
+            'departmentsByMonth', // Add this line
             'recentAppointments',
             'statusStats',
             'topDoctors',
-            'topRevenueDoctors',
+            'topRevenueDoctorsByMonth'
         ));
     }
 }
