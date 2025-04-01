@@ -13,14 +13,20 @@ use App\Models\Specialty;
 use App\Models\Service;
 use App\Models\Schedule;
 use App\Models\Services;
+use App\Services\NotificationService;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
-    public function __construct()
+    private $notificationService;
+
+    public function __construct(NotificationService $notificationService)
     {
+        $this->notificationService = $notificationService;
         // $this->middleware('auth:client_api'); // Yêu cầu đăng nhập qua API
         $this->middleware('web'); // Đã thêm trước đó cho session
     }
+
     public function tempBooking(Request $request)
     {
         $data = $request->validate([
@@ -171,7 +177,8 @@ class BookingController extends Controller
             'notes' => $request->notes ?? null,
             'status' => 'pending'
         ]);
-
+        // Gửi thông báo sau khi đặt lịch thành công
+        $this->sendBookingNotification($booking);
         Session::forget('temp_booking');
 
         // Store guest information in session for appointments lookup
@@ -234,5 +241,30 @@ class BookingController extends Controller
                 'message' => 'Lỗi khi lấy danh sách lịch hẹn: ' . $e->getMessage()
             ], 500);
         }
+    }
+    private function sendBookingNotification(Booking $booking)
+    {
+        $doctor = Doctor::find($booking->doctor_id);
+        $guest = Guest::find($booking->guest_id);
+
+        if (!$guest || !$doctor) return;
+        $bookingDate = Carbon::parse($booking->booking_date)->format('d/m/Y');
+        $bookingTime = Carbon::parse($booking->booking_time)->format('H:i');
+        // Gửi thông báo cho bác sĩ về lịch hẹn mới
+        $this->notificationService->sendNotification(
+            $doctor->user_id,
+            "Lịch hẹn mới về {$booking->service->services_name}",
+            "Bạn có một lịch hẹn mới về {$booking->service->services_name} từ bệnh nhân {$guest->guest_name} vào lúc {$bookingTime} ngày {$bookingDate}.",
+            "booking",
+            $booking->id
+        );
+        // Gửi thông báo cho khách hàng về lịch hẹn đã được ghi nhận
+        $this->notificationService->sendNotification(
+            $guest->user_id,
+            "Xác nhận lịch hẹn {$booking->service->services_name}",
+            "Lịch hẹn của bạn với bác sĩ {$doctor->doctor_name} về {$booking->service->services_name} vào lúc {$bookingTime} ngày {$bookingDate} đã được tạo và đang chờ xử lý.",
+            "booking",
+            $booking->id
+        );
     }
 }

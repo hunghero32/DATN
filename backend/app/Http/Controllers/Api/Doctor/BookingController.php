@@ -8,9 +8,17 @@ use App\Models\Booking;
 use App\Models\Doctor;
 use App\Http\Requests\StoreBookingRequest;
 use App\Http\Requests\UpdateBookingRequest;
+use App\Services\NotificationService;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Lấy danh sách đặt lịch.
      */
@@ -101,6 +109,8 @@ class BookingController extends Controller
         }
         // Cập nhật trạng thái
         $booking->update(['status' => $validate['status']]);
+        // Gửi thông báo
+        $this->sendBookingNotification($booking, $validate['status']);
         // Load lại dữ liệu để đảm bảo trạng thái mới nhất
         $updatedBooking = Booking::with('doctor', 'service', 'guest')->find($booking->id);
         return response()->json([
@@ -121,5 +131,49 @@ class BookingController extends Controller
             'guest_id' => $booking->guest_id,
             'booking_id' => $booking->id,
         ]);
+    }
+    /**
+     * Hàm riêng để xử lý thông báo khi cập nhật lịch
+     */
+    private function sendBookingNotification(Booking $booking, $status)
+    {
+        $statusMap = [
+            'pending' => 'Chờ xác nhận',
+            'confirmed' => 'Đã xác nhận',
+            'completed' => 'Đã hoàn thành',
+            'cancelled' => 'Đã hủy',
+        ];
+        $statusVi = $statusMap[$status] ?? 'Không xác định';
+        $bookingDate = Carbon::parse($booking->booking_date)->format('d/m/Y');
+        $bookingTime = Carbon::parse($booking->booking_time)->format('H:i');
+        $title = "Cập nhật trạng thái lịch khám về {$booking->service->services_name }";
+        $content = "Lịch khám #{$booking->id} về {$booking->service->services_name } vào lúc {$bookingTime} ngày {$bookingDate} đã được cập nhật trạng thái: {$statusVi}";
+        // Lấy ID của bác sĩ & khách hàng
+        $doctorId = $booking->doctor->user_id ?? null;
+        $guestId = $booking->guest->user_id ?? null;
+
+        // Tạo danh sách người nhận
+        $recipientIds = array_unique(array_filter(array_merge([$doctorId, $guestId])));
+        // Gửi thông báo cập nhật trạng thái lịch khám
+        foreach ($recipientIds as $userId) {
+            $this->notificationService->sendNotification(
+                $userId,
+                $title,
+                $content,
+                "booking",
+                $booking->id
+            );
+        }
+
+        // Nếu trạng thái là "completed", gửi thêm thông báo về kết quả khám
+        if ($status === 'completed' && $guestId) {
+            $this->notificationService->sendNotification(
+                $guestId,
+                "Kết quả khám sắp có",
+                "Kết quả khám của bạn về {$booking->service->services_name} vào lúc {$bookingTime} ngày {$bookingDate} sắp có, chờ xíu nhé!",
+                "result",
+                $booking->id
+            );
+        }
     }
 }
