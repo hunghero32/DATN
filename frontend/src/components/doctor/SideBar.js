@@ -5,7 +5,6 @@ const menuItems = [
   { path: "/doctor", icon: "fa-solid fa-house-medical", name: "Doctor Dashboard" },
   { path: "/doctor/doctor-services", icon: "fa-solid fa-list-check", name: "Danh sách Dịch Vụ" },
   { path: "/doctor/appointment", icon: "fa-solid fa-calendar-check", name: "Danh sách lịch khám" },
-  { path: "/doctor/doctor-profile", icon: "fa-solid fa-user-doctor", name: "Hồ Sơ Bác Sĩ" },
   { path: "/doctor/invoices", icon: "fa-solid fa-file-invoice", name: "Hoá đơn" },
   { path: "/doctor/schedule", icon: "fa-solid fa-calendar-days", name: "Lịch làm việc" },
   { path: "/doctor/posts", icon: "fa-solid fa-comment-medical", name: "Bài viết" },

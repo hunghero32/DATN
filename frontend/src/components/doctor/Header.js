@@ -1,6 +1,62 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../guest/auth/AuthContext";
+import axios from "axios";
 
 const Header = ({ user }) => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const [doctorInfo, setDoctorInfo] = useState(null);
+
+  // Fetch thông tin bác sĩ khi component mount
+  useEffect(() => {
+    const fetchDoctorInfo = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await axios.get('http://127.0.0.1:8000/api/doctor/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setDoctorInfo(response.data);
+      } catch (error) {
+        console.error('Error fetching doctor info:', error);
+      }
+    };
+
+    fetchDoctorInfo();
+  }, []);
+
+  // Style cho trạng thái online
+  const onlineStyle = {
+    color: '#00D100', // Màu xanh cho trạng thái online
+    fontWeight: '500',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
+  };
+
+  const onlineDotStyle = {
+    width: '8px',
+    height: '8px',
+    backgroundColor: '#00D100',
+    borderRadius: '50%',
+    display: 'inline-block'
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const handleViewProfile = () => {
+    navigate("/doctor/profile");
+  };
+
+  const handleEditProfile = () => {
+    navigate("/doctor/profile/edit");
+  };
+
   return (
     <div className="position-relative">
       <nav
@@ -299,14 +355,23 @@ const Header = ({ user }) => {
                   data-bs-toggle="dropdown"
                 >
                   <img
-                    src="https://templates.iqonic.design/xray-dist/html/assets/images/user/11.png"
-                    style={{ height: "50px", width: "50px" }}
-                    className="img-fluid rounded"
+                    src={doctorInfo?.doctor_avatar || "https://templates.iqonic.design/xray-dist/html/assets/images/user/11.png"}
+                    style={{ 
+                      height: "50px", 
+                      width: "50px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      border: "2px solid #e0e4e8"
+                    }}
+                    className="img-fluid"
                     alt="user"
                   />
-                  <div className="caption d-none d-lg-block">
-                    <h6 className="mb-0 line-height">{user?.name || "Guest"}</h6>
-                    <span className="font-size-12">{user?.status || "Offline"}</span>
+                  <div className="caption ms-3 d-none d-lg-block">
+                    <h6 className="mb-0 line-height">{doctorInfo?.doctor_name || "Bác sĩ"}</h6>
+                    <div style={onlineStyle}>
+                      <span style={onlineDotStyle}></span>
+                      <span>Online</span>
+                    </div>
                   </div>
                 </a>
                 <div
@@ -316,12 +381,15 @@ const Header = ({ user }) => {
                   <div className="m-0 card">
                     <div className="py-3 card-header d-flex justify-content-between bg-primary mb-0 rounded-top-3">
                       <div className="header-title">
-                        <h5 className="mb-0 text-white">All Notifications</h5>
-                        <span className="text-white">{user?.status || "Offline"}</span>
+                        <h5 className="mb-0 text-white">{doctorInfo?.doctor_name || "Bác sĩ"}</h5>
+                        <div style={{...onlineStyle, color: '#fff'}}>
+                          <span style={onlineDotStyle}></span>
+                          <span>Online</span>
+                        </div>
                       </div>
                     </div>
                     <div className="p-0 card-body">
-                      <a href="doctor/doctor-profile.html" className="iq-sub-card">
+                      <a onClick={handleViewProfile} className="iq-sub-card" style={{ cursor: 'pointer' }}>
                         <div className="d-flex align-items-center">
                           <div className="bg-primary-subtle px-3 py-2 rounded-1">
                             <i className="ri-file-user-line"></i>
@@ -332,7 +400,7 @@ const Header = ({ user }) => {
                           </div>
                         </div>
                       </a>
-                      <a href="doctor/edit-doctor.html" className="iq-sub-card">
+                      <a onClick={handleEditProfile} className="iq-sub-card" style={{ cursor: 'pointer' }}>
                         <div className="d-flex align-items-center">
                           <div className="bg-primary-subtle px-3 py-2 rounded-1">
                             <i className="ri-profile-line"></i>
@@ -343,33 +411,11 @@ const Header = ({ user }) => {
                           </div>
                         </div>
                       </a>
-                      <a href="extra-pages/account-setting.html" className="iq-sub-card">
-                        <div className="d-flex align-items-center">
-                          <div className="bg-primary-subtle px-3 py-2 rounded-1">
-                            <i className="ri-account-box-line"></i>
-                          </div>
-                          <div className="ms-3 flex-grow-1 text-start">
-                            <h6 className="mb-0">Account Settings</h6>
-                            <p className="mb-0">Manage your account parameters.</p>
-                          </div>
-                        </div>
-                      </a>
-                      <a href="extra-pages/privacy-setting.html" className="iq-sub-card">
-                        <div className="d-flex align-items-center">
-                          <div className="bg-primary-subtle px-3 py-2 rounded-1">
-                            <i className="ri-lock-line"></i>
-                          </div>
-                          <div className="ms-3 flex-grow-1 text-start">
-                            <h6 className="mb-0">Privacy Settings</h6>
-                            <p className="mb-0">Control your privacy parameters.</p>
-                          </div>
-                        </div>
-                      </a>
                       <div className="iq-sub-card d-flex justify-content-center">
-                        <a href="auth/sign-in.html" className="btn btn-primary-subtle">
+                        <button onClick={handleLogout} className="btn btn-primary-subtle">
                           Sign out
                           <i className="ri-login-box-line ms-2"></i>
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </div>
