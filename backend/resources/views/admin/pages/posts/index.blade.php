@@ -80,10 +80,10 @@
                                     <td class="text-center">{{ $post->user ? $post->user->name : 'Không có tác giả' }}</td>
                                     <td>{{ $post->slug }}</td>
                                     <td>{{ $post->title }}</td>
-                                    <td>{{ Str::limit($post->content, 50) }}</td>
+                                    <td>{{ Str::limit($post->content, 100) }}</td>
                                     <td class="text-center">{{ $post->views }}</td>
                                     <td>
-                                        <img src={{ Storage::Url($post->image) }} width="70px">
+                                        <img src={{ Storage::Url($post->image) }} width="70px" class="rounded">
                                     </td>
                                     <td class="text-center">
                                         <span

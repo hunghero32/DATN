@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use Illuminate\Support\Str;
+
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\UpdatePostRequest;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
@@ -69,15 +72,28 @@ class PostController  extends Controller
     }
     public function store(StorePostRequest $rep)
     {
-        $filePath = null;
+        // Lấy dữ liệu đã validate
+        $data = $rep->validated();
+
+        // Xử lý upload ảnh (nếu có)
         if ($rep->hasFile('image')) {
             $filePath = $rep->file('image')->store('uploads', 'public');
+            $data['image'] = $filePath;
         }
-        if ($filePath) {
-        $data['image'] = $filePath;
-    }
-        $data = $rep->validated(); // Lấy dữ liệu đã validate
 
+        // Kiểm tra nếu không có published_at, gán mặc định là ngày hiện tại
+        if (!isset($data['published_at']) || empty($data['published_at'])) {
+            $data['published_at'] = now();
+        }
+        // Kiểm tra danh mục và người dùng
+        if (!isset($data['category_id']) || !isset($data['user_id'])) {
+            return redirect()->back()->withErrors([
+                'category_id' => 'Danh mục là bắt buộc.',
+                'user_id' => 'Người dùng là bắt buộc.'
+            ])->withInput();
+        }
+
+        // Tạo bài viết
         Post::create($data);
 
         return redirect()->route('admin.posts.index')->with('success', 'Bài viết đã được tạo thành công.');
@@ -113,30 +129,49 @@ class PostController  extends Controller
 
         ]);
     }
-    public function update(Request $rep, $id)
+    public function update(Request $request, $id)
     {
         // Tìm bài viết, nếu không có thì trả về 404
         $post = Post::findOrFail($id);
 
-        // Validate dữ liệu đầu vào
-        $data = $rep->validate([
-            
-        ]);
+        // Lấy dữ liệu đầu vào
+        $data = $request->all();
 
         // Nếu có ảnh mới, xử lý lưu ảnh và xóa ảnh cũ
-        if ($rep->hasFile('image')) {
+        if ($request->hasFile('image')) {
             // Xóa ảnh cũ nếu có
             if ($post->image) {
                 Storage::disk('public')->delete($post->image);
             }
 
             // Lưu ảnh mới vào storage/public/uploads
-            $data['image'] = $rep->file('image')->store('uploads', 'public');
+            $data['image'] = $request->file('image')->store('uploads', 'public');
         }
 
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['title']); // Tạo slug từ title
+        }
         // Cập nhật bài viết
         $post->update($data);
 
+        // Trả về trang danh sách bài viết với thông báo thành công
         return redirect()->route('admin.posts.index')->with('success', 'Bài viết đã được cập nhật thành công.');
+    }
+
+
+    // Tìm kiếm danh mục
+    public function searchCategory(Request $request)
+    {
+        $query = $request->get('q');
+        $categories = Category::where('name', 'LIKE', "%$query%")->get();
+        return response()->json($categories);
+    }
+
+    // Tìm kiếm tác giả
+    public function searchAuthor(Request $request)
+    {
+        $query = $request->get('q');
+        $users = User::where('name', 'LIKE', "%$query%")->get();
+        return response()->json($users);
     }
 }
