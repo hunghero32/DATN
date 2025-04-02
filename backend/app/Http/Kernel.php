@@ -40,8 +40,8 @@ class Kernel extends HttpKernel
 
         'api' => [
             \Illuminate\Http\Middleware\HandleCors::class,
-            \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],

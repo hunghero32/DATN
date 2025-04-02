@@ -1,0 +1,165 @@
+.doctor-services-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.services-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.services-header h2 {
+  color: #2c3e50;
+  font-weight: 600;
+  margin: 0;
+}
+
+.add-service-btn {
+  background-color: #3498db;
+  border: none;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.add-service-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.services-table-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.services-table {
+  margin-bottom: 0;
+}
+
+.services-table th {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.services-table td {
+  vertical-align: middle;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-badge.active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.inactive {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.action-buttons {
+  white-space: nowrap;
+}
+
+.action-buttons button {
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.action-buttons button:last-child {
+  margin-right: 0;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+}
+
+.pagination {
+  margin: 0;
+}
+
+.page-link {
+  color: #3498db;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 0 0.25rem;
+}
+
+.page-item.active .page-link {
+  background-color: #3498db;
+  border-color: #3498db;
+}
+
+/* Modal Styling */
+.modal-content {
+  border-radius: 8px;
+  border: none;
+}
+
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem 1.5rem;
+}
+
+.modal-title {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.form-label {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.form-control, .form-select {
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 1rem 1.5rem;
+}
+
+/* Toast Styling */
+.Toastify__toast {
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.Toastify__toast--success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.Toastify__toast--error {
+  background-color: #ffebee;
+  color: #c62828;
+} 

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MedicalRecordController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\GuestController;
@@ -145,6 +146,10 @@ Route::prefix('admin')->group(function () {
     Route::delete('posts/{id}', [PostController::class, 'delete'])->name('admin.posts.delete');
     Route::get('post/edit/{id}', [PostController::class, 'edit'])->name('admin.posts.edit');
     Route::put('posts/update/{id}', [PostController::class, 'update'])->name('admin.posts.update');
+    Route::get('/admin/posts/search-category', [PostController::class, 'searchCategory'])->name('admin.posts.searchCategory');
+    Route::get('/admin/posts/search-author', [PostController::class, 'searchAuthor'])->name('admin.posts.searchAuthor');
+
+
     ////*****************     End postpost    *******************////
 
 
@@ -218,6 +223,8 @@ Route::prefix('admin')->group(function () {
     Route::get('doctor-service/{id}/edit', [DoctorServiceController::class, 'edit'])->name('admin.doctor_service.edit');
     Route::put('doctor-service/{id}', [DoctorServiceController::class, 'update'])->name('admin.doctor_service.update');
     Route::delete('doctor-service-deleted/{id}', [DoctorServiceController::class, 'destroy'])->name('admin.doctor_service.destroy');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 });
 
 

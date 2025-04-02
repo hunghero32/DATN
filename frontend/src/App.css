@@ -501,7 +501,6 @@ body {
     max-width: 200px;
   }
 }
-
 /* Toastify position fix */
 .Toastify__toast-container--top-right {
   top: 60px !important;
@@ -510,4 +509,83 @@ body {
 .Toastify__toast {
   border-radius: 8px;
   font-size: 14px;
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+  padding: 20px;
+}
+
+.register-card {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.register-card h2 {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #555;
+}
+
+.form-control {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #6e8efb;
+  box-shadow: 0 0 0 0.2rem rgba(110, 142, 251, 0.25);
+}
+
+.btn-primary {
+  background: #6e8efb;
+  border: none;
+  padding: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #5a7af9;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  background: #a5b9fd;
+}
+
+.invalid-feedback {
+  font-size: 0.875rem;
+  color: #dc3545;
+  margin-top: 4px;
+}
+
+.alert {
+  border-radius: 8px;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+}
+
+.spinner-border {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+@media (max-width: 576px) {
+  .register-card {
+    padding: 20px;
+  }
 }

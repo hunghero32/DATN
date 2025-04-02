@@ -1,67 +1,68 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { AuthContext } from "./AuthContext";
 
 const Login = () => {
+  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
-
     try {
       const response = await axios.post(
         "http://localhost:8000/api/login",
         { email, password },
       );
 
-      console.log("Login response:", response.data); // Add this line to debug
-      localStorage.setItem("authToken", response.data.token);
+      console.log("Login response:", response.data);
+      const { token, user } = response.data;
+      localStorage.setItem("authToken", token);
       toast.success("Đăng Nhập thành công!")
-      setTimeout(() => navigate("/"), 2000);
+      login(user, token);
+      if (user.role === "doctor") {
+        navigate("/doctor");
+      } else if (user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
-      setError("Sai tài khoản hoặc mật khẩu!");
-    } finally {
-      setLoading(false);
+      setError("Đăng nhập thất bại. Kiểm tra lại thông tin!");
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Đăng Nhập</h2>
-        
+    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+      <div className="bg-violet-950 p-8 rounded-xl shadow-xl w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center text-white mb-8">Đăng Nhập</h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-
         <form onSubmit={handleLogin}>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Email</label>
+          <div className="mb-6">
             <input
               type="email"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Nhập email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4"
             />
           </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Mật khẩu</label>
+          <div className="mb-6">
             <input
               type="password"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Nhập mật khẩu"
+              placeholder="Mật khẩu"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4"
             />
           </div>
-
           <button
             type="submit"
             style={{
@@ -71,19 +72,28 @@ const Login = () => {
             className="w-full bg-blue-600 text-white text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
             disabled={loading}
           >
-            {loading ? "Đang xử lý..." : "Đăng nhập"}
+            Đăng nhập
           </button>
         </form>
-
-        {/* Đăng ký và Quên mật khẩu */}
+        
         <div className="mt-4 text-center">
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-gray-600">
             Chưa có tài khoản?{" "}
-            <a href="/register" className="!text-blue-600 font-semibold">Đăng ký ngay</a>
+            <a
+              href="/register"
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Đăng ký ngay
+            </a>
           </p>
-          <p className="text-sm text-gray-700 mt-2">
+          <p className="text-sm text-gray-600 mt-2">
             Quên mật khẩu?{" "}
-            <a href="/forgot-password" className="!text-blue-600 font-semibold">Khôi phục mật khẩu</a>
+            <a
+              href="/forgot-password"
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Khôi phục mật khẩu
+            </a>
           </p>
         </div>
       </div>
