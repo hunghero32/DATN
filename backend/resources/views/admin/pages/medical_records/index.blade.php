@@ -60,8 +60,8 @@
                                 <tr>
                                     <td>{{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}</td>
                                     <td>{{ $record->guest ? $record->guest->guest_name : 'N/A' }}</td>
-                                    <td>{{ $record->BHYT }}</td>
-                                    <td>{{ $record->note }}</td>
+                                    <td>{{ strip_tags($record->BHYT) }}</td>
+                                    <td>{{ strip_tags($record->note) }}</td>
                                     <td>
                                         <a href="{{ route('admin.medical_records.show', $record->id) }}" class="btn btn-info btn-sm">Chi tiết</a>
                                         <a href="{{ route('admin.medical_records.edit', $record->id) }}" class="btn btn-warning btn-sm">Sửa</a>

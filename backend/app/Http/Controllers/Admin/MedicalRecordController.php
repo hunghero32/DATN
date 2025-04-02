@@ -69,8 +69,7 @@ class MedicalRecordController extends Controller
     {
         $record = MedicalRecord::findOrFail($id);
 
-        $request->validate([
-            'guest_id' => 'required|exists:guests,id',
+        $validated = $request->validate([
             'BHYT' => 'nullable|string|max:50',
             'medical_condition' => 'required|string',
             'medications' => 'nullable|string',
@@ -80,7 +79,7 @@ class MedicalRecordController extends Controller
             'note' => 'nullable|string',
         ]);
 
-        $record->update($request->all());
+        $record->update($validated);
 
         return redirect()->route('admin.medical_records.index')->with('success', 'Cập nhật hồ sơ bệnh án thành công!');
     }
