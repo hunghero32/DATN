@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Form, Input, Button, message } from "antd";
-import api from "../../../ultils/api/axios"; // Thay thế bằng API của bạn
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function ResetPassword() {
   const { token } = useParams(); // Lấy token từ URL
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email"); // Lấy email từ query string
-
+ const navigate  = useNavigate()
   const [APIMESSAGE, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -15,13 +16,14 @@ export default function ResetPassword() {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      await api.post("/api/reset-password", {
+      await axios.post("http://localhost:8000/api/reset-password", {
         token,
         email,
         password: values.password,
         password_confirmation: values.confirmPassword,
       });
-      APIMESSAGE.success("Password reset successful! You can log in now.");
+      toast.success("Đổi mật khẩu thành công!")
+      setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
       APIMESSAGE.error("Error: " + (error.response?.data?.message || error.message));
     }
@@ -68,7 +70,22 @@ export default function ResetPassword() {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" block loading={loading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              loading={loading}
+              style={{
+                borderRadius: '30px',
+                padding: '20px 40px',
+                height: 'auto',
+                fontSize: '16px',
+                fontWeight: '600',
+                backgroundColor: '#2563eb',
+                border: 'none',
+              }}
+              className="hover:bg-blue-700 !text-while-600 transition-all duration-300 shadow-md hover:shadow-lg"
+            >
               Reset Password
             </Button>
           </Form.Item>

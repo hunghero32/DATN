@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { MessageCircle, X, Send, Phone } from "lucide-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -153,13 +153,24 @@ const Chatbot = ({ isOpen, toggleChat }) => {
       )}
 
       {!isOpen && (
-        <button 
-          className="flex items-center space-x-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-full shadow-lg hover:scale-105 transition-transform"
-          onClick={toggleChat}
-        >
-          <MessageCircle size={22} />
-          <span className="font-medium">Chat với trợ lý</span>
-        </button>
+        <div className="flex flex-col gap-3 items-center">
+          <Link
+            to="/hotline"
+            className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-full shadow-lg hover:scale-105 transition-transform w-[140px]"
+          >
+            <Phone size={20} />
+            <span className="font-medium">Gọi điện</span>
+          </Link>
+          <button 
+  className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-full !rounded-full shadow-lg hover:scale-105 transition-transform w-[140px]"
+  style={{ borderRadius: "999px !important" }}
+  onClick={toggleChat}
+>
+  <MessageCircle size={20} />
+  <span className="font-medium">Nhắn tin</span>
+</button>
+          
+        </div>
       )}
     </div>
   );

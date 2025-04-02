@@ -126,7 +126,11 @@ const TopBookedServices = () => {
       <div className="text-center mt-8">
         <button
           onClick={() => setShowAll(!showAll)}
-          className="bg-blue-600 text-white px-8 py-3 rounded-full hover:bg-blue-700 transition-colors duration-300 inline-flex items-center"
+          style={{
+            borderRadius: '30px',
+            padding: '16px 40px',
+          }}
+          className="bg-blue-600 mt-4 text-white hover:bg-blue-700 transition-colors duration-300 inline-flex items-center text-lg font-semibold"
         >
           {showAll ? "Thu gọn" : "Xem tất cả dịch vụ"}
           <i className={`fas fa-chevron-${showAll ? 'up' : 'down'} ml-2`}></i>

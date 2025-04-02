@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useMutation } from '@tanstack/react-query';
 import { Link } from "react-router-dom";
-import api from "../../../ultils/api/axios";
+import axios from "axios";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -10,8 +10,8 @@ export default function ForgotPassword() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data) => {
-      setError(""); // Xóa lỗi trước khi gửi request
-      const response = await api.post("/api/forgot-password", data);
+      setError(""); 
+      const response = await axios.post("http://localhost:8000/api/forgot-password", data);
       return response.data;
     },
     onSuccess: () => {
@@ -67,10 +67,14 @@ export default function ForgotPassword() {
             {/* Nút gửi yêu cầu */}
             <button
               type="submit"
-              className={`w-full p-3 rounded-lg font-semibold text-white transition-all ${
+              style={{
+                borderRadius: '30px',
+                padding: '12px 40px',
+              }}
+              className={`w-full text-lg font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg ${
                 isPending
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
+                  : "bg-blue-600 hover:bg-blue-700"
               }`}
               disabled={isPending}
             >
@@ -79,7 +83,7 @@ export default function ForgotPassword() {
 
             {/* Quay lại đăng nhập */}
             <div className="text-center mt-4">
-              <Link to="/login" className="text-blue-500 hover:underline">
+              <Link to="/login" className="!text-blue-500 hover:underline">
                 Quay lại đăng nhập
               </Link>
             </div>

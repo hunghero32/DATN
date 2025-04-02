@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { message } from "antd";
 import axios from "axios";
+import { toast } from "react-toastify";
 import { AuthContext } from "./AuthContext";
 
 const Login = () => {
@@ -15,16 +15,16 @@ const Login = () => {
     e.preventDefault();
     setError(null);
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/login",
+        { email, password },
+      );
 
+      console.log("Login response:", response.data);
       const { token, user } = response.data;
       localStorage.setItem("authToken", token);
-      alert("Đăng nhập thành công!");
+      toast.success("Đăng Nhập thành công!")
       login(user, token);
-
       if (user.role === "doctor") {
         navigate("/doctor");
       } else if (user.role === "admin") {
@@ -65,7 +65,12 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            style={{
+              borderRadius: '30px',
+              padding: '12px 40px',
+            }}
+            className="w-full bg-blue-600 text-white text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            disabled={loading}
           >
             Đăng nhập
           </button>
