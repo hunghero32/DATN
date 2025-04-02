@@ -67,7 +67,7 @@ export default function Header() {
                   </button>
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg py-2 z-50 whitespace-nowrap">
-                      <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100 !text-blue-600">
+                      <Link to="/patientProfile" className="block px-4 py-2 hover:bg-gray-100 !text-blue-600">
                         <i className="ri-user-line mr-2"></i> Thông tin cá nhân
                       </Link>
                       <Link to="/lichhen" className="block px-4 py-2 hover:bg-gray-100 !text-blue-600">
