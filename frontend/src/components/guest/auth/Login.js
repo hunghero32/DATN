@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { message } from "antd";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -19,12 +19,12 @@ const Login = () => {
       const response = await axios.post(
         "http://localhost:8000/api/login",
         { email, password },
-        { withCredentials: true } // Cần thiết nếu dùng Sanctum
       );
 
+      console.log("Login response:", response.data); // Add this line to debug
       localStorage.setItem("authToken", response.data.token);
-      alert("Đăng nhập thành công!");
-      navigate("/dashboard"); // Chuyển hướng sau khi đăng nhập thành công
+      toast.success("Đăng Nhập thành công!")
+      setTimeout(() => navigate("/"), 2000);
     } catch (err) {
       setError("Sai tài khoản hoặc mật khẩu!");
     } finally {
@@ -64,7 +64,11 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition-all"
+            style={{
+              borderRadius: '30px',
+              padding: '12px 40px',
+            }}
+            className="w-full bg-blue-600 text-white text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
             disabled={loading}
           >
             {loading ? "Đang xử lý..." : "Đăng nhập"}

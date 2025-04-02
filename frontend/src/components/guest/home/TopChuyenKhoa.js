@@ -75,15 +75,20 @@ const SpecialtiesSection = () => {
 
         {/* Nút Xem tất cả / Thu gọn */}
         {specialties.length > 4 && (
-  <div className="text-center mt-12">
-    <button
-      onClick={() => setShowAll(!showAll)}
-      className="px-8 py-4 bg-blue-600 text-white font-semibold text-lg rounded-full shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all duration-300"
-    >
-      {showAll ? "Thu gọn" : "Xem tất cả"}
-    </button>
-  </div>
-)}
+          <div className="text-center mt-4">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              style={{
+                borderRadius: '30px',
+                padding: '16px 40px',
+              }}
+              className="bg-blue-600 text-white hover:bg-blue-700 mb-4 transition-colors duration-300 inline-flex items-center text-lg font-semibold"
+            >
+              {showAll ? "Thu gọn" : "Xem tất cả"}
+              <i className={`fas fa-chevron-${showAll ? 'up' : 'down'} ml-3`}></i>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

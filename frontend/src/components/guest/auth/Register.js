@@ -1,114 +1,75 @@
-import React, { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate, Link } from "react-router-dom";
-import api from "../../../ultils/api/axios";
+import { useState } from "react";
+import { Form, Input, Button, Card, message } from "antd";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-export default function Register() {
+const Register = () => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [serverError, setServerError] = useState("");
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-  });
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (data) => {
-      setServerError("");
-      const response = await api.post("/api/register", data);
-      return response.data;
-    },
-    onSuccess: (data) => {
-      // Handle successful registration
-      if (data.message) {
-        // Optional: Show success message
-        setServerError("Registration successful!");
-      }
-      // Navigate after a short delay
-      setTimeout(() => navigate("/login"), 1000);
-    },
-    onError: (error) => {
-      if (error.response?.status === 422) {
-        // Validation errors
-        setServerError(error.response.data.message || "Validation failed");
-      } else {
-        setServerError("Registration failed. Please try again.");
-      }
-    },
-  });
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    mutate(formData);
+  const handleRegister = async (values) => {
+    setLoading(true);
+    try {
+      const response = await axios.post("http://localhost:8000/api/register", values);
+      toast.success("Đăng ký thành công! Đang chuyển hướng...");
+      setTimeout(() => navigate("/login"), 2000);
+    } catch (error) {
+      message.error(error.response?.data?.message || "Đăng ký thất bại!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center text-blue-900 mb-2">Đăng Ký</h1>
-        {serverError && <p className="text-center text-sm text-red-500">{serverError}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tên</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Xác nhận mật khẩu</label>
-            <input
-              type="password"
-              name="password_confirmation"
-              value={formData.password_confirmation}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-lg mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <Card className="w-full max-w-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Đăng Ký</h2>
+        <Form layout="vertical" onFinish={handleRegister}>
+          <Form.Item label="Họ và tên" name="name" rules={[{ required: true, message: "Vui lòng nhập họ tên!" }]}> 
+            <Input placeholder="Nhập họ và tên" />
+          </Form.Item>
+
+          <Form.Item label="Email" name="email" rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ!" }]}> 
+            <Input placeholder="Nhập email" />
+          </Form.Item>
+
+          <Form.Item label="Mật khẩu" name="password" rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}> 
+            <Input.Password placeholder="Nhập mật khẩu" />
+          </Form.Item>
+
+          <Form.Item label="Xác nhận mật khẩu" name="password_confirmation" dependencies={["password"]} 
+            rules={[{ required: true, message: "Vui lòng nhập lại mật khẩu!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("Mật khẩu không khớp!"));
+                },
+              }),
+            ]}> 
+            <Input.Password placeholder="Nhập lại mật khẩu" />
+          </Form.Item>
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
-            disabled={isPending}
+            style={{
+              borderRadius: '30px',
+              padding: '12px 40px',
+            }}
+            className="w-full bg-blue-600 text-white text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            disabled={loading}
           >
-            {isPending ? "Đang đăng ký..." : "Đăng ký"}
+            {loading ? "Đang xử lý..." : "Đăng Ký"}
           </button>
-        </form>
+        </Form>
         <p className="text-center mt-4 text-sm">
-          Đã có tài khoản? <Link to="/login" className="!text-blue-600 font-semibold">Đăng nhập</Link>
+          Đã có tài khoản? <a href="/login" className="!text-blue-600 font-semibold">Đăng nhập ngay</a>
         </p>
-      </div>
+      </Card>
     </div>
   );
-}
+};
+
+export default Register;
