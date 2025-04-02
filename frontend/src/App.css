@@ -509,6 +509,7 @@ body {
 .Toastify__toast {
   border-radius: 8px;
   font-size: 14px;
+}
 .register-container {
   min-height: 100vh;
   display: flex;
@@ -589,3 +590,5 @@ body {
     padding: 20px;
   }
 }
+
+

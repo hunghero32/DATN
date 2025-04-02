@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AuthContext } from "./AuthContext";
+import { Card } from "antd";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -15,15 +16,16 @@ const Login = () => {
     e.preventDefault();
     setError(null);
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/login",
-        { email, password },
-      );
-
+      const response = await axios.post("http://localhost:8000/api/login", { email, password });
       console.log("Login response:", response.data);
       const { token, user } = response.data;
       localStorage.setItem("authToken", token);
-      toast.success("Đăng Nhập thành công!")
+      toast.success("Đăng nhập thành công!");
+      setTimeout(() => {
+        navigate("/");
+        window.location.reload(); 
+      }, 1000);
+    
       login(user, token);
       if (user.role === "doctor") {
         navigate("/doctor");
@@ -38,19 +40,19 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-      <div className="bg-violet-950 p-8 rounded-xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-white mb-8">Đăng Nhập</h2>
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <Card className="w-full max-w-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Đăng Nhập</h2>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleLogin}>
-          <div className="mb-6">
+          <div className="mb-4">
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4"
+              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
           <div className="mb-6">
@@ -60,43 +62,27 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4"
+              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
           <button
             type="submit"
             style={{
-              borderRadius: '30px',
-              padding: '12px 40px',
+              borderRadius: "30px",
+              padding: "12px 40px",
             }}
             className="w-full bg-blue-600 text-white text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-            disabled={loading}
           >
             Đăng nhập
           </button>
         </form>
-        
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
-            Chưa có tài khoản?{" "}
-            <a
-              href="/register"
-              className="text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Đăng ký ngay
-            </a>
-          </p>
-          <p className="text-sm text-gray-600 mt-2">
-            Quên mật khẩu?{" "}
-            <a
-              href="/forgot-password"
-              className="text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Khôi phục mật khẩu
-            </a>
-          </p>
-        </div>
-      </div>
+        <p className="text-center mt-4 text-sm">
+          Chưa có tài khoản? <a href="/register" className="!text-blue-600 font-semibold">Đăng ký ngay</a>
+        </p>
+        <p className="text-center mt-2 text-sm">
+          Quên mật khẩu? <a href="/forgot-password" className="!text-blue-600 font-semibold">Khôi phục mật khẩu</a>
+        </p>
+      </Card>
     </div>
   );
 };

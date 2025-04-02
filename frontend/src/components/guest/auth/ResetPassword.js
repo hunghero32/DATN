@@ -70,24 +70,17 @@ export default function ResetPassword() {
           </Form.Item>
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-              loading={loading}
-              style={{
-                borderRadius: '30px',
-                padding: '20px 40px',
-                height: 'auto',
-                fontSize: '16px',
-                fontWeight: '600',
-                backgroundColor: '#2563eb',
-                border: 'none',
-              }}
-              className="hover:bg-blue-700 !text-while-600 transition-all duration-300 shadow-md hover:shadow-lg"
-            >
-              Reset Password
-            </Button>
+          <button
+            type="submit"
+            style={{
+              borderRadius: '30px',
+              padding: '12px 40px',
+            }}
+            className="w-full bg-blue-600 text-white text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            disabled={loading}
+          >
+            {loading ? "Đang xử lý..." : "Đổi Mật Khẩu"}
+          </button>
           </Form.Item>
         </Form>
       </div>
