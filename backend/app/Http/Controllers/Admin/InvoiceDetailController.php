@@ -25,52 +25,82 @@ class InvoiceDetailController extends Controller
     return view('admin.pages.invoice_details.index', compact('invoiceDetails'));
 }
 
-    public function create()
-    {
-        $invoices = Invoice::where('isDeleted', 0)->get();
-        $bookings = Booking::where('isDeleted', 0)->get();
-        return view('admin.pages.invoice_details.create', compact('invoices', 'bookings'));
-    }
+public function create()
+{
+    $invoices = Invoice::where('isDeleted', 0)->get();
+    $bookings = Booking::where('isDeleted', 0)
+        ->whereNotIn('id', InvoiceDetail::pluck('booking_id'))
+        ->get();
+    return view('admin.pages.invoice_details.create', compact('invoices', 'bookings'));
+}
+
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'invoice_id' => 'required|exists:invoices,id',
-            'booking_id' => 'required|exists:bookings,id',
-        ]);
+{
+    $request->validate([
+        'booking_id' => 'required|exists:bookings,id',
+        'total_amount' => 'required|numeric|min:0',
+        'discount'     => 'nullable|numeric|min:0',
+        'tax'          => 'nullable|numeric|min:0',
+    ]);
 
-        InvoiceDetail::create([
-            'invoice_id' => $request->invoice_id,
-            'booking_id' => $request->booking_id,
-            'isDeleted' => 0,
-        ]);
+    // Tạo hóa đơn mới
+    $invoice = Invoice::create([
+        'total_amount' => $request->total_amount,
+        'discount'     => $request->discount ?? 0,
+        'tax'          => $request->tax ?? 0,
+        'isDeleted'    => 0,
+    ]);
 
-        return redirect()->route('invoice_details.index')->with('success', 'Chi tiết hóa đơn đã được tạo!');
-    }
+    // Tạo chi tiết hóa đơn với invoice_id vừa tạo
+    InvoiceDetail::create([
+        'invoice_id' => $invoice->id,
+        'booking_id' => $request->booking_id,
+        'isDeleted'  => 0,
+    ]);
+    return redirect()->route('invoice_details.index')->with('success', 'Chi tiết hóa đơn đã được tạo thành công!');
+}
+
 
     public function edit($id)
     {
         $invoiceDetail = InvoiceDetail::where('id', $id)->where('isDeleted', 0)->firstOrFail();
+        $invoice = Invoice::where('id', $invoiceDetail->invoice_id)->where('isDeleted', 0)->firstOrFail();
         $invoices = Invoice::where('isDeleted', 0)->get();
-        $bookings = Booking::where('isDeleted', 0)->get();
-        return view('admin.pages.invoice_details.edit', compact('invoiceDetail', 'invoices', 'bookings'));
+                $bookings = Booking::where('isDeleted', 0)
+            ->whereNotIn('id', InvoiceDetail::where('id', '!=', $invoiceDetail->id)->pluck('booking_id'))
+            ->orWhere('id', $invoiceDetail->booking_id)
+            ->get();
+    
+        return view('admin.pages.invoice_details.edit', compact('invoiceDetail', 'invoice', 'invoices', 'bookings'));
     }
+    
 
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'invoice_id' => 'required|exists:invoices,id',
-            'booking_id' => 'required|exists:bookings,id',
-        ]);
+{
+    $request->validate([
+        'invoice_id'   => 'required|exists:invoices,id',
+        'booking_id'   => 'required|exists:bookings,id',
+        'total_amount' => 'required|numeric|min:0',
+        'discount'     => 'nullable|numeric|min:0',
+        'tax'          => 'nullable|numeric|min:0',
+    ]);
 
-        $invoiceDetail = InvoiceDetail::where('id', $id)->where('isDeleted', 0)->firstOrFail();
-        $invoiceDetail->update([
-            'invoice_id' => $request->invoice_id,
-            'booking_id' => $request->booking_id,
-        ]);
+    $invoiceDetail = InvoiceDetail::where('id', $id)->where('isDeleted', 0)->firstOrFail();
+    $invoiceDetail->update([
+        'invoice_id' => $request->invoice_id,
+        'booking_id' => $request->booking_id,
+    ]);
 
-        return redirect()->route('invoice_details.index')->with('success', 'Chi tiết hóa đơn đã được cập nhật!');
-    }
+    $invoice = Invoice::where('id', $invoiceDetail->invoice_id)->where('isDeleted', 0)->firstOrFail();
+    $invoice->update([
+        'total_amount' => $request->total_amount,
+        'discount'     => $request->discount,
+        'tax'          => $request->tax,
+    ]);
+
+    return redirect()->route('invoice_details.index')->with('success', 'Chi tiết hóa đơn và hóa đơn đã được cập nhật!');
+}
 
     public function delete($id)
     {

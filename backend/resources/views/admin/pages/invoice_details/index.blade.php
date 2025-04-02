@@ -69,6 +69,7 @@
                     <p class="text-danger">Không có file kết quả.</p>
                 @endif
 
+                <div class="mt-3 d-flex justify-content-between align-items-center">
                 <!-- Nút Sửa và Xóa -->
                 <div class="mt-3 d-flex">
                     <a href="{{ route('invoice_details.edit', $detail->id) }}" class="btn btn-warning me-2">
@@ -88,6 +89,7 @@
                 <button class="btn btn-primary mt-3" onclick="printInvoice('{{ $detail->invoice_id }}')">
                     <i class="fas fa-print"></i> In Hóa Đơn
                 </button>
+            </div>
             </div>
         </div>
     @endforeach
