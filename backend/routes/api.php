@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\Api\Admin\BookingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +30,7 @@ use App\Http\Controllers\Api\Admin\ServiceController;
 use App\Http\Controllers\Api\Doctor;
 
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Auth\SocialController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -41,7 +41,8 @@ use App\Http\Controllers\Api\ProfileController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+Route::get('/auth/google/redirect', [SocialController::class, 'redirect']);
+Route::get('/auth/google/callback', [SocialController::class, 'callback']);
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });

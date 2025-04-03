@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageCircle, X, Send, Phone } from "lucide-react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -9,6 +9,7 @@ const Chatbot = ({ isOpen, toggleChat }) => {
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [hotline, setHotline] = useState("");
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -112,6 +113,18 @@ const Chatbot = ({ isOpen, toggleChat }) => {
     );
   };
 
+  useEffect(() => {
+    const fetchHotline = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/system');
+        setHotline(response.data.hotline);
+      } catch (error) {
+        console.error("Error fetching hotline:", error);
+      }
+    };
+    fetchHotline();
+  }, []);
+
   return (
     <div className="fixed bottom-6 right-6 z-50 transition-all duration-300 transform ease-in-out">
       {isOpen && (
@@ -154,13 +167,13 @@ const Chatbot = ({ isOpen, toggleChat }) => {
 
       {!isOpen && (
         <div className="flex flex-col gap-3 items-center">
-          <Link
-            to="/hotline"
+          <a
+            href={`tel:${hotline}`}
             className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-full shadow-lg hover:scale-105 transition-transform w-[140px]"
           >
             <Phone size={20} />
             <span className="font-medium">Gọi điện</span>
-          </Link>
+          </a>
           <button 
   className="flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-full !rounded-full shadow-lg hover:scale-105 transition-transform w-[140px]"
   style={{ borderRadius: "999px !important" }}
