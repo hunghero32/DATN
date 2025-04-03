@@ -88,21 +88,18 @@
                                             @enderror
                                         </div>
 
-                                        <!-- Tác giả -->
-                                        <div class="mb-3 position-relative">
-                                            <label for="author_name" class="form-label">Tác giả</label>
-                                            <input type="text" class="form-control" id="author_name"
-                                                placeholder="Nhập để tìm tác giả"
-                                                value="{{ old('author_name', $post->user->name) }}">
-                                            <input type="hidden" id="author_id" name="user_id"
-                                                value="{{ old('user_id', $post->user_id) }}">
-                                            <ul id="author-results"
-                                                class="list-group position-absolute w-100 bg-white border"
-                                                style="display: none; z-index: 1000;"></ul>
-                                            @error('user_id')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
+
+                                    <div class="mb-3 col-md-6">
+                                        <label for="status" class="form-label">Trạng thái</label>
+                                        <select id="status" name="status" class="select2 form-select">
+                                            @foreach ($statuss as $key => $value)
+                                                <option value="{{ $key }}"
+                                                    {{ isset($post) && $post->status == $key ? 'selected' : '' }}>
+                                                    {{ $value }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
                                         <!-- Ảnh đại diện -->
                                         <div class="mb-3">

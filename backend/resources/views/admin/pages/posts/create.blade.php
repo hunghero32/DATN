@@ -67,16 +67,14 @@
                                     @enderror
                                 </div>
 
-                                <!-- Danh mục -->
-                                <div class="mb-3">
-                                    <label for="category_name" class="form-label">Danh mục</label>
-                                    <input type="text" class="form-control" id="category_name" placeholder="Nhập để tìm danh mục">
-                                    <input type="hidden" id="category_id" name="category_id" value="{{ old('category_id') }}">
-                                    <ul id="category-results" class="list-group position-absolute w-100 bg-white border" style="display: none; z-index: 1000;"></ul>
-                                    @error('category_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                    <div class="mb-3 col-md-6">
+                                        <label for="slug" class="form-label">Slug</label>
+                                        <input type="text" class="form-control @error('slug') is-invalid @enderror"
+                                            id="slug" name="slug" value="{{ old('slug') }}" placeholder="">
+                                        @error('slug')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
 
                                 <!-- Tác giả -->
                                 <div class="mb-3">

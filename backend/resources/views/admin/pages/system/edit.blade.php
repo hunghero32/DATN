@@ -13,66 +13,108 @@
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label for="site_name" class="form-label fw-bold">TÊN TRANG WEB</label>
-                            <input type="text" name="site_name" id="site_name" class="form-control" required
+                            <label class="form-label fw-bold">TÊN TRANG WEB</label>
+                            <input type="text" name="site_name" class="form-control" required
                                 value="{{ old('site_name', $system->site_name) }}">
                         </div>
 
                         <div class="col-md-4 mb-3">
-                            <label for="site_url" class="form-label fw-bold">URL TRANG WEB</label>
-                            <input type="url" name="site_url" id="site_url" class="form-control"
+                            <label class="form-label fw-bold">URL TRANG WEB</label>
+                            <input type="url" name="site_url" class="form-control" required
                                 value="{{ old('site_url', $system->site_url) }}">
                         </div>
 
                         <div class="col-md-4 mb-3">
-                            <label for="default_language" class="form-label fw-bold">NGÔN NGỮ MẶC ĐỊNH</label>
-                            <input type="text" name="default_language" id="default_language" class="form-control"
-                                value="{{ old('default_language', $system->default_language) }}">
+                            <label class="form-label fw-bold">NGÔN NGỮ MẶC ĐỊNH</label>
+                            <select name="default_language" class="form-control">
+                                <option value="vi"
+                                    {{ old('default_language', $system->default_language) == 'vi' ? 'selected' : '' }}>Tiếng
+                                    Việt</option>
+                                <option value="en"
+                                    {{ old('default_language', $system->default_language) == 'en' ? 'selected' : '' }}>
+                                    English</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label for="site_logo" class="form-label fw-bold">LOGO TRANG WEB</label>
-                            <input type="file" name="site_logo" id="site_logo" class="form-control">
+                            <label class="form-label fw-bold">LOGO TRANG WEB</label>
+                            <input type="file" name="site_logo" class="form-control">
                             @if ($system->site_logo)
                                 <div class="mt-2">
                                     <img src="{{ asset('storage/' . $system->site_logo) }}" alt="Logo" width="80">
                                     <a href="{{ asset('storage/' . $system->site_logo) }}"
-                                        class="btn btn-primary btn-sm">Tải về</a>
+                                        class="btn btn-primary btn-sm">Tải
+                                        về</a>
                                 </div>
                             @endif
                         </div>
 
+
                         <div class="col-md-4 mb-3">
-                            <label for="site_favicon" class="form-label fw-bold">FAVICON</label>
-                            <input type="file" name="site_favicon" id="site_favicon" class="form-control">
+                            <label class="form-label fw-bold">FAVICON</label>
+                            <input type="file" name="site_favicon" class="form-control">
                             @if ($system->site_favicon)
                                 <div class="mt-2">
-                                    <img src="{{ asset('storage/' . $system->site_favicon) }}" alt="Favicon"
-                                        width="40">
+                                    <img src="{{ asset('storage/' . $system->site_favicon) }}" alt="Logo"
+                                        width="80">
                                     <a href="{{ asset('storage/' . $system->site_favicon) }}"
-                                        class="btn btn-primary btn-sm">Tải về</a>
+                                        class="btn btn-primary btn-sm">Tải
+                                        về</a>
                                 </div>
                             @endif
                         </div>
 
                         <div class="col-md-4 mb-3">
-                            <label for="timezone" class="form-label fw-bold">MÚI GIỜ</label>
-                            <input type="text" name="timezone" id="timezone" class="form-control"
-                                value="{{ old('timezone', $system->timezone) }}">
+                            <label class="form-label fw-bold">MÚI GIỜ</label>
+                            <select name="timezone" class="form-control">
+                                <option value="UTC+7"
+                                    {{ old('timezone', $system->timezone) == 'UTC+7' ? 'selected' : '' }}>UTC+7 (Vietnam)
+                                </option>
+                                <option value="UTC+8"
+                                    {{ old('timezone', $system->timezone) == 'UTC+8' ? 'selected' : '' }}>UTC+8 (China,
+                                    Singapore)</option>
+                                <!-- Thêm các múi giờ khác nếu cần -->
+                            </select>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="meta_tags" class="form-label fw-bold">THẺ META</label>
-                            <textarea name="meta_tags" id="meta_tags" class="form-control" rows="2">{{ old('meta_tags', $system->meta_tags) }}</textarea>
+                            <label class="form-label fw-bold">THẺ META</label>
+                            <textarea name="meta_tags" class="form-control" rows="2">{{ old('meta_tags', $system->meta_tags) }}</textarea>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label for="site_description" class="form-label fw-bold">MÔ TẢ</label>
-                            <textarea name="site_description" id="site_description" class="form-control" rows="2">{{ old('site_description', $system->site_description) }}</textarea>
+                            <label class="form-label fw-bold">MÔ TẢ</label>
+                            <textarea name="site_description" class="form-control" rows="2">{{ old('site_description', $system->site_description) }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">MÃ THEO DÕI</label>
+                            <textarea name="tracking_code" class="form-control" rows="2">{{ old('tracking_code', $system->tracking_code) }}</textarea>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">TỪ KHÓA</label>
+                            <textarea name="site_keywords" class="form-control" rows="2">{{ old('site_keywords', $system->site_keywords) }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">ĐỊA CHỈ</label>
+                            <input type="text" name="address" class="form-control"
+                                value="{{ old('address', $system->address) }}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">HOTLINE</label>
+                            <input type="text" name="hotline" class="form-control"
+                                value="{{ old('hotline', $system->hotline) }}">
                         </div>
                     </div>
 
