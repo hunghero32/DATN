@@ -82,9 +82,11 @@
                                     <td>{{ $post->title }}</td>
                                     <td>{{ Str::limit($post->content, 100) }}</td>
                                     <td class="text-center">{{ $post->views }}</td>
-                                    <td>
-                                        <img src={{ Storage::Url($post->image) }} width="70px" class="rounded">
+                                  
+                                    <td class="text-center">
+                                        <img src={{ Storage::Url($post->image) }} width="70px">
                                     </td>
+
                                     <td class="text-center">
                                         <span
                                             class="badge {{ $post->status == 'published' ? 'bg-success' : 'bg-warning text-dark' }}">
