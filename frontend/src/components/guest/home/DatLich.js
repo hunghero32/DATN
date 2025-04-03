@@ -14,6 +14,7 @@ import {
   message
 } from "antd";
 import api from "../../../ultils/api/axios";
+import axios from "axios";
 
 const { Title, Text } = Typography;
 
@@ -23,6 +24,29 @@ const DatLich = () => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [bookingData, setBookingData] = useState(null);
+  const [systemInfo, setSystemInfo] = useState({});
+
+  // Fetch system info from API
+  useEffect(() => {
+    const fetchSystemInfo = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/system");
+        const data = response.data;
+        if (data) {
+          setSystemInfo(data);
+        } else {
+          console.warn("Không có dữ liệu hệ thống");
+        }
+      } catch (error) {
+        console.error("❌ Lỗi khi lấy thông tin hệ thống:", error);
+      }
+    };
+  
+    fetchSystemInfo();
+  }, []);
+  
+  // Log the systemInfo to debug
+  console.log("Day la du lieu addres và title ", systemInfo);
 
   useEffect(() => {
     const storedData = localStorage.getItem('bookingData');
@@ -46,9 +70,8 @@ const DatLich = () => {
         message.error("Không tìm thấy thông tin đặt lịch!");
         navigate("/services");
     }
-}, []);
+  }, []);
 
-// Remove or comment out the fetchDoctorDetails function and its useEffect
   const [doctorDetails, setDoctorDetails] = useState(null);
 
   useEffect(() => {
@@ -70,11 +93,9 @@ const DatLich = () => {
     } catch (error) {
         console.error("❌ Lỗi lấy thông tin bác sĩ:", error);
         message.error(error.message);
-        // navigate("/services");
     }
-};
+  };
 
-  // Hàm xác nhận đặt lịch
   const onFinish = async (values) => {
     setLoading(true);
     // Kiểm tra bookingData có đầy đủ không
@@ -121,10 +142,9 @@ const DatLich = () => {
       setLoading(false);
     }
   };
-  
 
   return (
-    <div className="appointment-container p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg">
+    <div className="appointment-container p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg mt-2">
       <Card className="p-4">
         <Title level={3} className="text-blue-600 font-bold mb-2">📅 Đặt lịch khám</Title>
         
@@ -167,8 +187,15 @@ const DatLich = () => {
               </div>
             </div>
             <Divider />
-            <Text className="block font-semibold">🏥 Phòng khám Spinetech Clinic</Text>
-            <Text className="block">📍 Tòa nhà GP, 257 Giải Phóng, Phương Mai, Đống Đa, Hà Nội</Text>
+            <Text className="block font-semibold">
+              🏥 {systemInfo?.site_name || "Tên cơ sở y tế không có"}
+            </Text>
+            <Text className="block">
+              📍 {systemInfo?.address || "Địa chỉ không có"}
+            </Text>
+            <Text className="block">
+              📍 {systemInfo?.site_description || "Không có mô tả!"}
+            </Text>
           </Col>
         </Row>
         <Divider />
@@ -176,42 +203,41 @@ const DatLich = () => {
 
       <Card className="p-6 mt-6">
         <Form form={form} layout="vertical" initialValues={{
-    guest_name: "",
-    gender: "",
-    guest_phone: "",
-    guest_email: "",
-    birthday: "",
-    address: "",
-    reason: ""
-}}  onFinish={onFinish}>
-        <Form.Item name="guest_name" label="Họ và Tên" rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}>
-    <Input placeholder="Nhập họ và tên" />
-</Form.Item>
+          guest_name: "",
+          gender: "",
+          guest_phone: "",
+          guest_email: "",
+          birthday: "",
+          address: "",
+          reason: ""
+        }} onFinish={onFinish}>
+          <Form.Item name="guest_name" label="Họ và Tên" rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}>
+            <Input placeholder="Nhập họ và tên" />
+          </Form.Item>
 
-<Form.Item name="gender" label="Giới tính" rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}>
-<Radio.Group>
-  <Radio value="male" style={{ marginRight: "10px" }}>Nam</Radio>
-  <Radio value="female" style={{ marginRight: "10px" }}>Nữ</Radio>
-  <Radio value="other" style={{ marginRight: "10px" }}>Khác</Radio>
-</Radio.Group>
-</Form.Item>
+          <Form.Item name="gender" label="Giới tính" rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}>
+            <Radio.Group>
+              <Radio value="male" style={{ marginRight: "10px" }}>Nam</Radio>
+              <Radio value="female" style={{ marginRight: "10px" }}>Nữ</Radio>
+              <Radio value="other" style={{ marginRight: "10px" }}>Khác</Radio>
+            </Radio.Group>
+          </Form.Item>
 
-<Form.Item name="guest_phone" label="Số Điện Thoại" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
-    <Input placeholder="Nhập số điện thoại" />
-</Form.Item>
+          <Form.Item name="guest_phone" label="Số Điện Thoại" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
+            <Input placeholder="Nhập số điện thoại" />
+          </Form.Item>
 
-<Form.Item name="guest_email" label="Email" rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ" }]}>
-    <Input placeholder="Nhập email" />
-</Form.Item>
+          <Form.Item name="guest_email" label="Email" rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ" }]}>
+            <Input placeholder="Nhập email" />
+          </Form.Item>
 
-<Form.Item name="birthday" label="Năm sinh" rules={[{ required: true, message: "Vui lòng nhập năm sinh" }]}>
-    <Input type="date" />
-</Form.Item>
+          <Form.Item name="birthday" label="Năm sinh" rules={[{ required: true, message: "Vui lòng nhập năm sinh" }]}>
+            <Input type="date" />
+          </Form.Item>
 
-<Form.Item name="address" label="Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
-    <Input placeholder="Nhập địa chỉ" />
-</Form.Item>
-
+          <Form.Item name="address" label="Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
+            <Input placeholder="Nhập địa chỉ" />
+          </Form.Item>
 
           <Divider />
           <Text className="font-semibold">💳 Hình thức thanh toán: Thanh toán sau tại cơ sở y tế</Text>
