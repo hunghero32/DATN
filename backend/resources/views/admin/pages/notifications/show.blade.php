@@ -12,8 +12,8 @@
             <p><strong>ID:</strong> {{ $data->id }}</p>
             <p><strong>Người dùng:</strong> {{ $data->user->name ?? 'N/A' }}</p>
             <p><strong>Đặt lịch:</strong> {{ $data->booking_id ?? 'N/A' }}</p>
-            <p><strong>Tiêu đề:</strong> {{ $data->title }}</p>
-            <p><strong>Nội dung:</strong> {{ $data->content }}</p>
+            <p><strong>Tiêu đề:</strong> {{ strip_tags($data->title) }}</p>
+            <p><strong>Nội dung:</strong> {{ strip_tags($data->content) }}</p>
             <p><strong>Loại:</strong> {{ $data->type }}</p>
             <p><strong>Trạng thái:</strong> {{ $data->is_read ? 'Đã đọc' : 'Chưa đọc' }}</p>
         </div>
@@ -25,3 +25,5 @@
 </div>
 
 @endsection
+
+

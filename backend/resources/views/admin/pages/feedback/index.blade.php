@@ -5,7 +5,7 @@
     <h2 class="mb-3">Danh Sách Phản Hồi</h2>
 
     <form action="{{ route('admin.feedback.index') }}" method="GET" class="mb-3">
-        <div class="row">
+        <div class="row d-flex align-items-center">
             <div class="col-md-4">
                 <input type="text" name="search" class="form-control" placeholder="Tìm kiếm theo bình luận hoặc dịch vụ" value="{{ request()->search }}">
             </div>
@@ -22,9 +22,12 @@
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary">Tìm kiếm</button>
             </div>
+            <div class="col-md-3">
+                <a href="{{ route('admin.feedback.create') }}" class="btn btn-success">Thêm feedback</a>
+            </div>
         </div>
     </form>
-    <a href="{{ route('admin.feedback.create') }}" class="btn btn-primary mb-3">Thêm feedback</a>
+    
 
     <table class="table table-bordered">
         <thead>
