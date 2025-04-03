@@ -22,7 +22,7 @@ Route::get('/list-specialty', [SpecialtyController::class, 'listSpecialty']);
 //*************** Lấy ra danh sách dịch vụ  ************/
 Route::get('/list-service',[ServiceController::class,'listService']);
 
-Route::get('/services/search', [ServiceController::class, 'searchByKeyword']);
+Route::get('/services/search', [ServiceController::class, 'searchBySpecialtyName']);
 //*************** Lấy ra chi tiết dịch vụ  ************/
 Route::get('/detail-service/{id}',[ServiceController::class,'detailService']);
 
