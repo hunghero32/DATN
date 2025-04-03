@@ -31,16 +31,27 @@ class ServiceController extends Controller
     {
         // Lấy thông tin dịch vụ cùng chuyên khoa và danh mục
         $service = Services::where('status', 1)
-            ->where('services.isDeleted', 0) // 👉 Chỉ rõ bảng services
+            ->where('services.isDeleted', 0)
             ->where('id', $request->id)
             ->with([
                 'category:id,name',
                 'specialty:id,name,image',
                 'doctors' => function ($query) {
-                    $query->where('doctors.isDeleted', 0) // 👉 Chỉ rõ bảng doctors
+                    $query->where('doctors.isDeleted', 0)
                         ->where('doctors.approve', 1)
                         ->with(['schedules' => function ($q) {
-                            $q->where('schedules.isDeleted', 0); // 👉 Chỉ rõ bảng schedules
+                            $currentDate = now()->format('Y-m-d');
+                            $twoHoursFromNow = now()->addHours(2)->format('H:i:s');
+
+                            $q->where('schedules.isDeleted', 0)
+                              ->where('working_date', '>=', $currentDate)
+                              ->where(function($query) use ($currentDate, $twoHoursFromNow) {
+                                  $query->where('working_date', '>', $currentDate)
+                                       ->orWhere(function($q) use ($currentDate, $twoHoursFromNow) {
+                                           $q->where('working_date', $currentDate)
+                                             ->where('time_start', '>', $twoHoursFromNow);
+                                       });
+                              });
                         }]);
                 }
             ])
