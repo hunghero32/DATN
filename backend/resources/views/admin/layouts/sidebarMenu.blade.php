@@ -184,6 +184,13 @@
                 </a>
             </li>
         </ul>
+        <ul class="menu-sub">
+            <li class="menu-item">
+                <a href="{{route('admin.report.index')}}" class="menu-link">
+                    <div data-i18n="Account">Xuất file</div>
+                </a>
+            </li>
+        </ul>
         </li>
         <li class="menu-item {{ request()->routeIs('admin.notifications.index') ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">

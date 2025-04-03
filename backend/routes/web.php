@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\FeedbackController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\SpecialtyController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\DoctorSpecialtyController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProfileController;
@@ -216,7 +217,9 @@ Route::prefix('admin')->group(function () {
     Route::delete('specialties/{id}', [SpecialtyController::class, 'delete'])->name('admin.specialties.delete');
     Route::get('specialties/{id}', [SpecialtyController::class, 'show'])->name('admin.specialties.show');
 
-
+    Route::get('/report', [ReportController::class, 'index'])->name('admin.report.index');
+    Route::get('/report/export', [ReportController::class, 'export'])->name('admin.report.export');
+    
     Route::get('doctor-service', [DoctorServiceController::class, 'index'])->name('admin.doctor_service.index');
     Route::get('doctor-service/create', [DoctorServiceController::class, 'create'])->name('admin.doctor_service.create');
     Route::post('doctor-service', [DoctorServiceController::class, 'store'])->name('admin.doctor_service.store');
