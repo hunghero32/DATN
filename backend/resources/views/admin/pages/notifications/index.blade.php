@@ -28,8 +28,9 @@
                         <div class="col-md-3">
                             <select class="form-control" name="type">
                                 <option value="">-- Loại thông báo --</option>
-                                <option value="info">Thông tin</option>
-                                <option value="warning">Cảnh báo</option>
+                                <option value="booking">Đặt phòng</option>
+                                <option value="payment">Thanh toán</option>
+                                <option value="general">Chung</option>
                             </select>
                         </div>
 
@@ -107,3 +108,5 @@
     </div>
     
 @endsection
+
+

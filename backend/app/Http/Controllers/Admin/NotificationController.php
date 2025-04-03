@@ -58,10 +58,16 @@ class NotificationController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'type' => 'required|string|max:50',
-            'is_read' => 'required|boolean',
         ]);
 
-        Notification::create($request->all());
+        Notification::create([
+            'user_id' => $request->user_id,
+            'booking_id' => $request->booking_id,
+            'title' => $request->title,
+            'content' => $request->content,
+            'type' => $request->type,
+            'is_read' => $request->is_read ?? 0, // Nếu không có thì mặc định là 0
+        ]);
 
         return redirect()->route('admin.notifications.index')->with('success', 'Thông báo đã được tạo!');
     }
@@ -100,3 +106,5 @@ class NotificationController extends Controller
         return redirect()->route('admin.notifications.index')->with('success', 'Thông báo đã bị xóa!');
     }
 }
+
+
