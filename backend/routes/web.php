@@ -146,6 +146,10 @@ Route::prefix('admin')->group(function () {
     Route::delete('posts/{id}', [PostController::class, 'delete'])->name('admin.posts.delete');
     Route::get('post/edit/{id}', [PostController::class, 'edit'])->name('admin.posts.edit');
     Route::put('posts/update/{id}', [PostController::class, 'update'])->name('admin.posts.update');
+    Route::get('/admin/posts/search-category', [PostController::class, 'searchCategory'])->name('admin.posts.searchCategory');
+    Route::get('/admin/posts/search-author', [PostController::class, 'searchAuthor'])->name('admin.posts.searchAuthor');
+
+
     ////*****************     End postpost    *******************////
 
 

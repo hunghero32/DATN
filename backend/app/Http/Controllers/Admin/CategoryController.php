@@ -56,24 +56,27 @@ class CategoryController extends Controller
 
 
 
+
         return view('admin.pages.categories.edit')->with([
             'category' => $category,
 
 
         ]);
-    }
-    public function update($id, Request $rep)
+    }public function update(Request $rep, $id)
     {
-        $category = Category::find($id);
+        $category = Category::findOrFail($id);
 
         $data = [
             'name' => $rep->name,
             'description' => $rep->description,
-            'parent_id' => $rep->parent_id
+            'parent_id' => $rep->parent_id ?: null // Nếu không chọn danh mục cha, đặt là null
         ];
+
         $category->update($data);
-        return redirect()->route('admin.categories.index');
+
+        return redirect()->route('admin.categories.index')->with('success', 'Cập nhật danh mục thành công!');
     }
+
     public function delete($id)
     {
         $category = Category::find($id);

@@ -1,104 +1,107 @@
 @extends('admin.index')
-@section('title', 'Tạo mới')
+
+@section('title', 'Tạo bài viết mới')
+
 @section('content')
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y">
-            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Settings /</span> Thêm bài viết</h4>
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Bài viết /</span> Thêm bài viết</h4>
 
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-lg-8">
                     <div class="card mb-4">
-                        <h5 class="card-header">Profile Details</h5>
-                        <hr class="my-0" />
                         <div class="card-body">
                             <form action="{{ route('admin.posts.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
 
-                                <div class="row mt-3">
-                                    <div class="mb-3 col-md-6">
-                                        <label for="title" class="form-label">Tiêu đề</label>
-                                        <input type="text" class="form-control @error('title') is-invalid @enderror"
-                                            id="title" name="title" value="{{ old('title') }}" placeholder="">
-                                        @error('title')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-3 col-md-6">
-                                        <label for="category_id" class="form-label">Danh mục</label>
-                                        <select id="category_id" name="category_id"
-                                            class="select2 form-select @error('category_id') is-invalid @enderror">
-                                            <option value="">-- Chọn danh mục --</option>
-                                            @foreach ($categories as $category)
-                                                <option value="{{ $category->id }}"
-                                                    {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                                    {{ $category->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('category_id')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-3 col-md-6">
-                                        <label for="user_id" class="form-label">Tác giả</label>
-                                        <select id="user_id" name="user_id"
-                                            class="select2 form-select @error('user_id') is-invalid @enderror">
-                                            <option value="">-- Chọn tác giả --</option>
-                                            @foreach ($users as $user)
-                                                <option value="{{ $user->id }}"
-                                                    {{ old('user_id') == $user->id ? 'selected' : '' }}>
-                                                    {{ $user->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('user_id')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-3 col-md-6">
-                                        <label for="status" class="form-label">Trạng thái</label>
-                                        <select id="status" name="status"
-                                            class="select2 form-select @error('status') is-invalid @enderror">
-                                            @foreach ($statuss as $key => $value)
-                                                <option value="{{ $key }}"
-                                                    {{ old('status') == $key ? 'selected' : '' }}>
-                                                    {{ $value }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('status')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="mb-3 col-md-6">
-                                        <label for="slug" class="form-label">Slug</label>
-                                        <input type="text" class="form-control @error('slug') is-invalid @enderror"
-                                            id="slug" name="slug" value="{{ old('slug') }}" placeholder="">
-                                        @error('slug')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-3 col-md-6">
-                                        <label for="image" class="form-label">ảnh</label>
-                                        <input type="file" class="form-control" id="image" name="image">
-                                    </div>
-
-                                    <div class="mb-3 col-md-6">
-                                        <label for="content" class="form-label">Nội dung</label>
-                                        <textarea class="form-control @error('content') is-invalid @enderror" name="content" id="content">{{ old('content') }}</textarea>
-                                        @error('content')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                <!-- Tiêu đề bài viết -->
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Tiêu đề bài viết</label>
+                                    <input type="text" class="form-control form-control-lg @error('title') is-invalid @enderror"
+                                           id="title" name="title" placeholder="Tiêu đề bài viết" value="{{ old('title') }}">
+                                    @error('title')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
-                                <div class="mt-2">
-                                    <button type="submit" class="btn btn-primary me-2">Lưu thay đổi</button>
-                                    <button type="reset" class="btn btn-outline-secondary">Quay lại</button>
+                                <!-- Slug -->
+                                <div class="mb-3">
+                                    <label for="slug" class="form-label">Slug bài viết</label>
+                                    <input type="text" class="form-control @error('slug') is-invalid @enderror"
+                                           id="slug" name="slug" placeholder="Slug bài viết" value="{{ old('slug') }}" readonly>
+                                    @error('slug')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Nội dung -->
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Nội dung bài viết</label>
+                                    <textarea class="form-control @error('content') is-invalid @enderror"
+                                              id="content" name="content" rows="10" placeholder="Nhập nội dung bài viết">{{ old('content') }}</textarea>
+                                    @error('content')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cột phải: Trạng thái, Danh mục, Tác giả, Ảnh đại diện -->
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form action="{{ route('admin.posts.store') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+
+                                <!-- Trạng thái -->
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Trạng thái</label>
+                                    <select class="form-select @error('status') is-invalid @enderror" id="status" name="status">
+                                        <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>Bản nháp</option>
+                                        <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>Đã xuất bản</option>
+                                    </select>
+                                    @error('status')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Danh mục -->
+                                <div class="mb-3">
+                                    <label for="category_name" class="form-label">Danh mục</label>
+                                    <input type="text" class="form-control" id="category_name" placeholder="Nhập để tìm danh mục">
+                                    <input type="hidden" id="category_id" name="category_id" value="{{ old('category_id') }}">
+                                    <ul id="category-results" class="list-group position-absolute w-100 bg-white border" style="display: none; z-index: 1000;"></ul>
+                                    @error('category_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Tác giả -->
+                                <div class="mb-3">
+                                    <label for="author_name" class="form-label">Tác giả</label>
+                                    <input type="text" class="form-control" id="author_name" placeholder="Nhập để tìm tác giả">
+                                    <input type="hidden" id="author_id" name="user_id" value="{{ old('user_id') }}">
+                                    <ul id="author-results" class="list-group position-absolute w-100 bg-white border" style="display: none; z-index: 1000;"></ul>
+                                    @error('user_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Ảnh đại diện -->
+                                <div class="mb-3">
+                                    <label for="image" class="form-label">Ảnh đại diện</label>
+                                    <input type="file" class="form-control @error('image') is-invalid @enderror" id="image"
+                                           name="image">
+                                    @error('image')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- Nút lưu bài viết -->
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">Lưu bài viết</button>
                                 </div>
                             </form>
                         </div>
@@ -107,4 +110,69 @@
             </div>
         </div>
     </div>
+
+    <!-- Thư viện jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Tự động tạo slug từ title
+            $('#title').on('keyup', function() {
+                let title = $(this).val();
+                let slug = title.toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9\s-]/g, '') // Xóa ký tự đặc biệt
+                    .replace(/\s+/g, '-')         // Thay khoảng trắng bằng dấu -
+                    .replace(/-+/g, '-');         // Xóa các dấu - dư thừa
+                $('#slug').val(slug);
+            });
+
+            function searchData(inputId, resultId, hiddenId, route) {
+                $('#' + inputId).on('keyup', function() {
+                    let query = $(this).val().trim();
+                    if (query.length < 2) {
+                        $('#' + resultId).hide();
+                        return;
+                    }
+
+                    $.ajax({
+                        url: route,
+                        type: "GET",
+                        data: { q: query },
+                        success: function(response) {
+                            let results = $('#' + resultId);
+                            results.empty().show();
+
+                            if (response.length === 0) {
+                                results.append('<li class="list-group-item text-muted">Không tìm thấy</li>');
+                            } else {
+                                response.forEach(item => {
+                                    results.append(`<li class="list-group-item list-group-item-action" data-id="${item.id}">${item.name}</li>`);
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            console.log(xhr.responseText);
+                        }
+                    });
+                });
+
+                $(document).on('click', '#' + resultId + ' li', function() {
+                    let selectedText = $(this).text();
+                    let selectedId = $(this).data('id');
+                    $('#' + inputId).val(selectedText);
+                    $('#' + hiddenId).val(selectedId);
+                    $('#' + resultId).hide();
+                });
+
+                $(document).on('click', function(event) {
+                    if (!$(event.target).closest('#' + inputId + ', #' + resultId).length) {
+                        $('#' + resultId).hide();
+                    }
+                });
+            }
+
+            searchData('category_name', 'category-results', 'category_id', "{{ route('admin.posts.searchCategory') }}");
+            searchData('author_name', 'author-results', 'author_id', "{{ route('admin.posts.searchAuthor') }}");
+        });
+    </script>
 @endsection

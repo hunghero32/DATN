@@ -12,13 +12,13 @@
             <p><strong>ID:</strong> {{ $record->id }}</p>
             <p><strong>Tên bệnh nhân:</strong> {{ $record->guest->guest_name }}</p>
             <p><strong>Số điện thoại:</strong> {{ $record->guest->guest_phone }}</p>
-            <p><strong>BHYT:</strong> {{ $record->BHYT }}</p>
-            <p><strong>Tình trạng bệnh:</strong> {{ $record->medical_condition }}</p>
-            <p><strong>Thuốc:</strong> {{ $record->medications }}</p>
-            <p><strong>Dị ứng:</strong> {{ $record->allergies }}</p>
-            <p><strong>Tiền sử gia đình:</strong> {{ $record->family_history }}</p>
-            <p><strong>Phương pháp điều trị:</strong> {{ $record->treatment }}</p>
-            <p><strong>Ghi chú:</strong> {{ $record->note }}</p>
+            <p><strong>BHYT:</strong> {{ strip_tags($record->BHYT) }}</p>
+            <p><strong>Tình trạng bệnh:</strong> {{ strip_tags($record->medical_condition) }}</p>
+            <p><strong>Thuốc:</strong> {{ strip_tags($record->medications) }}</p>
+            <p><strong>Dị ứng:</strong> {{ strip_tags($record->allergies) }}</p>
+            <p><strong>Tiền sử gia đình:</strong> {{ strip_tags($record->family_history) }}</p>
+            <p><strong>Phương pháp điều trị:</strong> {{ strip_tags($record->treatment) }}</p>
+            <p><strong>Ghi chú:</strong> {{ strip_tags($record->note) }}</p>
         </div>
 
     </div>

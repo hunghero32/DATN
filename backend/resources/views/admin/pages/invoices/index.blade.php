@@ -5,20 +5,21 @@
         <h2 class="mb-3">Danh sách hóa đơn</h2>
 
         <!-- Form tìm kiếm -->
-        <form action="{{ route('admin.invoices.index') }}" method="GET" class="mb-3">
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+        <form action="{{ route('admin.invoices.index') }}" method="GET" class="mb-3 d-flex flex-grow-1">
             <div class="input-group">
                 <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm hóa đơn..."
                     value="{{ request('keyword') }}">
                 <button type="submit" class="btn btn-primary">Tìm kiếm</button>
             </div>
         </form>
-        <a href="{{ route('admin.invoices.create') }}" class="btn btn-primary mb-3">Thêm hóa đơn</a>
-
+        <a href="{{ route('invoice_details.create') }}" class="btn btn-success mb-3">Thêm hóa đơn</a>
+        </div>
 
         <!-- Bảng danh sách hóa đơn -->
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
-                <thead class="table-dark">
+                <thead class="">
                     <tr>
                         <th>ID</th>
                         <th>Khách hàng</th>
@@ -38,7 +39,7 @@
                             <td>{{ $invoice->services_name ?? 'N/A' }}</td>
                             <td class=" text-nowrap">
                                 <a href="{{ route('invoice_details.index', ['invoice_id' => $invoice->id]) }}" class="btn btn-info btn-sm">Chi tiết</a>
-                                <a href="{{ route('admin.invoices.edit', $invoice->id) }}" class="btn btn-warning btn-sm">Sửa</a>
+                                {{-- <a href="{{ route('admin.invoices.edit', $invoice->id) }}" class="btn btn-warning btn-sm">Sửa</a> --}}
                                 <form action="{{ route('admin.invoices.delete', $invoice->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')

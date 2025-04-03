@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../../../ultils/api/axios";
+import axios from "axios";
 
 const BaiViet = () => {
   const [articles, setArticles] = useState([]);
@@ -10,8 +10,8 @@ const BaiViet = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const response = await api.get("/api/client/home");
-        console.log('API Response:', response.data); // Debug log
+        const response = await axios.get("http://localhost:8000/api/client/home");
+        console.log('API Response:', response.data); 
         if (response.data && response.data.posts) {
           setArticles(response.data.posts);
         } else {
@@ -42,7 +42,7 @@ const BaiViet = () => {
             className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
           >
             <Link 
-              to={`/chitietbaiviet/${article.slug}-${article.id}`}
+            to={`/bai-viet/${article.slug}/${article.id}`}
               className="block h-full"
             >
               <div className="aspect-w-16 aspect-h-9">
