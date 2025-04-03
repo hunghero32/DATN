@@ -2,218 +2,162 @@ import requests
 import nltk
 import json
 import os
+import base64
 from nltk.tokenize import word_tokenize
 from fuzzywuzzy import fuzz
-from difflib import get_close_matches
-from cryptography.fernet import Fernet
-import base64
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-nltk.download('punkt')
+# Đảm bảo console hỗ trợ UTF-8 (tránh lỗi UnicodeEncodeError)
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
+# Tải dữ liệu punkt cho NLTK
+nltk.download('punkt', quiet=True)
 
 # URL API của Laravel
 API_URL = "http://localhost:8000/api/client/services/search"
 
-# File to store learned symptoms
+# File để lưu trữ các triệu chứng đã học
 LEARNING_FILE = 'learned_symptoms.json'
 
-# Load or create learned symptoms
+# Load hoặc tạo file learned symptoms
 def load_learned_symptoms():
     if os.path.exists(LEARNING_FILE):
         with open(LEARNING_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     return {}
 
-# Save learned symptoms
+# Lưu learned symptoms
 def save_learned_symptoms(learned_data):
     with open(LEARNING_FILE, 'w', encoding='utf-8') as f:
         json.dump(learned_data, f, ensure_ascii=False, indent=2)
 
-# Initialize learned data
 learned_symptoms = load_learned_symptoms()
 
-# Expanded symptom dictionary with variations
+# Symptom mapping với các biến thể
 symptom_mapping = {
-    'đau': ['đau', 'nhức', 'buốt', 'đớn'],
-    'sốt': ['sốt', 'nóng', 'nóng người'],
-    'ho': ['ho', 'khò khè', 'ho khan'],
-    'mệt': ['mệt', 'mệt mỏi', 'uể oải', 'không khỏe'],
-    'chóng mặt': ['chóng mặt', 'choáng', 'váng đầu', 'quay cuồng'],
-    'khó thở': ['khó thở', 'ngộp', 'thở gấp'],
-    'buồn nôn': ['buồn nôn', 'nôn', 'ói'],
-}
-
-def learn_new_symptom(user_input, service_name):
-    """Learn new symptom-service associations"""
-    if service_name and user_input:
-        learned_symptoms[user_input.lower()] = service_name
-        save_learned_symptoms(learned_symptoms)
-        print(f"Learned: '{user_input}' -> '{service_name}'")
-
-# Update symptom mapping with compound symptoms
-# First, remove the duplicate symptom_mapping and keep only the compound version
-symptom_mapping = {
+    'đau lưng': ['đau lưng', 'nhức lưng', 'lưng đau', 'lưng nhức', 'đau cột sống'],
     'đau đầu': ['đau đầu', 'nhức đầu', 'đầu đau', 'đầu nhức'],
-    'đau lưng': ['đau lưng', 'nhức lưng', 'lưng đau', 'lưng nhức'],
     'đau bụng': ['đau bụng', 'nhức bụng', 'bụng đau', 'bụng nhức'],
-    'đau răng': ['đau răng', 'nhức răng', 'răng đau', 'răng nhức'],
     'đau họng': ['đau họng', 'viêm họng', 'họng đau', 'họng nhức'],
     'sốt': ['sốt', 'nóng', 'nóng người', 'sốt cao'],
     'ho': ['ho', 'khò khè', 'ho khan', 'ho có đờm'],
     'mệt': ['mệt', 'mệt mỏi', 'uể oải', 'không khỏe'],
     'chóng mặt': ['chóng mặt', 'choáng', 'váng đầu', 'quay cuồng'],
     'khó thở': ['khó thở', 'ngộp', 'thở gấp', 'tức ngực'],
-    'buồn nôn': ['buồn nôn', 'nôn', 'ói', 'buồn ói']
+    'buồn nôn': ['buồn nôn', 'nôn', 'ói', 'buồn ói'],
+    'đau tay': ['đau tay', 'nhức tay', 'tay đau', 'tay nhức'],
+    'đau chân': ['đau chân', 'nhức chân', 'chân đau', 'chân nhức']
+}
+
+# Specialty mapping
+specialty_mapping = {
+    'cơ xương khớp': ['đau lưng', 'đau khớp', 'đau cổ', 'đau vai', 'thoái hóa', 'viêm khớp', 
+                      'đau xương', 'đau cột sống', 'đau tay', 'đau chân', 'đau khớp gối'],
+    'tiêu hóa': ['đau bụng', 'buồn nôn', 'khó tiêu', 'trào ngược', 'đau dạ dày', 'nôn', 'ói'],
+    'tai mũi họng': ['đau họng', 'viêm họng', 'ho', 'sổ mũi', 'nghẹt mũi', 'khó thở'],
+    'thần kinh': ['đau đầu', 'chóng mặt', 'hoa mắt', 'mất ngủ', 'đau nửa đầu', 'váng đầu']
 }
 
 def find_best_symptom_match(text):
-    # First check for exact matches in compound symptoms
-    for main_symptom, variations in symptom_mapping.items():
-        # Check if the entire text matches any variation
-        if text in variations or any(v in text for v in variations):
-            return main_symptom
-            
-    # If no exact match, try fuzzy matching
+    text = text.lower()
+    
+    # Kiểm tra khớp chính xác trước
+    for specialty, symptoms in specialty_mapping.items():
+        for symptom in symptoms:
+            if symptom in text:
+                return {'symptom': symptom, 'specialty': specialty}
+    
+    # Dùng fuzzy matching nếu không khớp chính xác
     best_match = None
     best_score = 0
-    
-    for main_symptom, variations in symptom_mapping.items():
-        for variation in variations:
-            # Use token_set_ratio for better partial matching
-            score = fuzz.token_set_ratio(text, variation)
-            if score > best_score and score > 85:  # Increased threshold for better accuracy
+    for specialty, symptoms in specialty_mapping.items():
+        for symptom in symptoms:
+            score = fuzz.token_set_ratio(text, symptom)
+            if score > best_score and score > 80:  # Ngưỡng 80 để nhạy hơn
                 best_score = score
-                best_match = main_symptom
-                
+                best_match = {'symptom': symptom, 'specialty': specialty}
+    
     return best_match
-
-def chatbot_response(user_input):
-    user_input = user_input.lower()
-    
-    # Remove stop words first
-    tokens = word_tokenize(user_input)
-    stop_words = ['tôi', 'bị', 'là', 'có', 'và', 'rất', 'cảm', 'thấy', 'đang', 'quá']
-    filtered_text = ' '.join([t for t in tokens if t not in stop_words])
-    
-    # Try to find matching symptom
-    best_match = find_best_symptom_match(filtered_text)
-    
-    if best_match:
-        print(f"Phát hiện triệu chứng: {best_match}")  # Debug
-        response = search_service(best_match)
-        
-        # Learn new variations if service is found
-        if "Tôi tìm thấy các dịch vụ phù hợp" in response:
-            learn_new_symptom(filtered_text, best_match)
-        
-        return response
-    
-    # If no match found, use the filtered text
-    return search_service(filtered_text)
-
-# Encryption key setup
-SECRET_KEY = "your-secret-key-here"  # Must match Laravel's key
-salt = b'your-salt-here'  # Must match Laravel's salt
-
-def generate_key():
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-    )
-    key = base64.urlsafe_b64encode(kdf.derive(SECRET_KEY.encode()))
-    return Fernet(key)
-
-cipher_suite = generate_key()
-
-def encrypt_data(data):
-    return cipher_suite.encrypt(data.encode()).decode()
-
-def decrypt_data(encrypted_data):
-    return cipher_suite.decrypt(encrypted_data.encode()).decode()
 
 def search_service(keyword):
     try:
-        # Encrypt the keyword before sending
-        encrypted_keyword = encrypt_data(keyword)
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        # Mã hóa keyword sang base64
+        keyword_bytes = keyword.encode('utf-8')
+        encoded_keyword = base64.b64encode(keyword_bytes).decode('utf-8')
         
-        # Set up headers and parameters
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        params = {'keyword': encrypted_keyword}
+        params = {'keyword': encoded_keyword, 'type': 'symptom'}
         
-        # Make the request
         response = requests.get(API_URL, params=params, headers=headers)
-        print(f"Đã gửi yêu cầu tới: {response.url}")  # Debug URL
-        print(f"Trạng thái HTTP: {response.status_code}")  # Debug trạng thái
         
-        if response.status_code == 200:
-            # Decrypt the response data if it's encrypted
-            encrypted_data = response.json().get('encrypted_data')
-            if encrypted_data:
-                decrypted_data = decrypt_data(encrypted_data)
-                data = json.loads(decrypted_data)
-            else:
-                data = response.json()
-                
-            services = data.get('services', [])
-            if services:
-                result = "Tôi tìm thấy các dịch vụ phù hợp:\n"
-                for service in services:
-                    result += f"- {service['services_name']} (Giá: {service['price']} VND, Thời gian: {service['duration']} phút)\n"
-                return result
-            else:
-                return "Không tìm thấy dịch vụ nào phù hợp với từ khóa này."
-        else:
-            return f"Lỗi từ server: {response.status_code} - {response.text}"
+        if response.status_code != 200:
+            print(f"API Error: Status {response.status_code}, Response: {response.text}")
+            return {
+                'status': 'error',
+                'message': 'Không thể kết nối với server Laravel.'
+            }
+            
+        data = response.json()
+        return data
+        
+    except requests.exceptions.RequestException as e:
+        print(f"API Request Error: {str(e)}")
+        return {
+            'status': 'error',
+            'message': 'Không thể kết nối với server Laravel.'
+        }
     except Exception as e:
-        return f"Có lỗi khi kết nối đến API: {str(e)}"
+        print(f"General Error in search_service: {str(e)}")
+        return {
+            'status': 'error',
+            'message': 'Có lỗi xảy ra khi xử lý yêu cầu.'
+        }
 
-# Hàm xử lý câu hỏi của người dùng
-# Update the symptom_keywords list
-symptom_keywords = ['đau', 'bị', 'sốt', 'ho', 'mệt', 'nóng', 'lạnh', 'nhức', 'buồn', 'chóng', 'khó']
-
-# Update the chatbot_response function
 def chatbot_response(user_input):
-    user_input = user_input.lower()
-    tokens = word_tokenize(user_input)
-    
-    # Remove stop words
-    stop_words = ['tôi', 'bị', 'là', 'có', 'và', 'rất', 'cảm', 'thấy']
-    filtered_tokens = [t for t in tokens if t not in stop_words]
-    
-    if not filtered_tokens:
-        return "Vui lòng mô tả rõ hơn về triệu chứng của bạn"
-    
-    # Try to find matching symptom
-    keyword = " ".join(filtered_tokens)
-    best_match = find_best_symptom_match(keyword)
-    
-    if best_match:
-        response = search_service(best_match)
-        
-        # If service found, learn the association
-        if "Tôi tìm thấy các dịch vụ phù hợp" in response:
-            learn_new_symptom(keyword, best_match)
-        
-        return response
-    
-    # If no match found, try the original input
-    return search_service(keyword)
-
-# Vòng lặp giao tiếp
-print("Chào bạn! Tôi là chatbot sức khỏe. Bạn đang cảm thấy thế nào?")
-while True:
     try:
-        user_input = input("Bạn: ")
-        if user_input.lower() == "thoát":
-            print("Tạm biệt!")
-            break
-        response = chatbot_response(user_input)
-        print("Chatbot: " + response)
-    except KeyboardInterrupt:
-        print("\nTạm biệt!")
-        break
+        user_input = user_input.lower()
+        tokens = word_tokenize(user_input)
+        
+        stop_words = ['tôi', 'bị', 'là', 'có', 'và', 'rất', 'cảm', 'thấy', 'đang', 'quá', 'căng', 'dịch', 'vụ']
+        filtered_text = ' '.join([t for t in tokens if t not in stop_words])
+        
+        if not filtered_text:
+            return json.dumps({
+                'status': 'error',
+                'message': 'Vui lòng mô tả rõ hơn về triệu chứng của bạn'
+            })
+        
+        match_result = find_best_symptom_match(filtered_text)
+        
+        if match_result:
+            print(f"Phát hiện triệu chứng: {match_result['symptom']} -> Chuyên khoa: {match_result['specialty']}")
+            result = search_service(match_result['specialty'])
+            return json.dumps(result)
+        
+        # Fallback: Dùng fuzzy matching với symptom_mapping nếu không khớp trực tiếp
+        for main_symptom, variations in symptom_mapping.items():
+            for variation in variations:
+                if fuzz.token_set_ratio(filtered_text, variation) > 80:
+                    # Tìm chuyên khoa tương ứng
+                    for specialty, symptoms in specialty_mapping.items():
+                        if main_symptom in symptoms:
+                            print(f"Fuzzy match - Triệu chứng: {main_symptom} -> Chuyên khoa: {specialty}")
+                            result = search_service(specialty)
+                            return json.dumps(result)
+        
+        # Nếu vẫn không khớp, gửi filtered_text làm từ khóa cuối cùng
+        print(f"No match found, searching with filtered text: {filtered_text}")
+        result = search_service(filtered_text)
+        return json.dumps(result)
+
     except Exception as e:
-        print(f"Chatbot: Có lỗi xảy ra: {str(e)}")
+        print(f"Error in chatbot_response: {str(e)}")
+        return json.dumps({
+            'status': 'error',
+            'message': f'Có lỗi xảy ra: {str(e)}'
+        })
