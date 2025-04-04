@@ -41,8 +41,10 @@ use App\Http\Controllers\Auth\SocialController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('/auth/google/redirect', [SocialController::class, 'redirect']);
-Route::get('/auth/google/callback', [SocialController::class, 'callback']);
+Route::middleware(['web'])->group(function () {
+    Route::get('/auth/google/redirect', [SocialController::class, 'redirect']);
+    Route::get('/auth/google/callback', [SocialController::class, 'callback']);
+});
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
