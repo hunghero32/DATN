@@ -5,11 +5,13 @@ import SideBar from "../../components/doctor/SideBar";
 import { useEffect, useState } from "react";
 import ListSchedule from "../../components/doctor/pages/Schedule/ListSchedule";
 import DoctorProfile from "../../components/doctor/pages/DoctorProfile/DoctorProfile";
+import UserProfile from "../../components/doctor/pages/UserProfile/UserProfile";
 import Appointment from "../../components/doctor/pages/ListAppointment/Appointment";
 import DoctorServices from "../../components/doctor/pages/Services/DoctorServices";
 import Invoices from "../../components/doctor/pages/Invoices/Invoices";
 import Posts from "../../components/doctor/pages/Post/Posts";
 import { ToastContainer } from 'react-toastify';
+import TestExamResult from "../../components/doctor/pages/ListAppointment/TestExamResult";
 
 const DoctorLayout = () => {
   const [showModal, setShowModal] = useState(false);
@@ -116,7 +118,8 @@ const DoctorLayout = () => {
           <Route path="/posts" element={<Posts />} />  
           <Route path="/profile" element={<DoctorProfile />} />
           <Route path="/profile/edit" element={<DoctorProfile isEditing={true} />} />
-          
+          <Route path="/profileUser" element={<UserProfile />} />
+          <Route path="/test-exam-result" element={<TestExamResult />} />
         </Routes>
 
       </main>
