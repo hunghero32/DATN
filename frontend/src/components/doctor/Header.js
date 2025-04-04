@@ -31,11 +31,15 @@ const Header = ({ user }) => {
     navigate("/login");
   };
 
-  const handleViewProfile = () => {
+  const handleViewUserProfile = () => {
+    navigate("/doctor/profileUser");
+  };
+
+  const handleViewDoctorProfile = () => {
     navigate("/doctor/profile");
   };
 
-  const handleEditProfile = () => {
+  const handleEditDoctorProfile = () => {
     navigate("/doctor/profile/edit");
   };
 
@@ -379,47 +383,25 @@ const Header = ({ user }) => {
                       </div>
                     </div>
                     <div className="p-0 card-body">
-                      <a onClick={handleViewProfile} className="iq-sub-card" style={{ cursor: 'pointer' }}>
+                      <a onClick={handleViewUserProfile} className="iq-sub-card" style={{ cursor: 'pointer' }}>
+                        <div className="d-flex align-items-center">
+                          <div className="bg-primary-subtle px-3 py-2 rounded-1">
+                            <i className="ri-user-line"></i>
+                          </div>
+                          <div className="ms-3 flex-grow-1 text-start">
+                            <h6 className="mb-0">Thông tin tài khoản</h6>
+                            <p className="mb-0">Xem và cập nhật thông tin tài khoản.</p>
+                          </div>
+                        </div>
+                      </a>
+                      <a onClick={handleViewDoctorProfile} className="iq-sub-card" style={{ cursor: 'pointer' }}>
                         <div className="d-flex align-items-center">
                           <div className="bg-primary-subtle px-3 py-2 rounded-1">
                             <i className="ri-file-user-line"></i>
                           </div>
                           <div className="ms-3 flex-grow-1 text-start">
-                            <h6 className="mb-0">Thông tin cá nhân</h6>
-                            <p className="mb-0">Xem thông tin chi tiết.</p>
-                          </div>
-                        </div>
-                      </a>
-                      <a onClick={handleEditProfile} className="iq-sub-card" style={{ cursor: 'pointer' }}>
-                        <div className="d-flex align-items-center">
-                          <div className="bg-primary-subtle px-3 py-2 rounded-1">
-                            <i className="ri-profile-line"></i>
-                          </div>
-                          <div className="ms-3 flex-grow-1 text-start">
-                            <h6 className="mb-0">Chỉnh sửa thông tin</h6>
-                            <p className="mb-0">Cập nhật thông tin cá nhân.</p>
-                          </div>
-                        </div>
-                      </a>
-                      <a onClick={handleAppointments} className="iq-sub-card" style={{ cursor: 'pointer' }}>
-                        <div className="d-flex align-items-center">
-                          <div className="bg-primary-subtle px-3 py-2 rounded-1">
-                            <i className="ri-calendar-check-line"></i>
-                          </div>
-                          <div className="ms-3 flex-grow-1 text-start">
-                            <h6 className="mb-0">Quản lý lịch khám</h6>
-                            <p className="mb-0">Xem và quản lý lịch hẹn.</p>
-                          </div>
-                        </div>
-                      </a>
-                      <a onClick={handleSchedule} className="iq-sub-card" style={{ cursor: 'pointer' }}>
-                        <div className="d-flex align-items-center">
-                          <div className="bg-primary-subtle px-3 py-2 rounded-1">
-                            <i className="ri-calendar-line"></i>
-                          </div>
-                          <div className="ms-3 flex-grow-1 text-start">
-                            <h6 className="mb-0">Lịch làm việc</h6>
-                            <p className="mb-0">Quản lý lịch làm việc.</p>
+                            <h6 className="mb-0">Thông tin bác sĩ</h6>
+                            <p className="mb-0">Xem thông tin chi tiết bác sĩ.</p>
                           </div>
                         </div>
                       </a>

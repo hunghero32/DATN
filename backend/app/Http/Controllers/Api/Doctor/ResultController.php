@@ -12,6 +12,7 @@ use App\Http\Requests\StoreResultRequest;
 use App\Http\Requests\UpdateResultRequest;
 use App\Services\NotificationService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ResultController extends Controller
 {
@@ -130,40 +131,93 @@ class ResultController extends Controller
     }
     public function updateByBooking(UpdateResultRequest $request, $booking_id)
     {
-        // Kiểm tra xem người dùng có đăng nhập và có vai trò là bác sĩ không
-        if (!auth()->check() || auth()->user()->role !== 'doctor') {
-            return response()->json(['message' => 'Bạn không có quyền chỉnh sửa kết quả này.'], 403);
-        }
-
-        // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
-        $doctorId = Doctor::where('user_id', auth()->id())->value('id');
-
-        // Tìm kết quả theo booking_id và đảm bảo nó thuộc về bác sĩ hiện tại
-        $result = Result::where('booking_id', $booking_id)
-            ->where('doctor_id', $doctorId)
-            ->first();
-
-        if (!$result) {
-            return response()->json(['message' => 'Không tìm thấy kết quả hoặc bạn không có quyền chỉnh sửa.'], 404);
-        }
-
-        $data = $request->validated();
-
-        // Nếu có file mới, xóa file cũ rồi lưu file mới
-        if ($request->hasFile('file')) {
-            if ($result->file) {
-                Storage::disk('public')->delete($result->file);
+        try {
+            // Kiểm tra xem người dùng có đăng nhập và có vai trò là bác sĩ không
+            if (!auth()->check() || auth()->user()->role !== 'doctor') {
+                return response()->json(['message' => 'Bạn không có quyền chỉnh sửa kết quả này.'], 403);
             }
-            $data['file'] = $request->file('file')->store('results', 'public');
-        }
 
-        $result->update($data);
-        // Gửi thông báo
-        $this->sendResultNotification($result->booking);
-        return response()->json([
-            'message' => 'Cập nhật kết quả thành công.',
-            'data'    => $result
-        ], 200);
+            // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
+            $doctorId = Doctor::where('user_id', auth()->id())->value('id');
+
+            // Debug log
+            Log::info('Update Result Request', [
+                'booking_id' => $booking_id,
+                'doctor_id' => $doctorId,
+                'request_data' => $request->all()
+            ]);
+
+            // Tìm hoặc tạo mới kết quả
+            $result = Result::firstOrNew([
+                'booking_id' => $booking_id,
+                'doctor_id' => $doctorId
+            ]);
+
+            if (!$result->exists) {
+                // Nếu là bản ghi mới, lấy guest_id từ booking
+                $booking = Booking::find($booking_id);
+                if (!$booking) {
+                    return response()->json(['message' => 'Không tìm thấy cuộc hẹn.'], 404);
+                }
+                $result->guest_id = $booking->guest_id;
+            }
+
+            // Debug log trước khi cập nhật
+            Log::info('Result Before Update', [
+                'result' => $result->toArray(),
+                'exists' => $result->exists
+            ]);
+
+            // Cập nhật dữ liệu
+            $data = $request->validated();
+            
+            // Xử lý file nếu có
+            if ($request->hasFile('file')) {
+                if ($result->file) {
+                    Storage::disk('public')->delete($result->file);
+                }
+                $data['file'] = $request->file('file')->store('results', 'public');
+            }
+
+            // Cập nhật dữ liệu bằng forceFill để bỏ qua fillable
+            $result->forceFill([
+                'diagnosis' => $data['diagnosis'] ?? $result->diagnosis,
+                'prescription' => $data['prescription'] ?? $result->prescription,
+                'note' => $data['note'] ?? $result->note,
+                'file' => $data['file'] ?? $result->file
+            ]);
+
+            // Lưu kết quả
+            $result->save();
+
+            // Debug log sau khi cập nhật
+            Log::info('Result After Update', [
+                'result' => $result->fresh()->toArray()
+            ]);
+
+            // Refresh model từ database
+            $result = $result->fresh();
+
+            // Gửi thông báo nếu có booking
+            if ($result->booking) {
+                $this->sendResultNotification($result->booking);
+            }
+
+            return response()->json([
+                'message' => 'Cập nhật kết quả thành công.',
+                'data' => $result
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Update Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'message' => 'Lỗi khi cập nhật kết quả: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
