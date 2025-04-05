@@ -7,6 +7,7 @@ import { AuthProvider } from "./components/guest/auth/AuthContext";
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-quill/dist/quill.snow.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import OAuthSuccess from './components/guest/auth/OAuthSuccess';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="*" element={<ClientLayout />} />
           <Route path="/doctor/*" element={<DoctorLayout />} />
+          <Route path="/auth/oauth-success" element={<OAuthSuccess />} />
         </Routes>
       </AuthProvider>
     </div>

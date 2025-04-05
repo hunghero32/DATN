@@ -1,5 +1,6 @@
-import React from "react";
-import { Modal, Form, Button, Spinner } from "react-bootstrap";
+import React, { useEffect } from "react";
+import { Modal, Form, Button, Spinner, Row, Col } from "react-bootstrap";
+import { FaFileMedical, FaPrescriptionBottle, FaStickyNote, FaFileUpload, FaEdit, FaTimes, FaDownload } from 'react-icons/fa';
 
 const ExamResultModal = ({
   showView,
@@ -18,237 +19,335 @@ const ExamResultModal = ({
   setFile,
   handleUpdateExamResult,
   loading,
-  error,
+  error
 }) => {
+  // Reset form khi đóng modal
+  useEffect(() => {
+    if (!showEdit) {
+      // Reset form về giá trị ban đầu khi đóng modal edit
+      setDiagnosis(diagnosis || "");
+      setNotes(notes || "");
+      setPrescription(prescription || "");
+      setFile(file || null);
+    }
+  }, [showEdit, diagnosis, notes, prescription, file, setDiagnosis, setNotes, setPrescription, setFile]);
+
   return (
     <>
-      <Modal show={showView} onHide={onHideView} size="lg">
-        <style>
-          {`
-            .modal-content {
-              border-radius: 15px;
-              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            }
+      <style>
+        {`
+          .medical-modal .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+          }
 
-            .modal-header {
-              background-color: #f9fafb;
-              border-bottom: 1px solid #e5e7eb;
-            }
+          .medical-modal .modal-header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+          }
 
-            .modal-title {
-              font-size: 1.5rem;
-              font-weight: 600;
-              color: #1f2937;
-            }
+          .medical-modal .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
 
-            .modal-body {
-              padding: 2rem;
-            }
+          .medical-modal .modal-body {
+            padding: 2rem;
+            background-color: #f8fafc;
+          }
 
-            .form-label {
-              font-weight: 600;
-              color: #374151;
-              margin-bottom: 0.5rem;
-            }
+          .medical-modal .form-label {
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
 
-            .form-control {
-              border-radius: 8px;
-              border: 1px solid #e0e4e8;
-              background-color: #f9fafb;
-              font-size: 15px;
-              color: #374151;
-              padding: 0.75rem;
-            }
+          .medical-modal .form-control {
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: white;
+          }
 
-            .form-control:focus {
-              border-color: #3b82f6;
-              box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
-            }
+          .medical-modal .form-control:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+          }
 
-            .modal-footer {
-              border-top: 1px solid #e5e7eb;
-              padding: 1rem 2rem;
-            }
+          .medical-modal .form-control:disabled,
+          .medical-modal .form-control[readonly] {
+            background-color: #f1f5f9;
+            border-color: #e2e8f0;
+          }
 
-            .btn {
-              padding: 0.5rem 1.2rem;
-              border-radius: 8px;
-              font-size: 14px;
-              font-weight: 600;
-              transition: all 0.3s ease;
-            }
+          .medical-modal .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+          }
 
-            .btn-primary {
-              background-color: #3b82f6;
-              border-color: #3b82f6;
-            }
+          .medical-modal .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+          }
 
-            .btn-primary:hover {
-              background-color: #2563eb;
-              border-color: #2563eb;
-            }
+          .medical-modal .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+          }
 
-            .btn-secondary {
-              background-color: #6b7280;
-              border-color: #6b7280;
-            }
+          .medical-modal .btn-secondary:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+          }
 
-            .btn-secondary:hover {
-              background-color: #4b5563;
-              border-color: #4b5563;
-            }
-          `}
-        </style>
+          .medical-modal .file-preview {
+            background: #f8fafc;
+            border: 1px dashed #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+          }
+
+          .medical-modal .file-link {
+            color: #0ea5e9;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+          }
+
+          .medical-modal .file-link:hover {
+            color: #0284c7;
+          }
+
+          .medical-info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          }
+
+          .medical-info-card h5 {
+            color: #0f172a;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .spinner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+          }
+        `}
+      </style>
+
+      {/* Modal Xem Kết Quả */}
+      <Modal show={showView} onHide={onHideView} size="lg" className="medical-modal">
         <Modal.Header closeButton>
-          <Modal.Title>Kết quả khám</Modal.Title>
+          <Modal.Title>
+            <FaFileMedical /> Kết Quả Khám Bệnh
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {loading ? (
-            <Spinner animation="border" />
+            <div className="spinner-overlay">
+              <Spinner animation="border" variant="primary" />
+            </div>
           ) : error ? (
-            <p className="text-danger">{error}</p>
-          ) : diagnosis || notes || prescription || file ? (
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Chẩn đoán:</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={2}
-                  value={diagnosis || ""}
-                  readOnly
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Đơn thuốc:</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={prescription || ""}
-                  readOnly
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Ghi chú:</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={notes || ""}
-                  readOnly
-                />
-              </Form.Group>
-              // Trong phần Form.Group cho file upload
-              <Form.Group className="mb-3">
-                <Form.Label>Tệp đính kèm:</Form.Label>
-                <Form.Control
-                  type="file"
-                  onChange={(e) => {
-                    const selectedFile = e.target.files[0];
-                    if (selectedFile) {
-                      setFile(selectedFile);
-                    }
-                  }}
-                />
-                {file && typeof file === "string" && (
-                  <p>
-                    Tệp hiện tại:{" "}
-                    <a
-                      href={`http://127.0.0.1:8000/storage/${file}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Xem tệp
-                    </a>
-                  </p>
-                )}
-              </Form.Group>
-            </Form>
+            <div className="alert alert-danger">
+              <FaTimes className="me-2" />
+              {error}
+            </div>
           ) : (
-            <p className="text-muted">Chưa có kết quả khám.</p>
+            <div>
+              <div className="medical-info-card">
+                <h5><FaFileMedical /> Chẩn Đoán</h5>
+                <p className="mb-0">{diagnosis || "Chưa có chẩn đoán"}</p>
+              </div>
+
+              <div className="medical-info-card">
+                <h5><FaPrescriptionBottle /> Đơn Thuốc</h5>
+                <p className="mb-0">{prescription || "Chưa có đơn thuốc"}</p>
+              </div>
+
+              <div className="medical-info-card">
+                <h5><FaStickyNote /> Ghi Chú</h5>
+                <p className="mb-0">{notes || "Chưa có ghi chú"}</p>
+              </div>
+
+              {file && typeof file === "string" && (
+                <div className="medical-info-card">
+                  <h5><FaFileUpload /> Tệp Đính Kèm</h5>
+                  <a
+                    href={`http://127.0.0.1:8000/storage/${file}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="file-link"
+                  >
+                    <FaFileUpload /> Xem tệp đính kèm
+                  </a>
+                </div>
+              )}
+            </div>
           )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHideView}>
+            <FaTimes className="me-2" />
             Đóng
           </Button>
           <Button
             variant="primary"
             onClick={() => {
-              setShowEditResultModal(true);
               onHideView();
+              setShowEditResultModal(true);
             }}
           >
-            {(diagnosis || notes || prescription || file) ? "Sửa" : "Thêm kết quả khám"}
+            <FaEdit className="me-2" />
+            Sửa Kết Quả
           </Button>
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showEdit} onHide={onHideEdit} size="lg">
+      {/* Modal Sửa Kết Quả */}
+      <Modal show={showEdit} onHide={onHideEdit} size="lg" className="medical-modal">
         <Modal.Header closeButton>
           <Modal.Title>
-            {(diagnosis || notes || prescription || file) ? "Sửa kết quả khám" : "Thêm kết quả khám"}
+            <FaEdit /> Cập Nhật Kết Quả Khám
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {error && (
+            <div className="alert alert-danger mb-4">
+              <FaTimes className="me-2" />
+              {error}
+            </div>
+          )}
+          
           <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Chẩn đoán:</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={2}
-                value={diagnosis || ""}
-                onChange={(e) => setDiagnosis(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Đơn thuốc:</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={prescription || ""}
-                onChange={(e) => setPrescription(e.target.value)}
-                placeholder="Nhập đơn thuốc cho bệnh nhân..."
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Ghi chú:</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={notes || ""}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Tệp đính kèm:</Form.Label>
-              <Form.Control
-                type="file"
-                onChange={(e) => setFile(e.target.files[0])}
-              />
-              {file && typeof file === "string" && (
-                <p>
-                  Tệp hiện tại:{" "}
-                  <a
-                    href={`http://127.0.0.1:8000/storage/${file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Xem tệp
-                  </a>
-                </p>
-              )}
-            </Form.Group>
+            <div className="medical-info-card">
+              <Form.Group className="mb-4">
+                <Form.Label>
+                  <FaFileMedical className="me-2" />
+                  Chẩn Đoán
+                </Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={diagnosis || ""}
+                  onChange={(e) => setDiagnosis(e.target.value)}
+                  placeholder="Nhập chẩn đoán chi tiết..."
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-4">
+                <Form.Label>
+                  <FaPrescriptionBottle className="me-2" />
+                  Đơn Thuốc
+                </Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={prescription || ""}
+                  onChange={(e) => setPrescription(e.target.value)}
+                  placeholder="Nhập đơn thuốc chi tiết..."
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-4">
+                <Form.Label>
+                  <FaStickyNote className="me-2" />
+                  Ghi Chú
+                </Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={notes || ""}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Nhập ghi chú bổ sung..."
+                />
+              </Form.Group>
+
+              <Form.Group>
+                <Form.Label>
+                  <FaFileUpload className="me-2" />
+                  Tệp Đính Kèm
+                </Form.Label>
+                <Form.Control
+                  type="file"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  className="mb-3"
+                />
+                {file && typeof file === "string" && (
+                  <div className="file-preview">
+                    <span className="me-2">Tệp hiện tại:</span>
+                    <a
+                      href={`http://127.0.0.1:8000/storage/${file}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="file-link"
+                    >
+                      <FaFileUpload /> Xem tệp
+                    </a>
+                  </div>
+                )}
+              </Form.Group>
+            </div>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHideEdit}>
+            <FaTimes className="me-2" />
             Hủy
           </Button>
           <Button
-            variant="success"
+            variant="primary"
             onClick={handleUpdateExamResult}
             disabled={loading}
           >
-            {loading ? <Spinner animation="border" size="sm" /> : "Lưu"}
+            {loading ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Đang lưu...
+              </>
+            ) : (
+              <>
+                <FaEdit className="me-2" />
+                Lưu Thay Đổi
+              </>
+            )}
           </Button>
         </Modal.Footer>
       </Modal>

@@ -1,57 +1,68 @@
-import React, { useEffect, useState } from 'react';
-
-export default function Banner() {
-  const [bannerData, setBannerData] = useState({
-    banner: []
-  });
+import { useEffect, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, EffectFade, Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/effect-fade';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import axios from 'axios';
+export default function HomeBanner() {
+  const [banners, setBanners] = useState([]);
+  const fallbackImages = [
+    'https://picsum.photos/1920/500?random=1',
+    'https://picsum.photos/1920/500?random=2',
+    'https://picsum.photos/1920/500?random=3',
+    'https://picsum.photos/1920/500?random=4',
+  ];
 
   useEffect(() => {
-    // Lấy dữ liệu từ API
-    fetch('http://localhost:8000/api/system')
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.banner && data.banner.length > 0) {
-          setBannerData({ banner: JSON.parse(data.banner) });
-        }
-      })
-      .catch((error) => console.error('Error fetching banner data:', error));
+    const fetchBanners = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/system');
+        const bannerData = response.data.data?.banner || [];
+        setBanners(bannerData.length > 0 ? bannerData : fallbackImages);
+      } catch (error) {
+        console.error('Error fetching banners:', error);
+        setBanners(fallbackImages);
+      }
+    };
+    fetchBanners();
   }, []);
 
+  const handleImageError = (index) => {
+    setBanners(prev => {
+      const newBanners = [...prev];
+      newBanners[index] = fallbackImages[index % fallbackImages.length];
+      return newBanners;
+    });
+  };
+
   return (
-    <section className="pq-banner pb-xl-0">
-      <div className="container">
-        <div className="row align-items-center">
-          <div className="col-lg-7">
-            <div className="pq-banner-title">
-              <span className="pq-sub-title">Chào mừng đến với dịch vụ y tế tốt nhất</span>
-              <h2 data-splitting className="pq-main-title">
-                Dịch vụ y tế với chi phí hợp lý cho mọi người
-              </h2>
-            </div>
-          </div>
-          <div className="col-lg-5 mt-lg-0 mt-4 pe-md-5 pe-lg-0">
-            <p className="pq-banner-description">
-              Có rất nhiều phiên bản khác nhau của Lorem Ipsum, nhưng các từ ngẫu nhiên không mang ý nghĩa 
-              khiến chúng trở nên khó tin. Nếu bạn đang tìm kiếm một lựa chọn đáng tin cậy, hãy chắc chắn rằng 
-              không có gì đáng xấu hổ...
-            </p>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-lg-12">
-            <div className="pq-banner-img pq-image-effect wow img-ptkey-top" data-wow-duration="1s">
-              {bannerData.banner.length > 0 && (
-                <img
-                  className="pq-img"
-                  decoding="async"
-                  src={bannerData.banner[0].image} // Lấy ảnh từ API
-                  alt="Hình ảnh quảng bá dịch vụ y tế với chi phí hợp lý"
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <>
+      <Swiper
+        modules={[Autoplay, EffectFade, Navigation, Pagination]}
+        effect="fade"
+        navigation
+        pagination={{ clickable: true }}
+        autoplay={{
+          delay: 3000,
+          disableOnInteraction: false,
+        }}
+        loop={true}
+        className="w-full h-[500px]"
+      >
+        {Array.isArray(banners) && banners.map((banner, index) => (
+          <SwiperSlide key={index}>
+            <img
+              src={banner.startsWith('http') ? banner : `http://localhost:8000/storage/${banner}`}
+              alt={`Banner ${index + 1}`}
+              className="w-full h-full object-cover"
+              onError={() => handleImageError(index)}
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </>
   );
 }
+    
