@@ -40,6 +40,9 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/auth/github/redirect', [SocialController::class, 'redirectToGitHub']);
     Route::get('/auth/github/callback', [SocialController::class, 'handleGitHubCallback']);
+
+    Route::get('/auth/facebook/redirect', [SocialController::class, 'redirectToFacebook']);
+    Route::get('/auth/facebook/callback', [SocialController::class, 'handleFacebookCallback']);
 });
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
