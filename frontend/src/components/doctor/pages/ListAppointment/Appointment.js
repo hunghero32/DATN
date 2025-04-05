@@ -409,6 +409,10 @@ const Appointment = () => {
         autoClose: 3000,
       });
 
+      // Tắt form chỉnh sửa
+      setShowMedicalRecordFormModal(false);
+      
+      // Cập nhật lại dữ liệu
       handleShowMedicalRecord(selectedAppointment);
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi lưu hồ sơ bệnh án.";
@@ -447,6 +451,7 @@ const Appointment = () => {
       );
 
       if (response.data) {
+        console.log("Fetched exam result:", response.data);
         setDiagnosis(response.data.diagnosis || "");
         setNotes(response.data.note || "");
         setPrescription(response.data.prescription || "");
@@ -468,7 +473,10 @@ const Appointment = () => {
   };
 
   const handleUpdateExamResult = async () => {
-    if (!selectedAppointment) return;
+    if (!selectedAppointment) {
+      toast.error("Không tìm thấy thông tin cuộc hẹn.");
+      return;
+    }
 
     const token = getAuthToken();
     if (!token) {
@@ -478,53 +486,87 @@ const Appointment = () => {
     }
 
     setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append("diagnosis", diagnosis || "");
-      formData.append("prescription", prescription || "");
-      formData.append("note", notes || "");
-      
-      // Chỉ append file nếu có file mới được chọn
-      if (file instanceof File) {
-        formData.append("file", file);
-      }
+    setError(null);
 
-      const response = await axios({
+    try {
+      // Tạo object data thay vì FormData
+      const data = {
+        diagnosis: diagnosis.trim(),
+        prescription: prescription.trim(),
+        note: notes.trim(),
+        booking_id: selectedAppointment.id
+      };
+
+      console.log("Sending data:", data);
+
+      // Gửi request cập nhật với JSON
+      const updateResponse = await axios({
         method: 'put',
         url: `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
-        data: formData,
+        data: data,
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
           'Accept': 'application/json'
         }
       });
 
-      if (response.data && response.data.data) {
-        const updatedResult = response.data.data;
-        
-        // Cập nhật state với dữ liệu mới
-        setDiagnosis(updatedResult.diagnosis || "");
-        setNotes(updatedResult.note || "");
-        setPrescription(updatedResult.prescription || "");
-        setFile(updatedResult.file || null);
+      console.log("Update response:", updateResponse.data);
 
+      // Đóng modal chỉnh sửa
+      setShowEditResultModal(false);
+
+      // Cập nhật state với dữ liệu mới
+      if (updateResponse.data && updateResponse.data.data) {
+        const newData = updateResponse.data.data;
+        setDiagnosis(newData.diagnosis || '');
+        setNotes(newData.note || '');
+        setPrescription(newData.prescription || '');
+        setFile(newData.file || null);
+        
+        // Hiển thị thông báo thành công
         toast.success("Cập nhật kết quả khám thành công!", {
           position: "top-right",
           autoClose: 3000,
         });
 
-        // Đóng modal chỉnh sửa và mở lại modal xem
-        setShowEditResultModal(false);
-        
-        // Đợi một chút trước khi mở modal xem và refresh dữ liệu
+        // Mở lại modal xem
         setTimeout(() => {
           setShowResultViewModal(true);
-          handleShowExamResult(selectedAppointment);
         }, 100);
+      } else {
+        // Nếu không có data trong response, fetch lại dữ liệu mới
+        const getResponse = await axios.get(
+          `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          }
+        );
+
+        if (getResponse.data) {
+          console.log("Fetched updated data:", getResponse.data);
+          setDiagnosis(getResponse.data.diagnosis || '');
+          setNotes(getResponse.data.note || '');
+          setPrescription(getResponse.data.prescription || '');
+          setFile(getResponse.data.file || null);
+          
+          // Hiển thị thông báo thành công
+          toast.success("Cập nhật kết quả khám thành công!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+
+          // Mở lại modal xem
+          setTimeout(() => {
+            setShowResultViewModal(true);
+          }, 100);
+        }
       }
     } catch (error) {
-      console.error("Error updating exam result:", error);
+      console.error("Error updating exam result:", error.response || error);
       const errorMessage = error.response?.data?.message || "Lỗi khi cập nhật kết quả khám.";
       setError(errorMessage);
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });

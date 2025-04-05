@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-use Illuminate\Support\Facades\Storage;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
@@ -69,13 +68,6 @@ class PostController  extends Controller
     }
     public function store(StorePostRequest $rep)
     {
-        $filePath = null;
-        if ($rep->hasFile('image')) {
-            $filePath = $rep->file('image')->store('uploads', 'public');
-        }
-        if ($filePath) {
-        $data['image'] = $filePath;
-    }
         $data = $rep->validated(); // Lấy dữ liệu đã validate
 
         Post::create($data);
@@ -113,30 +105,22 @@ class PostController  extends Controller
 
         ]);
     }
-    public function update(Request $rep, $id)
+    public function update($id, Request $rep)
     {
-        // Tìm bài viết, nếu không có thì trả về 404
-        $post = Post::findOrFail($id);
 
-        // Validate dữ liệu đầu vào
-        $data = $rep->validate([
-            
-        ]);
+        $post = Post::find($id);
+        $data = [
+            'title' => $rep->title,
+            'content' => $rep->content,
+            'category_id' => $rep->category_id,
+            'user_id' => $rep->user_id,
+            'status' => $rep->status,
+            'slug' => $rep->slug,
 
-        // Nếu có ảnh mới, xử lý lưu ảnh và xóa ảnh cũ
-        if ($rep->hasFile('image')) {
-            // Xóa ảnh cũ nếu có
-            if ($post->image) {
-                Storage::disk('public')->delete($post->image);
-            }
 
-            // Lưu ảnh mới vào storage/public/uploads
-            $data['image'] = $rep->file('image')->store('uploads', 'public');
-        }
 
-        // Cập nhật bài viết
+        ];
         $post->update($data);
-
-        return redirect()->route('admin.posts.index')->with('success', 'Bài viết đã được cập nhật thành công.');
+        return redirect()->route('admin.posts.index');
     }
 }

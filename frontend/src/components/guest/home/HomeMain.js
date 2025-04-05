@@ -14,7 +14,7 @@ export default function HomeMain() {
     <>
       <Banner />
       {/* <ServiceDetail/> */}
-      <About />
+      {/* <About /> */}
       {/* <Service/> */}
       <TopSpecialties />
       <TopBookedServices />
@@ -28,13 +28,13 @@ export default function HomeMain() {
         toggleChat={() => setChatOpen(!isChatOpen)}
       />
 
-      <button
+      {/* <button
         className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg flex items-center space-x-2"
         onClick={() => setChatOpen(!isChatOpen)}
       >
         <MessageCircle />
         <span>Chat</span>
-      </button>
+      </button> */}
     </>
   );
 }

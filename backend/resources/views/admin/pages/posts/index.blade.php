@@ -80,11 +80,13 @@
                                     <td class="text-center">{{ $post->user ? $post->user->name : 'Không có tác giả' }}</td>
                                     <td>{{ $post->slug }}</td>
                                     <td>{{ $post->title }}</td>
-                                    <td>{{ Str::limit($post->content, 50) }}</td>
+                                    <td>{{ Str::limit($post->content, 100) }}</td>
                                     <td class="text-center">{{ $post->views }}</td>
-                                    <td>
+                                  
+                                    <td class="text-center">
                                         <img src={{ Storage::Url($post->image) }} width="70px">
                                     </td>
+
                                     <td class="text-center">
                                         <span
                                             class="badge {{ $post->status == 'published' ? 'bg-success' : 'bg-warning text-dark' }}">

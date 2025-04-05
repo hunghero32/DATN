@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import api from "../../../ultils/api/axios";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PatientProfile = () => {
+  const navigate = useNavigate(); // Add this line at the beginning of the component
   const [patientData, setPatientData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,10 +22,21 @@ const PatientProfile = () => {
   useEffect(() => {
     const fetchPatientData = async () => {
       try {
-        const response = await api.get("api/profile");
-        console.log("Dữ liệu từ API:", response.data);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
 
-        if (response.data.user) {
+        const response = await axios.get("http://localhost:8000/api/profile", {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.data && response.data.user) {
           setPatientData(response.data.user);
           setFormData({
             name: response.data.user.name || "",
@@ -33,34 +46,38 @@ const PatientProfile = () => {
             password: "",
             password_confirmation: "",
           });
+          setError(null);
         } else {
           setError("Không có dữ liệu người dùng.");
         }
       } catch (error) {
-        console.error("Lỗi tải dữ liệu:", error.response?.data || error.message);
-        setError("Không thể tải dữ liệu bệnh nhân.");
+        console.error("Error details:", error);
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token'); // Clear invalid token
+          navigate('/login');
+        } else {
+          setError("Không thể tải dữ liệu bệnh nhân. Vui lòng thử lại sau.");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchPatientData();
-  }, []);
+  }, [navigate]);
 
-  // 🟢 Xử lý thay đổi input
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // 🟢 Cập nhật hồ sơ bệnh nhân
+  // Update handleUpdateProfile similarly
   const handleUpdateProfile = async () => {
     setUpdateStatus("loading");
     setError("");
 
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
       const updateData = {
         name: formData.name,
         email: formData.email,
@@ -78,9 +95,15 @@ const PatientProfile = () => {
 
       console.log("Dữ liệu gửi lên API:", updateData);
 
-      const response = await api.put("api/profile", updateData);
+      const response = await axios.put("http://localhost:8000/api/profile", updateData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
       console.log("Phản hồi từ API sau khi cập nhật:", response.data);
-
       setPatientData(response.data.user);
       setIsEditing(false);
       setUpdateStatus("success");

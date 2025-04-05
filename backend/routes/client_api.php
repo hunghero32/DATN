@@ -22,13 +22,13 @@ Route::get('/list-specialty', [SpecialtyController::class, 'listSpecialty']);
 //*************** Lấy ra danh sách dịch vụ  ************/
 Route::get('/list-service',[ServiceController::class,'listService']);
 
-Route::get('/services/search', [ServiceController::class, 'searchByKeyword']);
+Route::get('/services/search', [ServiceController::class, 'searchBySpecialtyName']);
 //*************** Lấy ra chi tiết dịch vụ  ************/
 Route::get('/detail-service/{id}',[ServiceController::class,'detailService']);
 
 
 //*************** Lấy ra chi tiết bài viết  ************/
-Route::get('detail-post/{slug}-{id}', [PostController::class, 'detailPost'])
+Route::get('bai-viet/{slug}/{id}', [PostController::class, 'detailPost'])
     ->where('slug', '[a-zA-Z0-9\-]+')
     ->where('id', '[0-9]+');
 

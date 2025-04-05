@@ -146,27 +146,48 @@
             <ul class="menu-sub">
                 <li class="menu-item">
                     <a href="{{route('admin.specialties.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách chuyên khoa</div>
+                        <div data-i18n="Account">Chuyên khoa</div>
+                    </a>
+                </li>
+            </ul>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.feedback.index')}}" class="menu-link">
+                        <div data-i18n="Account">Đánh giá</div>
                     </a>
                 </li>
             </ul>
             <ul class="menu-sub">
                 <li class="menu-item">
                     <a href="{{route('admin.services.index')}}" class="menu-link">
-                        <div data-i18n="Account">Danh sách dịch vụ</div>
+                        <div data-i18n="Account">Dịch vụ</div>
                     </a>
                 </li>
             </ul>
         </li>
-        <li class="menu-item {{ request()->routeIs('admin.bookings.index') ? 'active' : '' }}">
+        <li class="menu-item {{ request()->routeIs(['admin.bookings.index','admin.invoices.index']) ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-calendar"></i>
-                <div data-i18n="Account Settings">Đặt lịch</div>
+                <div data-i18n="Account Settings">Đặt lịch/Hóa đơn</div>
             </a>
         <ul class="menu-sub">
             <li class="menu-item">
                 <a href="{{route('admin.bookings.index')}}" class="menu-link">
                     <div data-i18n="Account">Danh sách đặt lịch</div>
+                </a>
+            </li>
+        </ul>
+        <ul class="menu-sub">
+            <li class="menu-item">
+                <a href="{{route('admin.invoices.index')}}" class="menu-link">
+                    <div data-i18n="Account">Danh sách hóa đơn</div>
+                </a>
+            </li>
+        </ul>
+        <ul class="menu-sub">
+            <li class="menu-item">
+                <a href="{{route('admin.report.index')}}" class="menu-link">
+                    <div data-i18n="Account">Xuất file</div>
                 </a>
             </li>
         </ul>

@@ -1,122 +1,76 @@
-import React, { useState } from "react";
-import { Form, Input, Button } from "antd";
-import { useMutation } from '@tanstack/react-query';
-import api from "../../../ultils/api/axios";
-import { useNavigate, Link } from 'react-router-dom';
+import { useState } from "react";
+import { Form, Input, Button, Card, message } from "antd";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-export default function Register() {
-  const nav = useNavigate();
-  const [form] = Form.useForm();
-  const [serverError, setServerError] = useState(""); 
+const Register = () => {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (data) => {
-      setServerError(""); // Xóa lỗi trước khi gửi
-      await api.post("/api/register", data);
-    },
-    onSuccess: () => {
-      setTimeout(() => {
-        nav("/login");
-      }, 1000);
-    },
-    onError: (error) => {
-      setServerError(error.response?.data?.message || "Đăng ký thất bại.");
-    },
-  });
-
-  const onFinish = (values) => {
-    console.log("Form Data:", values);
-    mutate(values);
+  const handleRegister = async (values) => {
+    setLoading(true);
+    try {
+      const response = await axios.post("http://localhost:8000/api/register", values);
+      toast.success("Đăng ký thành công! Đang chuyển hướng...");
+      setTimeout(() => navigate("/login"), 2000);
+    } catch (error) {
+      message.error(error.response?.data?.message || "Đăng ký thất bại!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-     <div className="bg-violet-950 p-8 rounded-xl shadow-xl w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center text-white mb-6">Đăng Ký</h1>
-        <Form
-          form={form}
-          layout="vertical"
-          disabled={isPending}
-          onFinish={onFinish}
-          validateTrigger="onSubmit"
-          name="register_form"
-        >
-          <Form.Item
-            label="Tên"
-            name="name"
-            hasFeedback
-            validateTrigger="onSubmit"
-            rules={[{ required: true, message: "Tên không được để trống." }]}
-            style={{ marginBottom: "12px" }}
-          >
-            <Input placeholder="Nhập vào tên" className="w-full" />
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <Card className="w-full max-w-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Đăng Ký</h2>
+        <Form layout="vertical" onFinish={handleRegister}>
+          <Form.Item label="Họ và tên" name="name" rules={[{ required: true, message: "Vui lòng nhập họ tên!" }]}> 
+            <Input placeholder="Nhập họ và tên" />
           </Form.Item>
 
-          <Form.Item
-            label="Email"
-            name="email"
-            hasFeedback
-            validateTrigger="onSubmit"
-            rules={[
-              { required: true, message: "Email không được bỏ trống." },
-              { type: "email", message: "Email không hợp lệ." }
-            ]}
-            style={{ marginBottom: "12px" }}
-          >
-            <Input placeholder="Nhập vào email" className="w-full" />
+          <Form.Item label="Email" name="email" rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ!" }]}> 
+            <Input placeholder="Nhập email" />
           </Form.Item>
 
-          <Form.Item
-            label="Mật khẩu"
-            name="password"
-            hasFeedback
-            validateTrigger="onSubmit"
-            rules={[{ required: true, message: "Mật khẩu không được bỏ trống." }]}
-            style={{ marginBottom: "12px" }}
-          >
-            <Input.Password placeholder="Nhập mật khẩu" className="w-full" />
+          <Form.Item label="Mật khẩu" name="password" rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}> 
+            <Input.Password placeholder="Nhập mật khẩu" />
           </Form.Item>
 
-          <Form.Item
-            label="Xác nhận mật khẩu"
-            name="password_confirmation"
-            hasFeedback
-            validateTrigger="onSubmit"
-            dependencies={["password"]}
-            rules={[
-              { required: true, message: "Bạn cần nhập lại mật khẩu." },
+          <Form.Item label="Xác nhận mật khẩu" name="password_confirmation" dependencies={["password"]} 
+            rules={[{ required: true, message: "Vui lòng nhập lại mật khẩu!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("Mật khẩu không khớp."));
+                  return Promise.reject(new Error("Mật khẩu không khớp!"));
                 },
               }),
-            ]}
-            style={{ marginBottom: "12px" }}
+            ]}> 
+            <Input.Password placeholder="Nhập lại mật khẩu" />
+          </Form.Item>
+
+          <button
+          
+            type="submit"
+            style={{
+              borderRadius: '30px',
+              padding: '12px 40px',
+            }}
+            className="w-full btn btn-warning text-black text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            disabled={loading}
           >
-            <Input.Password placeholder="Xác nhận mật khẩu" className="w-full" />
-          </Form.Item>
-
-          {serverError && <p className="text-red-500 text-sm mt-2">{serverError}</p>}
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block loading={isPending}>
-              Đăng ký
-            </Button>
-          </Form.Item>
+            {loading ? "Đang xử lý..." : "Đăng Ký"}
+          </button>
         </Form>
-
-        <div className="text-center mt-4">
-          <p>
-            Đã có tài khoản?{" "}
-            <Link to="/login" className="text-blue-500">
-              Đăng nhập tại đây
-            </Link>
-          </p>
-        </div>
-      </div>
+        <p className="text-center mt-4 text-sm">
+          Đã có tài khoản? <a href="/login" className="!text-blue-600 font-semibold">Đăng nhập ngay</a>
+        </p>
+      </Card>
     </div>
   );
-}
+};
+
+export default Register;

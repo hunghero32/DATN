@@ -95,7 +95,7 @@
                         } else {
                             resultsList.append(
                                 '<button class="dropdown-item disabled">Không tìm thấy kết quả</button>'
-                                );
+                            );
                         }
                     },
                     error: function(xhr) {
@@ -107,6 +107,11 @@
             $(document).click(function(e) {
                 if (!$(e.target).closest('.position-relative').length) {
                     $('#parent-results').hide();
+                }
+            });
+            $('#search-parent').on('input', function() {
+                if ($(this).val().trim() === '') {
+                    $('#parent_id').val('');
                 }
             });
         });

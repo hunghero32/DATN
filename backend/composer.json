@@ -11,6 +11,7 @@
         "kreait/laravel-firebase": "*",
         "laravel/framework": "^10.0",
         "laravel/sanctum": "^3.3",
+        "laravel/socialite": "^5.19",
         "laravel/tinker": "^2.8",
         "league/flysystem-aws-s3-v3": "3.0",
         "maatwebsite/excel": "^3.1"

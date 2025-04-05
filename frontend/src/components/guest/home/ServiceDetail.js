@@ -53,7 +53,6 @@ const ServiceDetail = () => {
     return slots;
   };
 
-  // Update the function parameters to include scheduleId
   const handleBooking = async (doctorId, date, time, scheduleId) => {
     if (!doctorId || !date || !time || !scheduleId) {
       message.error("Vui lòng chọn ngày và giờ trước khi đặt lịch.");
@@ -77,7 +76,6 @@ const ServiceDetail = () => {
 
       if (response.data.status) {
         localStorage.setItem("bookingData", JSON.stringify(response.data.data));
-        message.success("Đã lưu thông tin đặt lịch tạm thời");
         navigate(`/booking/${doctorId}?date=${date}&time=${time}`);
       } else {
         message.error(response.data.message || "Có lỗi xảy ra. Vui lòng thử lại!");
@@ -88,15 +86,21 @@ const ServiceDetail = () => {
     }
   };
 
-  if (loading) return <p className="text-center text-gray-500">Đang tải...</p>;
-  if (error) return <p className="text-center text-red-500">{error}</p>;
-  if (!service) return <p className="text-center text-gray-500">Không có dữ liệu.</p>;
+  // Calculate today and the max date (7 days ahead)
+  const today = new Date();
+  const maxDate = new Date();
+  maxDate.setDate(today.getDate() + 7);
+  const todayString = today.toISOString().split("T")[0];
+  const maxDateString = maxDate.toISOString().split("T")[0];
 
-  const today = new Date().toISOString().split("T")[0];
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
   };
+
+  if (loading) return <p className="text-center text-gray-500">Đang tải...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
+  if (!service) return <p className="text-center text-gray-500">Không có dữ liệu.</p>;
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
@@ -129,8 +133,8 @@ const ServiceDetail = () => {
               onChange={(e) => setSelectedDate(e.target.value)}
             >
               <option value="">Chọn ngày</option>
-              {[...new Set(doctor.schedules.map((s) => s.working_date))]
-                .filter(date => date >= today)
+              {[...new Set(doctor.schedules.map((s) => s.working_date))]  // Remove duplicate dates
+                .filter(date => date >= todayString && date <= maxDateString)  // Filter valid dates
                 .map((date) => (
                   <option key={date} value={date}>{formatDate(date)}</option>
                 ))}
@@ -158,3 +162,5 @@ const ServiceDetail = () => {
 };
 
 export default ServiceDetail;
+
+

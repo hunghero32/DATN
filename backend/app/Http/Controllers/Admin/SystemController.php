@@ -58,6 +58,7 @@ class SystemController extends Controller
 
     public function edit($id)
     {
+    
         $system = System::findOrFail($id);
 
         return view('admin.pages.system.edit', compact('system'));
@@ -65,6 +66,7 @@ class SystemController extends Controller
     public function update(UpdateSystemRequest $request, $id)
     {
         $system = System::findOrFail($id);
+
 
         // Xử lý upload logo nếu có file mới
         if ($request->hasFile('site_logo')) {
@@ -101,6 +103,6 @@ class SystemController extends Controller
             'company_email' => $request->company_email,
         ]);
 
-        return redirect()->route('admin.systems.edit',$id)->with('success', 'Cấu hình hệ thống đã được cập nhật thành công!');
+        return redirect()->route('admin.systems.edit', $id)->with('success', 'Cấu hình hệ thống đã được cập nhật thành công!');
     }
 }
