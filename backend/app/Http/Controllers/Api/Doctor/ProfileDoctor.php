@@ -51,25 +51,44 @@ class ProfileDoctor extends Controller
         if (!$doctor) {
             return response()->json(['message' => 'Bác sĩ không tồn tại.'], 404);
         }
+
         $validatedData = $request->validated();
+        
         // Xử lý avatar
         if ($request->hasFile('doctor_avatar')) {
-            Storage::delete($doctor->doctor_avatar);
-            $validatedData['doctor_avatar'] = $request->file('doctor_avatar')->store('avatars');
+            if ($doctor->doctor_avatar && !filter_var($doctor->doctor_avatar, FILTER_VALIDATE_URL)) {
+                Storage::delete($doctor->doctor_avatar);
+            }
+            $validatedData['doctor_avatar'] = $request->file('doctor_avatar')->store('avatars', 'public');
+        } elseif ($request->has('doctor_avatar') && filter_var($request->doctor_avatar, FILTER_VALIDATE_URL)) {
+            $validatedData['doctor_avatar'] = $request->doctor_avatar;
         }
-        // Xử lý file đính kèm
+
+        // Xử lý file CV/chứng chỉ
         if ($request->hasFile('file')) {
-            Storage::delete($doctor->file);
-            $validatedData['file'] = $request->file('file')->store('documents');
+            if ($doctor->file) {
+                Storage::delete($doctor->file);
+            }
+            $validatedData['file'] = $request->file('file')->store('files', 'public');
         }
+
         $doctor->update($validatedData);
-        // Nếu có thay đổi tên bác sĩ thì cập nhật cả tên user
-        if (isset($validatedData['doctor_name'])) {
-            $doctor->user()->update(['name' => $validatedData['doctor_name']]);
-        }
+
         return response()->json([
             'message' => 'Cập nhật hồ sơ thành công.',
-            'doctor' => $doctor,
+            'doctor' => [
+                'doctor_id' => $doctor->id,
+                'doctor_name' => $doctor->doctor_name,
+                'doctor_avatar' => $doctor->doctor_avatar ? Storage::url($doctor->doctor_avatar) : null,
+                'doctor_bio' => $doctor->doctor_bio,
+                'specialty' => $doctor->specialty->name ?? 'Chưa cập nhật',
+                'specialty_id' => $doctor->specialty_id,
+                'exp' => $doctor->exp,
+                'file' => $doctor->file ? Storage::url($doctor->file) : null,
+                'approve' => $doctor->approve,
+                'created_at' => $doctor->created_at,
+                'updated_at' => $doctor->updated_at,
+            ]
         ], 200);
     }
 }

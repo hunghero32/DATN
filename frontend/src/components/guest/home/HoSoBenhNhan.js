@@ -119,6 +119,14 @@ const PatientProfile = () => {
     }
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
   if (loading) return <p className="text-center text-gray-500">Đang tải dữ liệu...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
 

@@ -14,6 +14,8 @@ import {
 } from "chart.js";
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { FaUserMd, FaCalendarCheck, FaClipboardList, FaChartLine } from 'react-icons/fa';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 // Register Chart.js components
 ChartJS.register(
@@ -47,8 +49,49 @@ const Dashboard = () => {
     totalPatients: 0
   });
 
+  const [systemInfo, setSystemInfo] = useState({
+    site_name: "",
+    site_logo: "",
+    site_favicon: "",
+    site_description: "",
+  });
+
+  const [doctorInfo, setDoctorInfo] = useState(null);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 11) return "Chào buổi sáng";
+    if (hour >= 11 && hour < 13) return "Chào buổi trưa";
+    if (hour >= 13 && hour < 18) return "Chào buổi chiều";
+    return "Chào buổi tối";
+  };
+
   // Fetch data when the component mounts
   useEffect(() => {
+    const fetchSystemInfo = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/system");
+        setSystemInfo(response.data);
+      } catch (error) {
+        console.error("Lỗi khi tải thông tin hệ thống:", error);
+      }
+    };
+
+    const fetchDoctorInfo = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await axios.get('http://127.0.0.1:8000/api/doctor/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setDoctorInfo(response.data);
+      } catch (error) {
+        console.error('Lỗi khi lấy thông tin bác sĩ:', error);
+      }
+    };
+
     const fetchDashboardData = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/doctor/dashboard", {
@@ -62,8 +105,21 @@ const Dashboard = () => {
       }
     };
 
+    fetchSystemInfo();
+    fetchDoctorInfo();
     fetchDashboardData();
+
+    // Update time every minute
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 60000);
+
+    return () => clearInterval(timer);
   }, []);
+
+  const formatDateTime = (date) => {
+    return format(date, "EEEE, 'ngày' dd 'tháng' MM 'năm' yyyy, HH:mm", { locale: vi });
+  };
 
   // Prepare data for the Patients by Month chart (Line chart)
   const patientsByMonthData = {
@@ -122,15 +178,23 @@ const Dashboard = () => {
   };
 
   return (
-    <Container fluid className="py-4">
+    <Container fluid className="dashboard-container">
       <style>
         {`
+          .dashboard-container {
+            padding: 2rem;
+            margin-top: 70px;
+            background-color: #f8fafc;
+          }
+
           .dashboard-card {
             background: white;
             border-radius: 15px;
             border: none;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
+            height: 100%;
+            min-height: 140px;
           }
 
           .dashboard-card:hover {
@@ -196,12 +260,69 @@ const Dashboard = () => {
             padding-left: 1rem;
             border-left: 4px solid #0ea5e9;
           }
+
+          .welcome-section {
+            background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+            color: white;
+          }
+
+          .welcome-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+          }
+
+          .welcome-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+
+          .welcome-datetime {
+            font-size: 15px;
+            opacity: 0.8;
+            margin-top: 4px;
+          }
+
+          .stats-row {
+            margin-top: -60px;
+          }
+
+          .chart-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+          }
         `}
       </style>
 
-      <h2 className="section-title">Tổng Quan</h2>
+      <div className="welcome-section">
+        <h1 className="welcome-title">
+          {getGreeting()}, {doctorInfo?.first_name || "Bác sĩ"}!
+        </h1>
+        <div className="welcome-subtitle">
+          <div>Chào mừng bạn đến với {systemInfo.site_name || "Quick Care"}</div>
+          <div className="welcome-datetime">
+            Hôm nay là {formatDateTime(currentDateTime)}
+          </div>
+        </div>
+      </div>
 
-      <Row className="g-4">
+      <Row className="g-4 stats-row">
         <Col lg={3} sm={6}>
           <Card className="dashboard-card h-100">
             <Card.Body>
@@ -254,6 +375,29 @@ const Dashboard = () => {
           </Card>
         </Col>
       </Row>
+
+      <div className="secondary-stats">
+        <Row>
+          <Col md={4}>
+            <div className="text-center p-4">
+              <h6 className="text-uppercase text-muted mb-2">Ngày nghỉ trong tháng</h6>
+              <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.days_off}</h3>
+            </div>
+          </Col>
+          <Col md={4}>
+            <div className="text-center p-4">
+              <h6 className="text-uppercase text-muted mb-2">Số khung giờ trống</h6>
+              <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.available_slots}</h3>
+            </div>
+          </Col>
+          <Col md={4}>
+            <div className="text-center p-4">
+              <h6 className="text-uppercase text-muted mb-2">Lịch hẹn hôm nay</h6>
+              <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.patients_today.length}</h3>
+            </div>
+          </Col>
+        </Row>
+      </div>
 
       <div className="content-inner container-fluid pb-0" id="page_layout" style={{ backgroundColor: "#f0f4f8", padding: "20px" }}>
         <div>
