@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Services;
 use Illuminate\Http\Request;
 use App\Models\Specialty;
@@ -14,8 +13,7 @@ class ServiceController extends Controller
     public function index()
     {
         $data = Services::join('specialties', 'specialties.id', 'services.specialty_id')
-            ->join('categories', 'categories.id', 'services.category_id')
-            ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
+            ->select('services.*', 'specialties.name as specialty_name')
             ->where('services.isDeleted', 0)
             ->get();
 
@@ -29,7 +27,6 @@ class ServiceController extends Controller
             'description'     => 'nullable|string',
             'price'           => 'required|numeric|min:0',
             'duration'        => 'required|integer|min:1',
-            'category_id'     => 'required|exists:categories,id',
             'specialty_id'    => 'required|exists:specialties,id',
         ]);
 
@@ -66,7 +63,6 @@ class ServiceController extends Controller
             'description'     => 'nullable|string',
             'price'           => 'required|numeric|min:0',
             'duration'        => 'required|integer|min:1',
-            'category_id'     => 'required|exists:categories,id',
             'specialty_id'    => 'required|exists:specialties,id',
         ]);
 

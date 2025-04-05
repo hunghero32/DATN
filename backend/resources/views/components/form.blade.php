@@ -25,7 +25,7 @@
                                                     {!! str_replace('*', '<span style="color: red;">*</span>', $field['label']) !!}
                                                 </label>
                                                 <div class="d-flex align-items-center gap-3">
-                                                    <img src="{{ isset($data[$field['name']]) ? Storage::url($data[$field['name']]) : asset('admin/assets/img/avatars/1.png') }}"
+                                                    <img src="{{ isset($data[$field['name']]) && Storage::exists($data[$field['name']]) ? Storage::url($data[$field['name']]) : (file_exists(public_path('admin/assets/img/avatars/1.png')) ? asset('admin/assets/img/avatars/1.png') : asset('admin/assets/img/placeholder.png')) }}"
                                                         alt="user-avatar" class="avatar-preview rounded-circle"
                                                         id="uploadedAvatar" />
                                                     <div class="button-wrapper">
@@ -56,7 +56,7 @@
                                                 </label>
                                                 <div class="image-upload-container">
                                                     <div class="image-preview-wrapper">
-                                                        <img src="{{ isset($data[$field['name']]) ? Storage::url($data[$field['name']]) : asset('admin/assets/img/default-image.png') }}"
+                                                        <img src="{{ isset($data[$field['name']]) && Storage::exists($data[$field['name']]) ? Storage::url($data[$field['name']]) : (file_exists(public_path('admin/assets/img/default-image.png')) ? asset('admin/assets/img/default-image.png') : asset('admin/assets/img/placeholder.png')) }}"
                                                             alt="{{ $field['label'] }}" class="image-preview-large"
                                                             id="preview-{{ $field['name'] }}" />
                                                     </div>
@@ -68,7 +68,7 @@
                                                                 onchange="previewImage(event, 'preview-{{ $field['name'] }}')" />
                                                         </label>
                                                         <button type="button" class="btn btn-outline-secondary reset-btn"
-                                                            onclick="resetImage('preview-{{ $field['name'] }}', '{{ isset($data[$field['name']]) ? Storage::url($data[$field['name']]) : asset('admin/assets/img/default-image.png') }}')">
+                                                            onclick="resetImage('preview-{{ $field['name'] }}', '{{ isset($data[$field['name']]) && Storage::exists($data[$field['name']]) ? Storage::url($data[$field['name']]) : (file_exists(public_path('admin/assets/img/default-image.png')) ? asset('admin/assets/img/default-image.png') : asset('admin/assets/img/placeholder.png')) }}')">
                                                             <i class="bx bx-reset"></i> Reset
                                                         </button>
                                                     </div>
@@ -100,15 +100,35 @@
                                                     {!! str_replace('*', '<span style="color: red;">*</span>', $field['label']) !!}
                                                 </label>
                                                 @if ($field['type'] == 'select')
-                                                    <select id="{{ $field['name'] }}" name="{{ $field['name'] }}"
-                                                        class="select2 form-select">
-                                                        @foreach ($field['options'] as $id => $name)
-                                                            <option value="{{ $id }}"
-                                                                {{ old($field['name'], $data[$field['name']] ?? '') == $id ? 'selected' : '' }}>
-                                                                {{ $name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
+                                                    <!-- Dropdown tùy chỉnh -->
+                                                    <div class="custom-select-wrapper" id="{{ $field['name'] }}-wrapper">
+                                                        <div class="custom-select">
+                                                            <div class="custom-select__trigger">
+                                                                <span class="custom-select__display">
+                                                                    {{ old($field['name'], $data[$field['name']] ?? '') ? ($field['options'][old($field['name'], $data[$field['name']] ?? '')] ?? '-- Chọn một tùy chọn --') : '-- Chọn một tùy chọn --' }}
+                                                                </span>
+                                                                <div class="arrow"></div>
+                                                            </div>
+                                                            <div class="custom-options">
+                                                                <input type="text" class="custom-select__search" placeholder="Tìm kiếm..."
+                                                                       oninput="filterOptions(this)">
+                                                                @if (empty($field['options']))
+                                                                    @php
+                                                                        \Log::info('Options trống cho field: ' . $field['name']);
+                                                                    @endphp
+                                                                    <span class="custom-option" data-value="">Không có dữ liệu</span>
+                                                                @else
+                                                                    @foreach ($field['options'] as $id => $name)
+                                                                        <span class="custom-option {{ old($field['name'], $data[$field['name']] ?? '') == $id ? 'selected' : '' }}"
+                                                                              data-value="{{ $id }}">{{ $name }}</span>
+                                                                    @endforeach
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        <!-- Input ẩn để gửi giá trị -->
+                                                        <input type="hidden" id="{{ $field['name'] }}" name="{{ $field['name'] }}"
+                                                               value="{{ old($field['name'], $data[$field['name']] ?? '') }}">
+                                                    </div>
                                                 @else
                                                     <input type="{{ $field['type'] }}" class="form-control"
                                                         id="{{ $field['name'] }}" name="{{ $field['name'] }}"
@@ -129,28 +149,19 @@
                                 </div>
                             </form>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-
+    <!-- Thư viện cần thiết (không cần Select2) -->
     <script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JavaScript để preview ảnh và khởi tạo CKEditor -->
+    <!-- JavaScript để preview ảnh, khởi tạo CKEditor và xử lý dropdown tùy chỉnh -->
     <script>
         // Hàm preview ảnh khi chọn file
-        function previewImage(event, targetId) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                document.getElementById(targetId).src = reader.result;
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        }
-
         function previewImage(event, targetId) {
             const reader = new FileReader();
             reader.onload = function() {
@@ -168,6 +179,30 @@
             }
         }
 
+        // Hàm bỏ dấu tiếng Việt
+        function removeDiacritics(str) {
+            return str.normalize('NFD')
+                     .replace(/[\u0300-\u036f]/g, '')
+                     .replace(/đ/g, 'd')
+                     .replace(/Đ/g, 'D');
+        }
+
+        // Hàm lọc tùy chọn trong dropdown
+        function filterOptions(input) {
+            const filter = removeDiacritics(input.value.toLowerCase());
+            // Tìm container của dropdown
+            const customSelect = input.closest('.custom-select');
+            const options = customSelect.querySelectorAll('.custom-option');
+            options.forEach(option => {
+                const text = removeDiacritics(option.textContent.toLowerCase());
+                if (text.includes(filter)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Khởi tạo CKEditor cho tất cả textarea có type='textarea'
             @foreach ($fields as $field)
@@ -181,7 +216,45 @@
                 @endif
             @endforeach
 
+            // Xử lý dropdown tùy chỉnh
+            const customSelects = document.querySelectorAll('.custom-select');
+            customSelects.forEach(select => {
+                const trigger = select.querySelector('.custom-select__trigger');
+                const options = select.querySelectorAll('.custom-option');
+                const display = select.querySelector('.custom-select__display');
+                const hiddenInput = select.closest('.custom-select-wrapper').querySelector('input[type="hidden"]');
 
+                // Mở/đóng dropdown khi click vào trigger
+                trigger.addEventListener('click', () => {
+                    select.classList.toggle('open');
+                });
+
+                // Xử lý khi chọn một tùy chọn
+                options.forEach(option => {
+                    option.addEventListener('click', () => {
+                        const value = option.getAttribute('data-value');
+                        const text = option.textContent;
+
+                        // Cập nhật giá trị hiển thị
+                        display.textContent = text;
+                        hiddenInput.value = value;
+
+                        // Đánh dấu tùy chọn được chọn
+                        options.forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+
+                        // Đóng dropdown
+                        select.classList.remove('open');
+                    });
+                });
+
+                // Đóng dropdown khi click bên ngoài
+                document.addEventListener('click', (e) => {
+                    if (!select.contains(e.target)) {
+                        select.classList.remove('open');
+                    }
+                });
+            });
         });
     </script>
 
@@ -277,6 +350,7 @@
             opacity: 0;
             cursor: pointer;
         }
+
         .reset-btn {
             display: flex;
             align-items: center;
@@ -292,6 +366,91 @@
         .reset-btn i {
             font-size: 1.2rem;
         }
-    </style>
 
+        /* CSS cho dropdown tùy chỉnh */
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select {
+            position: relative;
+            display: block;
+            width: 100%;
+        }
+
+        .custom-select__trigger {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #fff;
+            border: 1px solid #d9dee3;
+            border-radius: 4px;
+            cursor: pointer;
+            height: 38px;
+        }
+
+        .custom-select__display {
+            color: #333;
+        }
+
+        .arrow {
+            border: solid #696cff;
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 3px;
+            transform: rotate(45deg);
+            transition: transform 0.3s ease;
+        }
+
+        .custom-select.open .arrow {
+            transform: rotate(-135deg);
+        }
+
+        .custom-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #d9dee3;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+
+        .custom-select.open .custom-options {
+            display: block;
+        }
+
+        .custom-select__search {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-bottom: 1px solid #d9dee3;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .custom-option {
+            display: block;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .custom-option:hover {
+            background: #f0f7ff;
+        }
+
+        .custom-option.selected {
+            background: #696cff;
+            color: #fff;
+        }
+    </style>
 @endsection

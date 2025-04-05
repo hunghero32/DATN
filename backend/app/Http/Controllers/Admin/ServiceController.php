@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Services;
 use Illuminate\Http\Request;
 use App\Models\Specialty;
@@ -16,17 +15,15 @@ class ServiceController extends Controller
     {
         $perPage = request()->get('per_page', 10);
         $data = Services::join('specialties', 'specialties.id', 'services.specialty_id')
-            ->join('categories', 'categories.id', 'services.category_id')
-            ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
+            ->select('services.*', 'specialties.name as specialty_name')
             ->where('services.isDeleted', 0)
             ->orderBy('services.created_at', 'desc')
             ->paginate($perPage);
 
         $specialties = Specialty::where('isDeleted', 0)->pluck('name', 'id')->toArray();
-        $categories = Category::where('isDeleted', 0)->pluck('name', 'id')->toArray();
         $statuses = config('app.statuses');
 
-        return view('admin.pages.services.index', compact('data', 'specialties', 'categories', 'statuses'));
+        return view('admin.pages.services.index', compact('data', 'specialties', 'statuses'));
     }
 
     public function search(Request $request)
@@ -35,22 +32,18 @@ class ServiceController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
         $specialty_id = $request->input('specialty_id');
-        $category_id = $request->input('category_id');
         $price_from = $request->input('price_from');
         $price_to = $request->input('price_to');
 
         $query = Services::join('specialties', 'specialties.id', 'services.specialty_id')
-            ->join('categories', 'categories.id', 'services.category_id')
-            ->select('services.*', 'categories.name as category_name', 'specialties.name as specialty_name')
+            ->select('services.*', 'specialties.name as specialty_name')
             ->where('services.isDeleted', 0)
-            ->where('specialties.isDeleted', 0)
-            ->where('categories.isDeleted', 0);
+            ->where('specialties.isDeleted', 0);
 
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
                 $q->where('services.services_name', 'like', '%' . $search . '%')
                   ->orWhere('services.description', 'like', '%' . $search . '%')
-                  ->orWhere('categories.name', 'like', '%' . $search . '%')
                   ->orWhere('specialties.name', 'like', '%' . $search . '%');
             });
         }
@@ -61,10 +54,6 @@ class ServiceController extends Controller
 
         if (!empty($specialty_id)) {
             $query->where('services.specialty_id', $specialty_id);
-        }
-
-        if (!empty($category_id)) {
-            $query->where('services.category_id', $category_id);
         }
 
         if (!empty($price_from)) {
@@ -80,22 +69,21 @@ class ServiceController extends Controller
         $data->appends($request->all());
 
         $specialties = Specialty::where('isDeleted', 0)->pluck('name', 'id')->toArray();
-        $categories = Category::where('isDeleted', 0)->pluck('name', 'id')->toArray();
         $statuses = config('app.statuses');
 
-        return view('admin.pages.services.index', compact('data', 'specialties', 'categories', 'statuses'));
+        return view('admin.pages.services.index', compact('data', 'specialties', 'statuses'));
     }
+
     public function create()
     {
-
         return view(
             'admin.pages.services.create',
             [
                 'specialties' => Specialty::pluck('name', 'id')->toArray(),
-                'categories' => Category::pluck('name', 'id')->toArray()
             ]
         );
     }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -103,7 +91,6 @@ class ServiceController extends Controller
             'description'     => 'nullable|string',
             'price'           => 'required|numeric|min:0',
             'duration'        => 'required|integer|min:1',
-            'category_id'     => 'required|exists:categories,id',
             'specialty_id'    => 'required|exists:specialties,id',
             'image'           => 'required|image|mimes:jpg,jpeg,png,gif|max:2048'
         ], [
@@ -116,8 +103,6 @@ class ServiceController extends Controller
             'duration.required'       => 'Thời gian thực hiện không được để trống.',
             'duration.integer'        => 'Thời gian thực hiện phải là số nguyên.',
             'duration.min'            => 'Thời gian thực hiện phải lớn hơn 0.',
-            'category_id.required'    => 'Danh mục không được để trống.',
-            'category_id.exists'      => 'Danh mục không hợp lệ.',
             'specialty_id.required'   => 'Chuyên khoa không được để trống.',
             'specialty_id.exists'     => 'Chuyên khoa không hợp lệ.',
             'image.image'             => 'File tải lên phải là hình ảnh.',
@@ -154,21 +139,19 @@ class ServiceController extends Controller
             [
                 'data' => $data,
                 'specialties' => Specialty::pluck('name', 'id')->toArray(),
-                'categories' => Category::pluck('name', 'id')->toArray()
             ]
         );
     }
+
     public function update(Request $request, $id)
     {
         $service = Services::findOrFail($id);
 
-        // Quy tắc kiểm tra dữ liệu (validate)
         $validator = Validator::make($request->all(), [
             'services_name'   => 'required|string|max:255',
             'description'     => 'nullable|string',
             'price'           => 'required|numeric|min:0',
             'duration'        => 'required|integer|min:1',
-            'category_id'     => 'required|exists:categories,id',
             'specialty_id'    => 'required|exists:specialties,id',
             'image'           => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048'
         ], [
@@ -181,8 +164,6 @@ class ServiceController extends Controller
             'duration.required'       => 'Thời gian thực hiện không được để trống.',
             'duration.integer'        => 'Thời gian thực hiện phải là số nguyên.',
             'duration.min'            => 'Thời gian thực hiện phải lớn hơn 0.',
-            'category_id.required'    => 'Danh mục không được để trống.',
-            'category_id.exists'      => 'Danh mục không hợp lệ.',
             'specialty_id.required'   => 'Chuyên khoa không được để trống.',
             'specialty_id.exists'     => 'Chuyên khoa không hợp lệ.',
             'image.image'             => 'File tải lên phải là hình ảnh.',
@@ -190,7 +171,6 @@ class ServiceController extends Controller
             'image.max'               => 'Ảnh không được lớn hơn 2MB.',
         ]);
 
-        // Nếu có lỗi validate
         if ($validator->fails()) {
             return redirect()->back()
                 ->withErrors($validator)
