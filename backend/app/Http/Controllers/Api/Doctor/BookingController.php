@@ -43,7 +43,8 @@ class BookingController extends Controller
             ->when(auth()->user()->role === 'doctor' && $request->status === 'completed', function ($query) {
                 return $query->filterDoctorCompleted(); // lọc theo trạng thái hoàn thành
             })
-            ->latest('updated_at')
+            ->orderBy('booking_date', 'asc')
+            ->orderBy('booking_time', 'asc')
             ->paginate(10);
         if ($bookings->isEmpty()) {
             return response()->json([
