@@ -59,6 +59,10 @@ const Login = () => {
     window.location.href = "http://localhost:8000/api/auth/github/redirect";
   };
 
+  const handleFacebookLogin = () => {
+    window.location.href = "http://localhost:8000/api/auth/facebook/redirect";
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <Card className="w-full max-w-lg shadow-lg p-6">
@@ -116,22 +120,35 @@ const Login = () => {
         </p>
 
         {/* Google login button */}
-        <div className="text-center">
-          <Button
-            onClick={handleGoogleLogin}
-            className="w-full text-gray-600 hover:text-blue-600 transition-all duration-300"
-          >
-            <i className="ri-google-fill text-2xl"></i> Đăng nhập bằng Google
-          </Button>
-        </div>
-        <div className="text-center mt-2">
-          <Button
-            onClick={handleGitthubLogin}
-            className="w-full text-gray-600 hover:text-blue-600 transition-all duration-300"
-          >
-            <i className="ri-github-fill text-2xl mb-2"></i> Đăng nhập bằng Github
-          </Button>
-        </div>
+        <div className="flex justify-center space-x-4 mt-4">
+  <div className="text-center">
+    <Button
+      onClick={handleGoogleLogin}
+      className="w-full text-gray-600 hover:text-blue-600 transition-all duration-300"
+    >
+      <i className="ri-google-fill text-2xl"></i>
+    </Button>
+  </div>
+
+  <div className="text-center">
+    <Button
+      onClick={handleGitthubLogin}
+      className="w-full text-gray-600 hover:text-blue-600 transition-all duration-300"
+    >
+      <i className="ri-github-fill text-2xl mb-2"></i>
+    </Button>
+  </div>
+
+  <div className="text-center">
+    <Button
+      onClick={handleFacebookLogin}
+      className="w-full text-gray-600 hover:text-blue-600 transition-all duration-300"
+    >
+      <i className="ri-facebook-fill text-2xl mb-2"></i>
+    </Button>
+  </div>
+</div>
+
 
         <p className="text-center mt-2 text-sm">
           Quên mật khẩu? <a href="/forgot-password" className="!text-blue-600 font-semibold">Khôi phục mật khẩu</a>

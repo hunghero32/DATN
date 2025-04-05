@@ -63,6 +63,38 @@ class SocialController extends Controller
             return redirect("http://localhost:3000/login?error=Authentication failed");
         }
     }
+
+    public function redirectToFacebook()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    // Handle Facebook Callback
+    public function handleFacebookCallback(Request $request)
+    {
+        try {
+            $socialUser = Socialite::driver('facebook')->user();
+            
+            // Find or create user
+            $user = User::firstOrCreate(
+                ['email' => $socialUser->getEmail()],
+                [
+                    'name' => $socialUser->getName(),
+                    'password' => bcrypt(Str::random(60)),
+                    'social_id' => $socialUser->getId(),
+                    'social_provider' => 'facebook'
+                ]
+            );
+    
+            // Create auth token
+            $token = $user->createToken('authToken')->plainTextToken;
+    
+            // Redirect to frontend with token and user info
+            return redirect("http://localhost:3000/auth/oauth-success?token={$token}&user=" . urlencode(json_encode($user)));
+        } catch (\Exception $e) {
+            return redirect("http://localhost:3000/login?error=Authentication failed");
+        }
+    }
     
 
     
