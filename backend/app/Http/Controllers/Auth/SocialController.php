@@ -33,7 +33,36 @@ class SocialController extends Controller
         // Redirect to frontend with token and user info
         return redirect("http://localhost:3000/auth/oauth-success?token={$token}&user=" . urlencode(json_encode($user)));
     }
+    public function redirectToGitHub()
+    {
+        return Socialite::driver('github')->redirect();
+    }
+
+    public function handleGitHubCallback(Request $request)
+    {
+        try {
+            $socialUser = Socialite::driver('github')->user();
+            
+            // Find or create user
+            $user = User::firstOrCreate(
+                ['email' => $socialUser->getEmail()],
+                [
+                    'name' => $socialUser->getName() ?? $socialUser->getNickname(),
+                    'password' => bcrypt(Str::random(60)),
+                    'social_id' => $socialUser->getId(),
+                    'social_provider' => 'github'
+                ]
+            );
     
+            // Create auth token
+            $token = $user->createToken('authToken')->plainTextToken;
+    
+            // Redirect to frontend with token and user info
+            return redirect("http://localhost:3000/auth/oauth-success?token={$token}&user=" . urlencode(json_encode($user)));
+        } catch (\Exception $e) {
+            return redirect("http://localhost:3000/login?error=Authentication failed");
+        }
+    }
     
 
     

@@ -55,6 +55,9 @@ const Login = () => {
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8000/api/auth/google/redirect";
   };
+  const handleGitthubLogin = () => {
+    window.location.href = "http://localhost:8000/api/auth/github/redirect";
+  };
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -113,12 +116,20 @@ const Login = () => {
         </p>
 
         {/* Google login button */}
-        <div className="text-center mt-2">
+        <div className="text-center">
           <Button
             onClick={handleGoogleLogin}
             className="w-full text-gray-600 hover:text-blue-600 transition-all duration-300"
           >
             <i className="ri-google-fill text-2xl"></i> Đăng nhập bằng Google
+          </Button>
+        </div>
+        <div className="text-center mt-2">
+          <Button
+            onClick={handleGitthubLogin}
+            className="w-full text-gray-600 hover:text-blue-600 transition-all duration-300"
+          >
+            <i className="ri-github-fill text-2xl mb-2"></i> Đăng nhập bằng Github
           </Button>
         </div>
 
