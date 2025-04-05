@@ -14,7 +14,7 @@ export default function HomeMain() {
     <>
       <Banner />
       {/* <ServiceDetail/> */}
-      <About />
+      {/* <About /> */}
       {/* <Service/> */}
       <TopSpecialties />
       <TopBookedServices />

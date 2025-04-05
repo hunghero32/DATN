@@ -592,3 +592,36 @@ body {
 }
 
 
+/* Form validation message container */
+/* Remove the display: flex from ant-form-item */
+.ant-form-item {
+  position: relative;
+  display: block !important;
+  margin-bottom: 24px;
+}
+
+/* Style the validation messages */
+.ant-form-item-explain,
+.ant-form-item-explain-error {
+  position: absolute;
+  font-size: 12px;
+  color: #ff4d4f;
+  margin-top: 2px;
+  background-color: white;
+  padding: 2px 4px;
+  width: 100%;
+  z-index: 1;
+}
+
+/* Ensure form control takes full width */
+.ant-form-item-control {
+  width: 100%;
+  position: relative;
+}
+
+.ant-form-item-explain {
+  font-size: 12px; /* Giảm kích thước chữ thông báo lỗi */
+  color: #f5222d; /* Đổi màu lỗi */
+}
+
+

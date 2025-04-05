@@ -15,6 +15,7 @@ import {
 } from "antd";
 import api from "../../../ultils/api/axios";
 import axios from "axios";
+import { Modal } from "react-bootstrap";  // Bootstrap Modal
 
 const { Title, Text } = Typography;
 
@@ -25,54 +26,47 @@ const DatLich = () => {
   const [form] = Form.useForm();
   const [bookingData, setBookingData] = useState(null);
   const [systemInfo, setSystemInfo] = useState({});
+  const [doctorDetails, setDoctorDetails] = useState(null);
+  const [showModal, setShowModal] = useState(false); // State to control the modal visibility
+  const [formData, setFormData] = useState(null);  // Store form data to pass to the modal
 
-  // Fetch system info from API
+  // Fetch system info
   useEffect(() => {
     const fetchSystemInfo = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/system");
         const data = response.data;
-        if (data) {
-          setSystemInfo(data);
-        } else {
-          console.warn("Không có dữ liệu hệ thống");
-        }
+        if (data) setSystemInfo(data);
+        else console.warn("Không có dữ liệu hệ thống");
       } catch (error) {
         console.error("❌ Lỗi khi lấy thông tin hệ thống:", error);
       }
     };
-  
+
     fetchSystemInfo();
   }, []);
-  
-  // Log the systemInfo to debug
-  console.log("Day la du lieu addres và title ", systemInfo);
 
+  // Load booking data from localStorage
   useEffect(() => {
     const storedData = localStorage.getItem('bookingData');
     if (storedData) {
-        try {
-            const parsedData = JSON.parse(storedData);
-            if (parsedData?.doctor_id && parsedData?.service_id && parsedData?.schedule_id) {
-                setBookingData(parsedData);
-                setDoctorDetails(parsedData); // Set doctor details directly from localStorage
-            } else {
-                console.error("❌ Dữ liệu bookingData không hợp lệ:", parsedData);
-                message.error("Dữ liệu đặt lịch bị lỗi. Vui lòng đặt lại!");
-                navigate("/services");
-            }
-        } catch (error) {
-            console.error("❌ Lỗi parse dữ liệu bookingData:", error);
-            message.error("Lỗi dữ liệu. Vui lòng thử lại!");
-            navigate("/services");
+      try {
+        const parsedData = JSON.parse(storedData);
+        if (parsedData?.doctor_id && parsedData?.service_id && parsedData?.schedule_id) {
+          setBookingData(parsedData);
+          setDoctorDetails(parsedData);
+        } else {
+          message.error("Dữ liệu đặt lịch bị lỗi. Vui lòng đặt lại!");
+          navigate("/services");
         }
-    } else {
-        message.error("Không tìm thấy thông tin đặt lịch!");
+      } catch (error) {
+        message.error("Lỗi dữ liệu. Vui lòng thử lại!");
         navigate("/services");
+      }
+    } else {
+      navigate("/");
     }
   }, []);
-
-  const [doctorDetails, setDoctorDetails] = useState(null);
 
   useEffect(() => {
     fetchDoctorDetails();
@@ -80,39 +74,33 @@ const DatLich = () => {
 
   const fetchDoctorDetails = async () => {
     try {
-      console.log("lay ra du lieu !")
-        const response = await api.get("/api/client/get-temp-booking");
-        console.log("API Response:", response.data);
-        
-        if (response.data.status === true && response.data.data) {
-            setDoctorDetails(response.data.data);
-            setBookingData(response.data.data);
-        } else {
-            throw new Error(response.data.message || "Không tìm thấy thông tin đặt lịch tạm thời");
-        }
+      const response = await api.get("/api/client/get-temp-booking");
+      if (response.data.status === true && response.data.data) {
+        setDoctorDetails(response.data.data);
+        setBookingData(response.data.data);
+      }
     } catch (error) {
-        console.error("❌ Lỗi lấy thông tin bác sĩ:", error);
-        message.error(error.message);
+      message.error(error.message);
     }
   };
 
-  const onFinish = async (values) => {
+  const handleSubmitBooking = async (values) => {
     setLoading(true);
-    // Kiểm tra bookingData có đầy đủ không
+
     if (!bookingData || !bookingData.doctor_id || !bookingData.service_id || !bookingData.schedule_id) {
-      console.error("❌ Thiếu dữ liệu quan trọng trong bookingData:", bookingData);
       message.error("Dữ liệu đặt lịch không hợp lệ. Vui lòng thử lại!");
+      setLoading(false);
       return;
-  }
-  
+    }
+
     try {
       const requestData = {
         guest_name: values.guest_name.trim(),
-        guest_phone: values.guest_phone.replace(/\s+/g, ""), // Xóa khoảng trắng
+        guest_phone: values.guest_phone.replace(/\s+/g, ""),
         guest_email: values.guest_email,
         gender: values.gender,
         birthday: values.birthday,
-        address: values.address.split(","), // Chuyển chuỗi thành mảng bằng dấu phẩy
+        address: values.address.split(","),
         doctor_id: bookingData.doctor_id,
         service_id: bookingData.service_id,
         schedule_id: bookingData.schedule_id,
@@ -121,40 +109,41 @@ const DatLich = () => {
         total_price: bookingData.price,
         status: "pending",
       };
-  
-      console.log("📤 Gửi dữ liệu:", requestData);
-  
+
       const response = await api.post("/api/client/confirm-booking", requestData);
-  
-      console.log("📥 Phản hồi API:", response.data);
-  
+
       if (response.data.status) {
-        message.success("🎉 Đặt lịch thành công!");
         localStorage.removeItem("bookingData");
         navigate("/thongbao");
       } else {
         throw new Error(response.data.message || "Có lỗi xảy ra");
       }
     } catch (error) {
-      console.error("❌ Lỗi:", error);
       message.error(error.response?.data?.message || "Không thể đặt lịch, thử lại sau!");
     } finally {
       setLoading(false);
     }
   };
 
+  const onFinish = (values) => {
+    setFormData(values); // Save form data before opening modal
+    setShowModal(true); // Open modal
+  };
+
+  const handleCloseModal = () => setShowModal(false);
+
   return (
     <div className="appointment-container p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg mt-2">
       <Card className="p-4">
         <Title level={3} className="text-blue-600 font-bold mb-2">📅 Đặt lịch khám</Title>
-        
+
         {/* Thông tin dịch vụ và bác sĩ */}
         <div className="bg-blue-50 p-4 rounded-lg mb-4">
           <Title level={4} className="text-blue-500 mb-2">{bookingData?.service_name}</Title>
           <Text className="block mb-2">💰 Giá khám: {parseInt(bookingData?.price).toLocaleString()}đ</Text>
           <Text className="block mb-2">⏱️ Thời gian khám: {bookingData?.duration} phút</Text>
           {bookingData?.specialty_name && (
-            <Text className="block mb-2">🏥 Chuyên khoa: {bookingData?.specialty_name}</Text>
+            <Text className="block mb-2">🏥 Chuyên khoa: {bookingData.specialty_name}</Text>
           )}
         </div>
 
@@ -202,15 +191,20 @@ const DatLich = () => {
       </Card>
 
       <Card className="p-6 mt-6">
-        <Form form={form} layout="vertical" initialValues={{
-          guest_name: "",
-          gender: "",
-          guest_phone: "",
-          guest_email: "",
-          birthday: "",
-          address: "",
-          reason: ""
-        }} onFinish={onFinish}>
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{
+            guest_name: "",
+            gender: "",
+            guest_phone: "",
+            guest_email: "",
+            birthday: "",
+            address: "",
+            reason: ""
+          }}
+          onFinish={onFinish}
+        >
           <Form.Item name="guest_name" label="Họ và Tên" rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}>
             <Input placeholder="Nhập họ và tên" />
           </Form.Item>
@@ -252,6 +246,24 @@ const DatLich = () => {
           </Form.Item>
         </Form>
       </Card>
+
+      {/* Bootstrap Modal for confirmation */}
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title className="bg-warning">Xác nhận đặt lịch</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Bạn có chắc chắn muốn đặt lịch với thông tin sau?</p>
+          <p><strong>Họ tên:</strong> {formData?.guest_name}</p>
+          <p><strong>SĐT:</strong> {formData?.guest_phone}</p>
+          <p><strong>Email:</strong> {formData?.guest_email}</p>
+          <p><strong>Địa chỉ:</strong> {formData?.address}</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" className="btn btn-warning" onClick={handleCloseModal}>Trở về</Button>
+          <Button variant="primary"  className="btn btn-danger" onClick={() => handleSubmitBooking(formData)}>Xác nhận</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

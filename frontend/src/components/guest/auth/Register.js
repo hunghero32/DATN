@@ -53,12 +53,13 @@ const Register = () => {
           </Form.Item>
 
           <button
+          
             type="submit"
             style={{
               borderRadius: '30px',
               padding: '12px 40px',
             }}
-            className="w-full bg-blue-600 text-white text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            className="w-full btn btn-warning text-black text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
             disabled={loading}
           >
             {loading ? "Đang xử lý..." : "Đăng Ký"}
