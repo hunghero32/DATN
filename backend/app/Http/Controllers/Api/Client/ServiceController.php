@@ -34,7 +34,6 @@ class ServiceController extends Controller
             ->where('services.isDeleted', 0)
             ->where('id', $request->id)
             ->with([
-                'category:id,name',
                 'specialty:id,name,image',
                 'doctors' => function ($query) {
                     $query->where('doctors.isDeleted', 0)

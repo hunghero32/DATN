@@ -10,7 +10,6 @@ class Services extends Model
     use HasFactory;
     protected $fillable = [
         'specialty_id',
-        'category_id',
         'services_name',
         'image',
         'description',
@@ -27,10 +26,6 @@ class Services extends Model
     }
 
     // Quan hệ với bảng Category
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
     public function doctorServices()
     {
         return $this->hasMany(DoctorService::class, 'service_id', 'id');

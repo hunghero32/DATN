@@ -3,7 +3,6 @@
 @section('content')
 <?php
 $specialties = $data->pluck('specialty_id', 'specialty_name')->toArray();
-$categories = $data->pluck('category_id', 'category_name')->toArray();
 
 // Add status configuration
 $statusConfig = [
@@ -14,7 +13,6 @@ $statusConfig = [
 $detailModal=[
     'fields'=>[
         ['name' => 'specialty_id', 'label' => 'Chuyên khoa', 'type' => 'select', 'options' => $specialties],
-        ['name' => 'category_id', 'label' => 'Danh mục', 'type' => 'select', 'options' => $categories],
         ['name' => 'services_name', 'label' => 'Tên dịch vụ', 'type' => 'text'],
         ['name' => 'price', 'label' => 'Giá', 'type' => 'number'],
         ['name'=>'image','label'=>'Ảnh','type'=>'file'],
@@ -27,7 +25,6 @@ $detailModal=[
     :route="route('admin.services.search')"
     :columns="[
         ['key' => 'specialty_name', 'label' => 'Tên Chuyên khoa'],
-        ['key' => 'category_name', 'label' => 'Tên Danh mục'],
         ['key' => 'services_name', 'label' => 'Tên dịch vụ'],
         ['key'=>'image','label'=>'Ảnh'],
         ['key' => 'price', 'label' => 'Giá'],
