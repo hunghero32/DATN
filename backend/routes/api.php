@@ -44,6 +44,9 @@ use App\Http\Controllers\Auth\SocialController;
 Route::middleware(['web'])->group(function () {
     Route::get('/auth/google/redirect', [SocialController::class, 'redirect']);
     Route::get('/auth/google/callback', [SocialController::class, 'callback']);
+
+    Route::get('/auth/github/redirect', [SocialController::class, 'redirectToGitHub']);
+    Route::get('/auth/github/callback', [SocialController::class, 'handleGitHubCallback']);
 });
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
