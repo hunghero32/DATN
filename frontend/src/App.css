@@ -214,8 +214,7 @@
   }
 }
 
-/* sliderbar */
-/* Reset mặc định */
+/* Reset và styles cơ bản */
 * {
   margin: 0;
   padding: 0;
@@ -226,127 +225,378 @@ body {
   margin: 0;
   padding: 0;
   line-height: 1;
+  background-color: #f8fafc;
 }
 
+/* Layout chính */
 .app-container {
+  display: flex;
   min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  display: block;
   position: relative;
-  width: 100%;
-  line-height: 1;
 }
-/* Desktop styles */
+
+/* Sidebar styles */
 .sidebar {
-  width: 250px;
+  width: 280px;
   height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
   background: #ffffff;
-  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
   z-index: 1000;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-  overflow-y: auto;
+  transition: all 0.3s ease;
 }
 
 .sidebar-header {
-  padding: 20px;
+  height: 70px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #edf2f7;
+  background: #ffffff;
 }
 
-.hamburger-btn {
-  display: none;
-  position: fixed;
-  left: 15px;
-  top: 15px;
-  z-index: 1100;
-  background: #007bff;
-  color: white;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 5px;
-  font-size: 20px;
-  cursor: pointer;
+.logo-main {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 15px;
+  height: 70px;
+  padding: 0 5px;
+  width: 280px;
+}
+
+.logo-icon {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e6f7ff;
+  border-radius: 12px;
+  font-size: 24px;
+  color: #0ea5e9;
   transition: all 0.3s ease;
 }
 
+.logo-main:hover .logo-icon {
+  transform: scale(1.05);
+  background: #0ea5e9;
+  color: white;
+}
+
+.brand-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #0ea5e9;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
 .sidebar-body {
-  padding: 15px;
+  padding: 24px 16px;
+  height: calc(100vh - 70px);
+  overflow-y: auto;
+}
+
+.nav-item {
+  margin-bottom: 8px;
+  list-style: none;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  padding: 12px 15px;
-  color: #333;
-  border-radius: 8px;
-  margin-bottom: 5px;
+  padding: 12px 16px;
+  color: #64748b;
+  border-radius: 12px;
   text-decoration: none;
   transition: all 0.3s ease;
 }
 
 .nav-link:hover {
-  background: #e6f0ff; /* Màu nhạt hơn khi hover */
-  color: #007bff;
+  background: #e6f7ff;
+  color: #0ea5e9;
+  transform: translateX(5px);
 }
 
 .nav-link.active {
-  background: #007bff;
+  background: #0ea5e9;
   color: white;
+  transform: scale(1.02);
 }
 
 .nav-link i {
+  font-size: 20px;
   margin-right: 12px;
-  font-size: 18px;
-  width: 20px;
+  width: 24px;
   text-align: center;
 }
 
 .nav-link .item-name {
   font-size: 14px;
+  font-weight: 500;
+}
+
+.static-item {
+  padding: 0 16px;
+  margin-bottom: 12px;
+  list-style: none;
+}
+
+.static-item .nav-link {
+  color: #94a3b8;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  pointer-events: none;
+  padding: 0;
+}
+
+.navbar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Header styles */
+.header-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 250px;
+  height: 45px;
+  background: white;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  z-index: 999;
+  transition: all 0.3s ease;
+}
+
+.header-container {
+  height: 45px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Search bar styles */
+.search-container {
+  flex: 1;
+  max-width: 500px;
+  margin-right: 24px;
+}
+
+.search-input {
+  position: relative;
+  width: 100%;
+}
+
+.search-input input {
+  width: 100%;
+  height: 32px;
+  padding: 0 32px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.search-input input:focus {
+  border-color: #0ea5e9;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+  outline: none;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  margin-left: 250px;
+  padding: 65px 24px 24px;
+  min-height: 100vh;
+  width: calc(100% - 250px);
+  transition: all 0.3s ease;
+  background-color: #f8fafc;
+}
+
+/* Card styles */
+.dashboard-card {
+  background: white;
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  height: 100%;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.15);
+}
+
+.card-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.card-icon.appointments {
+  background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+  color: white;
+}
+
+.card-icon.completed {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  color: white;
+}
+
+.card-icon.pending {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  color: white;
+}
+
+.card-icon.patients {
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+  color: white;
 }
 
 /* Mobile styles */
+.hamburger-btn {
+  display: none;
+  position: fixed;
+  left: 15px;
+  top: 15px;
+  z-index: 1001;
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hamburger-btn:hover {
+  background: #0284c7;
+  transform: scale(1.05);
+}
+
 @media (max-width: 768px) {
   .hamburger-btn {
     display: block;
   }
 
   .sidebar {
-    width: 250px;
-    left: -260px; /* Ẩn hoàn toàn khỏi màn hình */
-    transition: all 0.3s ease;
+    left: -250px;
   }
 
   .sidebar.active {
     left: 0;
   }
 
-  /* Overlay khi sidebar mở */
+  .header-wrapper {
+    left: 0;
+    width: 100%;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 90px 16px 16px;
+  }
+
+  .sidebar.active ~ .header-wrapper {
+    left: 250px;
+  }
+
+  .sidebar.active ~ .main-content {
+    margin-left: 250px;
+  }
+
   .sidebar.active::after {
     content: '';
     position: fixed;
     top: 0;
     left: 250px;
-    width: calc(100vw - 250px);
-    height: 100vh;
-    background: rgba(0,0,0,0.3);
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
     z-index: -1;
   }
-
-  /* Đảm bảo content không bị đè */
-  .main-content {
-    margin-left: 0 !important;
-  }
 }
 
-/* Animation */
-.sidebar {
-  transition: left 0.3s ease;
+/* Dashboard styles */
+.dashboard-container {
+  padding: 0;
 }
 
+.welcome-section {
+  background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  color: white;
+}
+
+.welcome-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  opacity: 0.9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.welcome-datetime {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.stats-row {
+  margin: -60px -12px 24px;
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 0 15px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  height: 100%;
+  padding: 24px;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+}
 
 /* profile */
 .app-container {
