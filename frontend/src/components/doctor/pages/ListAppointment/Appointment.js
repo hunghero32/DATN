@@ -15,7 +15,7 @@ import { FaSearch } from "react-icons/fa";
 const getAuthToken = () => localStorage.getItem("authToken");
 
 const Appointment = () => {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(null);
   const [statusFilter, setStatusFilter] = useState("pending");
   const [searchQuery, setSearchQuery] = useState("");
   const [resultId, setResultId] = useState(null);
@@ -575,22 +575,37 @@ const Appointment = () => {
     }
   };
 
+  const filterAppointmentsByDate = (app) => {
+    if (!date) return true;
+    
+    const appointmentDate = new Date(app.booking_date);
+    appointmentDate.setHours(0, 0, 0, 0);
+    
+    const filterDate = new Date(date);
+    filterDate.setHours(0, 0, 0, 0);
+    
+    return appointmentDate.getTime() === filterDate.getTime();
+  };
+
   const filteredAppointments = {
     pending: appointments
       .filter((app) => app.status === "pending")
       .filter((app) =>
         app.guest?.guest_name?.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
+      )
+      .filter(filterAppointmentsByDate),
     confirmed: appointments
       .filter((app) => app.status === "confirmed")
       .filter((app) =>
         app.guest?.guest_name?.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
+      )
+      .filter(filterAppointmentsByDate),
     completed: appointments
       .filter((app) => app.status === "completed")
       .filter((app) =>
         app.guest?.guest_name?.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
+      )
+      .filter(filterAppointmentsByDate),
   };
 
   return (

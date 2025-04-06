@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Category;
 
 class Services extends Model
 {
@@ -35,8 +37,17 @@ class Services extends Model
     {
         return $this->belongsToMany(Doctor::class, 'doctor_service', 'service_id', 'doctor_id');
     }
+
     public function bookings()
     {
         return $this->hasMany(Booking::class, 'service_id');
+    }
+
+    /**
+     * Get the category that owns the service.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 }

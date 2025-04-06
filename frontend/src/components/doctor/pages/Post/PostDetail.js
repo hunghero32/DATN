@@ -97,7 +97,7 @@ const PostDetail = ({ post, onClose }) => {
           <Col md={4}>
             <Form.Group className="mb-3">
               <Form.Label style={{ color: "#2c3e50", fontWeight: 500 }}>
-                Slug
+                Slug (URL thân thiện)
               </Form.Label>
               <Form.Control
                 type="text"
@@ -105,6 +105,9 @@ const PostDetail = ({ post, onClose }) => {
                 readOnly
                 style={{ borderRadius: "8px", borderColor: "#ced4da", backgroundColor: "#f8f9fa" }}
               />
+              <Form.Text className="text-muted">
+                URL thân thiện được tạo tự động từ tiêu đề.
+              </Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-3">

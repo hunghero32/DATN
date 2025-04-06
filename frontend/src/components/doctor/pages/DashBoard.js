@@ -59,6 +59,8 @@ const Dashboard = () => {
   const [doctorInfo, setDoctorInfo] = useState(null);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
+  const getAuthToken = () => localStorage.getItem("authToken");
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 11) return "Chào buổi sáng";
@@ -80,10 +82,15 @@ const Dashboard = () => {
 
     const fetchDoctorInfo = async () => {
       try {
-        const token = localStorage.getItem('authToken');
+        const token = getAuthToken();
+        if (!token) {
+          console.error('Chưa đăng nhập');
+          return;
+        }
         const response = await axios.get('http://127.0.0.1:8000/api/doctor/profile', {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json'
           }
         });
         setDoctorInfo(response.data);
@@ -94,10 +101,16 @@ const Dashboard = () => {
 
     const fetchDashboardData = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/doctor/dashboard", {
+        const token = getAuthToken();
+        if (!token) {
+          console.error('Chưa đăng nhập');
+          return;
+        }
+        const response = await axios.get("http://127.0.0.1:8000/api/doctor/dashboard", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json'
+          }
         });
         setDashboardData(response.data);
       } catch (error) {

@@ -30,6 +30,33 @@ const PostForm = ({ post, categories, userId, onSubmit, onCancel }) => {
     });
   }, [post, userId]);
 
+  const convertToNonAccent = (str) => {
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    str = str.replace(/\s+/g, "-");
+    str = str.replace(/[^a-z0-9-]/g, "");
+    str = str.replace(/-+/g, "-");
+    str = str.replace(/^-+|-+$/g, "");
+    return str;
+  };
+
+  const generateSlug = (title) => {
+    if (!title) return '';
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-') // thay khoảng trắng bằng dấu gạch ngang
+      .replace(/[^\p{L}\p{N}\-]/gu, '') // chỉ giữ lại chữ cái, số và dấu gạch ngang
+      .replace(/-+/g, '-') // thay nhiều dấu gạch ngang liên tiếp bằng một dấu
+      .replace(/^-+|-+$/g, ''); // xóa dấu gạch ngang ở đầu và cuối
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -42,13 +69,6 @@ const PostForm = ({ post, categories, userId, onSubmit, onCancel }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setFormData((prev) => ({ ...prev, image: file || null }));
-  };
-
-  const generateSlug = (title) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
   };
 
   const handleSubmit = (e) => {
@@ -123,10 +143,10 @@ const PostForm = ({ post, categories, userId, onSubmit, onCancel }) => {
                   type="text"
                   value={generateSlug(formData.title)}
                   readOnly
-                  style={{ backgroundColor: '#f1f1f1', borderColor: '#ced4da' }}
+                  style={{ backgroundColor: '#f8f9fa', borderColor: '#ced4da' }}
                 />
                 <Form.Text className="text-muted">
-                  Slug sẽ tự động tạo từ tiêu đề.
+                  Slug sẽ tự động tạo từ tiêu đề và giữ nguyên dấu tiếng Việt.
                 </Form.Text>
               </Form.Group>
 

@@ -358,6 +358,28 @@ const MedicalRecordModal = ({
                     </div>
                   </div>
                 </div>
+
+                <div className="col-12">
+                  <div className="info-group">
+                    <div className="info-label">
+                      <FaNotesMedical /> Phương pháp điều trị
+                    </div>
+                    <div className="info-value">
+                      {medicalRecord.treatment || "Không có dữ liệu"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="info-group">
+                    <div className="info-label">
+                      <FaNotesMedical /> Ghi chú
+                    </div>
+                    <div className="info-value">
+                      {medicalRecord.note || "Không có dữ liệu"}
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <p className="text-muted text-center py-3">Chưa có hồ sơ y tế</p>
@@ -437,16 +459,51 @@ const MedicalRecordModal = ({
                     <Form.Control
                       as="textarea"
                       rows={3}
-                  value={medicalForm.family_history}
-                  onChange={(e) =>
-                    setMedicalForm({
-                      ...medicalForm,
-                      family_history: e.target.value,
-                    })
-                  }
+                      value={medicalForm.family_history}
+                      onChange={(e) =>
+                        setMedicalForm({
+                          ...medicalForm,
+                          family_history: e.target.value,
+                        })
+                      }
                       placeholder="Nhập tiền sử gia đình"
-                />
-              </Form.Group>
+                    />
+                  </Form.Group>
+                </div>
+
+                <div className="col-12">
+                  <Form.Group>
+                    <Form.Label>Phương pháp điều trị:</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={medicalForm.treatment}
+                      onChange={(e) =>
+                        setMedicalForm({
+                          ...medicalForm,
+                          treatment: e.target.value,
+                        })
+                      }
+                      placeholder="Nhập phương pháp điều trị"
+                    />
+                  </Form.Group>
+                </div>
+
+                <div className="col-12">
+                  <Form.Group>
+                    <Form.Label>Ghi chú:</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      value={medicalForm.note}
+                      onChange={(e) =>
+                        setMedicalForm({
+                          ...medicalForm,
+                          note: e.target.value,
+                        })
+                      }
+                      placeholder="Nhập ghi chú"
+                    />
+                  </Form.Group>
                 </div>
 
                 <div className="col-12">
@@ -459,8 +516,8 @@ const MedicalRecordModal = ({
                     {loading ? "Đang lưu..." : "Lưu thông tin"}
                   </Button>
                 </div>
-            </div>
-          </Form>
+              </div>
+            </Form>
           )}
 
           {/* Toggle Edit Button */}
@@ -545,13 +602,6 @@ const MedicalRecordModal = ({
                         <div className="info-label">Đơn thuốc</div>
                         <div className="info-value">
                           {result.prescription || "Không có đơn thuốc"}
-                        </div>
-                      </div>
-
-                      <div className="info-group">
-                        <div className="info-label">Phương pháp điều trị</div>
-                        <div className="info-value">
-                          {result.treatment || "Chưa có phương pháp điều trị"}
                         </div>
                       </div>
 
