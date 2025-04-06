@@ -25,7 +25,7 @@ class PostController extends Controller
             ->search($request->search)
             ->filter($request->only(['category_id', 'status', 'published_at']))
             ->latest('published_at')
-            ->select(['id', 'category_id','image', 'title', 'views', 'status', 'published_at'])
+            ->select(['id', 'category_id', 'image', 'title', 'views', 'status', 'published_at'])
             ->latest('updated_at')->paginate(10);
         return response()->json([
             'message' => 'Lấy danh sách bài viết thành công.',
@@ -50,7 +50,8 @@ class PostController extends Controller
         $post = Post::create($data);
         return response()->json([
             'message' => 'Tạo bài viết thành công.',
-            'data' => $post], 201);
+            'data' => $post
+        ], 201);
     }
 
     /**
@@ -64,7 +65,8 @@ class PostController extends Controller
         $post->load(['category:id,name']);
         return response()->json([
             'message' => 'Lấy bài viết thành công.',
-            'data' => $post], 200);
+            'data' => $post
+        ], 200);
     }
 
     /**
@@ -91,7 +93,8 @@ class PostController extends Controller
         $post->load(['category:id,name']);
         return response()->json([
             'message' => 'Cập nhật bài viết thành công.',
-            'data' => $post], 200);
+            'data' => $post
+        ], 200);
     }
 
     /**
@@ -109,19 +112,61 @@ class PostController extends Controller
     }
     private function generateUniqueSlug($title)
     {
-        $slug = Str::slug($title);
+        $asciiTitle = $this->convertVietnameseToAscii($title); 
+        $slug = Str::slug($asciiTitle);
         $originalSlug = $slug;
         $count = 1;
-        // Lấy danh sách slug và so sánh trùng khớp từ database
+    
         $existingSlugs = DB::table('posts')
             ->where('slug', 'LIKE', "{$slug}%")
             ->pluck('slug')
             ->toArray();
-
+    
         while (in_array($slug, $existingSlugs)) {
             $slug = $originalSlug . '-' . $count;
             $count++;
         }
+    
         return $slug;
+    }
+    private function convertVietnameseToAscii($str)
+    {
+        $str = strtolower($str);
+        $str = str_replace(
+            ['à', 'á', 'ạ', 'ả', 'ã', 'â', 'ầ', 'ấ', 'ậ', 'ẩ', 'ẫ', 'ă', 'ằ', 'ắ', 'ặ', 'ẳ', 'ẵ'],
+            'a',
+            $str
+        );
+        $str = str_replace(
+            ['è', 'é', 'ẹ', 'ẻ', 'ẽ', 'ê', 'ề', 'ế', 'ệ', 'ể', 'ễ'],
+            'e',
+            $str
+        );
+        $str = str_replace(
+            ['ì', 'í', 'ị', 'ỉ', 'ĩ'],
+            'i',
+            $str
+        );
+        $str = str_replace(
+            ['ò', 'ó', 'ọ', 'ỏ', 'õ', 'ô', 'ồ', 'ố', 'ộ', 'ổ', 'ỗ', 'ơ', 'ờ', 'ớ', 'ợ', 'ở', 'ỡ'],
+            'o',
+            $str
+        );
+        $str = str_replace(
+            ['ù', 'ú', 'ụ', 'ủ', 'ũ', 'ư', 'ừ', 'ứ', 'ự', 'ử', 'ữ'],
+            'u',
+            $str
+        );
+        $str = str_replace(
+            ['ỳ', 'ý', 'ỵ', 'ỷ', 'ỹ'],
+            'y',
+            $str
+        );
+        $str = str_replace(
+            ['đ'],
+            'd',
+            $str
+        );
+        return $str;
     }
 }
