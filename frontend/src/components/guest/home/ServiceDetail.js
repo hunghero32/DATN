@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { message } from "antd";
 import api from "../../../ultils/api/axios";
+import YeuThich from "../../loadding/yeuthich";
 
 const ServiceDetail = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ const ServiceDetail = () => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDates, setSelectedDates] = useState({}); // New: each doctor has its own selected date
 
   useEffect(() => {
     const fetchServiceDetail = async () => {
@@ -66,7 +67,7 @@ const ServiceDetail = () => {
       date: date,
       time: time,
       specialty_id: service.specialty?.id || null,
-      status: "pending"
+      status: "pending",
     };
 
     try {
@@ -86,7 +87,6 @@ const ServiceDetail = () => {
     }
   };
 
-  // Calculate today and the max date (7 days ahead)
   const today = new Date();
   const maxDate = new Date();
   maxDate.setDate(today.getDate() + 7);
@@ -95,7 +95,12 @@ const ServiceDetail = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+    return date.toLocaleDateString("vi-VN", {
+      weekday: "long",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   };
 
   if (loading) return <p className="text-center text-gray-500">Đang tải...</p>;
@@ -104,63 +109,92 @@ const ServiceDetail = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
-      <div className="bg-gray-100 p-6 rounded-lg mb-6">
+      <div className="bg-gray-100 p-6 rounded-lg mb-6 p-3 mb-4">
         <h2 className="text-2xl font-bold text-blue-800">{service.services_name}</h2>
-        <p className="text-gray-700 mt-2">Danh sách bác sĩ uy tín chuyên {service.services_name} tại Việt Nam:</p>
+        <p className="text-gray-700 mt-2">
+         <b> Danh sách bác sĩ uy tín đầu ngành chuyên khoa {service.services_name} tại Việt Nam:</b>
+          <ul>
+            <li>Các chuyên gia có quá trình đào tạo bài bản, nhiều kinh nghiệm</li>
+            <li>Các giáo sư, phó giáo sư đang trực tiếp nghiên cứu và giảng dạy tại Đại học Y khoa Hà Nội</li>
+            <li>Các bác sĩ đã, đang công tác tại các bệnh viện hàng đầu Khoa Cơ Xương Khớp - Bệnh viện Bạch Mai, Bệnh viện Hữu nghị Việt Đức,Bệnh Viện E.</li>
+
+          </ul>
+        </p>
       </div>
+      {doctors.map((doctor) => {
+        const workingDates = [
+          ...new Set(doctor.schedules.map((s) => s.working_date)),
+        ]
+          .filter(
+            (date) =>
+              new Date(date) >= new Date(todayString) &&
+              new Date(date) <= new Date(maxDateString)
+          )
+          .sort((a, b) => new Date(a) - new Date(b));
 
-      <h1 className="text-4xl font-bold text-blue-800 mb-4 text-center">{service.services_name}</h1>
-      <p className="text-gray-700 text-lg text-center mb-6">{service.description}</p>
-
-      {doctors.map((doctor) => (
-        <div key={doctor.id} className="flex gap-6 bg-white rounded-lg shadow-lg p-6 mb-8">
-          <div className="w-1/2 flex items-center gap-4">
-            <img
-              src={doctor.doctor_avatar || "https://via.placeholder.com/100"}
-              alt={doctor.doctor_name}
-              className="w-20 h-20 rounded-full object-cover"
-            />
-            <div>
-              <h2 className="text-2xl font-bold text-blue-800">{doctor.doctor_name}</h2>
-              <p className="text-gray-700">{doctor.doctor_bio}</p>
+        return (
+          <div key={doctor.id} className="flex gap-6 bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div className="w-1/2 flex items-center gap-4">
+              <img
+                src={doctor.doctor_avatar || "https://via.placeholder.com/100"}
+                alt={doctor.doctor_name}
+                className="w-20 h-20 rounded-full object-cover"
+              />
+              <YeuThich/>
+              <div>
+              <h2 className="text-2xl font-bold" style={{ color: '#45c3d2' }}>{doctor.doctor_name}</h2>
+                <p className="text-gray-700">{doctor.doctor_bio}</p>
+              </div>
             </div>
-          </div>
-          <div className="w-1/2">
-            <label className="block text-gray-700 font-semibold mb-2">Chọn ngày khám:</label>
-            <select
-              className="w-full p-2 border rounded-md mb-4"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            >
-              <option value="">Chọn ngày</option>
-              {[...new Set(doctor.schedules.map((s) => s.working_date))]  // Remove duplicate dates
-                .filter(date => date >= todayString && date <= maxDateString)  // Filter valid dates
-                .map((date) => (
-                  <option key={date} value={date}>{formatDate(date)}</option>
+
+            <div className="w-1/2">
+              <label className="block text-gray-700 font-semibold mb-2">Chọn ngày khám:</label>
+              <select
+                className="w-full p-2 border rounded-md mb-4"
+                value={selectedDates[doctor.id] || ""}
+                onChange={(e) =>
+                  setSelectedDates((prev) => ({
+                    ...prev,
+                    [doctor.id]: e.target.value,
+                  }))
+                }
+              >
+                <option value="">Chọn ngày</option>
+                {workingDates.map((date) => (
+                  <option key={date} value={date}>
+                    {formatDate(date)}
+                  </option>
                 ))}
-            </select>
-            <div className="grid grid-cols-4 gap-3">
-              {doctor.schedules
-                .filter((s) => s.working_date === selectedDate)
-                .flatMap((schedule) => 
-                  generateTimeSlots(schedule).map((slot) => (
-                    <button
-                      key={slot.id}
-                      className="p-2 rounded-lg bg-blue-100 border hover:border-blue-500 hover:shadow-md"
-                      onClick={() => handleBooking(doctor.id, selectedDate, slot.time_start, schedule.id)}
-                    >
-                      {slot.time_start} - {slot.time_end}
-                    </button>
-                  ))
-                )}
+              </select>
+
+              <div className="grid grid-cols-4 gap-3">
+                {doctor.schedules
+                  .filter((s) => s.working_date === selectedDates[doctor.id])
+                  .flatMap((schedule) =>
+                    generateTimeSlots(schedule).map((slot) => (
+                      <button
+                        key={slot.id}
+                        className="p-2 rounded-lg bg-blue-100 border hover:border-blue-500 hover:shadow-md"
+                        onClick={() =>
+                          handleBooking(
+                            doctor.id,
+                            selectedDates[doctor.id],
+                            slot.time_start,
+                            schedule.id
+                          )
+                        }
+                      >
+                        {slot.time_start} - {slot.time_end}
+                      </button>
+                    ))
+                  )}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
 
 export default ServiceDetail;
-
-

@@ -67,11 +67,6 @@ const TopBookedServices = () => {
                 className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer w-full flex flex-col h-[250px]"
                 onClick={() => handleServiceClick(service)}
               >
-                <img
-                  src={service.image || "https://via.placeholder.com/300x200"}
-                  alt={service.services_name}
-                  className="w-full h-48 object-cover"
-                />
                 <div className="p-4 flex flex-col flex-grow">
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.services_name}</h3>
                   <div className="flex justify-between items-center text-gray-600 mt-auto">
