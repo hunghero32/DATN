@@ -141,22 +141,45 @@ class InvoiceController extends Controller
         }
 
         $servicePrice = $booking->service->price ?? 0;
-        $discount = $validatedData['discount'] ?? $invoice->discount;
+        $discount = $validatedData['discount'] ?? 0;
         $taxPercent = $validatedData['tax_percent'] ?? 0;
 
+        // Tính toán lại các giá trị
         $taxableAmount = max($servicePrice - $discount, 0);
-        $tax = $taxableAmount * ($taxPercent / 100);
+        $tax = round($taxableAmount * ($taxPercent / 100)); // Làm tròn số thuế
         $totalAmount = $taxableAmount + $tax;
 
         $invoice->update([
             'total_amount' => $totalAmount,
             'discount' => $discount,
             'tax' => $tax,
+            'tax_percent' => $taxPercent, // Lưu thêm tax_percent
         ]);
+
+        // Load đầy đủ thông tin để trả về
+        $invoice->load([
+            'details.booking.service:id,services_name,price',
+            'details.booking.doctor:id,doctor_name',
+            'details.booking.guest:id,guest_name,guest_phone',
+            'details.booking:id,doctor_id,service_id,guest_id,booking_date,booking_time'
+        ]);
+
         $this->sendInvoiceNotification($invoice->id);
+        
         return response()->json([
             'message' => 'Cập nhật hóa đơn thành công.',
-            'data' => $invoice->load('details.booking.service')
+            'data' => [
+                'invoice' => $invoice,
+                'service_price' => $servicePrice,
+                'booking_info' => [
+                    'date' => $booking->booking_date,
+                    'time' => $booking->booking_time,
+                    'guest_name' => $booking->guest->guest_name,
+                    'guest_phone' => $booking->guest->guest_phone,
+                    'service_name' => $booking->service->services_name,
+                    'doctor_name' => $booking->doctor->doctor_name
+                ]
+            ]
         ], 200);
     }
 

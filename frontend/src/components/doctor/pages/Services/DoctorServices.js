@@ -16,11 +16,21 @@ const DoctorServices = () => {
   const [totalPages, setTotalPages] = useState(0);
   const servicesPerPage = 10;
 
+  const getAuthToken = () => localStorage.getItem("authToken");
+
   const fetchServices = async (page = currentPage) => {
+    const token = getAuthToken();
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để xem danh sách dịch vụ!");
+      window.location.href = '/login';
+      return;
+    }
+
     try {
-      const doctorServicesRes = await axios.get("http://localhost:8000/api/doctor/services", {
+      const doctorServicesRes = await axios.get("http://127.0.0.1:8000/api/doctor/services", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json"
         },
         params: {
           page: page + 1,
@@ -42,11 +52,22 @@ const DoctorServices = () => {
       setServices(servicesData);
       setTotalPages(doctorServicesRes.data.data?.last_page || 0);
     } catch (error) {
-      toast.error("Lỗi khi tải danh sách dịch vụ: " + (error.response?.data?.message || error.message));
+      if (error.response?.status === 401) {
+        toast.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
+        localStorage.removeItem("authToken");
+        window.location.href = '/login';
+      } else {
+        toast.error("Lỗi khi tải danh sách dịch vụ: " + (error.response?.data?.message || error.message));
+      }
     }
   };
 
   useEffect(() => {
+    const token = getAuthToken();
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
     fetchServices();
   }, [currentPage]);
 

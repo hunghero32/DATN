@@ -12,7 +12,7 @@ const ListSchedule = () => {
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date(2025, 2));
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [scheduleData, setScheduleData] = useState(null);
   const [bookingsData, setBookingsData] = useState(null); // New state for bookings data

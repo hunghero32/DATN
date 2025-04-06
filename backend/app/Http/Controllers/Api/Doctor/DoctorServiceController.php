@@ -16,19 +16,50 @@ class DoctorServiceController extends Controller
      */
     public function index(Request $request)
     {
-        $doctorServices = DoctorService::with(['service.category', 'service.specialty'])
-            ->whereHas('doctor', function ($query) {
-                $query->where('user_id', auth()->id());
-            })
-            ->filterBySpecialty($request->specialty_id)   // Lọc theo chuyên khoa
-            ->searchByServiceName($request->service_name) // Tìm kiếm theo tên dịch vụ
-            ->latest('updated_at')
-            ->paginate(10);
+        try {
+            // Kiểm tra bác sĩ tồn tại
+            $doctor = Doctor::where('user_id', auth()->id())->first();
+            if (!$doctor) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy thông tin bác sĩ.'
+                ], 404);
+            }
 
-        return response()->json([
-            'message' => 'Danh sách dịch vụ của bác sĩ.',
-            'data' => $doctorServices
-        ], 200);
+            $doctorServices = DoctorService::with(['service.category', 'service.specialty'])
+                ->whereHas('doctor', function ($query) use ($doctor) {
+                    $query->where('id', $doctor->id);
+                })
+                ->filterBySpecialty($request->specialty_id)
+                ->searchByServiceName($request->service_name)
+                ->latest('updated_at')
+                ->paginate($request->per_page ?? 10);
+
+            if ($doctorServices->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Chưa có dịch vụ nào được gán cho bác sĩ.',
+                    'data' => [
+                        'data' => [],
+                        'total' => 0,
+                        'per_page' => $request->per_page ?? 10,
+                        'current_page' => 1,
+                        'last_page' => 1
+                    ]
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Danh sách dịch vụ của bác sĩ.',
+                'data' => $doctorServices
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lấy danh sách dịch vụ: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

@@ -88,6 +88,11 @@ const AppointmentDetailModal = ({
             transition: all 0.3s ease;
           }
 
+          .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          }
+
           .btn-primary {
             background-color: #3b82f6;
             border-color: #3b82f6;
@@ -196,15 +201,6 @@ const AppointmentDetailModal = ({
             </Form.Group>
 
             <Form.Group>
-              <Form.Label>Địa chỉ:</Form.Label>
-              <Form.Control
-                type="text"
-                value={selectedAppointment.guest?.address || "Không có dữ liệu"}
-                readOnly
-              />
-            </Form.Group>
-
-            <Form.Group>
               <Form.Label>Ngày đặt:</Form.Label>
               <Form.Control
                 type="text"
@@ -272,37 +268,41 @@ const AppointmentDetailModal = ({
         )}
 
         {isCompleted && (
+          <Button 
+            variant="secondary" 
+            onClick={onHide}
+            style={{
+              backgroundColor: '#6b7280',
+              borderColor: '#6b7280',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              fontWeight: '500'
+            }}
+          >
+            Đóng
+          </Button>
+        )}
+
+        {isConfirmed && (
           <>
             <Button
               variant="success"
               className="me-2"
-              onClick={() => handleReacceptAppointment(selectedAppointment)}
+              onClick={() => handleTransferAppointment(selectedAppointment)}
             >
-              Nhận lại bệnh nhân
+              Hoàn thành
             </Button>
-            <Button
-              variant="danger"
-              className="me-2"
-              onClick={() => handleDeleteAppointment(selectedAppointment)}
-            >
-              Xóa cuộc hẹn
+            <Button variant="secondary" onClick={onHide}>
+              Đóng
             </Button>
           </>
         )}
 
-        {isConfirmed && (
-          <Button
-            variant="primary"
-            className="me-2"
-            onClick={() => handleTransferAppointment(selectedAppointment)}
-          >
-            Chuyển bệnh
+        {!isCompleted && !isConfirmed && !isPending && (
+          <Button variant="secondary" onClick={onHide}>
+            Đóng
           </Button>
         )}
-
-        <Button variant="secondary" onClick={onHide}>
-          Đóng
-        </Button>
       </Modal.Footer>
     </Modal>
   );

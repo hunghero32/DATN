@@ -53,21 +53,13 @@ const AppointmentList = ({
                   >
                     Chi tiết
                   </button>
-                  {status === "pending" && (
-                    <button
-                      className="action-button transfer"
-                      onClick={() => handleTransferAppointment(app)}
-                    >
-                      Chuyển bệnh
-                    </button>
-                  )}
                   {status === "confirmed" && (
                     <>
                       <button
                         className="action-button medical-record"
                         onClick={() => handleShowMedicalRecord(app)}
                       >
-                        Xem hồ sơ bệnh án
+                        Hồ sơ bệnh án
                       </button>
                       <button
                         className="action-button complete"
@@ -83,13 +75,13 @@ const AppointmentList = ({
                         className="action-button medical-record"
                         onClick={() => handleShowMedicalRecord(app)}
                       >
-                        Xem hồ sơ bệnh án
+                        Hồ sơ bệnh án
                       </button>
                       <button
                         className="action-button exam-result"
                         onClick={() => handleShowExamResult(app)}
                       >
-                        Xem kết quả khám
+                        Kết quả khám
                       </button>
                     </>
                   )}
@@ -197,18 +189,8 @@ const AppointmentList = ({
             color: #fff;
           }
 
-          .action-button.transfer {
-            background-color: #10b981;
-            color: #fff;
-          }
-
           .action-button.medical-record {
             background-color: #8b5cf6;
-            color: #fff;
-          }
-
-          .action-button.complete {
-            background-color: #f97316;
             color: #fff;
           }
 
@@ -217,13 +199,13 @@ const AppointmentList = ({
             color: #fff;
           }
 
-          .action-button.detail:hover {
-            background-color: #2563eb;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          .action-button.complete {
+            background-color: #f97316;
+            color: #fff;
           }
 
-          .action-button.transfer:hover {
-            background-color: #059669;
+          .action-button.detail:hover {
+            background-color: #2563eb;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           }
 
@@ -232,22 +214,24 @@ const AppointmentList = ({
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           }
 
-          .action-button.complete:hover {
-            background-color: #ea580c;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          }
-
           .action-button.exam-result:hover {
             background-color: #db2777;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           }
+
+          .action-button.complete:hover {
+            background-color: #ea580c;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          }
         `}
       </style>
-      {renderTable(filteredAppointments.pending, "Danh sách chờ duyệt", "pending")}
-      {statusFilter === "confirmed" &&
-        renderTable(filteredAppointments.confirmed, "Danh sách đã nhận", "confirmed")}
-      {statusFilter === "completed" &&
-        renderTable(filteredAppointments.completed, "Danh sách đã khám xong", "completed")}
+      {renderTable(filteredAppointments[statusFilter], 
+        statusFilter === "pending" 
+          ? "Danh sách chờ duyệt" 
+          : statusFilter === "confirmed" 
+          ? "Danh sách đã nhận" 
+          : "Danh sách đã khám xong", 
+        statusFilter)}
     </>
   );
 };
