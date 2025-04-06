@@ -36,7 +36,11 @@ class DashboardController extends Controller
 
         // Tổng số lịch đã hoàn thành
         $completedAppointments = Booking::where('doctor_id', $doctorId)
-            ->whereIn('status', ['completed', 'confirmed'])
+            ->whereIn('status', ['completed'])
+            ->count();
+        // Tổng số lịch đã đang chờ
+        $confirmedAppointments = Booking::where('doctor_id', $doctorId)
+            ->whereIn('status', ['confirmed'])
             ->count();
 
         // Tổng số ngày nghỉ trong tháng này (lịch làm việc có status = 'off')
@@ -58,6 +62,13 @@ class DashboardController extends Controller
             ->groupBy('status')
             ->pluck('count', 'status');
 
+        // Thống kê số lượng lịch theo ngày
+        $appointmentsByDate = Booking::where('doctor_id', $doctorId)
+            ->whereDate('booking_date', $today)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->with(['guest:id,guest_name', 'service:id,services_name'])
+            ->get();
+
         // Thống kê số lượng khách theo từng tháng trong năm
         $patientsByMonth = Booking::where('doctor_id', $doctorId)
             ->where('status', 'completed')
@@ -69,14 +80,14 @@ class DashboardController extends Controller
 
         // Thống kê lịch hẹn theo từng ngày trong tháng hiện tại
         $appointmentsByDay = Booking::where('doctor_id', $doctorId)
-        ->whereMonth('booking_date', $currentMonth)
-        ->whereYear('booking_date', $currentYear)
-        ->with(['guest:id,guest_name', 'service:id,services_name'])
-        ->orderBy('booking_date')
-        ->get()
-        ->groupBy(function ($booking) {
-            return Carbon::parse($booking->booking_date)->format('d'); // Nhóm theo ngày
-        });
+            ->whereMonth('booking_date', $currentMonth)
+            ->whereYear('booking_date', $currentYear)
+            ->with(['guest:id,guest_name', 'service:id,services_name'])
+            ->orderBy('booking_date')
+            ->get()
+            ->groupBy(function ($booking) {
+                return Carbon::parse($booking->booking_date)->format('d'); // Nhóm theo ngày
+            });
 
         // Lấy danh sách khách đã khám hôm nay
         $patientsToday = Booking::where('doctor_id', $doctorId)
@@ -101,18 +112,20 @@ class DashboardController extends Controller
             ->get();
 
         return response()->json([
-            'total_patients' => $totalPatients,
-            'monthly_patients' => $monthlyPatients,
-            'total_appointments' => $totalAppointments,
-            'completed_appointments' => $completedAppointments,
-            'days_off' => $daysOff,
-            'available_slots' => $availableSlots,
-            'appointments_by_status' => $appointmentsByStatus,
-            'patients_by_month' => $patientsByMonth,
-            'appointments_by_day' => $appointmentsByDay,
-            'patients_today' => $patientsToday,
-            'upcoming_appointments' => $upcomingAppointments,
-            'completed_appointments_list' => $completedAppointmentsList,
+            'total_patients' => $totalPatients, // Tổng số khách đã khám
+            'monthly_patients' => $monthlyPatients, // Số khách đã khám trong tháng này
+            'total_appointments' => $totalAppointments, // Tổng số lịch đã nhận
+            'today_appointments' => $appointmentsByDate, // Thống kê lịch hẹn theo ngày
+            'completed_appointments' => $completedAppointments, // Tổng số lịch đã hoàn thành
+            'confirmed_appointments' => $confirmedAppointments, // Tổng số lịch đã đang chờ
+            'days_off' => $daysOff, // Tổng số ngày nghỉ trong tháng này
+            'available_slots' => $availableSlots, // Số lượng lịch còn trống theo lịch làm việc của bác sĩ
+            'appointments_by_status' => $appointmentsByStatus, // Thống kê số lượng lịch theo trạng thái
+            'patients_by_month' => $patientsByMonth, // Thống kê số lượng khách theo từng tháng trong năm
+            'appointments_by_day' => $appointmentsByDay, // Thống kê lịch hẹn theo từng ngày trong tháng hiện tại
+            'patients_today' => $patientsToday, // Lấy danh sách khách đã khám hôm nay
+            'upcoming_appointments' => $upcomingAppointments, // Lấy danh sách lịch hẹn sắp tới (chưa hoàn thành)
+            'completed_appointments_list' => $completedAppointmentsList, // Lấy danh sách lịch đã hoàn thành
         ]);
     }
 }
