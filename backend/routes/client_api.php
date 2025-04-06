@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Client\SpecialtyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Client\HomeController;
 use App\Http\Controllers\Api\Client\BookingController; // Update this line
+use App\Http\Controllers\Api\Client\DoctorController;
 use App\Models\Post;
 
 Route::get('/home', [HomeController::class, 'index']);
@@ -31,6 +32,9 @@ Route::get('/detail-service/{id}',[ServiceController::class,'detailService']);
 Route::get('bai-viet/{slug}/{id}', [PostController::class, 'detailPost'])
     ->where('slug', '[a-zA-Z0-9\-]+')
     ->where('id', '[0-9]+');
+
+//*************** Lấy ra chi tiết bác sĩ ************/
+Route::get('/doctor/{id}', [DoctorController::class, 'detailDoctor']);
 
 
 Route::middleware('web')->group(function () {
