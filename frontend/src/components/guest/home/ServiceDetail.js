@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { message } from "antd";
 import api from "../../../ultils/api/axios";
 import YeuThich from "../../loadding/yeuthich";
@@ -11,7 +11,7 @@ const ServiceDetail = () => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDates, setSelectedDates] = useState({}); // New: each doctor has its own selected date
+  const [selectedDates, setSelectedDates] = useState({});
 
   useEffect(() => {
     const fetchServiceDetail = async () => {
@@ -112,12 +112,11 @@ const ServiceDetail = () => {
       <div className="bg-gray-100 p-6 rounded-lg mb-6 p-3 mb-4">
         <h2 className="text-2xl font-bold text-blue-800">{service.services_name}</h2>
         <p className="text-gray-700 mt-2">
-         <b> Danh sách bác sĩ uy tín đầu ngành chuyên khoa {service.services_name} tại Việt Nam:</b>
+          <b>Danh sách bác sĩ uy tín đầu ngành chuyên khoa {service.services_name} tại Việt Nam:</b>
           <ul>
             <li>Các chuyên gia có quá trình đào tạo bài bản, nhiều kinh nghiệm</li>
             <li>Các giáo sư, phó giáo sư đang trực tiếp nghiên cứu và giảng dạy tại Đại học Y khoa Hà Nội</li>
             <li>Các bác sĩ đã, đang công tác tại các bệnh viện hàng đầu Khoa Cơ Xương Khớp - Bệnh viện Bạch Mai, Bệnh viện Hữu nghị Việt Đức,Bệnh Viện E.</li>
-
           </ul>
         </p>
       </div>
@@ -140,10 +139,19 @@ const ServiceDetail = () => {
                 alt={doctor.doctor_name}
                 className="w-20 h-20 rounded-full object-cover"
               />
-              <YeuThich/>
+              <YeuThich />
               <div>
-              <h2 className="text-2xl font-bold" style={{ color: '#45c3d2' }}>{doctor.doctor_name}</h2>
+                <h2 className="text-2xl font-bold" style={{ color: '#45c3d2' }}>
+                  {doctor.doctor_name}
+                </h2>
                 <p className="text-gray-700">{doctor.doctor_bio}</p>
+                {/* Nút Xem Thêm */}
+                <Link
+                  to={`/chitietbacsi/${doctor.id}`}
+                  className="mt-4 inline-block !text-blue-500 hover:underline"
+                >
+                  Xem thêm
+                </Link>
               </div>
             </div>
 
