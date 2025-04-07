@@ -107,7 +107,7 @@ const LichHen = () => {
                 {appointment.status === "completed" && (
                   <div className="mt-4">
                     <Link
-                      to={`/hoadon`}
+                      to={`/hoadon/${appointment.id}`}
                       className="inline-block px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
                     >
                       <i className="ri-file-text-line mr-2"></i> Xem Hóa Đơn

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../ultils/api/axios";
 
 const ChiTietBacSi = () => {
   const { id } = useParams();
+  const navigate = useNavigate();  // Dùng useNavigate để điều hướng
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,6 +29,11 @@ const ChiTietBacSi = () => {
   if (loading) return <div className="text-center mt-10">Đang tải thông tin...</div>;
   if (error) return <div className="text-center text-red-500 mt-10">{error}</div>;
   if (!doctor) return null;
+
+  // Xử lý điều hướng đến trang đặt lịch khi bấm vào dịch vụ
+  const handleBookingClick = (serviceId) => {
+    navigate(`/booking/${serviceId}`);
+  };
 
   return (
     <div className="container mx-auto p-8 mt-4 mb-4 max-w-6xl">
@@ -68,7 +74,7 @@ const ChiTietBacSi = () => {
           {doctor.services && doctor.services.length > 0 && (
             <div className="mt-6">
               <h4 className="text-lg font-semibold mb-2 text-gray-800">Dịch vụ của bác sĩ</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
                 {doctor.services.map((service, idx) => (
                   <div
                     key={idx}
@@ -78,6 +84,13 @@ const ChiTietBacSi = () => {
                     <p className="text-gray-700 mt-2">{service.description}</p>
                     <p className="text-gray-500 mt-2">Thời gian: {service.duration} phút</p>
                     <p className="text-gray-700 mt-2">Giá: {service.price} VND</p>
+                    {/* Nút "Đặt lịch" cho dịch vụ */}
+                    <button
+                      onClick={() => handleBookingClick(service.id)}
+                      className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+                    >
+                      Đặt lịch
+                    </button>
                   </div>
                 ))}
               </div>
