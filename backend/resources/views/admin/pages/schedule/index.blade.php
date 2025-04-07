@@ -11,25 +11,31 @@
     ];
 
     $detailModal = [
-        'fields' => [['name' => 'doctor_id', 'label' => 'Bác sĩ', 'type' => 'select', 'options' => $doctor], ['name' => 'time_start', 'label' => 'Giờ bắt đầu', 'type' => 'time'], ['name' => 'time_end', 'label' => 'Giờ kết thúc', 'type' => 'time'], ['name' => 'working_date', 'label' => 'Ngày làm việc', 'type' => 'date'], ['name' => 'max_patients', 'label' => 'Số lượng bệnh nhân tối đa', 'type' => 'number'], ['name' => 'status', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']]],
+        'fields' => [
+            ['name' => 'doctor_id', 'label' => 'Bác sĩ', 'type' => 'select', 'options' => $doctor],
+            ['name' => 'time_start', 'label' => 'Giờ bắt đầu', 'type' => 'time'],
+            ['name' => 'time_end', 'label' => 'Giờ kết thúc', 'type' => 'time'],
+            ['name' => 'working_date', 'label' => 'Ngày làm việc', 'type' => 'date'],
+            ['name' => 'status', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']]
+        ],
     ];
-    $selects = [
-        'status' => [
-            'id' => 'status',
-            'name' => 'status',
-            'options' => config('app.statuses'),
-        ]
-    ];
+
     ?>
     <x-table-list-component :title="'Danh sách đặt lịch'" :route="route('admin.schedule.search')" :columns="[
         ['key' => 'doctor_name', 'label' => 'Họ và Tên Bác sĩ'],
         ['key' => 'time_start', 'label' => 'Giờ bắt đầu'],
         ['key' => 'time_end', 'label' => 'Giờ kết thúc'],
         ['key' => 'working_date', 'name' => 'approve', 'label' => 'Ngày làm việc'],
-        ['key' => 'max_patients', 'label' => 'Số lượng bệnh nhân tối đa'],
         ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái', 'status_config' => $statusConfig],
     ]"
-    :data="$data" :selects="$selects"
+    :data="$data"
+    :selects="[
+        [
+            'id' => 'status',
+            'name' => 'status',
+            'options' =>config('app.statuses')
+        ]
+    ]"
     :detailModal="$detailModal"
         :actions="[
             [

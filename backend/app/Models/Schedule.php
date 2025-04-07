@@ -13,7 +13,6 @@ class Schedule extends Model
         'time_start',
         'time_end',
         'working_date',
-        'max_patients',
         'status',
         'isDeleted',
     ];

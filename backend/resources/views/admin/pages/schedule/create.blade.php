@@ -31,10 +31,10 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label text-uppercase fw-semibold mb-2">Chọn ngày</label>
-                                    <input type="date" name="working_date" 
-                                           class="form-control form-control-lg shadow-sm @error('working_date') is-invalid @enderror" 
-                                           required 
-                                           min="{{ date('Y-m-d') }}"
+                                    <input type="date" name="working_date"
+                                           class="form-control form-control-lg shadow-sm @error('working_date') is-invalid @enderror"
+                                           required
+                                           min="{{ date('Y-m-d', strtotime('+2 days')) }}"
                                            value="{{ old('working_date') }}">
                                     @error('working_date')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -45,54 +45,24 @@
 
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn khung giờ và số lượng bệnh nhân</label>
+                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ca làm việc</label>
                                 <div class="d-flex flex-wrap gap-3">
-                                    <div class="time-slot-container">
-                                        <input type="checkbox" class="btn-check" name="time_slots[]" id="time1" value="08:00,09:00">
-                                        <label class="btn btn-outline-warning" for="time1">8:00-9:00</label>
-                                        <input type="number" name="max_patients[08:00,09:00]" class="form-control mt-2" placeholder="Số bệnh nhân" min="1">
+                                    <!-- Morning Shift -->
+                                    <div class="shift-container">
+                                        <h6 class="mb-3">Ca sáng (7:00 - 11:00)</h6>
+                                        <div class="time-slot-container">
+                                            <input type="checkbox" class="btn-check" name="time_slots[]" id="morning" value="07:00,11:00">
+                                            <label class="btn btn-outline-warning" for="morning">7:00-11:00</label>
+                                        </div>
                                     </div>
 
-                                    <div class="time-slot-container">
-                                        <input type="checkbox" class="btn-check" name="time_slots[]" id="time2" value="09:00,10:00">
-                                        <label class="btn btn-outline-warning" for="time2">9:00-10:00</label>
-                                        <input type="number" name="max_patients[09:00,10:00]" class="form-control mt-2" placeholder="Số bệnh nhân" min="1">
-                                    </div>
-
-                                    <div class="time-slot-container">
-                                        <input type="checkbox" class="btn-check" name="time_slots[]" id="time3" value="10:00,11:00">
-                                        <label class="btn btn-outline-warning" for="time3">10:00-11:00</label>
-                                        <input type="number" name="max_patients[10:00,11:00]" class="form-control mt-2" placeholder="Số bệnh nhân" min="1">
-                                    </div>
-
-                                    <div class="time-slot-container">
-                                        <input type="checkbox" class="btn-check" name="time_slots[]" id="time4" value="11:00,12:00">
-                                        <label class="btn btn-outline-warning" for="time4">11:00-12:00</label>
-                                        <input type="number" name="max_patients[11:00,12:00]" class="form-control mt-2" placeholder="Số bệnh nhân" min="1">
-                                    </div>
-
-                                    <div class="time-slot-container">
-                                        <input type="checkbox" class="btn-check" name="time_slots[]" id="time5" value="13:00,14:00">
-                                        <label class="btn btn-outline-warning" for="time5">13:00-14:00</label>
-                                        <input type="number" name="max_patients[13:00,14:00]" class="form-control mt-2" placeholder="Số bệnh nhân" min="1">
-                                    </div>
-
-                                    <div class="time-slot-container">
-                                        <input type="checkbox" class="btn-check" name="time_slots[]" id="time6" value="14:00,15:00">
-                                        <label class="btn btn-outline-warning" for="time6">14:00-15:00</label>
-                                        <input type="number" name="max_patients[14:00,15:00]" class="form-control mt-2" placeholder="Số bệnh nhân" min="1">
-                                    </div>
-
-                                    <div class="time-slot-container">
-                                        <input type="checkbox" class="btn-check" name="time_slots[]" id="time7" value="15:00,16:00">
-                                        <label class="btn btn-outline-warning" for="time7">15:00-16:00</label>
-                                        <input type="number" name="max_patients[15:00,16:00]" class="form-control mt-2" placeholder="Số bệnh nhân" min="1">
-                                    </div>
-
-                                    <div class="time-slot-container">
-                                        <input type="checkbox" class="btn-check" name="time_slots[]" id="time8" value="16:00,17:00">
-                                        <label class="btn btn-outline-warning" for="time8">16:00-17:00</label>
-                                        <input type="number" name="max_patients[16:00,17:00]" class="form-control mt-2" placeholder="Số bệnh nhân" min="1">
+                                    <!-- Afternoon Shift -->
+                                    <div class="shift-container">
+                                        <h6 class="mb-3">Ca chiều (13:00 - 17:00)</h6>
+                                        <div class="time-slot-container">
+                                            <input type="checkbox" class="btn-check" name="time_slots[]" id="afternoon" value="13:00,17:00">
+                                            <label class="btn btn-outline-warning" for="afternoon">13:00-17:00</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -129,9 +99,9 @@
         .time-slot-container {
             background: #fff;
             border-radius: 0.5rem;
-            padding: 1rem;
+            padding: 0.5rem;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            min-width: 200px;
+            min-width: 150px;
         }
         .btn-outline-warning {
             background-color: #fff;
@@ -166,57 +136,80 @@
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('scheduleForm');
             const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
-            const maxPatients = document.querySelectorAll('input[type="number"]');
-    
+
             form.addEventListener('submit', function(e) {
                 let isTimeSlotSelected = false;
-                let isValid = true;
-    
-                // Check if at least one time slot is selected
-                timeSlots.forEach((slot, index) => {
+
+                timeSlots.forEach(slot => {
                     if (slot.checked) {
                         isTimeSlotSelected = true;
-                        // Validate corresponding max_patients input
-                        if (!maxPatients[index].value || maxPatients[index].value < 1) {
-                            maxPatients[index].classList.add('is-invalid');
-                            if (!maxPatients[index].nextElementSibling) {
-                                const feedback = document.createElement('div');
-                                feedback.className = 'invalid-feedback';
-                                feedback.textContent = 'Vui lòng nhập số lượng bệnh nhân cho khung giờ này';
-                                maxPatients[index].parentNode.appendChild(feedback);
-                            }
-                            isValid = false;
-                        } else {
-                            maxPatients[index].classList.remove('is-invalid');
-                        }
                     }
                 });
-    
+
                 if (!isTimeSlotSelected) {
                     alert('Vui lòng chọn ít nhất một khung giờ');
                     e.preventDefault();
                     return;
                 }
-    
-                if (!isValid) {
-                    e.preventDefault();
-                }
             });
-    
-            // Add event listeners to time slots
-            timeSlots.forEach((slot, index) => {
-                slot.addEventListener('change', function() {
-                    if (this.checked) {
-                        maxPatients[index].required = true;
-                    } else {
-                        maxPatients[index].required = false;
-                        maxPatients[index].classList.remove('is-invalid');
-                        const feedback = maxPatients[index].nextElementSibling;
-                        if (feedback && feedback.className === 'invalid-feedback') {
-                            feedback.remove();
-                        }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('scheduleForm');
+            const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
+
+            form.addEventListener('submit', function(e) {
+                let isTimeSlotSelected = false;
+
+                timeSlots.forEach(slot => {
+                    if (slot.checked) {
+                        isTimeSlotSelected = true;
                     }
                 });
+
+                if (!isTimeSlotSelected) {
+                    alert('Vui lòng chọn ít nhất một khung giờ');
+                    e.preventDefault();
+                    return;
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('scheduleForm');
+
+            form.addEventListener('submit', function(e) {
+                const selectedShifts = document.querySelectorAll('input[name="time_slots[]"]:checked');
+
+                if (selectedShifts.length === 0) {
+                    alert('Vui lòng chọn ít nhất một ca làm việc');
+                    e.preventDefault();
+                    return;
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('scheduleForm');
+            const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
+
+            form.addEventListener('submit', function(e) {
+                let isTimeSlotSelected = false;
+
+                timeSlots.forEach(slot => {
+                    if (slot.checked) {
+                        isTimeSlotSelected = true;
+                    }
+                });
+
+                if (!isTimeSlotSelected) {
+                    alert('Vui lòng chọn ít nhất một khung giờ');
+                    e.preventDefault();
+                    return;
+                }
             });
         });
     </script>
@@ -236,5 +229,16 @@
             font-size: 0.875em;
             color: #dc3545;
         }
+        .shift-container {
+            background: #f8f9fa;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            min-width: 200px;
+        }
+        .shift-container h6 {
+            color: #566a7f;
+            font-weight: 600;
+        }
     </style>
 @endsection
+
