@@ -44,6 +44,7 @@ import HoaDon from "../../components/guest/home/HoaDon";
 import BaiViet from "../../components/guest/home/BaiViet";
 import ChiTietBaiViet from "../../components/guest/home/ChiTietBaiViet";
 import Test from "../../components/guest/home/Test";
+import ChiTietBacSi from "../../components/guest/home/ChiTietBacSi";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -112,6 +113,7 @@ const ClientLayout = () => {
         <Route path="/clinicDetail" element={<ClinicDetail/>}/>
         <Route path="/hoadon/:id" element={<HoaDon/>}/>
         <Route path="/bai-viet/:slug/:id" element={<ChiTietBaiViet />} />
+        <Route path="/chitietbacsi/:id" element={<ChiTietBacSi />} />    {/* Trang chi tiết bác sĩ */}
         <Route path="/thongbao" element={<ThongBao/>}/>  {/* Thông báo đặt lịch thành công !}
         <Route path="/services" element={<Services/>}/>  {/* Trang dịch vụ */}
         <Route path="/detail-service/:id" element={<ServiceDetail/>}/>  {/* Trang chi tiet dich vu  */}

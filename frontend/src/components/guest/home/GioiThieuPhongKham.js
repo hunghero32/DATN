@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../ultils/api/axios"; 
-
+import { Link } from "react-router-dom"; 
 const ClinicDetail = () => {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,21 +47,25 @@ const ClinicDetail = () => {
 
         {/* Hiển thị danh sách bác sĩ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {doctors.length > 0 ? (
-            doctors.map((doctor, index) => (
-              <div key={index} className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
-                <img
-                  src={doctor.doctor_avatar || "https://via.placeholder.com/100"}
-                  alt={doctor.doctor_name}
-                  className="w-24 h-24 rounded-full mb-3 border-2 border-gray-300"
-                />
-                <h3 className="text-lg font-semibold">{doctor.doctor_name}</h3>
-                <p className="text-gray-500">{doctor.specialty?.name || "Chưa cập nhật"}</p>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">Chưa có bác sĩ nào.</p>
-          )}
+        {doctors.length > 0 ? (
+  doctors.map((doctor, index) => (
+    <Link
+      key={index}
+      to={`/chitietbacsi/${doctor.id}`} // 👉 Điều hướng đến trang chi tiết
+      className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center hover:shadow-lg transition"
+    >
+      <img
+        src={doctor.doctor_avatar || "https://via.placeholder.com/100"}
+        alt={doctor.doctor_name}
+        className="w-24 h-24 rounded-full mb-3 border-2 border-gray-300"
+      />
+      <h3 className="text-lg font-semibold">{doctor.doctor_name}</h3>
+      <p className="text-gray-500">{doctor.specialty?.name || "Chưa cập nhật"}</p>
+    </Link>
+  ))
+) : (
+  <p className="text-gray-500">Chưa có bác sĩ nào.</p>
+)}
         </div>
       </div>
     </div>
