@@ -1,118 +1,126 @@
 import React, { useEffect, useState } from "react";
-import { XCircle, Printer } from "lucide-react";
-import api from "../../../ultils/api/axios";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
-const HoaDon = () => {
-  const [invoices, setInvoices] = useState([]);
+const InvoicePage = () => {
+  const { booking_id } = useParams();
+  const [invoice, setInvoice] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true); // Trạng thái loading
 
   useEffect(() => {
-    const fetchInvoices = async () => {
-      try {
-        const response = await api.get(`/api/client/invoice`);
-
-        if (!response.data.status || !response.data.data) {
-          setError("Không có hóa đơn nào");
-          return;
+    // Gọi API để lấy hóa đơn theo booking_id
+    axios.get(`http://localhost:8000/api/client/invoice/${booking_id}`)
+      .then((response) => {
+        if (response.data.status) {
+          setInvoice(response.data.data[0]); // Vì dữ liệu trả về là một mảng, ta lấy phần tử đầu tiên
+        } else {
+          setError(response.data.message);
         }
-
-        setInvoices(response.data.data);
-      } catch (error) {
-        console.error("Lỗi API:", error);
-        setError("Lỗi khi tải hóa đơn.");
-      } finally {
-        setLoading(false); // Đảm bảo khi dữ liệu đã tải xong thì set loading là false
-      }
-    };
-
-    fetchInvoices();
-  }, []);
-
-  const handlePrint = (invoice) => {
-    const printWindow = window.open('', '', 'width=800,height=600');
-    printWindow.document.write('<html><head><title>Hóa Đơn</title></head><body>');
-    printWindow.document.write(`
-      <h3>Mã Hóa Đơn: ${invoice.id}</h3>
-      <p><strong>Ngày Tạo:</strong> ${new Date(invoice.created_at).toLocaleString('vi-VN')}</p>
-      <p><strong>Tổng Tiền:</strong> ${formatCurrency(invoice.total_amount)}</p>
-      <p><strong>Giảm Giá:</strong> ${formatCurrency(invoice.discount)}</p>
-      <p><strong>Thuế:</strong> ${formatCurrency(invoice.tax)}</p>
-      <p><strong>Thành Tiền:</strong> ${formatCurrency(invoice.total_amount - invoice.discount + invoice.tax)}</p>
-    `);
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-    printWindow.print();
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', { 
-      style: 'currency', 
-      currency: 'VND' 
-    }).format(amount);
-  };
+      })
+      .catch(() => setError("Lỗi khi lấy thông tin hóa đơn."))
+      .finally(() => setLoading(false));
+  }, [booking_id]);
 
   return (
-    <div className="container mx-auto p-6 min-h-screen">
-      <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
-        Danh Sách Hóa Đơn Khám Bệnh
-      </h2>
-
-      {error ? (
+    <div className="container mx-auto mt-4 mb-4 p-6">
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <i className="ri-loader-2-line animate-spin text-blue-500 text-4xl"></i>
+          <span className="ml-2 text-gray-600 text-lg">Đang tải...</span>
+        </div>
+      ) : error ? (
         <div className="text-center text-red-500 text-lg font-semibold">
-          <XCircle className="w-10 h-10 mx-auto mb-2" />
+          <i className="ri-error-warning-line text-4xl"></i>
           {error}
         </div>
-      ) : loading ? (
-        <div className="text-center text-gray-500 text-lg font-semibold">
-          Đang tải dữ liệu...
-        </div>
-      ) : invoices.length > 0 ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {invoices.map((invoice) => (
-            <div key={invoice.id} className="bg-white shadow-lg rounded-lg p-5 border border-gray-200">
-              <h3 className="text-xl font-bold">Mã Hóa Đơn: {invoice.id}</h3>
-              <p><strong>Ngày Tạo:</strong> {new Date(invoice.created_at).toLocaleString('vi-VN')}</p>
-              <p><strong>Tổng Tiền:</strong> {formatCurrency(invoice.total_amount)}</p>
-              <p><strong>Giảm Giá:</strong> {formatCurrency(invoice.discount)}</p>
-              <p><strong>Thuế:</strong> {formatCurrency(invoice.tax)}</p>
-              <p><strong>Thành Tiền:</strong> {formatCurrency(invoice.total_amount - invoice.discount + invoice.tax)}</p>
+      ) : invoice ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left Section - Invoice Details */}
+          <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Hóa Đơn #{invoice.id}</h2>
+              <div className="text-sm text-gray-500">
+                {new Date(invoice.created_at).toLocaleDateString()}
+              </div>
+            </div>
+            
+            <div className="space-y-4 bg-gray-50 p-4 rounded-lg mb-6">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Tổng số tiền:</span>
+                <span className="font-semibold text-lg">{invoice.total_amount.toLocaleString()} VNĐ</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Giảm giá:</span>
+                <span className="text-green-600">-{invoice.discount.toLocaleString()} VNĐ</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Thuế:</span>
+                <span>{invoice.tax.toLocaleString()} VNĐ</span>
+              </div>
+              <div className="border-t pt-4 mt-4">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold">Tổng cộng:</span>
+                  <span className="font-bold text-xl text-blue-600">
+                    {(invoice.total_amount - invoice.discount + invoice.tax).toLocaleString()} VNĐ
+                  </span>
+                </div>
+              </div>
+            </div>
 
-              {invoice.details.length > 0 && (
-                <>
-                  <h4 className="text-lg font-bold mt-4">Thông Tin Khách Hàng</h4>
-                  <p><strong>Tên:</strong> {invoice.details[0]?.guest?.guest_name || "N/A"}</p>
-                  <p><strong>SĐT:</strong> {invoice.details[0]?.guest?.phone || "N/A"}</p>
+            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
+              <i className="ri-bank-card-line mr-2"></i>
+              Thanh toán ngay
+            </button>
+          </div>
 
-                  <h4 className="text-lg font-bold mt-4">Thông Tin Bác Sĩ</h4>
-                  <p><strong>Bác Sĩ:</strong> {invoice.details[0]?.doctor?.doctor_name || "N/A"}</p>
-                  <p><strong>Kinh Nghiệm:</strong> {invoice.details[0]?.doctor?.exp || "N/A"} năm</p>
+          {/* Right Section - Booking Details */}
+          <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-6">Chi Tiết Lịch Hẹn</h3>
+            {invoice.details.map((detail) => (
+              <div key={detail.id} className="mb-6 last:mb-0 bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  <img
+                    src={detail.doctor.image}
+                    alt={detail.doctor.doctor_name}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-blue-100"
+                  />
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-800">{detail.doctor.doctor_name}</h4>
+                    <p className="text-blue-600">{detail.doctor.specialty_name}</p>
+                  </div>
+                </div>
 
-                  <p><strong>Trạng Thái:</strong> 
-                    <span className={`ml-2 px-2 py-1 rounded text-sm ${invoice.details[0]?.booking_status === "completed" ? "bg-green-500 text-white" : "bg-yellow-500 text-white"}`}>
-                      {invoice.details[0]?.booking_status === "completed" ? "Hoàn thành" : "Chờ xử lý"}
+                <div className="mt-4 space-y-3 text-gray-700">
+                  <p className="flex items-center">
+                    <i className="ri-user-line mr-2"></i>
+                    <strong className="mr-2">Khách hàng:</strong> {detail.guest.guest_name}
+                  </p>
+                  <p className="flex items-center">
+                    <i className="ri-phone-line mr-2"></i>
+                    <strong className="mr-2">Điện thoại:</strong> {detail.guest.phone}
+                  </p>
+                  <p className="flex items-center">
+                    <i className="ri-mail-line mr-2"></i>
+                    <strong className="mr-2">Email:</strong> {detail.guest.email}
+                  </p>
+                  <p className="flex items-center">
+                    <i className="ri-calendar-check-line mr-2"></i>
+                    <strong className="mr-2">Trạng thái:</strong>
+                    <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                      {detail.booking_status}
                     </span>
                   </p>
-                </>
-              )}
-
-              <button 
-                onClick={() => handlePrint(invoice)}
-                className="mt-4 flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full"
-              >
-                <Printer className="w-5 h-5 mr-2" />
-                In Hóa Đơn
-              </button>
-            </div>
-          ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
-        <div className="text-center text-gray-500 text-lg font-semibold">
-          Không có hóa đơn nào để hiển thị.
-        </div>
+        <div className="text-center text-gray-500 text-lg">Không tìm thấy hóa đơn.</div>
       )}
     </div>
   );
 };
 
-export default HoaDon;
+export default InvoicePage;
