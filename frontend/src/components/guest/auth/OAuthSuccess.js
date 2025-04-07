@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from './AuthContext';
 import { toast } from 'react-toastify';
+import ChuotChay from '../../loadding/chuotchay';
 
 const OAuthSuccess = () => {
     const navigate = useNavigate();
@@ -46,9 +47,10 @@ const OAuthSuccess = () => {
     }, [navigate, login]);
 
     return (
-        <div className="flex justify-center items-center h-screen">
-            <div className="text-center">
-                <h2>Đang xử lý đăng nhập...</h2>
+        <div className="flex justify-center items-center min-h-screen w-full">
+            <div className="text-center p-4 flex flex-col items-center">
+                <ChuotChay/>
+                <h2 className="mt-4">Đang xử lý đăng nhập...</h2>
             </div>
         </div>
     );

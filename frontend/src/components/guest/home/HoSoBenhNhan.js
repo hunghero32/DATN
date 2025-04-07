@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import ChuotChay from "../../loadding/chuotchay";
 
 const PatientProfile = () => {
   const navigate = useNavigate(); // Add this line at the beginning of the component
@@ -22,7 +23,7 @@ const PatientProfile = () => {
   useEffect(() => {
     const fetchPatientData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         if (!token) {
           navigate('/login');
           return;
@@ -53,13 +54,13 @@ const PatientProfile = () => {
       } catch (error) {
         console.error("Error details:", error);
         if (error.response?.status === 401) {
-          localStorage.removeItem('token'); // Clear invalid token
+          localStorage.removeItem('authToken'); // Changed from 'token' to 'authToken'
           navigate('/login');
         } else {
           setError("Không thể tải dữ liệu bệnh nhân. Vui lòng thử lại sau.");
         }
       } finally {
-        setLoading(false);
+        setLoading(false);  
       }
     };
 
@@ -72,7 +73,7 @@ const PatientProfile = () => {
     setError("");
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken'); // Changed from 'token' to 'authToken'
       if (!token) {
         navigate('/login');
         return;
@@ -127,7 +128,14 @@ const PatientProfile = () => {
     }));
   };
 
-  if (loading) return <p className="text-center text-gray-500">Đang tải dữ liệu...</p>;
+  // Update the loading return statement
+  if (loading) return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center">
+      <ChuotChay />
+      <p className="mt-4 text-gray-600 text-lg">Đang tải dữ liệu...</p>
+    </div>
+  );
+  
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
@@ -148,7 +156,7 @@ const PatientProfile = () => {
 
         <div className="md:ml-6 flex-1">
           {isEditing ? (
-            <div className="space-y-3 mt-4">
+            <div className="space-y-4">
               <input
                 type="text"
                 name="name"
@@ -197,19 +205,20 @@ const PatientProfile = () => {
                 placeholder="Nhập lại mật khẩu mới"
                 className="w-full p-2 border rounded"
               />
-              <div className="flex gap-4">
+              {/* Đặt nút lưu ở đây với thêm margin top để tạo khoảng cách */}
+              <div className="mt-4">
                 <button
-                  className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                  className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 block w-full sm:w-auto"
                   onClick={handleUpdateProfile}
                 >
                   Lưu
                 </button>
-                <button
-                  className="bg-gray-400 text-white py-2 px-4 rounded hover:bg-gray-500"
+                {/* <button
+                  className="bg-gray-400 text-white py-2 px-4 rounded hover:bg-gray-500 block w-full sm:w-auto mt-2"
                   onClick={() => setIsEditing(false)}
                 >
                   Hủy
-                </button>
+                </button> */}
               </div>
             </div>
           ) : (
@@ -230,7 +239,12 @@ const PatientProfile = () => {
 
       {updateStatus === "success" && <p className="text-center text-green-600">Cập nhật thành công!</p>}
       {updateStatus === "error" && <p className="text-center text-red-600">{error}</p>}
-      {updateStatus === "loading" && <p className="text-center text-gray-500">Đang cập nhật...</p>}
+      {updateStatus === "loading" && (
+        <div className="fixed inset-0 flex flex-col items-center justify-center">
+          <ChuotChay />
+          <p className="mt-4 text-gray-600 text-lg">Đang cập nhật...</p>
+        </div>
+      )}
 
       <div className="text-center">
         <a

@@ -50,6 +50,7 @@
     "react-toastify": "^11.0.5",
     "remixicon": "^4.6.0",
     "slick-carousel": "^1.8.1",
+    "styled-components": "^6.1.17",
     "swiper": "^11.2.5"
   },
   "scripts": {

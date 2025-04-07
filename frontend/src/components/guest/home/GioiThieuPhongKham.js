@@ -31,7 +31,7 @@ const ClinicDetail = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 mb-4">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-blue-600">Phòng Khám Đa Khoa Quốc Tế</h1>
         <p className="text-lg text-gray-500">
