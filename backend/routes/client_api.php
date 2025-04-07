@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Client\ResultController;
-use App\Http\Controllers\Api\Client\InvoiceController ;
+use App\Http\Controllers\Api\Client\InvoiceController;
 use App\Http\Controllers\Api\Client\PostController;
 use App\Http\Controllers\Api\Client\ServiceController;
 use App\Http\Controllers\Api\Client\SpecialtyController;
@@ -21,11 +21,11 @@ Route::get('/list-specialty', [SpecialtyController::class, 'listSpecialty']);
 
 
 //*************** Lấy ra danh sách dịch vụ  ************/
-Route::get('/list-service',[ServiceController::class,'listService']);
+Route::get('/list-service', [ServiceController::class, 'listService']);
 
 Route::get('/services/search', [ServiceController::class, 'searchBySpecialtyName']);
 //*************** Lấy ra chi tiết dịch vụ  ************/
-Route::get('/detail-service/{id}',[ServiceController::class,'detailService']);
+Route::get('/detail-service/{id}', [ServiceController::class, 'detailService']);
 
 
 //*************** Lấy ra chi tiết bài viết  ************/
@@ -44,11 +44,10 @@ Route::middleware('web')->group(function () {
     Route::get('/get-temp-booking', [BookingController::class, 'getTempBooking']);
     Route::post('/confirm-booking', [BookingController::class, 'confirmBooking']);
     Route::get('/appointments', [BookingController::class, 'appointments']);
+    //*************** Lấy ra hóa đơn  ************/
+    Route::get('invoice/{booking_id}', [InvoiceController::class, 'invoice']);
 
-
-    //*************** Lấy ra chi tiết bài viết  ************/
-    Route::get('invoice',[InvoiceController::class,'invoice']);
 
     //****************** Lấy ra kết quả khám  **********************/
-    Route::get('result',[ResultController::class,'result']);
+    Route::get('result', [ResultController::class, 'result']);
 });

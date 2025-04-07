@@ -12,24 +12,12 @@ use Exception;
 
 class InvoiceController extends Controller
 {
-    public function invoice()
+    public function invoice($booking_id)
     {
         try {
-            // Get guest information from session
-            $lastBooking = Session::get('last_booking_guest');
-
-            if (!$lastBooking) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Guest information not found'
-                ], 404);
-            }
-
-            $guest_id = $lastBooking['guest_id'];
-
             $invoices = Invoice::with(['details.booking.doctor', 'details.booking.guest', 'details.booking.doctor.specialty'])
-                ->whereHas('details.booking', function ($query) use ($guest_id) {
-                    $query->where('guest_id', $guest_id);
+                ->whereHas('details', function ($query) use ($booking_id) {
+                    $query->where('booking_id', $booking_id);
                 })
                 ->get()
                 ->map(function ($invoice) {
