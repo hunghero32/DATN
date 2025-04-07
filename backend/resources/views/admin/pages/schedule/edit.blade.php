@@ -44,41 +44,30 @@
                             </div>
                         </div>
 
+
                         <div class="row mb-4">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label class="form-label text-uppercase fw-semibold mb-2">Giờ bắt đầu</label>
-                                    <input type="time" name="time_start"
-                                           class="form-control form-control-lg shadow-sm @error('time_start') is-invalid @enderror"
-                                           required
-                                           value="{{ old('time_start', substr($data->time_start, 0, 5)) }}">
-                                    @error('time_start')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label class="form-label text-uppercase fw-semibold mb-2">Giờ kết thúc</label>
-                                    <input type="time" name="time_end"
-                                           class="form-control form-control-lg shadow-sm @error('time_end') is-invalid @enderror"
-                                           required
-                                           value="{{ old('time_end', substr($data->time_end, 0, 5)) }}">
-                                    @error('time_end')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label class="form-label text-uppercase fw-semibold mb-2">Số lượng bệnh nhân tối đa</label>
-                                    <input type="number" name="max_patients"
-                                           class="form-control form-control-lg shadow-sm @error('max_patients') is-invalid @enderror"
-                                           required min="1" max="100"
-                                           value="{{ old('max_patients', $data->max_patients) }}">
-                                    @error('max_patients')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                            <div class="col-12">
+                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ca làm việc</label>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <!-- Morning Shift -->
+                                    <div class="shift-container">
+                                        <h6 class="mb-3">Ca sáng (7:00 - 11:00)</h6>
+                                        <div class="time-slot-container">
+                                            <input type="checkbox" class="btn-check" name="time_slots[]" id="morning" value="07:00,11:00"
+                                                {{ ($data->time_start === '07:00:00' && $data->time_end === '11:00:00') ? 'checked' : '' }}>
+                                            <label class="btn btn-outline-warning" for="morning">7:00-11:00</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Afternoon Shift -->
+                                    <div class="shift-container">
+                                        <h6 class="mb-3">Ca chiều (13:00 - 17:00)</h6>
+                                        <div class="time-slot-container">
+                                            <input type="checkbox" class="btn-check" name="time_slots[]" id="afternoon" value="13:00,17:00"
+                                                {{ ($data->time_start === '13:00:00' && $data->time_end === '17:00:00') ? 'checked' : '' }}>
+                                            <label class="btn btn-outline-warning" for="afternoon">13:00-17:00</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -62,7 +62,6 @@ class SchedulesController extends Controller
             'doctor_id' => 'required|exists:doctors,id',
             'time_slots' => 'required|array',
             'working_date' => 'required|date',
-            'max_patients' => 'required|array',
         ]);
 
         if ($validator->fails()) {
@@ -77,7 +76,6 @@ class SchedulesController extends Controller
             foreach ($request->time_slots as $timeSlot) {
                 list($timeStart, $timeEnd) = explode(',', $timeSlot);
 
-                // Check if schedule already exists
                 $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
                     ->where('working_date', $formattedDate)
                     ->where('time_start', $timeStart . ':00')
@@ -96,9 +94,8 @@ class SchedulesController extends Controller
                     'time_start' => $timeStart . ':00',
                     'time_end' => $timeEnd . ':00',
                     'working_date' => $formattedDate,
-                    'max_patients' => $request->max_patients[$timeSlot],
-                    'status' => 1,
-                    'isDeleted' => 0
+                    'isDeleted' => 0,
+                    'status' => 1  // Changed from 'status' to 'approve'
                 ]);
             }
 
@@ -125,55 +122,55 @@ class SchedulesController extends Controller
     }
     public function update(Request $request, $id)
     {
-        // Tạo bộ kiểm tra dữ liệu
         $validator = Validator::make($request->all(), [
             'doctor_id' => 'required|exists:doctors,id',
-            'time_start' => 'required',
-            'time_end' => 'required',
+            'time_slots' => 'required|array',
             'working_date' => 'required|date',
-            'max_patients' => 'required|integer|min:1',
             'status' => 'nullable|integer|in:0,1',
         ], [
             'doctor_id.required' => 'Vui lòng chọn bác sĩ.',
             'doctor_id.exists' => 'Bác sĩ không tồn tại trong hệ thống.',
-            'time_start.required' => 'Vui lòng nhập giờ bắt đầu.',
-            'time_end.required' => 'Vui lòng nhập giờ kết thúc.',
+            'time_slots.required' => 'Vui lòng chọn ca làm việc.',
             'working_date.required' => 'Vui lòng chọn ngày làm việc.',
             'working_date.date' => 'Ngày làm việc không hợp lệ.',
-            'max_patients.required' => 'Vui lòng nhập số lượng bệnh nhân tối đa.',
-            'max_patients.integer' => 'Số lượng bệnh nhân phải là số nguyên.',
-            'max_patients.min' => 'Số lượng bệnh nhân tối thiểu là 1.',
             'status.integer' => 'Trạng thái phải là số 0 hoặc 1.',
             'status.in' => 'Trạng thái không hợp lệ.',
         ]);
 
-        // Nếu validation thất bại, quay lại form với lỗi
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Tìm lịch làm việc cần cập nhật
         $schedule = Schedule::findOrFail($id);
+        
+        foreach ($request->time_slots as $timeSlot) {
+            list($timeStart, $timeEnd) = explode(',', $timeSlot);
+            
+            $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
+                ->where('working_date', $request->working_date)
+                ->where('time_start', $timeStart . ':00')
+                ->where('time_end', $timeEnd . ':00')
+                ->where('isDeleted', 0)
+                ->where('id', '!=', $id)
+                ->first();
 
-        // Check if schedule already exists with the same time slot (excluding the current schedule)
-        $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
-            ->where('working_date', $request->working_date)
-            ->where('time_start', $request->time_start)
-            ->where('time_end', $request->time_end)
-            ->where('isDeleted', 0)
-            ->where('id', '!=', $id)
-            ->first();
-
-        if ($existingSchedule) {
-            return redirect()->back()
-                ->with('error', 'Lịch làm việc cho khung giờ này đã tồn tại từ trước đó!')
-                ->withInput();
+            if ($existingSchedule) {
+                return redirect()->back()
+                    ->with('error', 'Lịch làm việc cho khung giờ này đã tồn tại!')
+                    ->withInput();
+            }
         }
 
-        // Cập nhật thông tin lịch làm việc
-        $schedule->update($request->all());
+        $schedule->update([
+            'doctor_id' => $request->doctor_id,
+            'time_start' => $timeStart . ':00',
+            'time_end' => $timeEnd . ':00',
+            'working_date' => $request->working_date,
+            'status' => $request->status
+        ]);
 
-        return redirect()->route('admin.schedule.index')->with('success', 'Lịch làm việc đã được cập nhật!');
+        return redirect()->route('admin.schedule.index')
+            ->with('success', 'Lịch làm việc đã được cập nhật!');
     }
     public function destroy($id)
     {
