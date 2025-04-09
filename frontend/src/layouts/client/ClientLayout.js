@@ -111,7 +111,7 @@ const ClientLayout = () => {
         <Route path="/specialties" element={<TopSpecialties/>}/> 
         <Route path="/topServices" element={<TopBookedServices/>}/>
         <Route path="/clinicDetail" element={<ClinicDetail/>}/>
-        <Route path="/hoadon/:id" element={<HoaDon/>}/>
+        <Route path="/hoadon/:booking_id" element={<HoaDon/>}/>
         <Route path="/bai-viet/:slug/:id" element={<ChiTietBaiViet />} />
         <Route path="/chitietbacsi/:id" element={<ChiTietBacSi />} />    {/* Trang chi tiết bác sĩ */}
         <Route path="/thongbao" element={<ThongBao/>}/>  {/* Thông báo đặt lịch thành công !}

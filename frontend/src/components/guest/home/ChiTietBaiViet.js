@@ -54,7 +54,7 @@ const ChiTietBaiViet = () => {
 
     // Hiển thị bài viết
     return (
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-6 mt-4 mb-4">
             <article className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
                 {/* Ảnh đại diện */}
                 {post.image && (
