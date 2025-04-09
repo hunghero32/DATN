@@ -195,7 +195,7 @@ specialty_mapping = {
         'sốt không rõ nguyên nhân', 'mệt mỏi kéo dài', 'đau ngực', 'khó thở', 'tăng huyết áp',
         'huyết áp thấp', 'đau bụng không rõ lý do', 'giảm cân bất thường', 'tăng cân bất thường',
         'suy nhược cơ thể', 'đau đầu mãn tính', 'chóng mặt', 'tiêu chảy kéo dài', 'táo bón lâu ngày',
-        'đầy hơi', 'chán ăn', 'sốt kéo dài', 'đau khớp không rõ nguyên nhân', 'phù toàn thân',
+        'đầy hơi', 'chán ăn', 'sốt kéo dài', 'Đau khớp không rõ nguyên nhân', 'phù toàn thân',
         'da xanh xao', 'tim đập nhanh', 'rối loạn tiêu hóa không rõ lý do', 'mất ngủ kéo dài',
         'nhiễm trùng tái phát', 'suy giảm miễn dịch', 'bệnh mãn tính không xác định'
     ],
@@ -295,6 +295,15 @@ def chatbot_response(user_input):
         user_input = user_input.lower()
         tokens = word_tokenize(user_input)
         
+        # Check for location-related queries first
+        location_keywords = ['ở đâu', 'địa chỉ', 'địa điểm', 'phòng khám', 'bệnh viện', 'chỗ nào']
+        if any(keyword in user_input for keyword in location_keywords):
+            return json.dumps({
+                'status': 'success',
+                'type': 'location',
+                'message': 'Các cơ sở y tế của chúng tôi đều tọa lạc tại : Thanh Xuân, Hà Nội. '
+            })
+        
         stop_words = ['tôi', 'bị', 'là', 'có', 'và', 'rất', 'cảm', 'thấy', 'đang', 'quá', 'căng', 'dịch', 'vụ']
         filtered_text = ' '.join([t for t in tokens if t not in stop_words])
         
@@ -306,6 +315,14 @@ def chatbot_response(user_input):
         
         match_result = find_best_symptom_match(filtered_text)
         
+        if match_result and isinstance(match_result, dict) and match_result.get('type') == 'location':
+            return json.dumps({
+                'status': 'success',
+                'message': match_result['message'],
+                'type': 'location'
+            })
+        
+        # Continue with symptom matching if not a location query
         if match_result:
             print(f"Phát hiện triệu chứng: {match_result['symptom']} -> Chuyên khoa: {match_result['specialty']}")
             result = search_service(match_result['specialty'])
