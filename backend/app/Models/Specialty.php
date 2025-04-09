@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Booking;
+use Illuminate\Support\Facades\Storage;
 
 class Specialty extends Model
 {
@@ -34,5 +35,19 @@ class Specialty extends Model
             'id',          // Local key on specialties table
             'id'           // Local key on services table
         );
+    }
+    public function getImageAttribute($value)
+    {
+        if (!$value) {
+            return $value;
+        }
+        if (str_starts_with($value, 'http')) {
+            return $value;
+        }
+        try {
+            return Storage::disk('s3')->url($value);
+        } catch (\Exception $e) {
+            return url('storage/' . $value);
+        }
     }
 }
