@@ -21,27 +21,31 @@ const Login = () => {
         email: values.email,
         password: values.password,
       });
-      console.log("Login response:", response.data);
-      const { token, user } = response.data;
-      localStorage.setItem("authToken", token);
       
-      // Hiển thị thông báo thành công
+      const { token, user } = response.data;
+      
+      // Đảm bảo user object có đầy đủ thông tin
+      const userData = {
+        ...user,
+        id: user.id, // Đảm bảo có id
+        role: user.role,
+      };
+
+      login(userData, token);
+
       toast.success("Đăng nhập thành công!", {
         toastId: 'loginSuccess',
         autoClose: 2000
       });
-    
-      login(user, token);
 
       setTimeout(() => {
-        if (user.role === "doctor") {
+        if (userData.role === "doctor") {
           navigate("/doctor");
-        } else if (user.role === "admin") {
+        } else if (userData.role === "admin") {
           navigate("/admin");
         } else {
           navigate("/");
         }
-        // Add page reload after navigation
         window.location.reload();
       }, 1000);
     } catch (err) {

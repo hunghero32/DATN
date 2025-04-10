@@ -11,11 +11,13 @@ import {
   Col,
   Divider,
   Alert,
-  message
+  message,
+  Badge
 } from "antd";
 import api from "../../../ultils/api/axios";
 import axios from "axios";
 import { Modal } from "react-bootstrap";  // Bootstrap Modal
+import NotificationService from '../../../services/NotificationService';
 
 const { Title, Text } = Typography;
 
@@ -29,6 +31,8 @@ const DatLich = () => {
   const [doctorDetails, setDoctorDetails] = useState(null);
   const [showModal, setShowModal] = useState(false); // State to control the modal visibility
   const [formData, setFormData] = useState(null);  // Store form data to pass to the modal
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Fetch system info
   useEffect(() => {
@@ -87,41 +91,68 @@ const DatLich = () => {
   const handleSubmitBooking = async (values) => {
     setLoading(true);
 
-    if (!bookingData || !bookingData.doctor_id || !bookingData.service_id || !bookingData.schedule_id) {
-      message.error("Dữ liệu đặt lịch không hợp lệ. Vui lòng thử lại!");
-      setLoading(false);
-      return;
-    }
-
     try {
+      const addressArray = values.address ? values.address.split(',').map(item => item.trim()).filter(Boolean) : [];
+
       const requestData = {
         guest_name: values.guest_name.trim(),
         guest_phone: values.guest_phone.replace(/\s+/g, ""),
-        guest_email: values.guest_email,
+        guest_email: values.guest_email.trim(),
         gender: values.gender,
         birthday: values.birthday,
-        address: values.address.split(","),
-        doctor_id: bookingData.doctor_id,
-        service_id: bookingData.service_id,
-        schedule_id: bookingData.schedule_id,
-        booking_date: new Date(bookingData.date).toISOString().split('T')[0],
+        address: addressArray,
+        doctor_id: parseInt(bookingData.doctor_id),
+        service_id: parseInt(bookingData.service_id),
+        schedule_id: parseInt(bookingData.schedule_id),
+        booking_date: bookingData.date,
         booking_time: bookingData.time,
-        total_price: bookingData.price,
-        status: "pending",
+        total_price: parseFloat(bookingData.price),
+        status: "pending"
       };
 
       const response = await api.post("/api/client/confirm-booking", requestData);
+      console.log('Booking response:', response.data); // Log để debug
 
-      if (response.data.status) {
+      if (response.data.status === true) {
+        // Gửi thông báo ngay sau khi đặt lịch thành công
+        const notificationData = {
+          type: 'new_appointment',
+          title: 'Lịch hẹn mới',
+          message: `Bạn có lịch hẹn mới từ ${values.guest_name}`,
+          data: {
+            bookingId: response.data.data.booking.id, // Lấy ID từ response
+            guestName: values.guest_name,
+            guestPhone: values.guest_phone,
+            bookingDate: bookingData.date,
+            bookingTime: bookingData.time,
+            serviceName: bookingData.service_name
+          },
+          timestamp: Date.now(),
+          read: false
+        };
+
+        console.log('Sending notification:', notificationData); // Log để debug
+        
+        try {
+          await NotificationService.sendNotification(
+            bookingData.doctor_id,
+            notificationData
+          );
+          console.log('Notification sent successfully');
+        } catch (notificationError) {
+          console.error('Notification error:', notificationError);
+        }
+
+        message.success('Đặt lịch thành công!');
         localStorage.removeItem("bookingData");
         navigate("/thongbao");
-      } else {
-        throw new Error(response.data.message || "Có lỗi xảy ra");
       }
     } catch (error) {
+      console.error('Error:', error);
       message.error(error.response?.data?.message || "Không thể đặt lịch, thử lại sau!");
     } finally {
       setLoading(false);
+      handleCloseModal();
     }
   };
 
@@ -131,6 +162,26 @@ const DatLich = () => {
   };
 
   const handleCloseModal = () => setShowModal(false);
+
+  useEffect(() => {
+    if (doctorDetails?.id) {
+      const unsubscribe = NotificationService.subscribeToNotifications(
+        doctorDetails.id,
+        (notifications) => {
+          setNotifications(notifications);
+          setUnreadCount(notifications.filter(n => !n.read).length);
+        }
+      );
+
+      return () => unsubscribe();
+    }
+  }, [doctorDetails]);
+
+  const handleMarkAsRead = async (notificationId) => {
+    if (doctorDetails?.id) {
+      await NotificationService.markAsRead(doctorDetails.id, notificationId);
+    }
+  };
 
   return (
     <div className="appointment-container p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg mt-2">
@@ -155,7 +206,7 @@ const DatLich = () => {
                   src={bookingData.doctor_avatar}
                   alt={bookingData.doctor_name}
                   className="w-20 h-20 rounded-full object-cover"
-                  onError={(e) => { e.target.src = "https://via.placeholder.com/150" }}
+                  
                 />
               )}
               <div>
@@ -229,8 +280,28 @@ const DatLich = () => {
             <Input type="date" />
           </Form.Item>
 
-          <Form.Item name="address" label="Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
-            <Input placeholder="Nhập địa chỉ" />
+          <Form.Item 
+            name="address" 
+            label="Địa chỉ" 
+            rules={[
+              { required: true, message: "Vui lòng nhập địa chỉ" },
+              {
+                validator: (_, value) => {
+                  if (!value) return Promise.resolve();
+                  const parts = value.split(',').map(item => item.trim()).filter(Boolean);
+                  if (parts.length < 2) {
+                    return Promise.reject('Vui lòng nhập đầy đủ địa chỉ (ít nhất 2 phần, phân cách bằng dấu phẩy)');
+                  }
+                  return Promise.resolve();
+                }
+              }
+            ]}
+            extra="Nhập địa chỉ chi tiết, phân cách bằng dấu phẩy (,). Ví dụ: 123 Đường ABC, Phường XYZ, Quận 1, TP.HCM"
+          >
+            <Input.TextArea 
+              placeholder="Nhập địa chỉ (phân cách bằng dấu phẩy)" 
+              autoSize={{ minRows: 2, maxRows: 4 }}
+            />
           </Form.Item>
 
           <Divider />
