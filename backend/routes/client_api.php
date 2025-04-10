@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Client\CheckoutController;
 use App\Http\Controllers\Api\Client\ResultController;
 use App\Http\Controllers\Api\Client\InvoiceController;
 use App\Http\Controllers\Api\Client\PostController;
@@ -46,7 +47,8 @@ Route::middleware('web')->group(function () {
     Route::get('/appointments', [BookingController::class, 'appointments']);
     //*************** Lấy ra hóa đơn  ************/
     Route::get('invoice/{booking_id}', [InvoiceController::class, 'invoice']);
-
+    Route::post('momo-payment', [CheckoutController::class, 'momoPayment']);
+    Route::post('momo-callback', [CheckoutController::class, 'momoCallback']);
 
     //****************** Lấy ra kết quả khám  **********************/
     Route::get('result', [ResultController::class, 'result']);
