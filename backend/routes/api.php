@@ -30,7 +30,7 @@ use App\Http\Controllers\Api\Admin\BookingController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\PostController;
 use App\Http\Controllers\Api\Admin\UserController;
-
+use App\Http\Controllers\Api\Client\SearchController;
 use App\Http\Controllers\Api\ProfileController;
 
 /*
@@ -77,6 +77,8 @@ Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource('users', UserController::class);
 });
+
+Route::get('/client/search', [SearchController::class, 'search']);
 
 Route::apiResource('system', SystemController::class);
 Route::apiResource('specialties', SpecialtyController::class);
