@@ -18,7 +18,7 @@ export default function HomeMain() {
       {/* <Service/> */}
       <TopSpecialties />
       <TopBookedServices />
-      <Categori />
+      {/* <Categori /> */}
       {/* <Appointment />   // Trang đặt lịch khám  */}
       <ClinicDetail />    { /* Trang giới thiệu phòng khám */}
       <ArticleList />

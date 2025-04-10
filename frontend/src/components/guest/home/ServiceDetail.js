@@ -13,6 +13,17 @@ const ServiceDetail = () => {
   const [error, setError] = useState(null);
   const [selectedDates, setSelectedDates] = useState({});
 
+  const today = new Date();
+  const maxDate = new Date();
+  maxDate.setDate(today.getDate() + 7);
+  const todayString = today.toISOString().split("T")[0];
+  const maxDateString = maxDate.toISOString().split("T")[0];
+
+  const getDefaultDate = (dates) => {
+    if (dates.includes(todayString)) return todayString;
+    return dates[0] || "";
+  };
+
   useEffect(() => {
     const fetchServiceDetail = async () => {
       try {
@@ -21,6 +32,24 @@ const ServiceDetail = () => {
         if (data?.services_name) {
           setService(data);
           setDoctors(data.doctors || []);
+
+          // Set default ngày khám cho từng bác sĩ
+          const defaultDates = {};
+          (data.doctors || []).forEach((doctor) => {
+            const workingDates = [
+              ...new Set(doctor.schedules.map((s) => s.working_date)),
+            ]
+              .filter(
+                (date) =>
+                  new Date(date) >= new Date(todayString) &&
+                  new Date(date) <= new Date(maxDateString)
+              )
+              .sort((a, b) => new Date(a) - new Date(b));
+
+            defaultDates[doctor.id] = getDefaultDate(workingDates);
+          });
+
+          setSelectedDates(defaultDates);
         } else {
           throw new Error("Invalid data format received");
         }
@@ -87,12 +116,6 @@ const ServiceDetail = () => {
     }
   };
 
-  const today = new Date();
-  const maxDate = new Date();
-  maxDate.setDate(today.getDate() + 7);
-  const todayString = today.toISOString().split("T")[0];
-  const maxDateString = maxDate.toISOString().split("T")[0];
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN", {
@@ -116,10 +139,11 @@ const ServiceDetail = () => {
           <ul>
             <li>Các chuyên gia có quá trình đào tạo bài bản, nhiều kinh nghiệm</li>
             <li>Các giáo sư, phó giáo sư đang trực tiếp nghiên cứu và giảng dạy tại Đại học Y khoa Hà Nội</li>
-            <li>Các bác sĩ đã, đang công tác tại các bệnh viện hàng đầu Khoa Cơ Xương Khớp - Bệnh viện Bạch Mai, Bệnh viện Hữu nghị Việt Đức,Bệnh Viện E.</li>
+            <li>Các bác sĩ đã, đang công tác tại các bệnh viện hàng đầu Khoa Cơ Xương Khớp - Bệnh viện Bạch Mai, Bệnh viện Hữu nghị Việt Đức, Bệnh Viện E.</li>
           </ul>
         </p>
       </div>
+
       {doctors.map((doctor) => {
         const workingDates = [
           ...new Set(doctor.schedules.map((s) => s.working_date)),
@@ -145,7 +169,6 @@ const ServiceDetail = () => {
                   {doctor.doctor_name}
                 </h2>
                 <p className="text-gray-700">{doctor.doctor_bio}</p>
-                {/* Nút Xem Thêm */}
                 <Link
                   to={`/chitietbacsi/${doctor.id}`}
                   className="mt-4 inline-block !text-blue-500 hover:underline"

@@ -39,29 +39,36 @@ export default function HomeBanner() {
 
   return (
     <>
-      <Swiper
-        modules={[Autoplay, EffectFade, Navigation, Pagination]}
-        effect="fade"
-        navigation
-        pagination={{ clickable: true }}
-        autoplay={{
-          delay: 3000,
-          disableOnInteraction: false,
-        }}
-        loop={true}
-        className="w-full h-[500px]"
-      >
-        {Array.isArray(banners) && banners.map((banner, index) => (
-          <SwiperSlide key={index}>
-            <img
-              src={banner.startsWith('http') ? banner : `http://localhost:8000/storage/${banner}`}
-              alt={`Banner ${index + 1}`}
-              className="w-full h-full object-cover"
-              onError={() => handleImageError(index)}
-            />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+      <div className="relative">
+        <Swiper
+          modules={[Autoplay, EffectFade, Navigation, Pagination]}
+          effect="fade"
+          navigation={{
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          }}
+          pagination={{ clickable: true }}
+          autoplay={{
+            delay: 3000,
+            disableOnInteraction: false,
+          }}
+          loop={true}
+          className="w-full h-[500px] group"
+        >
+          {Array.isArray(banners) && banners.map((banner, index) => (
+            <SwiperSlide key={index}>
+              <img
+                src={banner.startsWith('http') ? banner : `http://localhost:8000/storage/${banner}`}
+                alt={`Banner ${index + 1}`}
+                className="w-full h-full object-cover"
+                onError={() => handleImageError(index)}
+              />
+            </SwiperSlide>
+          ))}
+          <div className="swiper-button-prev !text-white !hidden group-hover:!flex after:!text-2xl md:after:!text-4xl !w-[30px] !h-[30px] md:!w-[44px] md:!h-[44px] !left-2 md:!left-4 !top-1/2 !-translate-y-1/2"></div>
+          <div className="swiper-button-next !text-white !hidden group-hover:!flex after:!text-2xl md:after:!text-4xl !w-[30px] !h-[30px] md:!w-[44px] md:!h-[44px] !right-2 md:!right-4 !top-1/2 !-translate-y-1/2"></div>
+        </Swiper>
+      </div>
     </>
   );
 }

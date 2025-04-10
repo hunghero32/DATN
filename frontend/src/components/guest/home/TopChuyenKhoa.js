@@ -57,18 +57,23 @@ const SpecialtiesSection = () => {
           {displayedSpecialties.map((specialty) => (
             <div
               key={specialty.id}
-              className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer h-[300px] flex flex-col justify-between items-center text-center"
+              className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer h-[320px] flex flex-col justify-between items-center text-center"
               onClick={() => handleSpecialtyClick(specialty.id)}
             >
               <div className="w-24 h-24 flex items-center justify-center mb-4 rounded-full overflow-hidden border border-gray-200">
                 <img
                   src={specialty.image || "https://source.unsplash.com/100x100/?hospital,doctor,medical"}
                   alt={specialty.name}
-                  className="w-full h-full object-cover"
+                  className="object-cover w-[96px] h-[96px]"
                 />
               </div>
-              <h5 className="text-lg font-semibold text-gray-800">{specialty.name}</h5>
-              <p className="text-sm text-gray-600 line-clamp-3 px-2">{specialty.description}</p>
+              <h5 className="text-lg font-semibold text-gray-800 h-[48px] flex items-center justify-center text-center line-clamp-2">
+                {specialty.name}
+              </h5>
+              <div
+                className="text-sm text-gray-600 px-2 line-clamp-3 h-[72px] flex items-center justify-center text-center"
+                dangerouslySetInnerHTML={{ __html: specialty.description }}
+              ></div>
             </div>
           ))}
         </div>

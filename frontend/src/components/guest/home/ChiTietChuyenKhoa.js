@@ -58,12 +58,15 @@ const SpecialtyDetail = () => {
       </div>
 
       {/* Mô tả chuyên khoa */}
-      <p className="text-center text-gray-700">{specialty.description}</p>
+      <div
+  className="text-center text-gray-700 leading-relaxed"
+  dangerouslySetInnerHTML={{ __html: specialty.description || "<p>Chưa có mô tả</p>" }}
+></div>
 
       {/* Danh sách dịch vụ */}
       <h3 className="text-2xl font-semibold text-blue-500 mt-6 text-center">Danh Sách Dịch Vụ</h3>
       {services.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mt-4 mb-4">
           {services.map((service) => (
             <div
               key={service.id}

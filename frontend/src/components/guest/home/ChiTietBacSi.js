@@ -4,10 +4,15 @@ import api from "../../../ultils/api/axios";
 
 const ChiTietBacSi = () => {
   const { id } = useParams();
-  const navigate = useNavigate();  // Dùng useNavigate để điều hướng
+  const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Hàm định dạng tiền Việt Nam
+  const formatPrice = (price) => {
+    return price.toLocaleString("vi-VN") + " ₫";
+  };
 
   useEffect(() => {
     const fetchDoctor = async () => {
@@ -30,7 +35,6 @@ const ChiTietBacSi = () => {
   if (error) return <div className="text-center text-red-500 mt-10">{error}</div>;
   if (!doctor) return null;
 
-  // Xử lý điều hướng đến trang đặt lịch khi bấm vào dịch vụ
   const handleBookingClick = (serviceId) => {
     navigate(`/booking/${serviceId}`);
   };
@@ -45,15 +49,20 @@ const ChiTietBacSi = () => {
             className="w-40 h-40 rounded-full mx-auto mb-4 border-4 border-indigo-200 hover:border-indigo-400 transition-all"
           />
           <h2 className="text-3xl font-semibold text-indigo-700 mb-2">{doctor.doctor_name}</h2>
-          <p className="text-indigo-600 text-sm">{doctor.specialty?.name || "Chưa có chuyên khoa"}</p>
+          <p className="inline-block bg-indigo-100 text-indigo-700 text-sm px-3 py-1 rounded-full shadow-sm">
+            {doctor.specialty?.name || "Chưa có chuyên khoa"}
+          </p>
           <p className="text-gray-600 text-sm mt-2">{doctor.doctor_bio}</p>
         </div>
 
         <div className="mt-6 md:mt-0 md:flex-1">
           <h3 className="text-xl font-semibold mb-2 text-gray-800">Giới thiệu về bác sĩ</h3>
-          <p className="text-gray-600 leading-relaxed mb-4">
-            {doctor.specialty?.description || "Chưa có mô tả về chuyên khoa."}
-          </p>
+          <div
+            className="text-gray-600 leading-relaxed mb-4"
+            dangerouslySetInnerHTML={{
+              __html: doctor.specialty?.description || "<p>Chưa có mô tả về chuyên khoa.</p>",
+            }}
+          ></div>
 
           <div className="mt-4">
             <h4 className="text-lg font-semibold mb-2 text-gray-800">📄 Kinh nghiệm và CV</h4>
@@ -78,13 +87,20 @@ const ChiTietBacSi = () => {
                 {doctor.services.map((service, idx) => (
                   <div
                     key={idx}
-                    className="bg-indigo-50 p-4 rounded-lg shadow-md hover:shadow-lg transition"
+                    className="bg-indigo-50 p-4 rounded-lg shadow-md hover:shadow-lg transition flex flex-col justify-between h-full"
                   >
-                    <h5 className="text-xl font-semibold text-indigo-600">{service.services_name}</h5>
-                    <p className="text-gray-700 mt-2">{service.description}</p>
-                    <p className="text-gray-500 mt-2">Thời gian: {service.duration} phút</p>
-                    <p className="text-gray-700 mt-2">Giá: {service.price} VND</p>
-                    {/* Nút "Đặt lịch" cho dịch vụ */}
+                    <div>
+                      <h5
+                        className="text-xl font-semibold text-indigo-600"
+                        dangerouslySetInnerHTML={{ __html: service.services_name }}
+                      ></h5>
+                      <div
+                        className="text-gray-700 mt-2"
+                        dangerouslySetInnerHTML={{ __html: service.description }}
+                      ></div>
+                      <p className="text-gray-500 mt-2">Thời gian: {service.duration} phút</p>
+                      <p className="text-red-600 font-semibold mt-2">Giá: {formatPrice(service.price)}</p>
+                    </div>
                     <button
                       onClick={() => handleBookingClick(service.id)}
                       className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
