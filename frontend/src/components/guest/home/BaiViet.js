@@ -67,7 +67,6 @@ const BaiViet = () => {
 
   ))}
 </div>
-
     </div>
   );
 };

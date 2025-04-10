@@ -25,6 +25,8 @@ const Chatbot = ({ isOpen, toggleChat }) => {
     scrollToBottom();
   }, [messages]);
 
+  // In the handleSendMessage function, update the response handling:
+  
   const handleSendMessage = async () => {
     if (!input.trim()) return;
 
@@ -34,7 +36,6 @@ const Chatbot = ({ isOpen, toggleChat }) => {
     setIsTyping(true);
 
     try {
-      // Add timeout and better error handling
       const pythonResponse = await axios.post('http://localhost:5000/chat', {
         message: input
       }, {
@@ -44,37 +45,39 @@ const Chatbot = ({ isOpen, toggleChat }) => {
         }
       });
 
-      // Check if response exists and has data
-      if (!pythonResponse || !pythonResponse.data) {
-        throw new Error('Invalid response from server');
-      }
-
       const parsedResponse = typeof pythonResponse.data === 'string' 
         ? JSON.parse(pythonResponse.data) 
         : pythonResponse.data;
       
       if (parsedResponse.status === 'success') {
-        const specialties = parsedResponse.specialties || [];
-        let botResponse = "";
-
-        if (specialties.length > 0) {
-          botResponse = {
-            text: "Dựa vào triệu chứng của bạn, tôi đề xuất các chuyên khoa sau:",
-            sender: "bot",
-            specialties: specialties.map(specialty => ({
-              id: specialty.id,
-              name: specialty.name,
-              description: specialty.description || "Không có mô tả chi tiết."
-            }))
-          };
-        } else {
-          botResponse = {
-            text: "Tôi không tìm thấy chuyên khoa nào phù hợp với triệu chứng của bạn.",
+        // Handle location response
+        if (parsedResponse.type === 'location') {
+          setMessages(prev => [...prev, {
+            text: parsedResponse.message,
             sender: "bot"
-          };
+          }]);
+          setIsTyping(false);
+          return;
         }
 
-        setMessages(prev => [...prev, botResponse]);
+        // Handle specialty response
+        if (parsedResponse.specialties && parsedResponse.specialties.length > 0) {
+          setMessages(prev => [...prev, {
+            text: "Dựa vào triệu chứng của bạn, tôi đề xuất các chuyên khoa sau:",
+            sender: "bot",
+            specialties: parsedResponse.specialties.map(specialty => ({
+              id: specialty.id,
+              name: specialty.name,
+              image: specialty.image,
+              description: specialty.description || "Không có mô tả chi tiết."
+            }))
+          }]);
+        } else {
+          setMessages(prev => [...prev, {
+            text: "Tôi không tìm thấy chuyên khoa nào phù hợp với triệu chứng của bạn.",
+            sender: "bot"
+          }]);
+        }
       } else {
         setMessages(prev => [...prev, { 
           text: parsedResponse.message || "Xin lỗi, tôi không hiểu yêu cầu của bạn.", 
@@ -82,15 +85,15 @@ const Chatbot = ({ isOpen, toggleChat }) => {
         }]);
       }
     } catch (error) {
+      console.error("Error:", error);
       setMessages(prev => [...prev, { 
         text: "Xin lỗi, có lỗi xảy ra khi xử lý yêu cầu của bạn.", 
         sender: "bot" 
       }]);
-      console.error("Error:", error);
     } finally {
       setIsTyping(false);
     }
-  };
+};
 
   const renderMessage = (msg, index) => {
     if (msg.specialties) {
@@ -106,6 +109,11 @@ const Chatbot = ({ isOpen, toggleChat }) => {
                 >
                   <div className="font-medium text-gray-800 mb-2">{specialty.name}</div>
                   <div className="flex flex-col gap-2">
+                    <img
+                      src={specialty.image}
+                      alt={specialty.name}
+                      className="w-16 h-16 object-cover rounded-lg mb-2"
+                    />
                     <div className="text-sm text-gray-600">
                       {specialty.description}
                     </div>

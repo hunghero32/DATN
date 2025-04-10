@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "notifications": {
+      "$doctorId": {
+        ".read": true,
+        ".write": true,
+        ".indexOn": ["timestamp", "read"]
+      }
+    }
+  }
+}

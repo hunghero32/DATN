@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
@@ -54,5 +55,20 @@ class Post extends Model
         return $query->when($filters['category_id'] ?? null, fn($q, $id) => $q->where('category_id', $id))
             ->when($filters['status'] ?? null, fn($q, $status) => $q->where('status', $status))
             ->when($filters['published_at'] ?? null, fn($q, $date) => $q->whereDate('published_at', $date));
+    }
+    // Accessor để xử lý URL ảnh
+    public function getImageAttribute($value)
+    {
+        if (!$value) {
+            return $value; // Trả về null hoặc giá trị gốc nếu không có ảnh
+        }
+        if (str_starts_with($value, 'http')) {
+            return $value; // Trả về nguyên gốc nếu đã là URL tuyệt đối
+        }
+        try {
+            return Storage::disk('s3')->url($value); // Thử lấy URL từ S3
+        } catch (\Exception $e) {
+            return url('storage/' . $value); // Fallback về storage cục bộ nếu S3 thất bại
+        }
     }
 }

@@ -11,6 +11,7 @@ import MedicalRecordModal from "./MedicalRecordModal";
 import ExamResultModal from "./ExamResultModal";
 import { Form } from "react-bootstrap";
 import { FaSearch } from "react-icons/fa";
+import NotificationService from '../../../../services/NotificationService';
 
 const getAuthToken = () => localStorage.getItem("authToken");
 
@@ -47,6 +48,7 @@ const Appointment = () => {
     treatment: "",
     note: "",
   });
+  const [doctorInfo, setDoctorInfo] = useState(null);
 
   const navigate = useNavigate();
 
@@ -116,6 +118,14 @@ const Appointment = () => {
       toast.success(`${selectedAppointment.guest?.guest_name} đã được nhận thành công!`, {
         position: "top-right",
         autoClose: 3000,
+      });
+
+      // Gửi thông báo
+      await NotificationService.sendNotification(doctorInfo.id, {
+        type: 'booking_accepted',
+        title: 'Lịch hẹn được chấp nhận',
+        message: `Lịch hẹn với bệnh nhân ${selectedAppointment.guest?.guest_name} đã được chấp nhận`,
+        bookingId: selectedAppointment.id
       });
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi cập nhật trạng thái.";
