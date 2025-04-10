@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Client\InvoiceController;
 use App\Http\Controllers\Api\Client\PostController;
 use App\Http\Controllers\Api\Client\ServiceController;
 use App\Http\Controllers\Api\Client\SpecialtyController;
+use App\Http\Controllers\Api\Client\FeedbackController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Client\HomeController;
 use App\Http\Controllers\Api\Client\BookingController; // Update this line
@@ -36,7 +37,10 @@ Route::get('bai-viet/{slug}/{id}', [PostController::class, 'detailPost'])
 //*************** Lấy ra chi tiết bác sĩ ************/
 Route::get('/doctor/{id}', [DoctorController::class, 'detailDoctor']);
 
-
+Route::middleware('auth:sanctum')->group(function () {
+    //*************** Lấy danh sách feedback ************/
+    Route::apiResource('feedbacks', FeedbackController::class,);
+});
 Route::middleware('web')->group(function () {
 
     //*****************  Xử lí đặt lịch khám ******************/
