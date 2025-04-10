@@ -16,10 +16,11 @@ export const AuthProvider = ({ children }) => {
     return storedUser ? { ...JSON.parse(storedUser), isOnline: true } : null;
   });
 
-  const login = (userData) => {
+  const login = (userData, token) => {
     const userWithOnline = { ...userData, isOnline: true };
     setUser(userWithOnline);
     localStorage.setItem('user', JSON.stringify(userWithOnline));
+    localStorage.setItem('authToken', token);
   };
 
   const logout = () => {

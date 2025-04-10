@@ -245,7 +245,7 @@ body {
   background: #ffffff;
   box-shadow: 0 0 20px rgba(0,0,0,0.05);
   z-index: 1000;
-  transition: all 0.3s ease;
+  transition: left 0.3s ease;
 }
 
 .sidebar-header {
@@ -365,12 +365,12 @@ body {
   position: fixed;
   top: 0;
   right: 0;
-  left: 250px;
-  height: 45px;
-  background: white;
-  box-shadow: 0 0 20px rgba(0,0,0,0.05);
-  z-index: 999;
-  transition: all 0.3s ease;
+  left: 280px;
+  height: 70px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  z-index: 1001;
+  box-sizing: border-box;
 }
 
 .header-container {
@@ -422,13 +422,16 @@ body {
 
 /* Main content area */
 .main-content {
-  flex: 1;
-  margin-left: 250px;
-  padding: 65px 24px 24px;
+  margin-left: 280px;
+  padding-top: 70px;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-bottom: 24px;
+  width: calc(100% - 280px);
   min-height: 100vh;
-  width: calc(100% - 250px);
-  transition: all 0.3s ease;
+  box-sizing: border-box;
   background-color: #f8fafc;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 /* Card styles */
@@ -509,7 +512,7 @@ body {
   }
 
   .sidebar {
-    left: -250px;
+    left: -280px;
   }
 
   .sidebar.active {
@@ -528,18 +531,20 @@ body {
   }
 
   .sidebar.active ~ .header-wrapper {
-    left: 250px;
+    left: 280px;
+    width: calc(100% - 280px);
   }
 
   .sidebar.active ~ .main-content {
-    margin-left: 250px;
+    margin-left: 280px;
+    width: calc(100% - 280px);
   }
 
   .sidebar.active::after {
     content: '';
     position: fixed;
     top: 0;
-    left: 250px;
+    left: 280px;
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.3);
@@ -873,5 +878,96 @@ body {
   font-size: 12px; /* Giảm kích thước chữ thông báo lỗi */
   color: #f5222d; /* Đổi màu lỗi */
 }
+
+/* Đảm bảo các giá trị này tồn tại và đúng */
+
+/* Sidebar */
+.sidebar { /* Hoặc class tương ứng của bạn */
+  width: 280px; /* !!! CHIỀU RỘNG QUAN TRỌNG !!! */
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 1000; /* Sidebar có z-index thấp hơn Header */
+  /* ... các style khác của sidebar ... */
+}
+
+/* Header Wrapper (Thẻ bao bọc component Header) */
+.doctor-header-wrapper { /* Hoặc class tương ứng của bạn */
+  position: fixed; /* Hoặc absolute/relative tùy layout */
+  top: 0;
+  height: 70px; /* !!! CHIỀU CAO HEADER !!! */
+  left: 280px; /* !!! BẰNG CHIỀU RỘNG SIDEBAR !!! */
+  right: 0; /* Hoặc width: calc(100% - 280px); */
+  z-index: 1001; /* Header có z-index cao hơn Sidebar */
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  /* ... các style khác của header ... */
+}
+
+/* Main Content (Thẻ bao bọc DashBoard và các trang khác) */
+.main-content { /* Hoặc class tương ứng của bạn */
+  margin-left: 280px; /* !!! BẰNG CHIỀU RỘNG SIDEBAR !!! */
+  padding-top: 70px; /* !!! BẰNG CHIỀU CAO HEADER !!! */
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-bottom: 24px;
+  width: calc(100% - 280px); /* Đảm bảo nội dung không bị tràn */
+  min-height: calc(100vh - 70px);
+  box-sizing: border-box;
+  background-color: #f8fafc;
+  /* ... các style khác ... */
+}
+
+/* Responsive (Nếu có) */
+@media (max-width: 768px) {
+  .sidebar {
+    left: -280px; /* Ẩn đi */
+  }
+  .sidebar.active {
+    left: 0; /* Hiện ra */
+  }
+  .doctor-header-wrapper,
+  .main-content {
+    left: 0; /* Reset khi sidebar ẩn */
+    margin-left: 0;
+    width: 100%;
+  }
+  /* Cập nhật khi sidebar mở trên mobile (nếu layout thay đổi) */
+  .sidebar.active ~ .doctor-header-wrapper {
+     left: 280px;
+     width: calc(100% - 280px);
+  }
+   .sidebar.active ~ .main-content {
+     margin-left: 280px;
+     width: calc(100% - 280px);
+   }
+}
+
+/* === CSS Ép Vị Trí Popover Thông Báo === */
+/* Target class chúng ta đã thêm vào Popover */
+.notification-popover.ant-popover-placement-bottomRight {
+  /*
+   Di chuyển Popover sang TRÁI một khoảng lớn.
+   Giá trị này cần đủ lớn để bù cho:
+   1. Chiều rộng của Popover (~380px)
+   2. Khoảng cách từ lề phải màn hình tới icon chuông (thay đổi tùy kích thước màn hình)
+   3. Khoảng cách mong muốn giữa icon và popover (~15-20px)
+
+   Thử nghiệm với giá trị âm lớn, ví dụ -400px hoặc -450px.
+   Nếu Popover quá sát lề trái, giảm giá trị âm này.
+   Nếu Popover vẫn ở bên phải, tăng giá trị âm này.
+  */
+  transform: translateX(-440px) !important; /* Dịch sang TRÁI 440px - Điều chỉnh nếu cần */
+
+  /* Đảm bảo z-index cao */
+  z-index: 1050 !important;
+}
+
+/* Tùy chọn: Điều chỉnh vị trí mũi tên nếu dùng transform */
+/* .notification-popover.ant-popover-placement-bottomRight .ant-popover-arrow { */
+  /* Có thể cần điều chỉnh 'right' hoặc 'left' của mũi tên nếu nó bị lệch */
+  /* right: 10px !important; */
+/* } */
 
 

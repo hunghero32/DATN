@@ -50,9 +50,7 @@ const BaiViet = () => {
                   src={article.image || "https://via.placeholder.com/300x200"}
                   alt={article.title}
                   className="w-full h-48 object-cover"
-                  onError={(e) => {
-                    e.target.src = "https://via.placeholder.com/300x200";
-                  }}
+                  
                 />
               </div>
               <div className="p-4">

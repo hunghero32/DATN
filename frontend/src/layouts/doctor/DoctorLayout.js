@@ -12,22 +12,20 @@ import Invoices from "../../components/doctor/pages/Invoices/Invoices";
 import Posts from "../../components/doctor/pages/Post/Posts";
 import { ToastContainer } from 'react-toastify';
 import TestExamResult from "../../components/doctor/pages/ListAppointment/TestExamResult";
+import { useAuth } from "../../components/guest/auth/AuthContext";
 
 const DoctorLayout = () => {
-  const [showModal, setShowModal] = useState(false);
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
+    if (!user) {
       navigate("/login");
     }
     setLoading(false);
-  }, [navigate]);
+  }, [user, navigate]);
 
   if (loading) {
     return (
@@ -43,7 +41,7 @@ const DoctorLayout = () => {
     <div className="app-container">
       <ToastContainer />
       <SideBar />
-      <Header user={user} />
+      <Header />
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Dashboard />} />
