@@ -33,44 +33,40 @@ const BaiViet = () => {
   if (!articles.length) return <p className="text-center text-gray-500 text-xl py-8">Không có bài viết nào.</p>;
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 mb-4">
       <h2 className="text-3xl font-bold text-center text-blue-600 mt-4 mb-6">Danh Sách Bài Viết</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-4 mb-4 gap-6">
-        {articles.map((article) => (
-          <div
-            key={article.id}
-            className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-          >
-            <Link 
-            to={`/bai-viet/${article.slug}/${article.id}`}
-              className="block h-full"
-            >
-              <div className="aspect-w-16 aspect-h-9">
-                <img
-                  src={article.image || "https://via.placeholder.com/300x200"}
-                  alt={article.title}
-                  className="w-full h-48 object-cover"
-                  
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">
-                  {article.title}
-                </h3>
-                <div
-                  className="text-gray-600 mb-4 line-clamp-3 prose"
-                  dangerouslySetInnerHTML={{ 
-                    __html: article.content || "Không có mô tả" 
-                  }}
-                />
-                <span className="text-blue-600 hover:text-blue-700 transition inline-block">
-                  Xem thêm
-                </span>
-              </div>
-            </Link>
-          </div>
-        ))}
-      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  {articles.map((article) => (
+ <div className="bg-white shadow-lg rounded-2xl overflow-hidden flex flex-col hover:shadow-xl transition duration-300">
+ <Link to={`/bai-viet/${article.slug}/${article.id}`} className="flex flex-col h-full">
+   
+   {/* Ảnh bài viết */}
+   <div className="h-48 w-full overflow-hidden">
+     <img
+       src={article.image || "https://via.placeholder.com/400x300?text=No+Image"}
+       alt={article.title}
+       className="w-full h-full object-cover object-center"
+     />
+   </div>
+
+   {/* Nội dung */}
+   <div className="p-4 flex flex-col flex-1">
+     <h3 className="text-xl font-bold mb-2 text-gray-900 line-clamp-2">
+       {article.title}
+     </h3>
+     <div
+       className="text-gray-600 text-sm flex-1 mb-4 line-clamp-3"
+       dangerouslySetInnerHTML={{ __html: article.content || "Không có mô tả" }}
+     />
+     <span className="text-blue-600 hover:text-blue-700 transition mt-auto">
+       Xem thêm
+     </span>
+   </div>
+ </Link>
+</div>
+
+  ))}
+</div>
     </div>
   );
 };

@@ -31,7 +31,7 @@ const ClinicDetail = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-6 mb-4">
+    <div className="container mx-auto p-6 mt-4 mb-4">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-blue-600">Phòng Khám Đa Khoa Quốc Tế</h1>
         <p className="text-lg text-gray-500">
@@ -47,25 +47,38 @@ const ClinicDetail = () => {
 
         {/* Hiển thị danh sách bác sĩ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        {doctors.length > 0 ? (
-  doctors.map((doctor, index) => (
-    <Link
-      key={index}
-      to={`/chitietbacsi/${doctor.id}`} // 👉 Điều hướng đến trang chi tiết
-      className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center hover:shadow-lg transition"
-    >
-      <img
-        src={doctor.doctor_avatar || "https://via.placeholder.com/100"}
-        alt={doctor.doctor_name}
-        className="w-24 h-24 rounded-full mb-3 border-2 border-gray-300"
-      />
-      <h3 className="text-lg font-semibold">{doctor.doctor_name}</h3>
-      <p className="text-gray-500">{doctor.specialty?.name || "Chưa cập nhật"}</p>
-    </Link>
-  ))
-) : (
-  <p className="text-gray-500">Chưa có bác sĩ nào.</p>
-)}
+          {doctors.length > 0 ? (
+            doctors.map((doctor, index) => (
+              <Link
+                key={index}
+                to={`/chitietbacsi/${doctor.id}`}
+                className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center hover:shadow-lg transition min-h-[300px]"
+              >
+                <div className="w-32 h-32 rounded-full overflow-hidden mb-4 flex-shrink-0">
+                  <img
+                    src={doctor.doctor_avatar || "https://via.placeholder.com/150"}
+                    alt={doctor.doctor_name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="text-center w-full flex-grow flex flex-col justify-center">
+                  <div className="group relative">
+                    <h3 className="text-base font-semibold mb-2 h-12 overflow-hidden">
+                      <span className="block text-blue-700 hover:text-blue-800">
+                        {doctor.doctor_name}
+                      </span>
+                    </h3>
+                    <div className="opacity-0 group-hover:opacity-100 absolute z-10 bg-gray-800 text-white p-2 rounded-md left-1/2 transform -translate-x-1/2 transition-opacity duration-200 text-sm min-w-max">
+                      {doctor.doctor_name}
+                    </div>
+                  </div>
+                  <p className="text-gray-500 text-sm">{doctor.specialty?.name || "Chưa cập nhật"}</p>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <p className="text-gray-500">Chưa có bác sĩ nào.</p>
+          )}
         </div>
       </div>
     </div>

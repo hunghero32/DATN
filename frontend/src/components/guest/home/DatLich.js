@@ -206,7 +206,6 @@ const DatLich = () => {
                   src={bookingData.doctor_avatar}
                   alt={bookingData.doctor_name}
                   className="w-20 h-20 rounded-full object-cover"
-                  
                 />
               )}
               <div>
@@ -242,86 +241,81 @@ const DatLich = () => {
       </Card>
 
       <Card className="p-6 mt-6">
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            guest_name: "",
-            gender: "",
-            guest_phone: "",
-            guest_email: "",
-            birthday: "",
-            address: "",
-            reason: ""
-          }}
-          onFinish={onFinish}
-        >
-          <Form.Item name="guest_name" label="Họ và Tên" rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}>
-            <Input placeholder="Nhập họ và tên" />
-          </Form.Item>
+  <Form
+    form={form}
+    layout="vertical"
+    initialValues={{
+      guest_name: "",
+      gender: "",
+      guest_phone: "",
+      guest_email: "",
+      birthday: "",
+      address: "",
+      reason: ""
+    }}
+    onFinish={onFinish}
+    className="space-y-4"
+  >
+    <Form.Item name="guest_name" label="👤 Họ và Tên" rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}>
+      <Input size="large" placeholder="Nhập họ và tên" className="rounded-lg" />
+    </Form.Item>
 
-          <Form.Item name="gender" label="Giới tính" rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}>
-            <Radio.Group>
-              <Radio value="male" style={{ marginRight: "10px" }}>Nam</Radio>
-              <Radio value="female" style={{ marginRight: "10px" }}>Nữ</Radio>
-              <Radio value="other" style={{ marginRight: "10px" }}>Khác</Radio>
-            </Radio.Group>
-          </Form.Item>
+    <Form.Item name="gender" label="⚧ Giới tính" rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}>
+      <Radio.Group className="flex gap-4">
+        <Radio.Button value="male">Nam</Radio.Button>
+        <Radio.Button value="female">Nữ</Radio.Button>
+        <Radio.Button value="other">Khác</Radio.Button>
+      </Radio.Group>
+    </Form.Item>
 
-          <Form.Item name="guest_phone" label="Số Điện Thoại" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
-            <Input placeholder="Nhập số điện thoại" />
-          </Form.Item>
+    <Form.Item name="guest_phone" label="📞 Số Điện Thoại" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
+      <Input size="large" placeholder="Nhập số điện thoại" className="rounded-lg" />
+    </Form.Item>
 
-          <Form.Item name="guest_email" label="Email" rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ" }]}>
-            <Input placeholder="Nhập email" />
-          </Form.Item>
+    <Form.Item name="guest_email" label="📧 Email" rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ" }]}>
+      <Input size="large" placeholder="Nhập email" className="rounded-lg" />
+    </Form.Item>
 
-          <Form.Item name="birthday" label="Năm sinh" rules={[{ required: true, message: "Vui lòng nhập năm sinh" }]}>
-            <Input type="date" />
-          </Form.Item>
+    <Form.Item name="birthday" label="🎂 Ngày sinh" rules={[{ required: true, message: "Vui lòng nhập năm sinh" }]}>
+      <Input type="date" size="large" className="rounded-lg" />
+    </Form.Item>
+    <Form.Item name="address" label="🏠 Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
+      <Input.TextArea rows={2} placeholder="Nhập địa chỉ chi tiết" className="rounded-lg" />
+    </Form.Item>
+    <Divider />
+    <Text className="font-semibold text-green-700 text-base">
+      💳 Hình thức thanh toán: Thanh toán sau tại cơ sở y tế
+    </Text>
+    <Divider />
 
-          <Form.Item 
-            name="address" 
-            label="Địa chỉ" 
-            rules={[
-              { required: true, message: "Vui lòng nhập địa chỉ" },
-              {
-                validator: (_, value) => {
-                  if (!value) return Promise.resolve();
-                  const parts = value.split(',').map(item => item.trim()).filter(Boolean);
-                  if (parts.length < 2) {
-                    return Promise.reject('Vui lòng nhập đầy đủ địa chỉ (ít nhất 2 phần, phân cách bằng dấu phẩy)');
-                  }
-                  return Promise.resolve();
-                }
-              }
-            ]}
-            extra="Nhập địa chỉ chi tiết, phân cách bằng dấu phẩy (,). Ví dụ: 123 Đường ABC, Phường XYZ, Quận 1, TP.HCM"
-          >
-            <Input.TextArea 
-              placeholder="Nhập địa chỉ (phân cách bằng dấu phẩy)" 
-              autoSize={{ minRows: 2, maxRows: 4 }}
-            />
-          </Form.Item>
+    <Alert
+      message="Thông tin bạn nhập sẽ được sử dụng để đặt lịch. Vui lòng kiểm tra trước khi xác nhận."
+      type="info"
+      showIcon
+    />
 
-          <Divider />
-          <Text className="font-semibold">💳 Hình thức thanh toán: Thanh toán sau tại cơ sở y tế</Text>
-          <Divider />
+    <Form.Item>
+      <Button
+        type="primary"
+        htmlType="submit"
+        loading={loading}
+        block
+        size="large"
+        className="bg-blue-600 hover:bg-blue-700 border-none text-white rounded-lg font-semibold"
+      >
+        ✅ Xác nhận đặt lịch
+      </Button>
+    </Form.Item>
+  </Form>
+</Card>
 
-          <Alert message="Thông tin bạn nhập sẽ được sử dụng để đặt lịch. Vui lòng kiểm tra trước khi xác nhận." type="info" showIcon />
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block className="bg-blue-500 border-none text-white p-2 rounded-md">
-              ✅ Xác nhận đặt lịch
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
 
       {/* Bootstrap Modal for confirmation */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title className="bg-warning">Xác nhận đặt lịch</Modal.Title>
+        <Modal.Title className="bg-warning w-100 border border-dark text-center py-2 fw-bold">
+  Xác nhận đặt lịch
+</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>Bạn có chắc chắn muốn đặt lịch với thông tin sau?</p>

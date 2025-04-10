@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ChuotChay from "../../loadding/chuotchay";
 
 const PatientProfile = () => {
-  const navigate = useNavigate(); // Add this line at the beginning of the component
+  const navigate = useNavigate();
   const [patientData, setPatientData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,22 +19,21 @@ const PatientProfile = () => {
     password_confirmation: "",
   });
 
-  // 🟢 Lấy dữ liệu bệnh nhân khi component được tải
   useEffect(() => {
     const fetchPatientData = async () => {
       try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         if (!token) {
-          navigate('/login');
+          navigate("/login");
           return;
         }
 
         const response = await axios.get("http://localhost:8000/api/profile", {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
         });
 
         if (response.data && response.data.user) {
@@ -54,28 +53,27 @@ const PatientProfile = () => {
       } catch (error) {
         console.error("Error details:", error);
         if (error.response?.status === 401) {
-          localStorage.removeItem('authToken'); // Changed from 'token' to 'authToken'
-          navigate('/login');
+          localStorage.removeItem("authToken");
+          navigate("/login");
         } else {
           setError("Không thể tải dữ liệu bệnh nhân. Vui lòng thử lại sau.");
         }
       } finally {
-        setLoading(false);  
+        setLoading(false);
       }
     };
 
     fetchPatientData();
   }, [navigate]);
 
-  // Update handleUpdateProfile similarly
   const handleUpdateProfile = async () => {
     setUpdateStatus("loading");
     setError("");
 
     try {
-      const token = localStorage.getItem('authToken'); // Changed from 'token' to 'authToken'
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
@@ -94,21 +92,27 @@ const PatientProfile = () => {
         updateData.currentPassword = formData.currentPassword;
       }
 
-      console.log("Dữ liệu gửi lên API:", updateData);
-
-      const response = await axios.put("http://localhost:8000/api/profile", updateData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+      const response = await axios.put(
+        "http://localhost:8000/api/profile",
+        updateData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
         }
-      });
-      
-      console.log("Phản hồi từ API sau khi cập nhật:", response.data);
+      );
+
       setPatientData(response.data.user);
       setIsEditing(false);
       setUpdateStatus("success");
-      setFormData({ ...formData, currentPassword: "", password: "", password_confirmation: "" });
+      setFormData({
+        ...formData,
+        currentPassword: "",
+        password: "",
+        password_confirmation: "",
+      });
     } catch (error) {
       console.error("Lỗi API:", error.response?.data || error.message);
       if (error.response?.status === 422) {
@@ -122,140 +126,126 @@ const PatientProfile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  // Update the loading return statement
-  if (loading) return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center">
-      <ChuotChay />
-      <p className="mt-4 text-gray-600 text-lg">Đang tải dữ liệu...</p>
-    </div>
-  );
-  
-  if (error) return <p className="text-center text-red-500">{error}</p>;
+  if (loading)
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center">
+        <ChuotChay />
+        <p className="mt-4 text-gray-600 text-lg">Đang tải dữ liệu...</p>
+      </div>
+    );
+
+  if (error)
+    return <p className="text-center text-red-500 mt-10">{error}</p>;
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="text-center mb-8">
+    <div className="max-w-3xl mx-auto p-8">
+      <div className="text-center mt-4 mb-8">
         <h1 className="text-3xl font-bold text-blue-600">Hồ Sơ Bệnh Nhân</h1>
-        <p className="text-lg text-gray-500">Thông tin chi tiết về bệnh nhân và hồ sơ y tế.</p>
+        <p className="text-lg text-gray-500">
+          Thông tin cá nhân và bảo mật tài khoản.
+        </p>
       </div>
 
-      <div className="bg-white shadow-xl rounded-lg p-6 flex flex-col md:flex-row mb-6">
-        <div className="flex-none mb-6 md:mb-0 md:w-1/4">
-          <img
-            src={patientData?.avatar || "https://via.placeholder.com/150"}
-            alt={patientData?.name || "Avatar"}
-            className="w-32 h-32 rounded-full mx-auto border-4 border-blue-300"
-          />
-        </div>
-
-        <div className="md:ml-6 flex-1">
-          {isEditing ? (
-            <div className="space-y-4">
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Họ và tên"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Email"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="Số điện thoại"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="password"
-                name="currentPassword"
-                value={formData.currentPassword}
-                onChange={handleInputChange}
-                placeholder="Mật khẩu hiện tại (nếu muốn đổi)"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="Mật khẩu mới"
-                className="w-full p-2 border rounded"
-              />
-              <input
-                type="password"
-                name="password_confirmation"
-                value={formData.password_confirmation}
-                onChange={handleInputChange}
-                placeholder="Nhập lại mật khẩu mới"
-                className="w-full p-2 border rounded"
-              />
-              {/* Đặt nút lưu ở đây với thêm margin top để tạo khoảng cách */}
-              <div className="mt-4">
-                <button
-                  className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 block w-full sm:w-auto"
-                  onClick={handleUpdateProfile}
-                >
-                  Lưu
-                </button>
-                {/* <button
-                  className="bg-gray-400 text-white py-2 px-4 rounded hover:bg-gray-500 block w-full sm:w-auto mt-2"
-                  onClick={() => setIsEditing(false)}
-                >
-                  Hủy
-                </button> */}
+      <div className="bg-white shadow-xl rounded-2xl p-6 space-y-5">
+        {isEditing ? (
+          <div className="space-y-4">
+            {[
+              { label: "Họ và Tên", name: "name", type: "text" },
+              { label: "Email", name: "email", type: "email" },
+              { label: "Số Điện Thoại", name: "phone", type: "text" },
+              {
+                label: "Mật khẩu hiện tại",
+                name: "currentPassword",
+                type: "password",
+                placeholder: "Chỉ điền nếu muốn thay đổi mật khẩu",
+              },
+              {
+                label: "Mật khẩu mới",
+                name: "password",
+                type: "password",
+              },
+              {
+                label: "Xác nhận mật khẩu mới",
+                name: "password_confirmation",
+                type: "password",
+              },
+            ].map(({ label, name, type, placeholder }) => (
+              <div key={name}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {label}
+                </label>
+                <input
+                  type={type}
+                  name={name}
+                  value={formData[name]}
+                  onChange={handleInputChange}
+                  placeholder={placeholder || ""}
+                  className="w-full px-4 py-2 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
               </div>
-            </div>
-          ) : (
-            <div className="space-y-3 mt-4">
-              <p className="text-gray-600"><strong>Họ và tên:</strong> {patientData?.name}</p>
-              <p className="text-gray-600"><strong>Email:</strong> {patientData?.email}</p>
-              <p className="text-gray-600"><strong>Số điện thoại:</strong> {patientData?.phone}</p>
-              <button
-                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-                onClick={() => setIsEditing(true)}
-              >
-                Chỉnh sửa
-              </button>
-            </div>
-          )}
-        </div>
+            ))}
+
+<div className="mt-6 space-y-3">
+  <div>
+    <button
+      className="w-full bg-blue-600 mt-4 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+      onClick={handleUpdateProfile}
+    >
+      Lưu thay đổi
+    </button>
+  </div>
+  <div>
+    <button
+      className="w-full bg-gray-400 text-white px-6 mb-4 py-2 rounded-lg hover:bg-gray-500 transition duration-200"
+      onClick={() => setIsEditing(false)}
+    >
+      Hủy
+    </button>
+  </div>
+</div>
+
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-gray-700">
+              <strong>Họ và tên:</strong> {patientData?.name}
+            </p>
+            <p className="text-gray-700">
+              <strong>Email:</strong> {patientData?.email}
+            </p>
+            <p className="text-gray-700">
+              <strong>Số điện thoại:</strong> {patientData?.phone}
+            </p>
+            <button
+              className="mt-4 bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition"
+              onClick={() => setIsEditing(true)}
+            >
+              Chỉnh sửa
+            </button>
+          </div>
+        )}
       </div>
 
-      {updateStatus === "success" && <p className="text-center text-green-600">Cập nhật thành công!</p>}
-      {updateStatus === "error" && <p className="text-center text-red-600">{error}</p>}
+      {updateStatus === "success" && (
+        <p className="text-center text-green-600 mt-4">
+          Cập nhật thành công!
+        </p>
+      )}
+      {updateStatus === "error" && (
+        <p className="text-center text-red-600 mt-4">{error}</p>
+      )}
       {updateStatus === "loading" && (
-        <div className="fixed inset-0 flex flex-col items-center justify-center">
+        <div className="fixed inset-0 flex flex-col items-center justify-center bg-white bg-opacity-75 z-50">
           <ChuotChay />
           <p className="mt-4 text-gray-600 text-lg">Đang cập nhật...</p>
         </div>
       )}
-
-      <div className="text-center">
-        <a
-          href={patientData?.pdfFile || "#"}
-          className="bg-green-600 text-white py-2 px-6 rounded-full hover:bg-green-700 transition"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Tải hồ sơ PDF
-        </a>
-      </div>
     </div>
   );
 };

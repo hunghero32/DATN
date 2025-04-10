@@ -42,7 +42,7 @@ const TopBookedServices = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-8">
+      <div className="flex flex-col items-center justify-center text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800">Dịch Vụ Nổi Bật</h2>
         <p className="text-gray-600 mt-2">Các dịch vụ được đặt nhiều nhất tại phòng khám</p>
       </div>
@@ -63,25 +63,24 @@ const TopBookedServices = () => {
           {services.length > 0 ? (
             services.map((service) => (
               <SwiperSlide key={service.id}>
-              <div
-                className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer w-full flex flex-col h-[250px]"
-                onClick={() => handleServiceClick(service)}
-              >
-                <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.services_name}</h3>
-                  <div className="flex justify-between items-center text-gray-600 mt-auto">
-                    <span className="flex items-center">
-                      <i className="fas fa-calendar-check mr-2"></i>
-                      {service.bookings_count || 0} Lượt đặt
-                    </span>
-                    <span className="font-medium text-blue-600">
-                      {service.price ? service.price.toLocaleString() + " VNĐ" : "Liên hệ"}
-                    </span>
+                <div
+                  className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer w-full h-[320px] flex flex-col"
+                  onClick={() => handleServiceClick(service)}
+                >
+                  <div className="p-4 flex flex-col flex-grow">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.services_name}</h3>
+                    <div className="flex justify-between items-center text-gray-600 mt-auto">
+                      <span className="flex items-center">
+                        <i className="fas fa-calendar-check mr-2"></i>
+                        {service.bookings_count || 0} Lượt đặt
+                      </span>
+                      <span className="font-medium text-blue-600">
+                        {service.price ? service.price.toLocaleString() + " VNĐ" : "Liên hệ"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </SwiperSlide>
-            
+              </SwiperSlide>
             ))
           ) : (
             <p className="text-gray-500 text-center">Không có dịch vụ nào.</p>
@@ -91,12 +90,15 @@ const TopBookedServices = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {services.length > 0 ? (
             services.map((service) => (
-              <div key={service.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer flex flex-col h-full"
-                onClick={() => handleServiceClick(service)}>
+              <div
+                key={service.id}
+                className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer flex flex-col h-[320px]"
+                onClick={() => handleServiceClick(service)}
+              >
                 <img
                   src={service.image || "https://via.placeholder.com/300x200"}
                   alt={service.services_name}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-40 object-cover"
                 />
                 <div className="p-4 flex flex-col flex-grow">
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.services_name}</h3>
@@ -122,13 +124,13 @@ const TopBookedServices = () => {
         <button
           onClick={() => setShowAll(!showAll)}
           style={{
-            borderRadius: '30px',
-            padding: '16px 40px',
+            borderRadius: "30px",
+            padding: "16px 40px",
           }}
           className="bg-blue-600 mt-4 text-white hover:bg-blue-700 transition-colors duration-300 inline-flex items-center text-lg font-semibold"
         >
           {showAll ? "Thu gọn" : "Xem tất cả dịch vụ"}
-          <i className={`fas fa-chevron-${showAll ? 'up' : 'down'} ml-2`}></i>
+          <i className={`fas fa-chevron-${showAll ? "up" : "down"} ml-2`}></i>
         </button>
       </div>
     </div>
