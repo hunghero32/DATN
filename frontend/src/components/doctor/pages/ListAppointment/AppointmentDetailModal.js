@@ -8,6 +8,7 @@ const AppointmentDetailModal = ({
   handleReacceptAppointment,
   handleDeleteAppointment,
   handleTransferAppointment,
+  handleCompleteAppointment,
 }) => {
   if (!selectedAppointment) {
     return (
@@ -288,7 +289,12 @@ const AppointmentDetailModal = ({
             <Button
               variant="success"
               className="me-2"
-              onClick={() => handleTransferAppointment(selectedAppointment)}
+              onClick={() => {
+                if (selectedAppointment) {
+                  handleCompleteAppointment(selectedAppointment);
+                  onHide();
+                }
+              }}
             >
               Hoàn thành
             </Button>

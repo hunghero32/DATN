@@ -8,7 +8,7 @@ import DoctorProfile from "../../components/doctor/pages/DoctorProfile/DoctorPro
 import UserProfile from "../../components/doctor/pages/UserProfile/UserProfile";
 import Appointment from "../../components/doctor/pages/ListAppointment/Appointment";
 import DoctorServices from "../../components/doctor/pages/Services/DoctorServices";
-import Invoices from "../../components/doctor/pages/Invoices/Invoices";
+import Results from "../../components/doctor/pages/Results/Results";
 import Posts from "../../components/doctor/pages/Post/Posts";
 import { ToastContainer } from 'react-toastify';
 import TestExamResult from "../../components/doctor/pages/ListAppointment/TestExamResult";
@@ -23,13 +23,16 @@ const DoctorLayout = () => {
   useEffect(() => {
     if (!user) {
       navigate("/login");
+    } else if (user.role !== 'doctor') {
+        console.warn("User is not a doctor. Redirecting...");
+        // navigate("/"); // Or appropriate redirect
     }
     setLoading(false);
   }, [user, navigate]);
 
   if (loading) {
     return (
-      <div className="loading-screen">
+      <div className="loading-screen d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Đang tải...</span>
         </div>
@@ -39,7 +42,7 @@ const DoctorLayout = () => {
   
   return (
     <div className="app-container">
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={3000} />
       <SideBar />
       <Header />
       <main className="main-content">
@@ -51,9 +54,9 @@ const DoctorLayout = () => {
           />
           <Route path="/appointment" element={<Appointment />} />
           <Route path="/doctor-profile" element={<DoctorProfile />} />
-          <Route path="/schedule" element={<ListSchedule />} /> 
-          <Route path="/invoices" element={<Invoices />} />   
-          <Route path="/posts" element={<Posts />} />  
+          <Route path="/schedule" element={<ListSchedule />} />
+          <Route path="/results" element={<Results />} />
+          <Route path="/posts" element={<Posts />} />
           <Route path="/profile" element={<DoctorProfile />} />
           <Route path="/profile/edit" element={<DoctorProfile isEditing={true} />} />
           <Route path="/profileUser" element={<UserProfile />} />
