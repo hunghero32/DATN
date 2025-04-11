@@ -7,6 +7,7 @@
         ['name' => 'price', 'label' => '* Giá', 'type' => 'number', 'attributes' => ['step' => '1000']],
         ['name' => 'duration', 'label' => '* Thời gian thực hiện (phút)', 'type' => 'number'],
         ['name'=>'image','label'=>'Ảnh','type'=>'file'],
+        ['name' => 'status', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [1 => 'Hiển thị', 0 => 'Ẩn']],
         ['name' => 'description', 'label' => 'Mô tả', 'type' => 'textarea'],
     ]"
     :data="$data"
