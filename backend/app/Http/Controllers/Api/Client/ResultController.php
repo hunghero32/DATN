@@ -5,27 +5,26 @@ namespace App\Http\Controllers\Api\Client;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Result;
-use Illuminate\Support\Facades\Session;
+use App\Models\Guest;
 
 class ResultController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum');
+    }
+
     public function result()
     {
         try {
-            // Get guest information from session
-            $lastBooking = Session::get('last_booking_guest');
+            // Get authenticated user's ID
+            $userId = auth()->id();
 
-            if (!$lastBooking) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Guest information not found'
-                ], 404);
-            }
-
-            $guest_id = $lastBooking['guest_id'];
-
+            // Get all results for guests associated with this user
             $results = Result::with(['booking', 'doctor', 'guest'])
-                ->where('guest_id', $guest_id)
+                ->whereHas('guest', function($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
                 ->where('isDeleted', 0)
                 ->get()
                 ->map(function ($result) {
@@ -51,16 +50,23 @@ class ResultController extends Controller
                     ];
                 });
 
+            if ($results->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy kết quả khám bệnh'
+                ], 404);
+            }
+
             return response()->json([
                 'status' => true,
-                'message' => 'Medical results retrieved successfully',
+                'message' => 'Lấy kết quả khám bệnh thành công',
                 'data' => $results
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,
-                'message' => 'Error retrieving medical results: ' . $e->getMessage()
+                'message' => 'Lỗi khi lấy kết quả khám bệnh: ' . $e->getMessage()
             ], 500);
         }
     }

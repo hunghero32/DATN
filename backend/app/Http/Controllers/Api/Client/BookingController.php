@@ -138,8 +138,8 @@ class BookingController extends Controller
             'gender' => 'required|in:male,female,other',
             'birthday' => 'required|date',
             'guest_phone' => 'required|string|max:20',
-            'guest_email' => 'required|email',
-            'address' => 'required|array',
+            'guest_email' => 'nullable|email',
+            'address' => 'nullable|array',
             'notes' => 'nullable|string'
         ]);
 
