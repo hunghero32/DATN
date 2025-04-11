@@ -8,13 +8,14 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Category;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 
 class PostController  extends Controller
 {
     public function index(Request $request)
     {
-        $query = Post::query()->with('category', 'user');
+        $query = Post::query()->with('category', 'user')->latest();
 
         // Tìm kiếm theo tiêu đề, nội dung, tác giả
         if ($request->filled('search')) {
@@ -69,6 +70,14 @@ class PostController  extends Controller
     public function store(StorePostRequest $rep)
     {
         $data = $rep->validated(); // Lấy dữ liệu đã validate
+      
+        if ($rep->hasFile('image')) {
+            $data['image'] = $rep->file('image')->store('uploads', 'public'); // Chỉ lưu "uploads/filename.jpg"
+        }
+        if (empty($data['published_at'])) {
+            $data['published_at'] = now();
+        }
+
 
         Post::create($data);
 
@@ -107,8 +116,9 @@ class PostController  extends Controller
     }
     public function update($id, Request $rep)
     {
-
         $post = Post::find($id);
+
+        // Lấy dữ liệu đầu vào
         $data = [
             'title' => $rep->title,
             'content' => $rep->content,
@@ -116,11 +126,22 @@ class PostController  extends Controller
             'user_id' => $rep->user_id,
             'status' => $rep->status,
             'slug' => $rep->slug,
-
-
-
         ];
+
+        // Kiểm tra xem có ảnh mới không
+        if ($rep->hasFile('image')) {
+            // Xóa ảnh cũ nếu có
+            if ($post->image) {
+                Storage::delete('public/' . $post->image);
+            }
+
+            // Lưu ảnh mới vào thư mục 'uploads' trong storage
+            $data['image'] = $rep->file('image')->store('uploads', 'public');
+        }
+
+        // Cập nhật bài viết
         $post->update($data);
-        return redirect()->route('admin.posts.index');
+
+        return redirect()->route('admin.posts.index')->with('success', 'Bài viết đã được cập nhật thành công.');
     }
 }
