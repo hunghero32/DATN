@@ -416,7 +416,7 @@ const Header = () => {
           }
           .custom-popover-body .ant-list-item {
              padding: 0 !important; /* Ghi đè padding của Ant List Item */
-             cursor: pointer;
+            cursor: pointer;
              transition: background-color 0.2s ease;
           }
            .custom-popover-body .ant-list-item:hover {
@@ -424,8 +424,8 @@ const Header = () => {
           }
           .custom-popover-body .notification-item-content { /* Class bọc nội dung item */
              padding: 12px 16px;
-             display: flex;
-             align-items: center;
+            display: flex;
+            align-items: center;
              width: 100%;
           }
            /* ... các style khác cho list item, timestamp ... */

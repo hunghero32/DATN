@@ -45,6 +45,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
 
@@ -62,5 +63,14 @@ class User extends Authenticatable
     public function isGuest()
     {
         return $this->role === 'guest';
+    }
+
+    /**
+     * Lấy bản ghi Doctor liên kết với User (nếu user là doctor).
+     * Giả định mối quan hệ là One-to-One: một User chỉ liên kết với một Doctor.
+     */
+    public function doctor()
+    {
+        return $this->hasOne(Doctor::class, 'user_id', 'id');
     }
 }
