@@ -5,7 +5,8 @@ use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\DoctorServiceController;
 use App\Http\Controllers\Admin\SchedulesController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-
+use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\Auth\AdminProfileController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\UserController;
@@ -38,8 +39,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::prefix('admin')->group(function () {
+    Route::get('login', [AdminAuthController::class, 'create'])->name('admin.login');
+    Route::post('login', [AdminAuthController::class, 'login'])->name('admin.login.post');
+});
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::post('logout', [AdminAuthController::class, 'destroy'])->name('admin.logout');
+    Route::get('/profile', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
+    Route::patch('/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+    Route::patch('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.password.update');
     ////****************   Start  Dashboard  **************////
     Route::get("dashboard", function () {
         return view('admin.pages.dashboard');
@@ -179,13 +187,13 @@ Route::prefix('admin')->group(function () {
     //route::get('systems-create', [SystemController::class, 'create'])->name('admin.systems.create');
     //route::post('systems-store', [SystemController::class, 'store'])->name('admin.systems.store');
     //route::delete('systems-delete/{id}', [SystemController::class, 'delete'])->name('admin.systems.delete');
-    Route::get('systems-edit/{id}', [SystemController::class, 'edit'])->name('admin.systems.edit');
-    Route::put('systems-update/{id}', [SystemController::class, 'update'])->name('admin.systems.update');
-
-
-
-
-
+        // Cập nhật cấu hình hệ thống
+        Route::get('systems/edit', [SystemController::class, 'edit'])->name('admin.systems.edit');
+        Route::put('systems/update', [SystemController::class, 'update'])->name('admin.systems.update');
+    
+        // Cập nhật banner
+        Route::get('systems/banner', [SystemController::class, 'editBanner'])->name('admin.systems.editBanner');
+        Route::post('systems/banner', [SystemController::class, 'updateBanner'])->name('admin.systems.updateBanner');
 
 
     Route::get('invoices', [InvoiceController::class, 'index'])->name('admin.invoices.index');
@@ -219,7 +227,7 @@ Route::prefix('admin')->group(function () {
 
     Route::get('/report', [ReportController::class, 'index'])->name('admin.report.index');
     Route::get('/report/export', [ReportController::class, 'export'])->name('admin.report.export');
-    
+
     Route::get('doctor-service', [DoctorServiceController::class, 'index'])->name('admin.doctor_service.index');
     Route::get('doctor-service/create', [DoctorServiceController::class, 'create'])->name('admin.doctor_service.create');
     Route::post('doctor-service', [DoctorServiceController::class, 'store'])->name('admin.doctor_service.store');
