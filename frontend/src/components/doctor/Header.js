@@ -2,9 +2,9 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../guest/auth/AuthContext";
 import axios from "axios";
-import { Badge, notification, List, Avatar, Spin, Empty, Button } from 'antd';
-import { BellOutlined, CheckCircleOutlined, CloseOutlined } from '@ant-design/icons';
-import { ref, onValue, update, off } from 'firebase/database';
+import { Badge, notification, List, Avatar, Spin, Empty, Button, Popconfirm } from 'antd';
+import { BellOutlined, CheckCircleOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons';
+import { ref, onValue, update, off, remove } from 'firebase/database';
 import { database } from '../../config/firebase';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import vi from 'date-fns/locale/vi';
@@ -88,9 +88,10 @@ const Header = () => {
             // --- Hiển thị popup cho thông báo MỚI NHẤT và CHƯA ĐỌC ---
             const latestNotification = notificationsArray[0];
 
+            /* // <<<<< BẮT ĐẦU CHÚ THÍCH KHỐI notification.info >>>>>
             if (latestNotification && !latestNotification.read) {
                const timeSinceNotification = Date.now() - latestNotification.timestamp;
-               if (timeSinceNotification < 60000 * 1) { 
+               if (timeSinceNotification < 60000 * 1) {
 
                  notification.info({
                     key: `new-${latestNotification.id}`,
@@ -110,6 +111,8 @@ const Header = () => {
                  console.log('🔔 Displaying toast notification for:', latestNotification.id);
                }
             }
+            */ // <<<<< KẾT THÚC CHÚ THÍCH KHỐI notification.info >>>>>
+
           } else {
             setNotifications([]);
             setUnreadCount(0);
@@ -174,6 +177,30 @@ const Header = () => {
       }
     }, 300);
   }, [doctorInfo?.doctor_id, navigate]);
+
+  // --- Xử lý xóa thông báo ---
+  const handleDeleteNotification = useCallback(async (notificationId, e) => {
+    if (e) e.stopPropagation(); // Ngăn chặn sự kiện click lan ra
+    console.log('🗑️ Attempting to delete notification:', notificationId);
+    if (!doctorInfo?.doctor_id) {
+        console.error("Doctor ID is missing, cannot delete notification.");
+        return;
+    }
+    try {
+        const notificationRef = ref(database, `notifications/${doctorInfo.doctor_id}/${notificationId}`);
+        await remove(notificationRef);
+        console.log('🗑️ Notification deleted successfully:', notificationId);
+        // Popover có thể tự đóng hoặc không tùy vào luồng UX, ở đây ta để nó mở
+        // Nếu muốn đóng, gọi setPopoverVisible(false);
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+        notification.error({
+            message: 'Lỗi',
+            description: 'Không thể xóa thông báo. Vui lòng thử lại.',
+            placement: 'topRight',
+        });
+    }
+  }, [doctorInfo?.doctor_id]);
 
   // --- Đóng popover thủ công ---
   const closePopover = () => {
@@ -274,7 +301,7 @@ const Header = () => {
                   handleNotificationClick(item, e);
                 }}
               >
-                <div className="notification-item-content" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', width: '100%' }}>
+                <div className="notification-item-content" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', width: '100%', position: 'relative' }}>
                     <List.Item.Meta
                       avatar={
                         <Avatar
@@ -301,9 +328,28 @@ const Header = () => {
                       }
                       style={{ flexGrow: 1, margin: 0, marginRight: '10px', overflow: 'hidden' }}
                     />
-                    <div className="notification-timestamp" style={{ fontSize: '11px', color: '#8c8c8c', textAlign: 'right', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                    <div className="notification-timestamp" style={{ fontSize: '11px', color: '#8c8c8c', textAlign: 'right', flexShrink: 0, whiteSpace: 'nowrap', marginRight: '8px' }}>
                       {item.timestamp ? formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi }) : ''}
                     </div>
+                    {/* Nút Xóa Thông Báo */}
+                    <Popconfirm
+                      title="Xóa thông báo này?"
+                      onConfirm={(e) => handleDeleteNotification(item.id, e)}
+                      onCancel={(e) => e.stopPropagation()} // Ngăn đóng popover khi hủy
+                      okText="Xóa"
+                      cancelText="Hủy"
+                      placement="left"
+                    >
+                      <Button
+                        icon={<DeleteOutlined />}
+                        type="text"
+                        size="small"
+                        danger
+                        onClick={(e) => e.stopPropagation()} // Ngăn click vào item khi bấm nút xóa
+                        style={{ color: '#ff4d4f', border: 'none', background: 'none', padding: '0 4px', flexShrink: 0 }}
+                        aria-label="Xóa thông báo"
+                      />
+                    </Popconfirm>
                 </div>
               </List.Item>
             )}
@@ -427,6 +473,7 @@ const Header = () => {
             display: flex;
             align-items: center;
              width: 100%;
+             position: relative; /* Để định vị nút xóa nếu cần */
           }
            /* ... các style khác cho list item, timestamp ... */
            .notification-timestamp {
@@ -435,6 +482,17 @@ const Header = () => {
              margin-left: 12px;
              flex-shrink: 0;
              white-space: nowrap;
+          }
+          /* Style cho nút xóa */
+          .ant-list-item .ant-btn-text[aria-label="Xóa thông báo"] {
+              opacity: 0.6; /* Mặc định hơi mờ */
+              transition: opacity 0.2s ease;
+          }
+          .ant-list-item:hover .ant-btn-text[aria-label="Xóa thông báo"] {
+              opacity: 1; /* Hiện rõ khi hover vào list item */
+          }
+          .ant-list-item .ant-btn-text[aria-label="Xóa thông báo"]:hover {
+             background-color: rgba(255, 77, 79, 0.1) !important; /* Thêm highlight nhẹ khi hover nút */
           }
           .custom-popover-body.loading,
           .custom-popover-body.empty {

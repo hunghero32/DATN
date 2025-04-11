@@ -318,15 +318,6 @@ export default function Header() {
                 </div>
               </div>
 
-              {token && (
-                <div className="relative">
-                  <button className="relative flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition">
-                    <i className="ri-notification-3-line text-xl text-gray-700"></i>
-                    {hasNotifications && (
-                      <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white"></span>
-                    )}
-                  </button>
-                </div>
               {/* === NÚT CHUÔNG THÔNG BÁO CLIENT === */}
               {token && user && user.role !== 'doctor' && user.role !== 'admin' && (
                  <div
@@ -373,30 +364,6 @@ export default function Header() {
 
                   {/* Dropdown User Menu */}
                   {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white border rounded-lg shadow-lg z-50">
-                      <div className="py-1">
-                        <Link to="/patientProfile" className="flex items-center px-4 py-2 hover:bg-gray-100 !text-blue-600">
-                          <i className="ri-user-line w-5"></i> Thông tin cá nhân
-                        </Link>
-                        <Link to="/lichhen" className="flex items-center px-4 py-2 hover:bg-gray-100 !text-blue-600">
-                          <i className="ri-calendar-line w-5"></i> Lịch hẹn
-                        </Link>
-                        {appointments.map((appointment) => appointment.status === "completed" && (
-                          <div key={appointment.id}>
-                            <div className="border-t border-gray-100"></div>
-                            <Link to={`/hoadon/${appointment.id}`} className="flex items-center px-4 py-2 hover:bg-gray-100 !text-blue-600">
-                              <i className="ri-file-text-line w-5"></i> Xem Hóa Đơn
-                            </Link>
-                            <Link to="/danhgia" className="flex items-center px-4 py-2 hover:bg-gray-100 !text-blue-600">
-                              <i className="ri-star-line w-5"></i> Đánh giá
-                            </Link>
-                          </div>
-                        ))}
-                        <div className="border-t border-gray-100"></div>
-                        <button onClick={thoatTrang} className="flex items-center w-full px-4 py-2 hover:bg-gray-100 text-red-500">
-                          <i className="ri-logout-box-r-line w-5"></i> Đăng xuất
-                        </button>
-                      </div>
                     <div
                       ref={userMenuDropdownRef}
                       id="user-menu-dropdown"
