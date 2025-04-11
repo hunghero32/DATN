@@ -1,125 +1,84 @@
 <?php
 
-use App\Http\Controllers\Admin\DoctorController;
-
-use App\Http\Controllers\Admin\DoctorServiceController;
-use App\Http\Controllers\Admin\SchedulesController;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\AdminProfileController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\PostController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\BookingController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\MedicalRecordController;
-use App\Http\Controllers\Admin\ServiceController;
-use App\Http\Controllers\Admin\GuestController;
-use App\Http\Controllers\Admin\InvoiceController;
-use App\Http\Controllers\Admin\InvoiceDetailController;
-use App\Http\Controllers\Admin\FeedbackController;
-use App\Http\Controllers\Admin\NotificationController;
-use App\Http\Controllers\Admin\SystemController;
-use App\Http\Controllers\Admin\SpecialtyController;
-use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\{
+    BookingController,
+    CategoryController,
+    DashboardController,
+    DoctorController,
+    DoctorServiceController,
+    FeedbackController,
+    GuestController,
+    InvoiceController,
+    InvoiceDetailController,
+    MedicalRecordController,
+    NotificationController,
+    PostController,
+    ReportController,
+    SchedulesController,
+    ServiceController,
+    SpecialtyController,
+    SystemController,
+    UserController
+};
 use App\Http\Controllers\DoctorSpecialtyController;
-use App\Http\Controllers\LogController;
-use App\Http\Controllers\ProfileController;
-
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
 Route::prefix('admin')->group(function () {
     Route::get('login', [AdminAuthController::class, 'create'])->name('admin.login');
     Route::post('login', [AdminAuthController::class, 'login'])->name('admin.login.post');
 });
+
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    // Auth & Profile
     Route::post('logout', [AdminAuthController::class, 'destroy'])->name('admin.logout');
-    Route::get('/profile', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
-    Route::patch('/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
-    Route::patch('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.password.update');
-    ////****************   Start  Dashboard  **************////
-    Route::get("dashboard", function () {
-        return view('admin.pages.dashboard');
-    })->name('admin.dashboard');
+    Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
+    Route::patch('profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+    Route::patch('profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.password.update');
 
-    /////****************   End  Dashboard  **************/////
+    // Dashboard
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-
-    ////****************   Start  Doctors  **************////
-    // Danh sách bác sĩ
+    // Doctors
     Route::get('doctors', [DoctorController::class, 'index'])->name('admin.doctors.index');
     Route::get('doctors-searh', [DoctorController::class, 'search'])->name('admin.doctors.search');
-
-    // Thêm bác sĩ
     Route::get('doctors-create', [DoctorController::class, 'create'])->name('admin.doctors.create');
     Route::post('save-doctors-create', [DoctorController::class, 'store'])->name('admin.doctors.store');
-
-    // Sửa bác sĩ
     Route::get('doctors-{doctor}/edit', [DoctorController::class, 'edit'])->name('admin.doctors.edit');
     Route::put('doctors-{doctor}', [DoctorController::class, 'update'])->name('admin.doctors.update');
-
-    // Xóa bác sĩ
-
     Route::delete('delete-doctor/{id}', [DoctorController::class, 'destroy'])->name('admin.doctors.delete');
     Route::patch('doctors/{id}/status', [DoctorController::class, 'updateStatus'])->name('admin.doctors.update-status');
 
-
-
-    ////*****************     End Doctors    *******************////
-
-
-
-    ////*****************     Start Schedule    *******************////
-    Route::get("doctor-schedule", [SchedulesController::class, 'index'])->name('admin.schedule.index');
-    Route::get("doctor-schedule-create", [SchedulesController::class, 'create'])->name('admin.schedule.create');
-    Route::post("doctor-schedule-save", [SchedulesController::class, 'store'])->name('admin.schedule.store');
-    Route::get("doctor-schedule-{schedule}/edit", [SchedulesController::class, 'edit'])->name('admin.schedule.edit');
-    Route::put("doctor-schedule-{schedule}", [SchedulesController::class, 'update'])->name('admin.schedule.update');
-    Route::delete("doctor-schedule-{schedule}", [SchedulesController::class, 'destroy'])->name('admin.schedule.delete');
-    Route::get("doctor-schedule-search", [SchedulesController::class, 'search'])->name('admin.schedule.search');
+    // Doctor Schedule
+    Route::get('doctor-schedule', [SchedulesController::class, 'index'])->name('admin.schedule.index');
+    Route::get('doctor-schedule-create', [SchedulesController::class, 'create'])->name('admin.schedule.create');
+    Route::post('doctor-schedule-save', [SchedulesController::class, 'store'])->name('admin.schedule.store');
+    Route::get('doctor-schedule-{schedule}/edit', [SchedulesController::class, 'edit'])->name('admin.schedule.edit');
+    Route::put('doctor-schedule-{schedule}', [SchedulesController::class, 'update'])->name('admin.schedule.update');
+    Route::delete('doctor-schedule-{schedule}', [SchedulesController::class, 'destroy'])->name('admin.schedule.delete');
+    Route::get('doctor-schedule-search', [SchedulesController::class, 'search'])->name('admin.schedule.search');
     Route::patch('doctor-schedule-{id}/status', [SchedulesController::class, 'updateStatus'])->name('admin.schedule.update-status');
 
+    // Medical Records & Notifications
+    Route::resource('medical_records', MedicalRecordController::class)->names('admin.medical_records');
+    Route::resource('notifications', NotificationController::class)->names('admin.notifications');
 
-
-
-    ////*****************     End Schedule    *******************////
-
-
-
-    Route::name('admin.')->group(function () {
-        Route::resource('medical_records', MedicalRecordController::class);
-    });
-
-    Route::name('admin.')->group(function () {
-        Route::resource('notifications', NotificationController::class);
-    });
-
-
-    ////*****************     Start Bookings    *******************////
-    Route::get("bookings", [BookingController::class, 'index'])->name('admin.bookings.index');
-    Route::get("bookings-create", [BookingController::class, 'create'])->name('admin.bookings.create');
-    Route::put("bookings-{booking}", [BookingController::class, 'update'])->name('admin.bookings.update');
-    Route::delete("bookings-{booking}", [BookingController::class, 'destroy'])->name('admin.bookings.delete');
-    Route::get("bookings-search", [BookingController::class, 'search'])->name('admin.bookings.search');
+    // Bookings
+    Route::get('bookings', [BookingController::class, 'index'])->name('admin.bookings.index');
+    Route::get('bookings-create', [BookingController::class, 'create'])->name('admin.bookings.create');
+    Route::put('bookings-{booking}', [BookingController::class, 'update'])->name('admin.bookings.update');
+    Route::delete('bookings-{booking}', [BookingController::class, 'destroy'])->name('admin.bookings.delete');
+    Route::get('bookings-search', [BookingController::class, 'search'])->name('admin.bookings.search');
     Route::patch('bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
 
-
-    ////*****************     End Bookings    *******************////
-
-
-    ////*****************     Start Services    *******************////
-
+    // Services
     Route::get('services', [ServiceController::class, 'index'])->name('admin.services.index');
     Route::get('services-create', [ServiceController::class, 'create'])->name('admin.services.create');
     Route::post('services', [ServiceController::class, 'store'])->name('admin.services.store');
@@ -129,73 +88,48 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('services-search', [ServiceController::class, 'search'])->name('admin.services.search');
     Route::patch('services/{id}/status', [ServiceController::class, 'updateStatus'])->name('admin.services.update-status');
 
-    ////*****************     End Services    *******************////
-
-    ////****************   Start  Categories  **************////
+    // Categories
     Route::get('categories', [CategoryController::class, 'index'])->name('admin.categories.index');
     Route::get('categories/create', [CategoryController::class, 'create'])->name('admin.categories.create');
     Route::post('categories', [CategoryController::class, 'store'])->name('admin.categories.store');
     Route::get('categories/edit/{id}', [CategoryController::class, 'edit'])->name('admin.categories.edit');
     Route::put('categories/update/{id}', [CategoryController::class, 'update'])->name('admin.categories.update');
     Route::delete('doctors/{id}', [CategoryController::class, 'delete'])->name('admin.categories.delete');
-    Route::get('/categories/search', [CategoryController::class, 'search'])->name('admin.categories.search');
+    Route::get('categories/search', [CategoryController::class, 'search'])->name('admin.categories.search');
 
-
-
-    ////*****************     End categorycategory    *******************////
-
-
-
-
-    ////****************   Start  POST  **************////
-
+    // Posts
     Route::get('posts', [PostController::class, 'index'])->name('admin.posts.index');
     Route::get('posts/create', [PostController::class, 'create'])->name('admin.posts.create');
     Route::post('posts', [PostController::class, 'store'])->name('admin.posts.store');
     Route::delete('posts/{id}', [PostController::class, 'delete'])->name('admin.posts.delete');
     Route::get('post/edit/{id}', [PostController::class, 'edit'])->name('admin.posts.edit');
     Route::put('posts/update/{id}', [PostController::class, 'update'])->name('admin.posts.update');
-    Route::get('/admin/posts/search-category', [PostController::class, 'searchCategory'])->name('admin.posts.searchCategory');
-    Route::get('/admin/posts/search-author', [PostController::class, 'searchAuthor'])->name('admin.posts.searchAuthor');
+    Route::get('posts/search-category', [PostController::class, 'searchCategory'])->name('admin.posts.searchCategory');
+    Route::get('posts/search-author', [PostController::class, 'searchAuthor'])->name('admin.posts.searchAuthor');
 
-
-    ////*****************     End postpost    *******************////
-
-
-
-
-    ////****************   Start  useruser  **************////
+    // Users
     Route::get('users', [UserController::class, 'index'])->name('admin.users.index');
     Route::get('users/create', [UserController::class, 'create'])->name('admin.users.create');
     Route::post('users/store', [UserController::class, 'store'])->name('admin.users.store');
-    route::delete('users/delete/{id}', [UserController::class, 'delete'])->name('admin.users.delete');
-    route::get('users/edit/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
-    route::put('users/update/{id}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('users/delete/{id}', [UserController::class, 'delete'])->name('admin.users.delete');
+    Route::get('users/edit/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('users/update/{id}', [UserController::class, 'update'])->name('admin.users.update');
 
-
-    ////****************   Start  geust   **************////
+    // Guests
     Route::get('guests', [GuestController::class, 'index'])->name('admin.guests.index');
     Route::get('guests/create', [GuestController::class, 'create'])->name('admin.guests.create');
     Route::post('guests', [GuestController::class, 'store'])->name('admin.guests.store');
     Route::delete('guests/delete/{id}', [GuestController::class, 'delete'])->name('admin.guests.delete');
-    route::get('guests/edit/{id}', [GuestController::class, 'edit'])->name('admin.guests.edit');
-    route::put('guests/update/{id}', [GuestController::class, 'update'])->name('admin.guests.update');
-    // =========== System =======================
+    Route::get('guests/edit/{id}', [GuestController::class, 'edit'])->name('admin.guests.edit');
+    Route::put('guests/update/{id}', [GuestController::class, 'update'])->name('admin.guests.update');
 
+    // System Settings
+    Route::get('systems/edit', [SystemController::class, 'edit'])->name('admin.systems.edit');
+    Route::put('systems/update', [SystemController::class, 'update'])->name('admin.systems.update');
+    Route::get('systems/banner', [SystemController::class, 'editBanner'])->name('admin.systems.editBanner');
+    Route::post('systems/banner', [SystemController::class, 'updateBanner'])->name('admin.systems.updateBanner');
 
-    //route::get('systems', [SystemController::class, 'index'])->name('admin.systems.index');
-    //route::get('systems-create', [SystemController::class, 'create'])->name('admin.systems.create');
-    //route::post('systems-store', [SystemController::class, 'store'])->name('admin.systems.store');
-    //route::delete('systems-delete/{id}', [SystemController::class, 'delete'])->name('admin.systems.delete');
-        // Cập nhật cấu hình hệ thống
-        Route::get('systems/edit', [SystemController::class, 'edit'])->name('admin.systems.edit');
-        Route::put('systems/update', [SystemController::class, 'update'])->name('admin.systems.update');
-    
-        // Cập nhật banner
-        Route::get('systems/banner', [SystemController::class, 'editBanner'])->name('admin.systems.editBanner');
-        Route::post('systems/banner', [SystemController::class, 'updateBanner'])->name('admin.systems.updateBanner');
-
-
+    // Invoices & Details
     Route::get('invoices', [InvoiceController::class, 'index'])->name('admin.invoices.index');
     Route::get('invoices/create', [InvoiceController::class, 'create'])->name('admin.invoices.create');
     Route::post('invoices', [InvoiceController::class, 'store'])->name('admin.invoices.store');
@@ -210,6 +144,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::put('invoice-details/{id}', [InvoiceDetailController::class, 'update'])->name('invoice_details.update');
     Route::delete('invoice-details/{id}', [InvoiceDetailController::class, 'delete'])->name('invoice_details.delete');
 
+    // Feedback
     Route::get('feedback', [FeedbackController::class, 'index'])->name('admin.feedback.index');
     Route::get('feedback/create', [FeedbackController::class, 'create'])->name('admin.feedback.create');
     Route::post('feedback', [FeedbackController::class, 'store'])->name('admin.feedback.store');
@@ -217,6 +152,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::put('feedback/{id}', [FeedbackController::class, 'update'])->name('admin.feedback.update');
     Route::delete('feedback/{id}', [FeedbackController::class, 'delete'])->name('admin.feedback.delete');
 
+    // Specialties
     Route::get('specialties', [SpecialtyController::class, 'index'])->name('admin.specialties.index');
     Route::get('specialties/create', [SpecialtyController::class, 'create'])->name('admin.specialties.create');
     Route::post('specialties', [SpecialtyController::class, 'store'])->name('admin.specialties.store');
@@ -225,41 +161,24 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::delete('specialties/{id}', [SpecialtyController::class, 'delete'])->name('admin.specialties.delete');
     Route::get('specialties/{id}', [SpecialtyController::class, 'show'])->name('admin.specialties.show');
 
-    Route::get('/report', [ReportController::class, 'index'])->name('admin.report.index');
-    Route::get('/report/export', [ReportController::class, 'export'])->name('admin.report.export');
+    // Reports
+    Route::get('report', [ReportController::class, 'index'])->name('admin.report.index');
+    Route::get('report/export', [ReportController::class, 'export'])->name('admin.report.export');
 
+    // Doctor Services & Specialties
     Route::get('doctor-service', [DoctorServiceController::class, 'index'])->name('admin.doctor_service.index');
     Route::get('doctor-service/create', [DoctorServiceController::class, 'create'])->name('admin.doctor_service.create');
     Route::post('doctor-service', [DoctorServiceController::class, 'store'])->name('admin.doctor_service.store');
     Route::get('doctor-service/{id}/edit', [DoctorServiceController::class, 'edit'])->name('admin.doctor_service.edit');
     Route::put('doctor-service/{id}', [DoctorServiceController::class, 'update'])->name('admin.doctor_service.update');
     Route::delete('doctor-service-deleted/{id}', [DoctorServiceController::class, 'destroy'])->name('admin.doctor_service.destroy');
-
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::resource('doctor_specialties', DoctorSpecialtyController::class);
 });
 
-
-
-
-
-
-// =========== System =======================
-// Route::get('system', [SystemController::class, 'show'])->name('systems.show');
-// Route::get('system', [SystemController::class, 'edit'])->name('system.edit');
-// Route::put('system', [SystemController::class, 'update'])->name('system.update');
-
-Route::resource('doctor_specialties', DoctorSpecialtyController::class); // Các Chuyên khoa
+// Frontend dashboard (authenticated)
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-
-
-
+// Auth routes
 require __DIR__ . '/auth.php';
