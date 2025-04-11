@@ -41,6 +41,8 @@ class InvoiceController extends Controller
                                 'invoice_id' => $detail->invoice_id,
                                 'booking_id' => $detail->booking_id,
                                 'booking_status' => $detail->booking->status ?? 'N/A',
+                                'service_name' => $detail->booking->service->name ?? 'Dịch vụ khám nha khoa',
+                                'price' => $detail->booking->service->price ?? $detail->booking->price ?? 0,
                                 'doctor' => [
                                     'doctor_name' => $detail->booking->doctor->doctor_name ?? 'N/A',
                                     'specialty_id' => $detail->booking->doctor->specialty_id ?? 'N/A',
@@ -52,7 +54,8 @@ class InvoiceController extends Controller
                                     'guest_name' => $detail->booking->guest->guest_name ?? 'N/A',
                                     'gender' => $detail->booking->guest->gender ?? 'N/A',
                                     'phone' => $detail->booking->guest->guest_phone ?? 'N/A',
-                                    'email' => $detail->booking->guest->guest_email ?? 'N/A'
+                                    'email' => $detail->booking->guest->guest_email ?? 'N/A',
+                                    'address' => $detail->booking->guest->address ?? 'N/A'
                                 ],
                                 'isDeleted' => $detail->isDeleted,
                                 'created_at' => $detail->created_at,
