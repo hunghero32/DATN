@@ -83,20 +83,13 @@
 
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
-                                            <a class="btn btn-primary btn-sm"
-                                                href="{{ route('admin.posts.edit', $post->id) }}">
-                                                <i class="bx bx-edit-alt"></i> Sửa
+                                            <a class="btn btn-sm btn-icon btn-primary"
+                                                href="{{ route('admin.posts.edit', $post->id) }}" title="Chỉnh sửa">
+                                                <i class="bx bx-edit-alt"></i>
                                             </a>
-                                            <form action="{{ route('admin.posts.delete', $post->id) }}" method="POST"
-                                                onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
-                                                @method('DELETE')
-                                                @csrf
-                                                <button type="submit" class="btn btn-danger btn-sm">
-                                                    <i class="bx bx-trash"></i> Xóa
-                                                </button>
-                                            </form>
                                         </div>
                                     </td>
+
                                 </tr>
                             @endforeach
                         </tbody>

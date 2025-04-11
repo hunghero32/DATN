@@ -111,8 +111,8 @@
                                                         </option>
                                                         <option value="published"
                                                             {{ old('status', $post->status) == 'published' ? 'selected' : '' }}>
-                                                            Đã xuất
-                                                            bản</option>
+                                                            Đã xuất bản
+                                                        </option>
                                                     </select>
                                                     @error('status')
                                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -130,27 +130,45 @@
                                                     @enderror
                                                     @if ($post->image)
                                                         <div class="mt-2">
-                                                            <img src="{{ $post->image}}" width="70px" alt="Ảnh bài viết">
+                                                            <img src="{{ $post->image }}" width="70px"
+                                                                alt="Ảnh bài viết">
                                                         </div>
                                                     @endif
                                                 </div>
 
-                                                <!-- Nút submit -->
-                                                <div class="text-end">
-                                                    <button type="submit" class="btn btn-primary">Cập nhật bài
-                                                        viết</button>
+                                                <!-- Nút cập nhật và xóa -->
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <!-- Form xóa -->
+                                                    <form action="{{ route('admin.posts.delete', $post->id) }}"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger">
+                                                            <i class="bx bx-trash"></i> Xóa
+                                                        </button>
+                                                    </form>
+
+                                                    <!-- Nút cập nhật -->
+                                                    <form action="{{ route('admin.posts.update', $post->id) }}"
+                                                        method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="bx bx-save"></i> Cập nhật
+                                                        </button>
+                                                    </form>
                                                 </div>
+
+
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </form>
-
 
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -161,32 +179,28 @@
     <!-- Thư viện Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
     <!-- Thư viện CKEditor -->
     <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
-
-
 
     <script>
         $.noConflict();
         jQuery(document).ready(function($) {
             $(".select2").select2();
 
-            // Hàm tạo slug tự động
             function slugify(text) {
                 return text.toLowerCase()
                     .trim()
-                    .replace(/[^a-z0-9\s-]/g, '') // Xóa ký tự đặc biệt
-                    .replace(/\s+/g, '-') // Thay khoảng trắng bằng dấu "-"
-                    .replace(/-+/g, '-'); // Xóa dấu "-" thừa
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
             }
 
-            // Cập nhật slug khi nhập tiêu đề
             $('#title').on('input', function() {
                 let slug = slugify($(this).val());
                 $('#slug').val(slug);
             });
 
-            // Khởi tạo CKEditor
             ClassicEditor
                 .create(document.querySelector('#content'))
                 .catch(error => {
@@ -194,5 +208,4 @@
                 });
         });
     </script>
-
 @endsection
