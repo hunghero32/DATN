@@ -38,30 +38,38 @@ public function create()
 
 
 
-    public function store(Request $request)
+public function store(Request $request)
 {
     $request->validate([
         'booking_id' => 'required|exists:bookings,id',
-        'total_amount' => 'required|numeric|min:0',
-        'discount'     => 'nullable|numeric|min:0',
-        'tax'          => 'nullable|numeric|min:0',
+        'discount'   => 'nullable|numeric|min:0',
+        'tax'        => 'nullable|numeric|min:0',
     ]);
 
-    // Tạo hóa đơn mới
+    $booking = Booking::with('service')->findOrFail($request->booking_id);
+
+    $price = $booking->service->price ?? 0;
+    $discount = $request->discount ?? 0;
+    $tax = $request->tax ?? 0;
+
+    $subtotal = $price - $discount;
+    $taxAmount = ($subtotal * $tax) / 100;
+    $totalAmount = $subtotal + $taxAmount;
+
     $invoice = Invoice::create([
-        'total_amount' => $request->total_amount,
-        'discount'     => $request->discount ?? 0,
-        'tax'          => $request->tax ?? 0,
+        'total_amount' => $totalAmount,
+        'discount'     => $discount,
+        'tax'          => $tax,
         'isDeleted'    => 0,
     ]);
 
-    // Tạo chi tiết hóa đơn với invoice_id vừa tạo
+
     InvoiceDetail::create([
         'invoice_id' => $invoice->id,
         'booking_id' => $request->booking_id,
         'isDeleted'  => 0,
     ]);
-    return redirect()->route('invoice_details.index')->with('success', 'Chi tiết hóa đơn đã được tạo thành công!');
+    return redirect()->route('admin.invoices.index')->with('success', 'Chi tiết hóa đơn đã được tạo thành công!');
 }
 
 

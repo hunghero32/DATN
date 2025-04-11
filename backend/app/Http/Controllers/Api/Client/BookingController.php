@@ -138,15 +138,23 @@ class BookingController extends Controller
             'gender' => 'required|in:male,female,other',
             'birthday' => 'required|date',
             'guest_phone' => 'required|string|max:20',
-            'guest_email' => 'required|email',
-            'address' => 'required|array',
+            'guest_email' => 'nullable|email',
+            'address' => 'nullable|array',
             'notes' => 'nullable|string'
         ]);
+
+        $tempBooking = Session::get('temp_booking');
+        if (!$tempBooking) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy thông tin đặt lịch tạm thời'
+            ], 422);
+        }
 
         // Get authenticated user ID
         $userId = $request->user()->id;
 
-        // Check if guest_name already exists for this user
+        // Only check for duplicate name
         $existingGuest = Guest::where('user_id', $userId)
             ->where('guest_name', $request->guest_name)
             ->first();
@@ -158,32 +166,17 @@ class BookingController extends Controller
             ], 422);
         }
 
-        $guest = Guest::where(function($query) use ($request) {
-            $query->where('guest_phone', $request->guest_phone)
-                  ->orWhere('guest_email', $request->guest_email);
-        })->first();
-
-        if (!$guest) {
-            $guest = Guest::create([
-                'user_id' => $userId,
-                'guest_name' => $request->guest_name,
-                'gender' => $request->gender,
-                'birthday' => $request->birthday,
-                'guest_phone' => $request->guest_phone,
-                'guest_email' => $request->guest_email,
-                'address' => json_encode($request->address),
-                'file' => $request->file ?? null
-            ]);
-        } else {
-            $guest->update([
-                'user_id' => $userId,
-                'guest_name' => $request->guest_name,
-                'gender' => $request->gender,
-                'birthday' => $request->birthday,
-                'address' => json_encode($request->address),
-                'file' => $request->file ?? null
-            ]);
-        }
+        // Create new guest without checking phone/email
+        $guest = Guest::create([
+            'user_id' => $userId,
+            'guest_name' => $request->guest_name,
+            'gender' => $request->gender,
+            'birthday' => $request->birthday,
+            'guest_phone' => $request->guest_phone,
+            'guest_email' => $request->guest_email,
+            'address' => json_encode($request->address),
+            'file' => $request->file ?? null
+        ]);
 
         $booking = Booking::create([
             'doctor_id' => $tempBooking['doctor_id'],
@@ -216,7 +209,7 @@ class BookingController extends Controller
         try {
             // Get authenticated user's ID
             $userId = auth()->id();
-    
+
             // Get all bookings for guests associated with this user
             $bookings = Booking::with(['doctor', 'service', 'guest'])
                 ->whereHas('guest', function($query) use ($userId) {
@@ -239,14 +232,14 @@ class BookingController extends Controller
                         'created_at' => $booking->created_at
                     ];
                 });
-    
+
             if ($bookings->isEmpty()) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Không tìm thấy thông tin đặt lịch'
                 ], 404);
             }
-    
+
             return response()->json([
                 'status' => true,
                 'message' => 'Danh sách lịch hẹn',

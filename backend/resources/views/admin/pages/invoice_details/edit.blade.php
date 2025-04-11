@@ -11,7 +11,7 @@
             <input type="text" class="form-control" name="invoice_id" value="{{ $invoiceDetail->invoice_id }}" readonly>
 
         </div>
-        <div class="mb-3">
+        {{-- <div class="mb-3">
             <label for="booking_id" class="form-label">Đặt Lịch</label>
             <select class="form-control" name="booking_id" required>
                 <option value="">Chọn đặt lịch</option>
@@ -25,7 +25,19 @@
                     </option>
                 @endforeach
             </select>
-        </div>
+        </div> --}}
+        <div class="mb-3">
+            <label for="booking_id" class="form-label">Thông tin Đặt Lịch</label>
+            <div class="card p-3 bg-light border">
+                <p class="mb-1"><strong>Mã đặt lịch:</strong> #{{ $invoiceDetail->booking->id }}</p>
+                <p class="mb-1"><strong>Ngày đặt:</strong> {{ $invoiceDetail->booking->booking_date }}</p>
+                <p class="mb-1"><strong>Khách hàng:</strong> {{ $invoiceDetail->booking->guest->guest_name ?? 'Không có khách' }}</p>
+                <p class="mb-1"><strong>SĐT:</strong> {{ $invoiceDetail->booking->guest->guest_phone ?? 'Không có SĐT' }}</p>
+                <p class="mb-1"><strong>Dịch vụ:</strong> {{ $invoiceDetail->booking->service->services_name ?? 'Không có dịch vụ' }}</p>
+                <p class="mb-0"><strong>Giá:</strong> {{ number_format($invoiceDetail->booking->service->price ?? 0, 0, ',', '.') }} VNĐ</p>
+            </div>
+            <input type="hidden" name="booking_id" value="{{ $invoiceDetail->booking_id }}">
+        </div>        
         <h4>Thông Tin Hóa Đơn</h4>
         <div class="mb-3">
             {{-- <label for="total_amount" class="form-label">Tổng tiền</label> --}}

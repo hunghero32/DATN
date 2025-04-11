@@ -62,6 +62,11 @@ php artisan serve
 ```
 Mặc định backend chạy tại: `http://localhost:8000`
 
+Khởi chạy Cron Auto:
+```bash
+php artisan schedule:work
+```
+
 ### 4. Cài đặt Frontend (React)
 ```bash
 cd frontend

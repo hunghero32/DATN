@@ -981,6 +981,26 @@ body {
   /* right: 10px !important; */
 /* } */
 
+/* === Force Header Link Color === */
+/* Main navigation links */
+.pq-bottom-header .navbar-nav a {
+  color: #2563eb !important; /* Tailwind's blue-600 */
+}
+.pq-bottom-header .navbar-nav a:hover {
+  color: #1d4ed8 !important; /* Tailwind's blue-700 */
+}
+
+/* === Force User Dropdown Link Color === */
+/* Use the ID for high specificity */
+#user-menu-dropdown a {
+  color: #2563eb !important; /* Tailwind's blue-600 */
+}
+#user-menu-dropdown a:hover {
+  color: #1d4ed8 !important; /* Tailwind's blue-700 */
+  background-color: #eff6ff !important; /* Optional: Add light blue background on hover (Tailwind blue-50) */
+}
+
+
 
 
 

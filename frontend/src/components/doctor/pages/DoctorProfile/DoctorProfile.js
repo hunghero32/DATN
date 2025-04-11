@@ -18,7 +18,7 @@ const DoctorProfile = () => {
   useEffect(() => {
     const fetchDoctorProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authToken");
         if (!token) {
           toast.error("Vui lòng đăng nhập để xem hồ sơ!");
           return;
@@ -93,7 +93,7 @@ const DoctorProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authToken");
       if (!token) {
         toast.error("Vui lòng đăng nhập để cập nhật hồ sơ!");
         return;

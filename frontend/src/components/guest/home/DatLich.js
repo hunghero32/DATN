@@ -115,34 +115,34 @@ const DatLich = () => {
 
       if (response.data.status === true) {
         // Gửi thông báo ngay sau khi đặt lịch thành công
-        const notificationData = {
-          type: 'new_appointment',
-          title: 'Lịch hẹn mới',
-          message: `Bạn có lịch hẹn mới từ ${values.guest_name}`,
-          data: {
-            bookingId: response.data.data.booking.id, // Lấy ID từ response
-            guestName: values.guest_name,
-            guestPhone: values.guest_phone,
-            bookingDate: bookingData.date,
-            bookingTime: bookingData.time,
-            serviceName: bookingData.service_name
-          },
-          timestamp: Date.now(),
-          read: false
-        };
-
-        console.log('Sending notification:', notificationData); // Log để debug
+        // const notificationData = {
+        //   type: 'new_appointment',
+        //   title: 'Lịch hẹn mới',
+        //   message: `Bạn có lịch hẹn mới từ ${values.guest_name}`,
+        //   data: {
+        //     bookingId: response.data.data.booking.id, // Lấy ID từ response
+        //     guestName: values.guest_name,
+        //     guestPhone: values.guest_phone,
+        //     bookingDate: bookingData.date,
+        //     bookingTime: bookingData.time,
+        //     serviceName: bookingData.service_name
+        //   },
+        //   timestamp: Date.now(),
+        //   read: false
+        // };
         
-        try {
-          await NotificationService.sendNotification(
-            bookingData.doctor_id,
-            notificationData
-          );
-          console.log('Notification sent successfully');
-        } catch (notificationError) {
-          console.error('Notification error:', notificationError);
-        }
-
+        // console.log('Sending notification:', notificationData); // Log để debug
+        
+        // try {
+        //   await NotificationService.sendNotification(
+        //     bookingData.doctor_id,
+        //     notificationData
+        //   );
+        //   console.log('Notification sent successfully');
+        // } catch (notificationError) {
+        //   console.error('Notification error:', notificationError);
+        // }
+        
         message.success('Đặt lịch thành công!');
         localStorage.removeItem("bookingData");
         navigate("/thongbao");

@@ -12,11 +12,14 @@
         </div>
         <!-- /Logo -->
         <h4 class="mb-2">Welcome to TDZ! 👋</h4>
-        <p class="mb-4">Đăng Nhập</p>
+        <p class="mb-4">Đăng Nhập Ngay</p>
 
         <form id="formAuthentication" class="mb-3" action="{{ route('admin.login') }}" method="POST">
             @csrf
             <div class="mb-3">
+                @error('email')
+                <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
                 <label for="email" class="form-label">Email</label>
                 <input type="text" class="form-control" id="email" name="email" placeholder="Email của bạn" value="{{ old('email') }}" required autofocus />
             </div>

@@ -1,39 +1,59 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import "remixicon/fonts/remixicon.css";
 import api from "../../../ultils/api/axios";
+import { useAuth } from "../auth/AuthContext"; // Đường dẫn đúng (đi lên 1 cấp rồi vào auth)
+import { Badge, List, Avatar, Spin, Empty, Button as AntButton } from 'antd'; // Import Ant Design components
+import { BellOutlined, CheckCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import { ref, onValue, update, off } from 'firebase/database'; // Import Firebase functions
+import { database } from '../../../config/firebase'; // Import Firebase database instance
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+import vi from 'date-fns/locale/vi';
 
 export default function Header() {
+  const { user, logout } = useAuth(); // Lấy user từ context
   const navigate = useNavigate();
   const [token, setToken] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [hasNotifications, setHasNotifications] = useState(true);
   const [siteData, setSiteData] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [results, setResults] = useState(null);
 
+  // State cho Client Notifications
+  const [clientNotifications, setClientNotifications] = useState([]);
+  const [clientUnreadCount, setClientUnreadCount] = useState(0);
+  const [clientLoadingNotifications, setClientLoadingNotifications] = useState(true);
+  const [clientPopoverVisible, setClientPopoverVisible] = useState(false);
+  const clientNotificationIconRef = useRef(null); // Ref cho icon để định vị popover
+  const clientPopoverRef = useRef(null); // Ref cho popover để xử lý click outside
+  const userMenuButtonRef = useRef(null);
+  const userMenuDropdownRef = useRef(null);
+
+  // --- useEffect lấy token, siteData ---
   useEffect(() => {
     const storedToken = localStorage.getItem("authToken");
     if (storedToken && storedToken !== "null") {
-      setToken(storedToken);
+        setToken(storedToken);
+    } else {
+        setToken(null);
     }
 
     fetch("http://localhost:8000/api/system")
       .then((response) => response.json())
       .then((data) => setSiteData(data))
       .catch((error) => console.error("Error fetching site data:", error));
-
     api.get("/api/client/appointments")
       .then((response) => {
-        if (response.data.status) {
-          setAppointments(response.data.data);
-        } else {
-          console.error(response.data.message);
-        }
+          if(response.data?.data) { // Ưu tiên kiểm tra data.data trước
+             setSiteData(response.data.data);
+          } else {
+             setSiteData(response.data); // Fallback nếu data nằm trực tiếp
+          }
       })
-      .catch(() => console.error("Lỗi khi lấy danh sách lịch hẹn."));
+      .catch((error) => console.error("Error fetching site data:", error));
+
   }, []);
 
   useEffect(() => {
@@ -67,10 +87,11 @@ export default function Header() {
     const backdrop = document.querySelector(".modal-backdrop");
     if (backdrop) backdrop.remove();
   };
-
   const thoatTrang = () => {
-    localStorage.removeItem("authToken");
+    logout();
     setToken(null);
+    setUserMenuOpen(false);
+    setClientPopoverVisible(false);
     navigate("/");
   };
   const handleServiceClick = (service) => {
@@ -81,11 +102,182 @@ export default function Header() {
     console.log("Chuyên khoa được chọn:", id);
     navigate(`/detail-specialty/${id}`);
   };
+  // --- Setup Firebase Listener cho Client Notifications ---
+  useEffect(() => {
+    let listener = null;
+    let notificationsRef = null;
+
+    if (user?.id && user.role !== 'doctor' && user.role !== 'admin') {
+      const currentUserId = user.id;
+      setClientLoadingNotifications(true);
+      try {
+        notificationsRef = ref(database, `client_notifications/${currentUserId}`);
+        listener = onValue(notificationsRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const notificationsArray = Object.entries(data)
+              .map(([id, notificationData]) => ({
+                id,
+                ...(notificationData || {}),
+                timestamp: typeof notificationData?.timestamp === 'number' ? notificationData.timestamp : Date.now()
+              }))
+              .sort((a, b) => b.timestamp - a.timestamp);
+            setClientNotifications(notificationsArray);
+            setClientUnreadCount(notificationsArray.filter(n => !n.read).length);
+          } else {
+            setClientNotifications([]);
+            setClientUnreadCount(0);
+          }
+          setClientLoadingNotifications(false);
+        }, (error) => {
+           console.error("Client Firebase listener error:", error);
+           setClientLoadingNotifications(false);
+        });
+      } catch (error) {
+        console.error("Error during client listener setup:", error);
+        setClientLoadingNotifications(false);
+      }
+    } else {
+      setClientNotifications([]);
+      setClientUnreadCount(0);
+      setClientLoadingNotifications(false);
+    }
+    return () => {
+       if (listener && notificationsRef) {
+         off(notificationsRef, 'value', listener);
+       }
+    };
+  }, [user]);
+
+  // --- Xử lý click Client Notification ---
+  const handleClientNotificationClick = useCallback(async (notif, e) => {
+    if (e) e.stopPropagation();
+    setClientPopoverVisible(false);
+
+    setTimeout(async () => {
+        if (!notif.read && user?.id) {
+        try {
+            const updates = {};
+            updates[`client_notifications/${user.id}/${notif.id}/read`] = true;
+            await update(ref(database), updates);
+        } catch (error) {
+            console.error('Error marking client notification as read:', error);
+        }
+        }
+        navigate('/lichhen');
+    }, 150);
+
+  }, [user?.id, navigate]);
+
+  // --- Xử lý click icon chuông client ---
+  const handleClientIconClick = (e) => {
+    if (e) e.stopPropagation();
+    setClientPopoverVisible(!clientPopoverVisible);
+    setUserMenuOpen(false);
+  };
+
+  // --- Đóng popover client ---
+  const closeClientPopover = (e) => {
+    if (e) e.stopPropagation();
+    setClientPopoverVisible(false);
+  };
+
+  // --- Xử lý click bên ngoài để đóng cả 2 menu/popover ---
+   useEffect(() => {
+     const handleClickOutside = (event) => {
+       // Đóng User Menu
+       if (userMenuOpen && userMenuButtonRef.current && !userMenuButtonRef.current.contains(event.target) && userMenuDropdownRef.current && !userMenuDropdownRef.current.contains(event.target)) {
+         setUserMenuOpen(false);
+       }
+       // Đóng Notification Popover
+       if (clientPopoverVisible && clientPopoverRef.current && !clientPopoverRef.current.contains(event.target) && clientNotificationIconRef.current && !clientNotificationIconRef.current.contains(event.target) ) {
+         setClientPopoverVisible(false);
+       }
+     };
+     document.addEventListener('mousedown', handleClickOutside);
+     return () => document.removeEventListener('mousedown', handleClickOutside);
+   }, [clientPopoverVisible, userMenuOpen, userMenuButtonRef, userMenuDropdownRef, clientNotificationIconRef, clientPopoverRef]);
+
+
+  // --- JSX cho nội dung popover client ---
+  const clientNotificationContentJSX = (
+    <div
+      ref={clientPopoverRef}
+      className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-md shadow-lg z-50"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Header */}
+      <div className="flex justify-between items-center p-2.5 border-b bg-gray-50 rounded-t-md">
+        <span className="font-semibold text-gray-700 text-sm">Thông báo ({clientUnreadCount} chưa đọc)</span>
+        <AntButton
+            type="text" icon={<CloseOutlined style={{fontSize: '12px'}}/>} size="small"
+            onClick={closeClientPopover}
+            className="text-gray-400 hover:text-gray-700 p-1 leading-none h-auto"
+            aria-label="Đóng thông báo"
+        />
+      </div>
+      {/* Body - List */}
+      <div className="max-h-72 overflow-y-auto">
+          {clientLoadingNotifications ? (
+             <div className="p-10 text-center"><Spin size="small" /></div>
+          ) : clientNotifications.length === 0 ? (
+             <div className="p-4 text-center text-xs text-gray-500"><Empty description="Không có thông báo" image={Empty.PRESENTED_IMAGE_SIMPLE} /></div>
+          ) : (
+              <List
+                itemLayout="horizontal"
+                dataSource={clientNotifications}
+                renderItem={item => (
+                  <List.Item
+                    className={`hover:bg-gray-50 cursor-pointer ${!item.read ? 'bg-blue-50' : ''}`}
+                    style={{ padding: '0.5rem 0.75rem', border: 'none', borderBottom: '1px solid #f0f0f0' }}
+                    onClick={(e) => handleClientNotificationClick(item, e)}
+                  >
+                        <List.Item.Meta
+                          avatar={
+                            <Avatar
+                              size="small"
+                              icon={item.read ? <CheckCircleOutlined/> : <BellOutlined className="text-white"/>}
+                              style={{ backgroundColor: item.read ? '#dbeafe' : '#3b82f6', marginTop: '3px' }}
+                            />
+                          }
+                          title={
+                            <span className={`text-xs font-semibold ${!item.read ? 'text-gray-900' : 'text-gray-600'}`} style={{lineHeight: '1.3'}}>
+                              {item.title || 'Thông báo'}
+                            </span>
+                          }
+                          description={
+                            <span className="text-xs text-gray-500 block" style={{lineHeight: '1.3'}}>
+                              {item.message || ''}
+                            </span>
+                          }
+                        />
+                        <div className="text-xs text-gray-400 text-right flex-shrink-0 ml-2 whitespace-nowrap pt-1">
+                          {item.timestamp ? formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi }) : ''}
+                        </div>
+                  </List.Item>
+                )}
+                size="small"
+              />
+          )}
+        </div>
+    </div>
+  );
+
+  // --- JSX Return ---
   return (
     <header className="pq-header-style-1 pq-has-sticky">
+      {/* Thêm style cho badge màu đỏ */}
+      <style>{`
+         .ant-badge-count {
+             background-color: #f5222d !important; /* Màu đỏ */
+             color: white !important;
+             box-shadow: 0 0 0 1px #f5222d !important; /* Viền đỏ */
+         }
+      `}</style>
       <div className="pq-bottom-header bg-white shadow-md">
         <div className="container">
           <div className="navbar navbar-expand-lg flex justify-between items-center py-3">
+            {/* Logo - Reverted to always show text */}
             <Link to="/" className="navbar-brand">
               {siteData && siteData.site_logo ? (
                 <img src={siteData.site_logo} alt="logo" className="h-10 w-40" />
@@ -99,14 +291,17 @@ export default function Header() {
               <i className={`ri-close-line text-2xl ${menuOpen ? "block" : "hidden"}`}></i>
             </button>
 
+            {/* Desktop Navigation - Updated link colors */}
             <div className={`absolute md:static top-16 left-0 w-full bg-white md:bg-transparent md:flex transition-all duration-300 ${menuOpen ? "block" : "hidden"} md:block`}>
-              <ul className="navbar-nav flex flex-col md:flex-row md:gap-6 text-lg font-semibold p-4 md:p-0">
-                <li><Link to="/" className="block py-2 md:py-0 !text-blue-600">Trang Chủ</Link></li>
-                <li><Link to="/aboutus" className="block py-2 md:py-0 !text-blue-600">Thông Tin</Link></li>
-                <li><Link to="/contact" className="block py-2 md:py-0 !text-blue-600">Liên Hệ</Link></li>
+               <ul className="navbar-nav flex flex-col md:flex-row md:items-center md:gap-6 text-lg font-semibold p-4 md:p-0">
+                {/* Changed text color to blue */}
+                <li><Link to="/" className="block py-2 md:py-0 text-blue-600! hover:text-blue-700!">Trang Chủ</Link></li>
+                <li><Link to="/aboutus" className="block py-2 md:py-0 text-blue-600! hover:text-blue-700!">Thông Tin</Link></li>
+                <li><Link to="/contact" className="block py-2 md:py-0 text-blue-600! hover:text-blue-700!">Liên Hệ</Link></li>
               </ul>
             </div>
 
+            {/* Right Section */}
             <div className="flex items-center gap-4 relative">
               <div className="relative hidden md:block">
                 <div className="flex items-center bg-white rounded-[24px] shadow-sm border border-gray-100">
@@ -132,17 +327,51 @@ export default function Header() {
                     )}
                   </button>
                 </div>
+              {/* === NÚT CHUÔNG THÔNG BÁO CLIENT === */}
+              {token && user && user.role !== 'doctor' && user.role !== 'admin' && (
+                 <div
+                   ref={clientNotificationIconRef}
+                   className="relative"
+                 >
+                   <button
+                     className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition"
+                     onClick={handleClientIconClick}
+                     aria-label="Thông báo"
+                   >
+                     {/* Badge Ant Design */}
+                     <Badge
+                       count={clientUnreadCount}
+                       overflowCount={9}
+                       size="default" // Sử dụng size default có thể trông đẹp hơn
+                       // offset={[0, 2]} // Điều chỉnh offset nếu cần
+                       // Style màu đỏ được thêm ở thẻ <style> bên trên
+                     >
+                       <i className="ri-notification-3-line text-xl text-gray-700"></i>
+                     </Badge>
+                   </button>
+                   {clientPopoverVisible && clientNotificationContentJSX}
+                 </div>
               )}
+              {/* === KẾT THÚC NÚT CHUÔNG === */}
 
-              {token ? (
+              {/* User Menu / Login Button */}
+              {token && user ? (
                 <div className="relative">
                   <button
+                    ref={userMenuButtonRef}
+                    id="user-menu-button"
                     className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition"
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    onClick={(e) => {setUserMenuOpen(prev => !prev); setClientPopoverVisible(false);}}
+                    aria-label="Tài khoản người dùng"
                   >
-                    <i className="ri-user-3-line text-xl text-gray-700"></i>
+                     {user.avatar ? (
+                       <img src={user.avatar} alt="User Avatar" className="w-full h-full rounded-full object-cover"/>
+                     ) : (
+                       <i className="ri-user-3-line text-xl text-gray-700"></i>
+                     )}
                   </button>
 
+                  {/* Dropdown User Menu */}
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white border rounded-lg shadow-lg z-50">
                       <div className="py-1">
@@ -168,6 +397,42 @@ export default function Header() {
                           <i className="ri-logout-box-r-line w-5"></i> Đăng xuất
                         </button>
                       </div>
+                    <div
+                      ref={userMenuDropdownRef}
+                      id="user-menu-dropdown"
+                      className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 py-1" // Style gốc
+                    >
+                      {/* Changed text/hover color and background for dropdown links */}
+                       <Link
+                         to="/patientProfile"
+                         onClick={() => setUserMenuOpen(false)}
+                         className="flex items-center px-4 py-2 text-sm text-blue-600 hover:text-white hover:bg-blue-600 transition-colors duration-150" // Updated style
+                       >
+                         <i className="ri-user-line mr-2"></i> Thông tin cá nhân
+                       </Link>
+                       <Link
+                         to="/lichhen"
+                         onClick={() => setUserMenuOpen(false)}
+                         className="flex items-center px-4 py-2 text-sm text-blue-600 hover:text-white hover:bg-blue-600 transition-colors duration-150" // Updated style
+                       >
+                         <i className="ri-calendar-check-line mr-2"></i> Lịch hẹn
+                       </Link>
+                       <Link
+                         to="/danhgia"
+                         onClick={() => setUserMenuOpen(false)}
+                         className="flex items-center px-4 py-2 text-sm text-blue-600 hover:text-white hover:bg-blue-600 transition-colors duration-150"
+                       >
+                         <i className="ri-star-line mr-2"></i> Đánh giá
+                       </Link>
+                       {/* Keep the divider */}
+                       <div className="border-t my-1 border-gray-100"></div>
+                       {/* Keep the logout button style */}
+                       <button
+                         onClick={thoatTrang}
+                         className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150" // Added transition
+                       >
+                         <i className="ri-logout-box-r-line mr-2"></i> Đăng xuất
+                       </button>
                     </div>
                   )}
                 </div>

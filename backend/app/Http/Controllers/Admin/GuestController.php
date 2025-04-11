@@ -110,37 +110,7 @@ class GuestController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreGuestRequest $request, $id)
-    {
-        $guest = Guest::findOrFail($id);
-
-        // Xử lý tệp tin
-        $filePath = $guest->file;
-        if ($request->hasFile('file')) {
-            // Xóa ảnh cũ nếu có
-            if ($guest->file && Storage::exists('public/' . $guest->file)) {
-                Storage::delete('public/' . $guest->file);
-            }
-
-            // Lưu ảnh mới
-            $filePath = $request->file('file')->store('uploads', 'public');
-        }
-
-        // Cập nhật thông tin khách mời
-        $guest->update([
-            'user_id' => $request->user_id,
-            'guest_name' => $request->guest_name,
-            'gender' => $request->gender,
-            'birthday' => $request->birthday,
-            'guest_phone' => $request->guest_phone,
-            'guest_email' => $request->guest_email,
-            'address' => $request->address,
-            'file' => $filePath,
-        ]);
-
-        return redirect()->route('admin.guests.index')->with('success', 'Khách mời đã được cập nhật.');
-    }
-
+   
     /**
      * Remove the specified resource from storage.
      */
