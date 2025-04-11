@@ -43,29 +43,17 @@ class SystemController extends Controller
         // Điều hướng về danh sách với thông báo thành công
         return redirect()->route('admin.systems.index')->with('success', 'Thêm cấu hình thành công!');
     }
-    public function delete($id)
+
+    public function edit()
     {
-        $post = System::find($id);
 
-
-
-        $post->delete(); // Soft delete
-
-
-
-        return redirect()->route('admin.systems.index')->with('danger', 'Bài viết đã được xóa.');
-    }
-
-    public function edit($id)
-    {
-    
-        $system = System::findOrFail($id);
+        $system = System::first(); 
 
         return view('admin.pages.system.edit', compact('system'));
     }
-    public function update(UpdateSystemRequest $request, $id)
+    public function update(UpdateSystemRequest $request)
     {
-        $system = System::findOrFail($id);
+        $system = System::first(); 
 
 
         // Xử lý upload logo nếu có file mới
@@ -103,6 +91,69 @@ class SystemController extends Controller
             'company_email' => $request->company_email,
         ]);
 
-        return redirect()->route('admin.systems.edit', $id)->with('success', 'Cấu hình hệ thống đã được cập nhật thành công!');
+        return redirect()->route('admin.systems.edit')->with('success', 'Cấu hình hệ thống đã được cập nhật thành công!');
+    }
+    public function editBanner(Request $request)
+    {
+        $system = System::first(); // Hoặc tìm bản ghi hệ thống tương ứng
+        $banners = $system->banner ? json_decode($system->banner, true) : [];
+        return view('admin.pages.system.editBanner', compact('system', 'banners'));
+    }
+    public function updateBanner(Request $request)
+    {
+        $request->validate([
+            'banners' => 'nullable|array', // Kiểm tra mảng banner
+            'banners.*.image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Hình ảnh của banner
+            'banners.*.title' => 'nullable|string|max:255', // Tên của banner
+        ]);
+    
+        $system = System::first(); // Hoặc tìm bản ghi tương ứng
+    
+        // Lấy dữ liệu cũ của banner
+        $existingBanners = json_decode($system->banner, true) ?? [];
+    
+        // Xử lý mảng banner
+        $banners = [];
+        foreach ($request->banners as $index => $banner) {
+            $imageName = null;
+    
+            // Kiểm tra nếu có file hình ảnh mới
+            if (isset($banner['image_url']) && $request->hasFile("banners.$index.image_url")) {
+                // Xóa ảnh cũ nếu có
+                if (isset($existingBanners[$index]['image_url'])) {
+                    $oldImagePath = public_path('storage/banner_images/' . $existingBanners[$index]['image_url']);
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath); // Xóa ảnh cũ
+                    }
+                }
+    
+                // Lưu ảnh mới
+                $imagePath = $banner['image_url']->store('banner_images', 'public'); // Lưu vào thư mục public/banner_images
+                $imageName = basename($imagePath); // Lưu tên file vào DB
+            } elseif (isset($banner['image_url']) && empty($banner['image_url'])) {
+                // Nếu không có ảnh mới và để trống, thì xóa ảnh cũ
+                if (isset($existingBanners[$index]['image_url'])) {
+                    $oldImagePath = public_path('storage/banner_images/' . $existingBanners[$index]['image_url']);
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath); // Xóa ảnh cũ nếu không có ảnh mới
+                    }
+                }
+            } else {
+                // Nếu không có ảnh mới, giữ nguyên ảnh cũ
+                $imageName = $existingBanners[$index]['image_url'] ?? null;
+            }
+    
+            // Thêm banner vào mảng
+            $banners[] = [
+                'title' => $banner['title'] ?? null,
+                'image_url' => $imageName, // Nếu không có ảnh mới thì giữ nguyên
+            ];
+        }
+    
+        // Lưu mảng banner vào cơ sở dữ liệu
+        $system->banner = json_encode($banners);
+        $system->save();
+    
+        return redirect()->route('admin.systems.editBanner')->with('success', 'Cập nhật banner thành công!');
     }
 }

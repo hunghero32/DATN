@@ -235,18 +235,24 @@
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">Hệ Thống</span>
         </li>
-        <li class="menu-item {{ request()->routeIs('admin.systems.index') ? 'active' : '' }}">
+        <li class="menu-item {{ request()->routeIs(['admin.systems.index','admin.systems.editBanner']) ? 'active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bxs-cog"></i>
                 <div data-i18n="Account Settings">Hệ Thống</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item">
-                    <a href="{{route('admin.systems.edit',[$id=1])}}" class="menu-link">
+                    <a href="{{route('admin.systems.edit')}}" class="menu-link">
                         <div data-i18n="Account">Cấu Hình Web</div>
                     </a>
                 </li>
-
+            </ul>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="{{route('admin.systems.editBanner')}}" class="menu-link">
+                        <div data-i18n="Account">Banner</div>
+                    </a>
+                </li>
             </ul>
         </li>
 
