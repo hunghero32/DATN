@@ -7,7 +7,7 @@
 
         <div class="card shadow-sm p-4">
             <div class="card-body">
-                <form action="{{ route('admin.systems.update', $system->id) }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('admin.systems.update') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
