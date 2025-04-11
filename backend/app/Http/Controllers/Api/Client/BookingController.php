@@ -143,6 +143,17 @@ class BookingController extends Controller
             'notes' => 'nullable|string'
         ]);
 
+        // Lấy thông tin đặt lịch tạm thời từ Session
+        $tempBooking = Session::get('temp_booking');
+
+        // Kiểm tra xem thông tin tạm thời có tồn tại không
+        if (!$tempBooking) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy thông tin đặt lịch tạm thời. Vui lòng thử lại.'
+            ], 400); // Hoặc mã lỗi phù hợp khác
+        }
+
         // Get authenticated user ID
         $userId = $request->user()->id;
 
@@ -205,7 +216,7 @@ class BookingController extends Controller
             'status' => true,
             'message' => 'Đặt lịch thành công',
             'data' => [
-                'booking' => $booking,
+                'booking' => $booking->load(['doctor', 'service', 'guest']),
                 'guest' => $guest
             ]
         ]);
