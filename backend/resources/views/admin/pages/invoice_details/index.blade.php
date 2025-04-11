@@ -57,14 +57,17 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p><strong>Giá Dịch Vụ:</strong> {{ number_format($detail->booking->service->price ?? 0, 0, ',', '.') }} VNĐ</p>
-                        <p><strong>Thuế:</strong> {{ number_format($detail->invoice->tax ?? 0, 0, ',', '.') }} VNĐ</p>
+                        <p><strong>Thuế:</strong> {{ number_format($detail->invoice->tax ?? 0, 0, ',', '.') }} %</p>
                     </div>
                     <div class="col-md-6 text-end pe-4">                      <p><strong>Giảm Giá:</strong> {{ number_format($detail->invoice->discount ?? 0, 0, ',', '.') }} VNĐ</p>
                         @php
                             $gia = $detail->booking->service->price ?? 0;
-                            $thue = $detail->invoice->tax ?? 0;
                             $giam_gia = $detail->invoice->discount ?? 0;
-                            $tong_tien = $gia + $thue - $giam_gia;
+                            $thue_phan_tram = $detail->invoice->tax ?? 0;
+
+                            $tien_sau_giam = $gia - $giam_gia;
+                            $tien_thue = ($tien_sau_giam * $thue_phan_tram) / 100;
+                            $tong_tien = $tien_sau_giam + $tien_thue;
                         @endphp
                         <h5 class="fw-bold text-danger">Tổng Tiền: {{ number_format($tong_tien, 0, ',', '.') }} VNĐ</h5>
                     </div>
