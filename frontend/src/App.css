@@ -964,6 +964,17 @@ body {
   z-index: 1050 !important;
 }
 
+.hover-shadow:hover {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+.transition-all {
+  transition: all 0.3s ease;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+
 /* Tùy chọn: Điều chỉnh vị trí mũi tên nếu dùng transform */
 /* .notification-popover.ant-popover-placement-bottomRight .ant-popover-arrow { */
   /* Có thể cần điều chỉnh 'right' hoặc 'left' của mũi tên nếu nó bị lệch */
