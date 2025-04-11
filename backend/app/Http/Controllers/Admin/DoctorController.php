@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\FilterTrait;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 
 class DoctorController extends Controller
 
@@ -92,17 +93,34 @@ class DoctorController extends Controller
 
     public function create()
     {
-        return view('admin.pages.doctor.create', [
+        $doctors = User::where('role', 'doctor')
+            ->where('isDeleted', 0)
+            ->get();
 
-            'specialties' => Specialty::pluck('name', 'id')->toArray()
+        return view('admin.pages.doctor.create', [
+            'specialties' => Specialty::pluck('name', 'id')->toArray(),
+            'doctors' => $doctors
         ]);
     }
 
 
     public function store(Request $request)
     {
-        // Create the validator instance
         $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'doctor_name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $exists = Doctor::where('doctor_name', $value)
+                        ->where('isDeleted', 0)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Tên bác sĩ đã tồn tại trong hệ thống.');
+                    }
+                }
+            ],
             'doctor_avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'doctor_name' => 'required|string|max:255',
             'doctor_bio' => 'nullable|string|max:1000',
@@ -110,6 +128,8 @@ class DoctorController extends Controller
             'file' => 'required|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
             'specialty_id' => 'required|exists:specialties,id'
         ], [
+            'user_id.required' => 'Vui lòng chọn tài khoản bác sĩ',
+            'user_id.exists' => 'Tài khoản bác sĩ không tồn tại',
             'doctor_avatar.required' => 'Ảnh đại diện là bắt buộc.',
             'doctor_avatar.image' => 'Ảnh đại diện phải là định dạng ảnh hợp lệ.',
             'doctor_avatar.mimes' => 'Ảnh chỉ được chọn các định dạng: jpeg, png, jpg, gif, svg.',
@@ -132,12 +152,23 @@ class DoctorController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // Check if doctor profile already exists for this user
+        $existingDoctor = Doctor::where('user_id', $request->user_id)
+            ->where('isDeleted', 0)
+            ->first();
+
+        if ($existingDoctor) {
+            return redirect()->back()
+                ->withErrors(['user_id' => 'Bác sĩ này đã có hồ sơ trong hệ thống'])
+                ->withInput();
+        }
+
         // Proceed with storing the data
         $avatarPath = $request->file('doctor_avatar') ? $request->file('doctor_avatar')->store('avatars', 'public') : null;
         $filePath = $request->file('file') ? $request->file('file')->store('files', 'public') : null;
 
         Doctor::create([
-            'user_id' => 1, // Lấy ID user đăng nhập thay vì gán cố định
+            'user_id' => $request->user_id,  // Updated to use selected user_id
             'doctor_avatar' => $avatarPath,
             'doctor_name' => $request->doctor_name,
             'doctor_bio' => $request->doctor_bio,
@@ -153,17 +184,35 @@ class DoctorController extends Controller
     public function edit($id)
     {
         $data = Doctor::findOrFail($id);
+        $doctors = User::where('role', 'doctor')
+            ->where('isDeleted', 0)
+            ->get();
 
         return view('admin.pages.doctor.edit', [
             'data' => $data,
-            'specialties' => Specialty::pluck('name', 'id')  // Lấy danh sách chuyên khoa
+            'specialties' => Specialty::pluck('name', 'id'),
+            'doctors' => $doctors
         ]);
     }
 
     public function update(Request $request, $id)
     {
-        // Tạo bộ kiểm tra dữ liệu
         $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'doctor_name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) use ($id) {
+                    $exists = Doctor::where('doctor_name', $value)
+                        ->where('id', '!=', $id)
+                        ->where('isDeleted', 0)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Tên bác sĩ đã tồn tại trong hệ thống.');
+                    }
+                }
+            ],
             'doctor_avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'doctor_name' => 'required|string|max:255',
             'doctor_bio' => 'nullable|string|max:1000',
@@ -171,6 +220,8 @@ class DoctorController extends Controller
             'file' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
             'specialty_id' => 'required|exists:specialties,id'
         ], [
+            'user_id.required' => 'Vui lòng chọn tài khoản bác sĩ',
+            'user_id.exists' => 'Tài khoản bác sĩ không tồn tại',
             'doctor_avatar.required' => 'Ảnh đại diện là bắt buộc.',
             'doctor_avatar.image' => 'Ảnh đại diện phải là định dạng ảnh hợp lệ.',
             'doctor_avatar.mimes' => 'Ảnh chỉ được chọn các định dạng: jpeg, png, jpg, gif, svg.',
@@ -217,6 +268,7 @@ class DoctorController extends Controller
 
         // Cập nhật thông tin bác sĩ
         $doctor->update([
+            'user_id' => $request->user_id,
             'doctor_name' => $request->doctor_name,
             'doctor_bio' => $request->doctor_bio,
             'specialty_id' => $request->specialty_id,
