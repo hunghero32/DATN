@@ -6,15 +6,21 @@
 
     @foreach($invoiceDetails as $detail)
         <div class="card shadow-lg mb-4">
-            <div class="card-header text-center border-bottom border-1 border-primary pb-3 shadow-sm">
+            {{-- <div class="card-header text-center border-bottom border-1 border-primary pb-3 shadow-sm">
                 <h4 class="mb-1 fw-bold text-uppercase text-dark">HÓA ĐƠN KHÁM BỆNH</h4>
                 <h5 class="mb-1 fw-bold text-primary text-secondary">Phòng Khám Đa Khoa Số 1</h5>
                 <p class="mb-0 text-muted fst-italic">Địa chỉ: Số 1, Đường 2, Quận 3, TP.HN</p>
                 <p class="mb-0 text-muted fst-italic">Điện thoại: 0123 456 789</p>
-            </div>
+            </div> --}}
             
 
             <div class="card-body mt-4" id="invoice-{{ $detail->invoice_id }}">
+                <div class="card-header text-center border-bottom border-1 border-primary pb-3 mb-3">
+                    <h4 class="mb-1 fw-bold text-uppercase text-dark">HÓA ĐƠN KHÁM BỆNH</h4>
+                    <h5 class="mb-1 fw-bold text-primary text-secondary">Phòng Khám Đa Khoa Số 1</h5>
+                    <p class="mb-0 text-muted fst-italic">Địa chỉ: Số 1, Đường 2, Quận 3, TP.HN</p>
+                    <p class="mb-0 text-muted fst-italic">Điện thoại: 0123 456 789</p>
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <h5 class="mb-1"><strong>Mã Hóa Đơn:</strong> #{{ $detail->invoice_id }}</h5>
@@ -64,7 +70,6 @@
                             $gia = $detail->booking->service->price ?? 0;
                             $giam_gia = $detail->invoice->discount ?? 0;
                             $thue_phan_tram = $detail->invoice->tax ?? 0;
-
                             $tien_sau_giam = $gia - $giam_gia;
                             $tien_thue = ($tien_sau_giam * $thue_phan_tram) / 100;
                             $tong_tien = $tien_sau_giam + $tien_thue;
@@ -78,29 +83,27 @@
                     <p class="mb-0 text-muted fst-italic">Vui lòng giữ hóa đơn để đối chiếu khi cần thiết</p>
 
                 </div>
-
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="d-flex">
-                        <a href="{{ route('invoice_details.edit', $detail->id) }}" class="btn btn-warning me-2">
-                            <i class="fas fa-edit"></i> Sửa
-                        </a>
-                
-                        {{-- <form action="{{ route('invoice_details.delete', $detail->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa không?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash-alt"></i> Xóa
-                            </button>
-                        </form> --}}
-                    </div>
-                
-                    <button class="btn btn-primary mt-3" onclick="printInvoice('{{ $detail->invoice_id }}')">
-                        <i class="fas fa-print"></i> In Hóa Đơn
-                    </button>
-                </div>
-                
-
             </div>
+            
+        </div>
+        <div class="card-header d-flex justify-content-between align-items-center d-print-none">
+            <div class="d-flex">
+                <a href="{{ route('invoice_details.edit', $detail->id) }}" class="btn btn-warning me-2">
+                    <i class="fas fa-edit"></i> Sửa
+                </a>
+        
+                <form action="{{ route('invoice_details.delete', $detail->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa không?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Xóa
+                    </button>
+                </form>
+            </div>
+        
+            <button class="btn btn-primary mt-3" onclick="printInvoice('{{ $detail->invoice_id }}')">
+                <i class="fas fa-print"></i> In Hóa Đơn
+            </button>
         </div>
     @endforeach
 
@@ -115,13 +118,93 @@
 @section('scripts')
 <script>
     function printInvoice(invoiceId) {
-        let printContent = document.getElementById(`invoice-${invoiceId}`).innerHTML;
-        let originalContent = document.body.innerHTML;
+        const invoiceContent = document.getElementById(`invoice-${invoiceId}`).innerHTML;
 
-        document.body.innerHTML = printContent;
+        const printArea = document.createElement('div');
+        printArea.id = 'print-area';
+        printArea.innerHTML = invoiceContent;
+        document.body.appendChild(printArea);
+
+        const style = document.createElement('style');
+        style.innerHTML = `
+        @media print {
+                @page {
+                    size: A4 portrait;
+                    margin: 10mm;
+                }
+
+                html, body {
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    height: auto !important;
+                    overflow: hidden !important;
+                }
+
+                body * {
+                    visibility: hidden;
+                }
+
+                #print-area, #print-area * {
+                    visibility: visible;
+                }
+
+                #print-area {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 5px; /* giảm padding để tiết kiệm không gian */
+                    font-size: 13px; /* giảm size để tránh tràn trang */
+                    line-height: 1.4;
+                }
+
+                .row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 6px;
+                }
+
+                .col-md-6 {
+                    width: 48%;
+                }
+
+                .text-end {
+                    text-align: right !important;
+                }
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 6px;
+                }
+
+                table th, table td {
+                    border: 1px solid #999;
+                    padding: 5px;
+                    text-align: left;
+                }
+
+                .d-print-none {
+                    display: none !important;
+                }
+
+                .card, .card-body, .row, table, tr {
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
+                }
+            }
+
+                `;
+
+        document.head.appendChild(style);
         window.print();
-        document.body.innerHTML = originalContent;
-        location.reload(); // Load lại trang sau khi in
+        setTimeout(() => {
+            document.body.removeChild(printArea);
+            document.head.removeChild(style);
+        }, 1000);
     }
 </script>
 @endsection
+
