@@ -70,6 +70,12 @@ class PostController  extends Controller
     {
         $data = $rep->validated(); // Lấy dữ liệu đã validate
 
+        $filePath = null;
+        if ($rep->hasFile('file')) {
+            $filePath = $rep->file('file')->store('uploads', 'public');
+            $data= $filePath;
+        }
+
         Post::create($data);
 
         return redirect()->route('admin.posts.index')->with('success', 'Bài viết đã được tạo thành công.');

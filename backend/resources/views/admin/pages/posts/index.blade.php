@@ -41,11 +41,11 @@
                         <button type="submit" class="btn btn-primary">Lọc</button>
                     </div>
                 </div>
-                @if(request('search') || request('category_id') || request('status') || request('published_at'))
-                <div class="col-md-1 d-grid">
-                    <a href="{{ route('admin.posts.index') }}" class="btn btn-secondary">Quay lại</a>
-                </div>
-            @endif
+                @if (request('search') || request('category_id') || request('status') || request('published_at'))
+                    <div class="col-md-1 d-grid">
+                        <a href="{{ route('admin.posts.index') }}" class="btn btn-secondary">Quay lại</a>
+                    </div>
+                @endif
             </form>
 
             <div class="text-end mb-3">
@@ -57,16 +57,12 @@
                     <table class="table table-bordered table-hover align-middle">
                         <thead class="table-dark text-center">
                             <tr>
-                                <th>ID</th>
+                                <th>STT</th>
                                 <th>Danh mục</th>
                                 <th>Tác giả</th>
                                 <th>Slug</th>
                                 <th>Tiêu đề</th>
-                                <th>Nội dung</th>
-                                <th>Lượt xem</th>
                                 <th>IMG</th>
-                                <th>Trạng thái</th>
-                                <th>Ngày xuất bản</th>
                                 <th>Hành động</th>
                             </tr>
                         </thead>
@@ -80,21 +76,17 @@
                                     <td class="text-center">{{ $post->user ? $post->user->name : 'Không có tác giả' }}</td>
                                     <td>{{ $post->slug }}</td>
                                     <td>{{ $post->title }}</td>
-                                    <td>{{ Str::limit($post->content, 100) }}</td>
-                                    <td class="text-center">{{ $post->views }}</td>
-                                  
-                                    <td class="text-center">
-                                        <img src={{ Storage::Url($post->image) }} width="70px">
-                                    </td>
+
 
                                     <td class="text-center">
-                                        <span
-                                            class="badge {{ $post->status == 'published' ? 'bg-success' : 'bg-warning text-dark' }}">
-                                            {{ ucfirst($post->status) }}
-                                        </span>
+                                        @if (!empty($post->image))
+                                        <img src="{{ Storage::url($post->image) }}" width="70px" alt="Ảnh bài viết">
+
+
+                                        @else
+                                            <p>Không có ảnh</p>
+                                        @endif
                                     </td>
-                                    <td class="text-center">
-                                        {{ $post->published_at ? $post->published_at->format('d-m-Y') : '-' }}</td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
                                             <a class="btn btn-primary btn-sm"
