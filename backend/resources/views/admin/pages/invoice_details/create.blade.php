@@ -25,16 +25,16 @@
         <h4>Thông Tin Hóa Đơn</h4>
         <div class="mb-3">
              {{-- <label for="total_amount" class="form-label">Tổng tiền</label> --}}
-             <input type="hidden" name="total_amount" value="0">
+             {{-- <input type="hidden" name="total_amount" value="0"> --}}
         </div>
 
         <div class="mb-3">
-            <label for="discount" class="form-label">Giảm giá</label>
+            <label for="discount" class="form-label">Giảm giá (VNĐ)</label>
             <input type="number" class="form-control" name="discount">
         </div>
 
         <div class="mb-3">
-            <label for="tax" class="form-label">Thuế</label>
+            <label for="tax" class="form-label">Thuế (%)</label>
             <input type="number" class="form-control" name="tax">
         </div>
 
