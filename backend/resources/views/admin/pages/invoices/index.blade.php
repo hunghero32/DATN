@@ -40,11 +40,11 @@
                             <td class=" text-nowrap">
                                 <a href="{{ route('invoice_details.index', ['invoice_id' => $invoice->id]) }}" class="btn btn-info btn-sm">Chi tiết</a>
                                 {{-- <a href="{{ route('admin.invoices.edit', $invoice->id) }}" class="btn btn-warning btn-sm">Sửa</a> --}}
-                                <form action="{{ route('admin.invoices.delete', $invoice->id) }}" method="POST" style="display:inline;">
+                                {{-- <form action="{{ route('admin.invoices.delete', $invoice->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</button>
-                                </form>
+                                </form> --}}
                             </td>
                         </tr>
                     @endforeach

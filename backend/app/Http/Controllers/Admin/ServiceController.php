@@ -179,7 +179,9 @@ class ServiceController extends Controller
 
         // Lấy dữ liệu hợp lệ
         $validatedData = $validator->validated();
-        $validatedData['status'] = $request->has('status') ? 1 : 0;  // Changed this line
+
+        // Keep existing status if not changed, otherwise update to new status
+        $validatedData['status'] = $request->has('status') ? $request->status : $service->status;
 
         if ($request->hasFile('image')) {
             // Xóa ảnh cũ nếu tồn tại

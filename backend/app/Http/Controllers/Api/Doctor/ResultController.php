@@ -27,7 +27,11 @@ class ResultController extends Controller
      */
     public function index(Request $request)
     {
-        $results = Result::with(['guest', 'doctor', 'booking'])
+        $results = Result::with([
+                'guest',
+                'doctor',
+                'booking.service'
+            ])
             ->where('isDeleted', 0)
             ->whereHas('doctor', function ($query) {
                 $query->where('user_id', auth()->id());
@@ -39,12 +43,6 @@ class ResultController extends Controller
             ->filterBookingDate($request->booking_date) // Lọc theo ngày đặt lịch
             ->filterBookingTime($request->booking_time) // Lọc theo giờ đặt lịch
             ->latest('updated_at')->paginate(10);
-
-        if ($results->isEmpty()) {
-            return response()->json([
-                'message' => 'Không tìm thấy kết quả phù hợp.'
-            ], 200);
-        }
 
         return response()->json($results, 200);
     }
