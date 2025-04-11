@@ -85,13 +85,13 @@
                             <i class="fas fa-edit"></i> Sửa
                         </a>
                 
-                        <form action="{{ route('invoice_details.delete', $detail->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa không?');">
+                        {{-- <form action="{{ route('invoice_details.delete', $detail->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa không?');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger">
                                 <i class="fas fa-trash-alt"></i> Xóa
                             </button>
-                        </form>
+                        </form> --}}
                     </div>
                 
                     <button class="btn btn-primary mt-3" onclick="printInvoice('{{ $detail->invoice_id }}')">

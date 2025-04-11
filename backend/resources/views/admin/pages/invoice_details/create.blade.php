@@ -7,7 +7,7 @@
         @csrf
         <div class="mb-3">
             <label for="booking_id" class="form-label">Đặt Lịch</label>
-            <select class="form-control" name="booking_id" required>
+            <select class="form-control select2" name="booking_id" required>
                 <option value="">Chọn đặt lịch</option>
                 @foreach($bookings as $booking)
                     <option value="{{ $booking->id }}">
@@ -41,4 +41,17 @@
         <button type="submit" class="btn btn-primary">Thêm</button>
     </form>
 </div>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+
+<script>
+    $.noConflict();
+    jQuery(document).ready(function($) {
+        $('.select2').select2({
+            placeholder: 'Chọn đặt lịch',
+            allowClear: true
+        });
+    });
+</script>
 @endsection
