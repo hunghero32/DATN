@@ -23,8 +23,8 @@ class BookingController extends Controller
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
-        // $this->middleware('auth:client_api'); // Yêu cầu đăng nhập qua API
-        $this->middleware('web'); // Đã thêm trước đó cho session
+        $this->middleware('auth:sanctum'); // Add sanctum authentication
+        $this->middleware('web');
     }
 
     public function tempBooking(Request $request)
@@ -143,26 +143,43 @@ class BookingController extends Controller
             'notes' => 'nullable|string'
         ]);
 
-        $tempBooking = Session::get('temp_booking');
-        if (!$tempBooking) {
+        // Get authenticated user ID
+        $userId = $request->user()->id;
+
+        // Check if guest_name already exists for this user
+        $existingGuest = Guest::where('user_id', $userId)
+            ->where('guest_name', $request->guest_name)
+            ->first();
+
+        if ($existingGuest) {
             return response()->json([
                 'status' => false,
-                'message' => 'Không có dữ liệu booking tạm thời'
-            ], 400);
+                'message' => 'Tên khách hàng đã tồn tại trong tài khoản của bạn'
+            ], 422);
         }
 
-        $guest = Guest::where('guest_phone', $request->guest_phone)
-            ->orWhere('guest_email', $request->guest_email)
-            ->first();
+        $guest = Guest::where(function($query) use ($request) {
+            $query->where('guest_phone', $request->guest_phone)
+                  ->orWhere('guest_email', $request->guest_email);
+        })->first();
 
         if (!$guest) {
             $guest = Guest::create([
-                'user_id' => $request->user_id ?? 2, // user_id có thể là NULL
+                'user_id' => $userId,
                 'guest_name' => $request->guest_name,
                 'gender' => $request->gender,
                 'birthday' => $request->birthday,
                 'guest_phone' => $request->guest_phone,
                 'guest_email' => $request->guest_email,
+                'address' => json_encode($request->address),
+                'file' => $request->file ?? null
+            ]);
+        } else {
+            $guest->update([
+                'user_id' => $userId,
+                'guest_name' => $request->guest_name,
+                'gender' => $request->gender,
+                'birthday' => $request->birthday,
                 'address' => json_encode($request->address),
                 'file' => $request->file ?? null
             ]);
@@ -177,14 +194,12 @@ class BookingController extends Controller
             'notes' => $request->notes ?? null,
             'status' => 'pending'
         ]);
-        // Gửi thông báo sau khi đặt lịch thành công
-        $this->sendBookingNotification($booking);
-        Session::forget('temp_booking');
 
-        // Store guest information in session for appointments lookup
-        Session::put('last_booking_guest', [
-            'guest_id' => $guest->id
-        ]);
+        // Send notification
+        $this->sendBookingNotification($booking);
+
+        // Clear all related booking sessions
+        Session::forget(['temp_booking', 'last_booking_guest']);
 
         return response()->json([
             'status' => true,
@@ -199,18 +214,14 @@ class BookingController extends Controller
     public function appointments()
     {
         try {
-            // Get the last confirmed booking's guest information from session
-            $lastBooking = Session::get('last_booking_guest');
-
-            if (!$lastBooking) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Không tìm thấy thông tin đặt lịch'
-                ], 404);
-            }
-
+            // Get authenticated user's ID
+            $userId = auth()->id();
+    
+            // Get all bookings for guests associated with this user
             $bookings = Booking::with(['doctor', 'service', 'guest'])
-                ->where('guest_id', $lastBooking['guest_id'])
+                ->whereHas('guest', function($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($booking) {
@@ -228,7 +239,14 @@ class BookingController extends Controller
                         'created_at' => $booking->created_at
                     ];
                 });
-
+    
+            if ($bookings->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy thông tin đặt lịch'
+                ], 404);
+            }
+    
             return response()->json([
                 'status' => true,
                 'message' => 'Danh sách lịch hẹn',
