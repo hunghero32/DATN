@@ -73,7 +73,7 @@
                                     <th>SĐT</th>
                                     <th>Vai trò</th>
                                     <th>Ngày tạo</th>
-                                    <th>Hành động</th>
+
                                 </tr>
                             </thead>
 
@@ -88,24 +88,19 @@
                                         <td>{{ $user->phone }}</td>
                                         <td>
                                             <span class="badge bg-info text-dark px-3 py-2">
-                                                {{ $user->role ?? 'Không có vai trò' }}
+                                                @php
+                                                    $roleMapping = [
+                                                        'admin' => 'Quản trị viên',
+                                                        'doctor' => 'Bác sĩ',
+                                                        'guest' => 'Bệnh nhân',
+                                                    ];
+                                                @endphp
+                                                {{ $roleMapping[$user->role] ?? 'Không có vai trò' }}
                                             </span>
                                         </td>
+
                                         <td>{{ $user->created_at->format('d-m-Y') }}</td>
-                                        <td>
-                                            <a href="{{ route('admin.users.edit', $user->id) }}"
-                                                class="btn btn-outline-primary btn-sm px-3">
-                                                <i class="bi bi-pencil-square"></i> Sửa
-                                            </a>
-                                            <form action="{{ route('admin.users.delete', $user->id) }}" method="POST"
-                                                onsubmit="return confirm('Bạn có chắc không?')" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-outline-danger btn-sm px-3">
-                                                    <i class="bi bi-trash"></i> Xóa
-                                                </button>
-                                            </form>
-                                        </td>
+
                                     </tr>
                                 @endforeach
                             </tbody>

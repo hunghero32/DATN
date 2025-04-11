@@ -41,11 +41,10 @@ class UserController extends Controller
 
         $role = [
             '' => 'Tất cả vai trò',
-            'admin' => 'Quản trị viên',
-            'doctor' => 'Bác sĩ',
-            'guest' => 'Bệnh nhân'
+            'quản trị viên' => 'Quản trị viên',
+            'bác sĩ' => 'Bác sĩ',
+            'bệnh nhân' => 'Bệnh nhân'
         ];
-
         return view('admin.pages.users.index', compact('users', 'role'));
     }
 

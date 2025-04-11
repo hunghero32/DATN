@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between">
                     <h5 class="mb-0">Danh sách khách mời</h5>
-                    <a href="{{ route('admin.guests.create') }}" class="btn btn-primary">Thêm khách mới</a>
+
                 </div>
 
                 <!-- FORM TÌM KIẾM & BỘ LỌC -->
@@ -52,16 +52,15 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Người dùng</th>
+                                <th>STT</th>
+
                                 <th>Tên khách</th>
                                 <th>Giới tính</th>
                                 <th>Ngày sinh</th>
                                 <th>SĐT</th>
                                 <th>Email</th>
-                                <th>Địa chỉ</th>
-                                <th>Tệp</th>
-                                <th>Ngày tạo</th>
+
+
                                 <th>Hành động</th>
                             </tr>
                         </thead>
@@ -71,23 +70,23 @@
                                     <td>{{ ($guests->currentPage() - 1) * $guests->perPage() + $loop->iteration }}</td>
                                     <td>{{ $guest->user->name ?? 'N/A' }}</td>
                                     <td>{{ $guest->guest_name }}</td>
-                                    <td>{{ ucfirst($guest->gender) }}</td>
-                                    <td>{{ $guest->birthday ?? 'N/A' }}</td>
-                                    <td>{{ $guest->guest_phone ?? 'N/A' }}</td>
-                                    <td>{{ $guest->guest_email ?? 'N/A' }}</td>
                                     <td>
                                         @php
-                                        $address = is_string($guest->address) ? json_decode($guest->address, true) : $guest->address;
-                                    @endphp
-                                    {{ is_array($address) ? implode(', ', $address) : ($guest->address ?? 'Không có địa chỉ') }}
+                                            $genderMapping = [
+                                                'male' => 'Nam',
+                                                'female' => 'Nữ',
 
+                                            ];
+                                        @endphp
+                                        {{ $genderMapping[$guest->gender] ?? 'Không xác định' }}
                                     </td>
 
-                                    <td>
-                                        <img src={{ Storage::Url($guest->file) }} width="70px">
-                                    </td>
+                                    <td>{{ $guest->birthday ?? 'N/A' }}</td>
+                                    <td>{{ $guest->guest_phone ?? 'N/A' }}</td>
+                                   
 
-                                    <td>{{ $guest->created_at->format('d-m-Y') }}</td>
+
+
                                     <td>
                                         <a href="{{ route('admin.guests.edit', $guest->id) }}"
                                             class="btn btn-sm btn-warning">show</a>
