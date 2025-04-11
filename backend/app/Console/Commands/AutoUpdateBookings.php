@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 use App\Models\Booking;
 use App\Services\NotificationService;
 use App\Models\Doctor;
+use App\Models\Invoice;
+use App\Models\InvoiceDetail;
 use App\Models\Guest;
 use Carbon\Carbon;
 
@@ -56,10 +58,30 @@ class AutoUpdateBookings extends Command
             $firstBooking = $group->first();
             $firstBooking->update(['status' => 'confirmed']);
             $updatedCount++;
+            // Tạo hóa đơn cho booking đầu tiên
+            $servicePrice = $firstBooking->service->price ?? 0;
+            $discount = 0;
+            $taxPercent = 0;
 
+            $taxableAmount = max($servicePrice - $discount, 0);
+            $tax = $taxableAmount * ($taxPercent / 100);
+            $totalAmount = $taxableAmount + $tax;
+
+            // Tạo hóa đơn
+            $invoice = Invoice::create([
+                'total_amount' => $totalAmount,
+                'discount' => $discount,
+                'tax' => $tax,
+            ]);
+
+            // Tạo chi tiết hóa đơn gắn booking
+            InvoiceDetail::create([
+                'invoice_id' => $invoice->id,
+                'booking_id' => $firstBooking->id,
+            ]);
             // Lấy thông tin bác sĩ và khách hàng
-            $doctor = Doctor::find($firstBooking->doctor_id);
-            $guest = Guest::find($firstBooking->guest_id);
+            $doctor = optional(Doctor::find($firstBooking->doctor_id));
+            $guest = optional(Guest::find($firstBooking->guest_id));
 
             if ($doctor && $guest) {
                 $bookingDate = Carbon::parse($firstBooking->booking_date)->format('d/m/Y');
@@ -83,15 +105,17 @@ class AutoUpdateBookings extends Command
                     $firstBooking->id
                 );
             }
-
-            // Hủy tất cả các booking khác trong cùng nhóm
+            // Hủy các booking còn lại trong cùng nhóm
             foreach ($group->skip(1) as $booking) {
                 $booking->update(['status' => 'canceled']);
                 $canceledCount++;
 
-                $guest = Guest::find($booking->guest_id);
-                if ($guest) {
-                    // Gửi thông báo cho khách hàng bị từ chối
+                $guest = optional(Guest::find($booking->guest_id));
+
+                if ($guest->exists) {
+                    $bookingDate = Carbon::parse($booking->booking_date)->format('d/m/Y');
+                    $bookingTime = Carbon::parse($booking->booking_time)->format('H:i');
+
                     $this->notificationService->sendNotification(
                         $guest->user_id,
                         "Lịch hẹn {$booking->service->services_name} bị hủy",
@@ -102,7 +126,6 @@ class AutoUpdateBookings extends Command
                 }
             }
         }
-
         $this->info("Đã cập nhật: $updatedCount booking -> confirmed");
         $this->info("Đã hủy: $canceledCount booking -> canceled");
     }
