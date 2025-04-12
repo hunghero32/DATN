@@ -82,7 +82,7 @@ const Results = () => {
         const fetchBookingsForForm = async () => {
             try {
                 // Fetch bookings suitable for creating results (e.g., completed or confirmed)
-                const response = await api.get('/bookings', { params: { status: 'completed,confirmed' }}); // Adjust status as needed
+                const response = await api.get('/bookings', { params: { available_for_result: true } });
                 setBookings(response.data.data || []); // Adjust based on API structure
             } catch (error) {
                 console.error('Error fetching bookings for form:', error);
@@ -122,12 +122,22 @@ const Results = () => {
         }
 
         try {
-            // Backend uses POST to /results/booking/{id} for both create and update
-            const response = await api.post(`/results/booking/${bookingId}`, resultData, {
-                 headers: {
-                     'Content-Type': 'multipart/form-data', // Important for file uploads
-                 },
-            });
+            let response;
+            const config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            };
+
+            if (isUpdating) {
+                // --- UPDATE: Use PUT via POST with _method --- 
+                // Append _method to FormData for Laravel to recognize PUT
+                resultData.append('_method', 'PUT'); 
+                response = await api.post(`/results/booking/${bookingId}`, resultData, config);
+            } else {
+                // --- CREATE: Use POST --- 
+                response = await api.post(`/results`, resultData, config);
+            }
 
             setShowForm(false);
             setEditingResult(null);
