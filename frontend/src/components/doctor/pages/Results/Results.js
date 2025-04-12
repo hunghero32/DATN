@@ -113,13 +113,22 @@ const Results = () => {
     const handleSaveResult = async (resultData, isUpdating = false) => {
         setLoading(true); // Show loading indicator on form submission
         setError(null);
-        const bookingId = resultData.get('booking_id'); // Assuming booking_id is in FormData
+        // const bookingId = resultData.get('booking_id'); // Không cần bookingId trực tiếp ở đây nữa
 
-        if (!bookingId) {
-             setError('Vui lòng chọn một lịch khám.');
-             setLoading(false);
-             return;
+        // Lấy resultId nếu đang cập nhật
+        const resultId = isUpdating ? editingResult?.id : null;
+
+        if (isUpdating && !resultId) {
+            setError('Không tìm thấy ID kết quả để cập nhật.');
+            toast.error('Không tìm thấy ID kết quả để cập nhật.');
+            setLoading(false);
+            return;
         }
+
+        // Vẫn cần booking_id trong FormData cho backend validation (nếu cần)
+        // Hoặc có thể bỏ nếu UpdateResultRequest không yêu cầu
+        // const bookingId = resultData.get('booking_id');
+        // if (!bookingId) { ... }
 
         try {
             let response;
@@ -130,12 +139,11 @@ const Results = () => {
             };
 
             if (isUpdating) {
-                // --- UPDATE: Use PUT via POST with _method --- 
-                // Append _method to FormData for Laravel to recognize PUT
-                resultData.append('_method', 'PUT'); 
-                response = await api.post(`/results/booking/${bookingId}`, resultData, config);
+                // --- UPDATE: Use PUT via POST with _method to the /results/{id} endpoint ---
+                resultData.append('_method', 'PUT');
+                response = await api.post(`/results/${resultId}`, resultData, config);
             } else {
-                // --- CREATE: Use POST --- 
+                // --- CREATE: Use POST to /results ---
                 response = await api.post(`/results`, resultData, config);
             }
 
@@ -160,22 +168,21 @@ const Results = () => {
     };
 
 
-    // --- Handle Delete ---
-    // --- Updated API Endpoint & Confirmation Message ---
-    const handleDelete = async (resultId) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa kê đơn này?')) {
-            try {
-                // --- Assuming backend uses DELETE /results/{id} ---
-                await api.delete(`/results/${resultId}`);
-                toast.success('Xóa kê đơn thành công!');
-                fetchResults(currentPage, search, date); // Refresh list
-            } catch (error) {
-                console.error("Error deleting result:", error);
-                setError('Lỗi khi xóa kê đơn: ' + (error.response?.data?.message || error.message));
-                toast.error('Lỗi khi xóa kê đơn.');
-            }
-        }
-    };
+    // --- Bỏ Handle Delete ---
+    // const handleDelete = async (resultId) => {
+    //     if (window.confirm('Bạn có chắc chắn muốn xóa kê đơn này?')) {
+    //         try {
+    //             // --- Assuming backend uses DELETE /results/{id} ---
+    //             await api.delete(`/results/${resultId}`);
+    //             toast.success('Xóa kê đơn thành công!');
+    //             fetchResults(currentPage, search, date); // Refresh list
+    //         } catch (error) {
+    //             console.error("Error deleting result:", error);
+    //             setError('Lỗi khi xóa kê đơn: ' + (error.response?.data?.message || error.message));
+    //             toast.error('Lỗi khi xóa kê đơn.');
+    //         }
+    //     }
+    // };
 
     // --- Handle Page Change ---
     const handlePageChange = (page) => {
@@ -306,7 +313,8 @@ const Results = () => {
                                                     >
                                                         <FaInfoCircle />
                                                     </Button>
-                                                    <Button
+                                                    {/* Bỏ nút Sửa ở đây */}
+                                                    {/* <Button
                                                         variant="primary"
                                                         size="sm"
                                                         onClick={() => handleShowEditForm(result)} // Pass result
@@ -314,8 +322,9 @@ const Results = () => {
                                                          title="Sửa Kê Đơn"
                                                     >
                                                        <FaEdit />
-                                                    </Button>
-                                                    <Button
+                                                    </Button> */}
+                                                    {/* Bỏ nút Xóa ở đây */}
+                                                    {/* <Button
                                                         variant="danger"
                                                         size="sm"
                                                         onClick={() => handleDelete(result.id)} // Pass result id
@@ -323,7 +332,7 @@ const Results = () => {
                                                         title="Xóa Kê Đơn"
                                                     >
                                                         <FaTrashAlt />
-                                                    </Button>
+                                                    </Button> */}
                                                 </div>
                                             </td>
                                         </tr>
@@ -385,6 +394,11 @@ const Results = () => {
                     onClose={() => {
                         setShowDetail(false);
                         setSelectedResult(null);
+                    }}
+                    // Truyền hàm xử lý sửa xuống Detail
+                    onEditClick={(resultToEdit) => {
+                        setShowDetail(false); // Đóng detail
+                        handleShowEditForm(resultToEdit); // Mở form edit
                     }}
                 />
             )}

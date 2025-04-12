@@ -1,12 +1,12 @@
 import React from 'react';
 import { Modal, Button, Container, Row, Col, Badge } from 'react-bootstrap'; // Added Badge
-import { FaFileMedicalAlt, FaTimes, FaUserAlt, FaStethoscope, FaCalendarAlt, FaClock, FaDiagnoses, FaPrescriptionBottleAlt, FaStickyNote, FaDownload, FaPaperclip } from 'react-icons/fa'; // Updated Icons
+import { FaFileMedicalAlt, FaTimes, FaUserAlt, FaStethoscope, FaCalendarAlt, FaClock, FaDiagnoses, FaPrescriptionBottleAlt, FaStickyNote, FaDownload, FaPaperclip, FaEdit } from 'react-icons/fa'; // Updated Icons
 
 // Helper function
 const getDetailValue = (value, placeholder = 'Chưa cập nhật') => value || placeholder;
 
 // --- Renamed Component & Prop ---
-const ResultDetail = ({ result, onClose }) => {
+const ResultDetail = ({ result, onClose, onEditClick }) => {
 
     // Construct file URL (adjust base URL as needed)
     const fileUrl = result?.file ? `http://127.0.0.1:8000/storage/${result.file}` : null;
@@ -95,13 +95,20 @@ const ResultDetail = ({ result, onClose }) => {
 
                 </Container>
             </Modal.Body>
-            <Modal.Footer style={{ borderTop: "1px solid #edf2f9", padding: "20px", backgroundColor: "#f8f9fa" }}>
-                 {/* Removed Print Button */}
-                {/* <Button variant="primary" onClick={() => window.print()} ...> <FaPrint /> In Kê Đơn </Button> */}
+            <Modal.Footer style={{ borderTop: "1px solid #edf2f9", padding: "20px", backgroundColor: "#f8f9fa", display: "flex", justifyContent: "space-between" }}>
+                 {/* Nút Sửa */}
+                 <Button
+                    variant="primary"
+                    onClick={() => onEditClick(result)} // Gọi hàm onEditClick từ props
+                    style={{ borderRadius: "8px", padding: "10px 20px", backgroundColor: "#3498db", border: "none", display: "flex", alignItems: "center", gap: "8px" }}
+                 >
+                    <FaEdit /> Sửa Kê Đơn
+                 </Button>
+                {/* Nút Đóng */}
                 <Button
                     variant="secondary"
                     onClick={onClose}
-                    style={{ borderRadius: "8px", padding: "10px 20px", backgroundColor: "#6c757d", border: "none", marginLeft: "auto" /* Push close to right */ , display: "flex", alignItems: "center", gap: "8px" }}
+                    style={{ borderRadius: "8px", padding: "10px 20px", backgroundColor: "#6c757d", border: "none", /* marginLeft: "auto" bỏ đi */ display: "flex", alignItems: "center", gap: "8px" }}
                 >
                     <FaTimes /> Đóng
                 </Button>

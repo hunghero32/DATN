@@ -11,7 +11,7 @@ import DoctorServices from "../../components/doctor/pages/Services/DoctorService
 import Results from "../../components/doctor/pages/Results/Results";
 import Posts from "../../components/doctor/pages/Post/Posts";
 import { ToastContainer } from 'react-toastify';
-import TestExamResult from "../../components/doctor/pages/ListAppointment/TestExamResult";
+
 import { useAuth } from "../../components/guest/auth/AuthContext";
 
 const DoctorLayout = () => {
@@ -23,9 +23,6 @@ const DoctorLayout = () => {
   useEffect(() => {
     if (!user) {
       navigate("/login");
-    } else if (user.role !== 'doctor') {
-        console.warn("User is not a doctor. Redirecting...");
-        // navigate("/"); // Or appropriate redirect
     }
     setLoading(false);
   }, [user, navigate]);
@@ -60,7 +57,6 @@ const DoctorLayout = () => {
           <Route path="/profile" element={<DoctorProfile />} />
           <Route path="/profile/edit" element={<DoctorProfile isEditing={true} />} />
           <Route path="/profileUser" element={<UserProfile />} />
-          <Route path="/test-exam-result" element={<TestExamResult />} />
         </Routes>
       </main>
     </div>
