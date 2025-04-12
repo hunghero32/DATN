@@ -349,7 +349,24 @@ export default function Header() {
                   </div>
                 </div>
               </div>
-
+{token && user && user.role !== 'doctor' && user.role !== 'admin' && (
+  <div ref={clientNotificationIconRef} className="relative">
+    <button
+      className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition"
+      onClick={handleClientIconClick}
+      aria-label="Thông báo"
+    >
+      <Badge
+        count={clientUnreadCount}
+        overflowCount={9}
+        size="default"
+      >
+        <i className="ri-notification-3-line text-xl text-gray-700"></i>
+      </Badge>
+    </button>
+    {clientPopoverVisible && clientNotificationContentJSX}
+  </div>
+)}
               {/* === NÚT CHUÔNG THÔNG BÁO CLIENT === */}
               {token && user && user.role !== 'doctor' && user.role !== 'admin' && (
                  <div

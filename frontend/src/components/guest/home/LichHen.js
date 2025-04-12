@@ -12,15 +12,16 @@ const LichHen = () => {
     api.get("/api/client/appointments")
       .then((response) => {
         if (response.data.status) {
-          setAppointments(response.data.data); 
+          setAppointments(response.data.data);
+          console.log(response.data.data);
         } else {
           setError(response.data.message);
         }
       })
+
       .catch(() => setError("Lỗi khi lấy danh sách lịch hẹn.")) // Xử lý lỗi
       .finally(() => setLoading(false)); // Hoàn tất
   }, []);
-
   return (
     <div className="container mx-auto p-6 min-h-screen">
       <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
@@ -87,30 +88,36 @@ const LichHen = () => {
                   <i className="ri-checkbox-circle-line text-blue-500"></i>
                   <strong> Trạng thái:</strong>
                   <span
-                    className={`ml-2 px-2 py-1 rounded text-sm ${
-                      appointment.status === "completed"
+                    className={`ml-2 px-2 py-1 rounded text-sm ${appointment.status === "completed"
                         ? "bg-green-500 text-white"
                         : appointment.status === "confirmed"
-                        ? "bg-yellow-500 text-white"
-                        : "bg-gray-500 text-white"
-                    }`}
+                          ? "bg-yellow-500 text-white"
+                          : "bg-gray-500 text-white"
+                      }`}
                   >
                     {appointment.status === "completed"
                       ? "Hoàn thành"
                       : appointment.status === "confirmed"
-                      ? "Đã xác nhận"
-                      : "Chờ xác nhận"}
+                        ? "Đã xác nhận"
+                        : "Chờ xác nhận"}
                   </span>
                 </p>
 
                 {/* Hiển thị nút "Xem Hóa Đơn" nếu trạng thái là "completed" */}
                 {appointment.status === "completed" && (
-                  <div className="mt-4">
+                  <div className="mt-4 flex gap-3">
                     <Link
                       to={`/hoadon/${appointment.id}`}
                       className="inline-block px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
                     >
                       <i className="ri-file-text-line mr-2"></i> Xem Hóa Đơn
+                    </Link>
+
+                    <Link
+                      to={`/ketqua/${appointment.id}`} // Dùng ID của booking
+                      className="inline-block px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700 transition"
+                    >
+                      <i className="ri-clipboard-line mr-2"></i> Xem Kết Quả
                     </Link>
                   </div>
                 )}
