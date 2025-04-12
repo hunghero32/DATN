@@ -46,6 +46,8 @@ import ChiTietBaiViet from "../../components/guest/home/ChiTietBaiViet";
 import Test from "../../components/guest/home/Test";
 import ChiTietBacSi from "../../components/guest/home/ChiTietBacSi";
 import SearchPage from "../../components/guest/home/SearchPage";
+import DanhGia from "../../components/guest/home/DanhGia";
+import KetQuaKham from "../../components/guest/home/KetQuaKham";
 
 const ClientLayout = () => {
   useEffect(() => {
@@ -118,6 +120,8 @@ const ClientLayout = () => {
         <Route path="/thongbao" element={<ThongBao/>}/>  {/* Thông báo đặt lịch thành công !}
         <Route path="/services" element={<Services/>}/>  {/* Trang dịch vụ */}
         {/* <Route path="/search" element={<SearchPage />} />     */}
+        <Route path="/danhgia" element={<DanhGia/>}/>
+        <Route path="/ketqua/:bookingId" element={<KetQuaKham />} />
         <Route path="/detail-service/:id" element={<ServiceDetail/>}/>  {/* Trang chi tiet dich vu  */}
         <Route path="/contact" element={<HomeMainContact />} />
         <Route path="/lichhen" element={<LichHen/>} />  {/* Trang lịch hẹn */}
