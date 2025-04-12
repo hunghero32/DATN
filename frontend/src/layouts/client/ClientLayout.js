@@ -47,6 +47,9 @@ import Test from "../../components/guest/home/Test";
 import ChiTietBacSi from "../../components/guest/home/ChiTietBacSi";
 import SearchPage from "../../components/guest/home/SearchPage";
 
+// Add this import at the top with other imports
+import ChatSupport from "../../components/guest/chatSupport/chat";
+
 const ClientLayout = () => {
   useEffect(() => {
     const loadScript = (src) => {
@@ -120,6 +123,7 @@ const ClientLayout = () => {
         {/* <Route path="/search" element={<SearchPage />} />     */}
         <Route path="/detail-service/:id" element={<ServiceDetail/>}/>  {/* Trang chi tiet dich vu  */}
         <Route path="/contact" element={<HomeMainContact />} />
+        <Route path="/chat-support" element={<ChatSupport />} />  {/* Trang hỗ trợ chat */} 
         <Route path="/lichhen" element={<LichHen/>} />  {/* Trang lịch hẹn */}
         <Route path="/detail-specialty/:id" element={<ChiTietChuyenKhoa />} />
         <Route path="aboutus" element={<AboutUsSection />} />

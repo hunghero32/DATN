@@ -294,10 +294,10 @@ export default function Header() {
             {/* Desktop Navigation - Updated link colors */}
             <div className={`absolute md:static top-16 left-0 w-full bg-white md:bg-transparent md:flex transition-all duration-300 ${menuOpen ? "block" : "hidden"} md:block`}>
                <ul className="navbar-nav flex flex-col md:flex-row md:items-center md:gap-6 text-lg font-semibold p-4 md:p-0">
-                {/* Changed text color to blue */}
                 <li><Link to="/" className="block py-2 md:py-0 text-blue-600! hover:text-blue-700!">Trang Chủ</Link></li>
                 <li><Link to="/aboutus" className="block py-2 md:py-0 text-blue-600! hover:text-blue-700!">Thông Tin</Link></li>
                 <li><Link to="/contact" className="block py-2 md:py-0 text-blue-600! hover:text-blue-700!">Liên Hệ</Link></li>
+                <li><Link to="/chat-support" className="block py-2 md:py-0 text-blue-600! hover:text-blue-700!">Hỗ trợ viên</Link></li>
               </ul>
             </div>
 
