@@ -43,6 +43,11 @@ class BookingController extends Controller
             ->when(auth()->user()->role === 'doctor' && $request->status === 'completed', function ($query) {
                 return $query->filterDoctorCompleted(); // lọc theo trạng thái hoàn thành
             })
+            // Chỉ lấy booking chưa có kết quả khi có yêu cầu từ form
+            ->when($request->boolean('available_for_result'), function ($query) {
+                return $query->whereDoesntHave('result') // Chỉ lấy booking chưa có kết quả
+                             ->whereIn('status', ['confirmed', 'completed']); // Chỉ lấy booking đã xác nhận hoặc hoàn thành
+            })
             ->orderBy('booking_date', 'asc')
             ->orderBy('booking_time', 'asc')
             ->paginate(10);

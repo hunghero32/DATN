@@ -3,9 +3,9 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import "remixicon/fonts/remixicon.css";
 import api from "../../../ultils/api/axios";
 import { useAuth } from "../auth/AuthContext"; // Đường dẫn đúng (đi lên 1 cấp rồi vào auth)
-import { Badge, List, Avatar, Spin, Empty, Button as AntButton } from 'antd'; // Import Ant Design components
-import { BellOutlined, CheckCircleOutlined, CloseOutlined } from '@ant-design/icons';
-import { ref, onValue, update, off } from 'firebase/database'; // Import Firebase functions
+import { Badge, List, Avatar, Spin, Empty, Button as AntButton, Popconfirm, Modal } from 'antd'; // Import Ant Design components
+import { BellOutlined, CheckCircleOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons';
+import { ref, onValue, update, off, remove } from 'firebase/database'; // Import Firebase functions
 import { database } from '../../../config/firebase'; // Import Firebase database instance
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import vi from 'date-fns/locale/vi';
@@ -164,10 +164,32 @@ export default function Header() {
             console.error('Error marking client notification as read:', error);
         }
         }
+        // Điều hướng chỉ khi không phải là click vào nút xóa
         navigate('/lichhen');
     }, 150);
 
   }, [user?.id, navigate]);
+
+  // --- Xử lý xóa Client Notification - Nhận notificationId, e ---
+  const handleDeleteClientNotification = useCallback(async (notificationId, e) => { // Nhận lại notificationId, e
+    if (e) e.stopPropagation(); // Ngăn chặn sự kiện click lan ra list item
+    console.log('🗑️ [Client] Attempting to delete notification:', notificationId);
+    if (!user?.id) {
+        console.error("🗑️ [Client] User ID is missing, cannot delete notification.");
+        return;
+    }
+    try {
+        const notificationRef = ref(database, `client_notifications/${user.id}/${notificationId}`);
+        console.log("🗑️ [Client] Notification ref path:", notificationRef.toString());
+        await remove(notificationRef);
+        console.log("🗑️ [Client] Notification deleted successfully:", notificationId);
+        // Không cần làm gì thêm
+    } catch (error) {
+        console.error('🗑️ [Client] Error deleting client notification:', error);
+        // Có thể thêm thông báo lỗi cho người dùng nếu cần
+        // notification.error({...});
+    }
+  }, [user?.id]);
 
   // --- Xử lý click icon chuông client ---
   const handleClientIconClick = (e) => {
@@ -254,6 +276,16 @@ export default function Header() {
                         <div className="text-xs text-gray-400 text-right flex-shrink-0 ml-2 whitespace-nowrap pt-1">
                           {item.timestamp ? formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi }) : ''}
                         </div>
+                        {/* Nút Xóa Thông Báo Client - Xóa trực tiếp */}
+                        <AntButton
+                          icon={<DeleteOutlined />}
+                          type="text"
+                          size="small"
+                          danger
+                          onClick={(e) => handleDeleteClientNotification(item.id, e)} // Gọi thẳng hàm xóa
+                          style={{ padding: '0 4px', marginLeft: '4px', border: 'none', background: 'none' }}
+                          aria-label="Xóa thông báo"
+                        />
                   </List.Item>
                 )}
                 size="small"
