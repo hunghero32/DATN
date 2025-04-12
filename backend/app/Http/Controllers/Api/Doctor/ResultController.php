@@ -28,10 +28,10 @@ class ResultController extends Controller
     public function index(Request $request)
     {
         $results = Result::with([
-                'guest',
-                'doctor',
-                'booking.service'
-            ])
+            'guest',
+            'doctor',
+            'booking.service'
+        ])
             ->where('isDeleted', 0)
             ->whereHas('doctor', function ($query) {
                 $query->where('user_id', auth()->id());
@@ -61,13 +61,19 @@ class ResultController extends Controller
 
         // Check if the booking exists and belongs to the doctor
         $booking = Booking::where('id', $data['booking_id'])
-                           ->where('doctor_id', $doctorId)
-                           ->first();
+            ->where('doctor_id', $doctorId)
+            ->first();
 
         if (!$booking) {
             return response()->json(['message' => 'Booking không hợp lệ hoặc không thuộc về bác sĩ này.'], 404);
         }
-
+        // Kiểm tra nếu chưa đến thời gian khám thì không cho phép tạo kết quả
+        $bookingDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->booking_time);
+        if (now()->lt($bookingDateTime)) {
+            return response()->json([
+                'message' => 'Bạn chỉ có thể tạo kết quả sau khi lịch hẹn đã diễn ra.'
+            ], 400);
+        }
         // Check if a result already exists for this booking
         $existingResult = Result::where('booking_id', $data['booking_id'])->first();
         if ($existingResult) {
@@ -82,7 +88,7 @@ class ResultController extends Controller
         }
 
         $result = Result::create($data);
-
+        $booking->update(['status' => 'completed']);
         // Send notification upon creation
         $this->sendResultNotification($booking);
 
@@ -142,13 +148,13 @@ class ResultController extends Controller
             // Get doctor_id for the current user
             $doctorId = Doctor::where('user_id', auth()->id())->value('id');
             if (!$doctorId) {
-                 return response()->json(['message' => 'Không tìm thấy thông tin bác sĩ.'], 404);
+                return response()->json(['message' => 'Không tìm thấy thông tin bác sĩ.'], 404);
             }
 
             // Find the existing result by booking_id and doctor_id
             $result = Result::where('booking_id', $booking_id)
-                            ->where('doctor_id', $doctorId)
-                            ->first();
+                ->where('doctor_id', $doctorId)
+                ->first();
 
             // If result doesn't exist, return 404
             if (!$result) {
@@ -178,14 +184,14 @@ class ResultController extends Controller
                 // If no new file is uploaded, keep the existing file path unless explicitly cleared
                 // (UpdateResultRequest should handle if null is allowed)
                 // Ensure 'file' key exists in $data if it's being kept or nulled
-                 if ($request->filled('file')) { // Check if 'file' field was sent (even if empty)
-                     $data['file'] = $result->file; // Keep existing if not explicitly cleared
-                 } else if (!$request->exists('file')) { // If 'file' key wasn't sent at all
-                     // This means no change was intended for the file, keep existing
-                     $data['file'] = $result->file;
-                 }
-                 // If $request->hasFile('file') is false but $request->filled('file') is true with an empty value,
-                 // it implies the user wants to remove the file - $data['file'] would be null via validation.
+                if ($request->filled('file')) { // Check if 'file' field was sent (even if empty)
+                    $data['file'] = $result->file; // Keep existing if not explicitly cleared
+                } else if (!$request->exists('file')) { // If 'file' key wasn't sent at all
+                    // This means no change was intended for the file, keep existing
+                    $data['file'] = $result->file;
+                }
+                // If $request->hasFile('file') is false but $request->filled('file') is true with an empty value,
+                // it implies the user wants to remove the file - $data['file'] would be null via validation.
             }
 
 
@@ -216,7 +222,6 @@ class ResultController extends Controller
                 // Load relationships for the response
                 'data' => $result->load(['guest', 'doctor', 'booking'])
             ], 200);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation Error during Result Update', [
                 'booking_id' => $booking_id,
@@ -227,8 +232,7 @@ class ResultController extends Controller
                 'message' => 'Lỗi xác thực dữ liệu.',
                 'errors' => $e->errors()
             ], 422);
-        }
-         catch (\Exception $e) {
+        } catch (\Exception $e) {
             Log::error('Error Updating Result by Booking', [
                 'booking_id' => $booking_id,
                 'error' => $e->getMessage(),
@@ -306,7 +310,7 @@ class ResultController extends Controller
             $booking->guest->user_id ?? null,
             $title,
             $content,
-            "result",
+            "result_complete",
             $booking->id
         );
     }
