@@ -64,11 +64,19 @@ const TopBookedServices = () => {
             services.map((service) => (
               <SwiperSlide key={service.id}>
                 <div
-                  className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer w-full h-[320px] flex flex-col"
+                  className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer p-6 h-[280px] flex flex-col"
                   onClick={() => handleServiceClick(service)}
                 >
-                  <div className="p-4 flex flex-col flex-grow">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.services_name}</h3>
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                      <i className="fas fa-stethoscope text-blue-600 text-2xl"></i>
+                    </div>
+                  </div>
+                  <div className="text-center flex-grow">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3 truncate">{service.services_name}</h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3 h-[60px]">
+                      {service.description ? service.description : "Chưa có mô tả"}
+                    </p>
                     <div className="flex justify-between items-center text-gray-600 mt-auto">
                       <span className="flex items-center">
                         <i className="fas fa-calendar-check mr-2"></i>
@@ -92,16 +100,19 @@ const TopBookedServices = () => {
             services.map((service) => (
               <div
                 key={service.id}
-                className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer flex flex-col h-[320px]"
+                className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer p-6 flex flex-col h-[280px]"
                 onClick={() => handleServiceClick(service)}
               >
-                <img
-                  src={service.image || "https://via.placeholder.com/300x200"}
-                  alt={service.services_name}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">{service.services_name}</h3>
+                <div className="flex items-center justify-center mb-4">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i className="fas fa-stethoscope text-blue-600 text-2xl"></i>
+                  </div>
+                </div>
+                <div className="text-center flex-grow">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3 truncate">{service.services_name}</h3>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3 h-[60px]">
+                    {service.description ? service.description : "Chưa có mô tả"}
+                  </p>
                   <div className="flex justify-between items-center text-gray-600 mt-auto">
                     <span className="flex items-center">
                       <i className="fas fa-calendar-check mr-2"></i>
