@@ -35,8 +35,8 @@ const ChiTietBacSi = () => {
   if (error) return <div className="text-center text-red-500 mt-10">{error}</div>;
   if (!doctor) return null;
 
-  const handleBookingClick = (serviceId) => {
-    navigate(`/booking/${serviceId}`);
+  const handleServiceClick = (service) => {
+    navigate(`/booking/${service}`);
   };
 
   return (
@@ -44,15 +44,28 @@ const ChiTietBacSi = () => {
       <div className="bg-white shadow-xl rounded-lg p-6 md:flex p-4 gap-8 border-2 border-gray-200">
         <div className="flex-shrink-0 w-full sm:w-48 md:w-1/3 text-center md:text-left">
           <img
-            src={doctor.doctor_avatar ? `/${doctor.doctor_avatar}` : "https://via.placeholder.com/150"}
+            src={doctor.doctor_avatar ? 
+              (doctor.doctor_avatar.startsWith('http') ? 
+                doctor.doctor_avatar : 
+                `http://localhost:8000/storage/${doctor.doctor_avatar}`
+              ) : 
+              "https://via.placeholder.com/150"
+            }
             alt={doctor.doctor_name}
             className="w-40 h-40 rounded-full mx-auto mb-4 border-4 border-indigo-200 hover:border-indigo-400 transition-all"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://via.placeholder.com/150";
+            }}
           />
           <h2 className="text-3xl font-semibold text-indigo-700 mb-2">{doctor.doctor_name}</h2>
           <p className="inline-block bg-indigo-100 text-indigo-700 text-sm px-3 py-1 rounded-full shadow-sm">
             {doctor.specialty?.name || "Chưa có chuyên khoa"}
           </p>
-          <p className="text-gray-600 text-sm mt-2">{doctor.doctor_bio}</p>
+          <div 
+            className="text-gray-600 text-sm mt-2"
+            dangerouslySetInnerHTML={{ __html: doctor.doctor_bio }}
+          />
         </div>
 
         <div className="mt-6 md:mt-0 md:flex-1">
@@ -102,7 +115,7 @@ const ChiTietBacSi = () => {
                       <p className="text-red-600 font-semibold mt-2">Giá: {formatPrice(service.price)}</p>
                     </div>
                     <button
-                      onClick={() => handleBookingClick(service.id)}
+                      onClick={() => handleServiceClick(service.id)}
                       className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
                     >
                       Đặt lịch
