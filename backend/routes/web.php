@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\AdminProfileController;
 use App\Http\Controllers\Admin\{
@@ -21,17 +22,20 @@ use App\Http\Controllers\Admin\{
     ServiceController,
     SpecialtyController,
     SystemController,
-    UserController
+    UserController,
+    DoctorSpecialtyController
 };
-use App\Http\Controllers\DoctorSpecialtyController;
+
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
-
+Route::get('/', [AdminAuthController::class, 'create'])->name('admin.login');
+Route::get('admin', [AdminAuthController::class, 'create'])->name('admin.login');
 Route::prefix('admin')->group(function () {
+    Route::get('/', [AdminAuthController::class, 'create'])->name('admin.login');
     Route::get('login', [AdminAuthController::class, 'create'])->name('admin.login');
     Route::post('login', [AdminAuthController::class, 'login'])->name('admin.login.post');
 });
@@ -174,11 +178,5 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::delete('doctor-service-deleted/{id}', [DoctorServiceController::class, 'destroy'])->name('admin.doctor_service.destroy');
     Route::resource('doctor_specialties', DoctorSpecialtyController::class);
 });
-
-// Frontend dashboard (authenticated)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 // Auth routes
 require __DIR__ . '/auth.php';

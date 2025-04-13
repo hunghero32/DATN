@@ -4,27 +4,17 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Booking;
-use App\Services\NotificationService;
 use App\Models\Doctor;
 use App\Models\Invoice;
 use App\Models\InvoiceDetail;
+use App\Models\MedicalRecord;
 use App\Models\Guest;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 
 class AutoUpdateBookings extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'bookings:autoupdate';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Tự động cập nhật trạng thái booking theo thời gian';
 
     private $notificationService;
@@ -34,99 +24,160 @@ class AutoUpdateBookings extends Command
         parent::__construct();
         $this->notificationService = $notificationService;
     }
-    /**
-     * Execute the console command.
-     */
+
     public function handle()
     {
-        // Lấy danh sách booking cần cập nhật
-        $bookings = Booking::where('status', 'pending')
-            ->where('created_at', '<=', Carbon::now()->subMinutes(1))
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $bookings = $this->getPendingBookings();
 
         $updatedCount = 0;
         $canceledCount = 0;
-        // Nhóm các booking theo service_id và thời gian
-        $groupedBookings = $bookings->groupBy(function ($booking) {
-            return $booking->service_id . '_' . $booking->booking_date . '_' . $booking->booking_time;
-        });
+
+        $groupedBookings = $this->groupBookings($bookings);
+
         foreach ($groupedBookings as $group) {
             if ($group->isEmpty()) continue;
 
-            // Chọn người đầu tiên (đặt sớm nhất)
-            $firstBooking = $group->first();
-            $firstBooking->update(['status' => 'confirmed']);
-            $updatedCount++;
-            // Tạo hóa đơn cho booking đầu tiên
-            $servicePrice = $firstBooking->service->price ?? 0;
-            $discount = 0;
-            $taxPercent = 0;
-
-            $taxableAmount = max($servicePrice - $discount, 0);
-            $tax = $taxableAmount * ($taxPercent / 100);
-            $totalAmount = $taxableAmount + $tax;
-
-            // Tạo hóa đơn
-            $invoice = Invoice::create([
-                'total_amount' => $totalAmount,
-                'discount' => $discount,
-                'tax' => $tax,
-            ]);
-
-            // Tạo chi tiết hóa đơn gắn booking
-            InvoiceDetail::create([
-                'invoice_id' => $invoice->id,
-                'booking_id' => $firstBooking->id,
-            ]);
-            // Lấy thông tin bác sĩ và khách hàng
-            $doctor = optional(Doctor::find($firstBooking->doctor_id));
-            $guest = optional(Guest::find($firstBooking->guest_id));
-
-            if ($doctor && $guest) {
-                $bookingDate = Carbon::parse($firstBooking->booking_date)->format('d/m/Y');
-                $bookingTime = Carbon::parse($firstBooking->booking_time)->format('H:i');
-
-                // Gửi thông báo cho bác sĩ
-                $this->notificationService->sendNotification(
-                    $doctor->user_id,
-                    "Lịch hẹn {$firstBooking->service->services_name} đã xác nhận",
-                    "Lịch hẹn với {$guest->guest_name} vào lúc {$bookingTime} ngày {$bookingDate} đã được xác nhận.",
-                    "booking",
-                    $firstBooking->id
-                );
-
-                // Gửi thông báo cho khách hàng
-                $this->notificationService->sendNotification(
-                    $guest->user_id,
-                    "Lịch hẹn {$firstBooking->service->services_name} đã xác nhận",
-                    "Lịch hẹn của bạn với bác sĩ {$doctor->doctor_name} vào lúc {$bookingTime} ngày {$bookingDate} đã được xác nhận.",
-                    "booking",
-                    $firstBooking->id
-                );
-            }
-            // Hủy các booking còn lại trong cùng nhóm
-            foreach ($group->skip(1) as $booking) {
-                $booking->update(['status' => 'canceled']);
-                $canceledCount++;
-
-                $guest = optional(Guest::find($booking->guest_id));
-
-                if ($guest->exists) {
-                    $bookingDate = Carbon::parse($booking->booking_date)->format('d/m/Y');
-                    $bookingTime = Carbon::parse($booking->booking_time)->format('H:i');
-
-                    $this->notificationService->sendNotification(
-                        $guest->user_id,
-                        "Lịch hẹn {$booking->service->services_name} bị hủy",
-                        "Lịch hẹn của bạn vào lúc {$bookingTime} ngày {$bookingDate} đã bị hủy do hết chỗ.",
-                        "booking",
-                        $booking->id
-                    );
-                }
-            }
+            [$confirmed, $canceled] = $this->processBookingGroup($group);
+            $updatedCount += $confirmed;
+            $canceledCount += $canceled;
         }
+
         $this->info("Đã cập nhật: $updatedCount booking -> confirmed");
         $this->info("Đã hủy: $canceledCount booking -> canceled");
+    }
+
+    private function getPendingBookings()
+    {
+        return Booking::where('status', 'pending')
+            ->where('created_at', '<=', Carbon::now()->subMinutes(1))
+            ->orderBy('created_at', 'asc')
+            ->get();
+    }
+
+    private function groupBookings($bookings)
+    {
+        return $bookings->groupBy(function ($booking) {
+            return $booking->service_id . '_' . $booking->booking_date . '_' . $booking->booking_time;
+        });
+    }
+
+    private function processBookingGroup($group)
+    {
+        $confirmedCount = 0;
+        $canceledCount = 0;
+
+        $firstBooking = $group->first();
+        $this->confirmBooking($firstBooking);
+        $confirmedCount++;
+
+        foreach ($group->skip(1) as $booking) {
+            $this->cancelBooking($booking);
+            $canceledCount++;
+        }
+
+        return [$confirmedCount, $canceledCount];
+    }
+
+    private function confirmBooking($booking)
+    {
+        $booking->update(['status' => 'confirmed']);
+
+        // Tạo hồ sơ bệnh án
+        $this->createMedicalRecordForBooking($booking);
+
+        // Tạo hóa đơn
+        $this->createInvoiceForBooking($booking);
+
+        // Gửi thông báo
+        $this->sendConfirmationNotifications($booking);
+    }
+
+    private function cancelBooking($booking)
+    {
+        $booking->update(['status' => 'canceled']);
+
+        $guest = optional(Guest::find($booking->guest_id));
+        if ($guest->exists) {
+            $date = Carbon::parse($booking->booking_date)->format('d/m/Y');
+            $time = Carbon::parse($booking->booking_time)->format('H:i');
+
+            $this->notificationService->sendNotification(
+                $guest->user_id,
+                "Lịch hẹn {$booking->service->services_name} bị hủy",
+                "Lịch hẹn của bạn vào lúc {$time} ngày {$date} đã bị hủy do hết chỗ.",
+                "booking",
+                $booking->id
+            );
+        }
+    }
+
+    private function createInvoiceForBooking($booking)
+    {
+        $price = $booking->service->price ?? 0;
+        $discount = 0;
+        $taxPercent = 0;
+
+        $taxable = max($price - $discount, 0);
+        $tax = $taxable * ($taxPercent / 100);
+        $total = $taxable + $tax;
+
+        $invoice = Invoice::create([
+            'total_amount' => $total,
+            'discount' => $discount,
+            'tax' => $tax,
+        ]);
+
+        InvoiceDetail::create([
+            'invoice_id' => $invoice->id,
+            'booking_id' => $booking->id,
+        ]);
+
+        return $invoice;
+    }
+    private function createMedicalRecordForBooking($booking)
+    {
+        // Kiểm tra đã có hồ sơ bệnh án chưa (1 booking chỉ tạo 1 lần)
+        $exists = MedicalRecord::where('guest_id', $booking->guest_id)->exists();
+        if ($exists) return;
+
+        MedicalRecord::create([
+            'guest_id' => $booking->guest_id,
+            'BHYT' => null, // Có thể cập nhật sau nếu muốn
+            'medical_condition' => null,
+            'medications' => null,
+            'allergies' => null,
+            'family_history' => null,
+            'treatment' => null,
+            'note' => 'Lần khám đầu #' . $booking->id
+        ]);
+    }
+
+
+    private function sendConfirmationNotifications($booking)
+    {
+        $doctor = optional(Doctor::find($booking->doctor_id));
+        $guest = optional(Guest::find($booking->guest_id));
+        $date = Carbon::parse($booking->booking_date)->format('d/m/Y');
+        $time = Carbon::parse($booking->booking_time)->format('H:i');
+
+        if ($doctor) {
+            $this->notificationService->sendNotification(
+                $doctor->user_id,
+                "Lịch hẹn {$booking->service->services_name} đã xác nhận",
+                "Lịch hẹn với {$guest->guest_name} vào lúc {$time} ngày {$date} đã được xác nhận.",
+                "booking",
+                $booking->id
+            );
+        }
+
+        if ($guest) {
+            $this->notificationService->sendNotification(
+                $guest->user_id,
+                "Lịch hẹn {$booking->service->services_name} đã xác nhận",
+                "Lịch hẹn của bạn với bác sĩ {$doctor->doctor_name} vào lúc {$time} ngày {$date} đã được xác nhận.",
+                "booking",
+                $booking->id
+            );
+        }
     }
 }
