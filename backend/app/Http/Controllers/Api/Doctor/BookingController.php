@@ -109,6 +109,10 @@ class BookingController extends Controller
         if ($validate['status'] === 'completed' && $booking->status !== 'confirmed') {
             return response()->json(['message' => 'Lịch hẹn phải được xác nhận trước khi hoàn thành.'], 400);
         }
+        // Nếu chuyển sang confirmed → tạo hồ sơ bệnh án nếu chưa có
+        if ($validate['status'] === 'confirmed') {
+            $this->createMedicalRecord($booking);
+        }
         // Nếu trạng thái là completed, tạo kết quả
         if ($validate['status'] === 'completed') {
             // Gộp ngày và giờ thành 1 đối tượng Carbon để so sánh
@@ -144,6 +148,26 @@ class BookingController extends Controller
             'booking_id' => $booking->id,
         ]);
     }
+    private function createMedicalRecord(Booking $booking)
+    {
+        // Kiểm tra nếu khách đã có hồ sơ bệnh án thì không tạo lại
+        if ($booking->guest->medicalRecord()->exists()) {
+            return;
+        }
+
+        // Tạo mới hồ sơ bệnh án trống lần đầu
+        $booking->guest->medicalRecord()->create([
+            'guest_id'           => $booking->guest_id,
+            'BHYT'               => null,
+            'medical_condition'  => null,
+            'medications'        => null,
+            'allergies'          => null,
+            'family_history'     => null,
+            'treatment'          => null,
+            'note'               => null,
+        ]);
+    }
+
     /**
      * Hàm riêng để xử lý thông báo khi cập nhật lịch
      */
