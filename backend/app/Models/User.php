@@ -73,4 +73,13 @@ class User extends Authenticatable
     {
         return $this->hasOne(Doctor::class, 'user_id', 'id');
     }
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class, 'guest_id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
 }
