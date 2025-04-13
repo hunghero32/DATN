@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
+import "swiper/css/pagination";
 import api from "../../../ultils/api/axios";
 
 const SpecialtiesSection = () => {
@@ -46,54 +46,50 @@ const SpecialtiesSection = () => {
   const displayedSpecialties = showAll ? specialties : specialties.slice(0, 4);
 
   return (
-    <div className="bg-gray-50 py-16 px-4">
+    <div className="bg-white py-16 px-4 mb-4">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">Chuyên Khoa Nổi Bật</h2>
-          <p className="text-gray-600 text-lg mt-2">Các chuyên khoa hàng đầu với đội ngũ bác sĩ giàu kinh nghiệm</p>
+          <h2 className="text-3xl font-bold text-gray-900">Phòng khám và Chuyên khoa</h2>
+          <p className="text-gray-600 mt-2">
+          Khám phá hệ thống chuyên khoa toàn diện, nơi quy tụ đội ngũ bác sĩ đầu ngành và trang thiết bị hiện đại, đáp ứng mọi nhu cầu chăm sóc sức khỏe của bạn – từ khám tổng quát đến điều trị chuyên sâu.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {displayedSpecialties.map((specialty) => (
-            <div
-              key={specialty.id}
-              className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer h-[320px] flex flex-col justify-between items-center text-center"
-              onClick={() => handleSpecialtyClick(specialty.id)}
-            >
-              <div className="w-24 h-24 flex items-center justify-center mb-4 rounded-full overflow-hidden border border-gray-200">
-                <img
-                  src={specialty.image || "https://source.unsplash.com/100x100/?hospital,doctor,medical"}
-                  alt={specialty.name}
-                  className="object-cover w-[96px] h-[96px]"
-                />
-              </div>
-              <h5 className="text-lg font-semibold text-gray-800 h-[48px] flex items-center justify-center text-center line-clamp-2">
-                {specialty.name}
-              </h5>
+        <Swiper
+          modules={[Pagination]}
+          pagination={{ clickable: true }}
+          spaceBetween={50}
+          slidesPerView={6}
+          breakpoints={{
+            320: { slidesPerView: 2, spaceBetween: 20 },
+            480: { slidesPerView: 3, spaceBetween: 30 },
+            768: { slidesPerView: 4, spaceBetween: 40 },
+            1024: { slidesPerView: 6, spaceBetween: 50 },
+          }}
+          className="pb-12"
+        >
+          {specialties.map((specialty) => (
+            <SwiperSlide key={specialty.id}>
               <div
-                className="text-sm text-gray-600 px-2 line-clamp-3 h-[72px] flex items-center justify-center text-center"
-                dangerouslySetInnerHTML={{ __html: specialty.description }}
-              ></div>
-            </div>
+                className="flex flex-col items-center cursor-pointer group"
+                onClick={() => handleSpecialtyClick(specialty.id)}
+              >
+                <div className="w-32 h-32 rounded-full bg-white flex items-center justify-center mb-4 relative">
+                  <div className="absolute w-full h-full rounded-full border-2 border-cyan-300"></div>
+                  <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-cyan-400"></div>
+                  <img
+                    src={specialty.image || "https://source.unsplash.com/100x100/?hospital,doctor,medical"}
+                    alt={specialty.name}
+                    className="w-16 h-16 object-contain"
+                  />
+                </div>
+                <h5 className="text-base font-medium text-gray-900 text-center group-hover:text-cyan-500">
+                  {specialty.name}
+                </h5>
+              </div>
+            </SwiperSlide>
           ))}
-        </div>
-
-        {/* Nút Xem tất cả / Thu gọn */}
-        {specialties.length > 4 && (
-          <div className="text-center mt-4">
-            <button
-              onClick={() => setShowAll(!showAll)}
-              style={{
-                borderRadius: '30px',
-                padding: '16px 40px',
-              }}
-              className="bg-blue-600 text-white hover:bg-blue-700 mb-4 transition-colors duration-300 inline-flex items-center text-lg font-semibold"
-            >
-              {showAll ? "Thu gọn" : "Xem tất cả"}
-              <i className={`fas fa-chevron-${showAll ? 'up' : 'down'} ml-3`}></i>
-            </button>
-          </div>
-        )}
+        </Swiper>
       </div>
     </div>
   );

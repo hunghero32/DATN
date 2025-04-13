@@ -1,52 +1,81 @@
-import React, { useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 
-const BookingUI = () => {
-  const [selectedDate, setSelectedDate] = useState("Thứ 4 - 26/3");
-
+const Login = () => {
   return (
-    <div className="max-w-4xl mx-auto bg-white p-4 shadow-md rounded-lg">
-      <div className="flex gap-4">
-        {/* Doctor Info */}
-        <div className="w-1/3 p-4 border-r">
-          <img
-            src="https://via.placeholder.com/100"
-            alt="Doctor"
-            className="w-20 h-20 rounded-full mb-2"
-          />
-          <span className="bg-yellow-400 text-white text-xs px-2 py-1 rounded">
-            Yêu thích
-          </span>
-          <h2 className="text-blue-600 font-bold mt-2">PGS. TS. BSCKII. TTUT Vũ Văn Hòa</h2>
-          <p className="text-sm text-gray-600">Bác sĩ có 35 năm kinh nghiệm về cột sống, thần kinh, cơ xương khớp.</p>
-          <p className="text-sm text-gray-600">Hà Nội</p>
-        </div>
-        {/* Booking Info */}
-        <div className="w-2/3 p-4">
-          <label className="block text-lg font-semibold mb-2">Chọn ngày khám:</label>
-          <select
-            className="w-full p-2 border rounded mb-3"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          >
-            <option>Thứ 2 - 24/3</option>
-            <option>Thứ 3 - 25/3</option>
-            <option>Thứ 4 - 26/3</option>
-            <option>Thứ 5 - 27/3</option>
-          </select>
-          <div className="grid grid-cols-3 gap-2 my-3">
-            {["09:00 - 09:30", "09:30 - 10:00", "10:00 - 10:30", "10:30 - 11:00", "11:00 - 11:30", "11:30 - 12:00", "13:30 - 14:00", "14:00 - 14:30", "14:30 - 15:00", "15:00 - 15:30", "15:30 - 16:00"].map((time, index) => (
-              <button key={index} className="border p-2 rounded hover:bg-blue-100">
-                {time}
-              </button>
-            ))}
+    <div className="content">
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-md-8 offset-md-2">
+            {/* Login Tab Content */}
+            <div className="account-content">
+              <div className="row align-items-center justify-content-center">
+                <div className="col-md-7 col-lg-6 login-left">
+                  <img
+                    src="/assets/img/login-banner.png"
+                    className="img-fluid"
+                    alt="Doccure Login"
+                  />
+                </div>
+                <div className="col-md-12 col-lg-6 login-right">
+                  <div className="login-header">
+                    <h3>
+                      Login <span>Doccure</span>
+                    </h3>
+                  </div>
+                  <form action="https://dreamguys.co.in/demo/doccure/index.html">
+                    <div className="form-group form-focus">
+                      <input type="email" className="form-control floating" />
+                      <label className="focus-label">Email</label>
+                    </div>
+                    <div className="form-group form-focus">
+                      <input
+                        type="password"
+                        className="form-control floating"
+                      />
+                      <label className="focus-label">Password</label>
+                    </div>
+                    <div className="text-right">
+                      <Link className="forgot-link" to="/forgot-password">
+                        Forgot Password ?
+                      </Link>
+                    </div>
+                    <button
+                      className="btn btn-primary btn-block btn-lg login-btn"
+                      type="submit"
+                    >
+                      Login
+                    </button>
+                    <div className="login-or">
+                      <span className="or-line"></span>
+                      <span className="span-or">or</span>
+                    </div>
+                    <div className="row form-row social-login">
+                      <div className="col-6">
+                        <a href="#" className="btn btn-facebook btn-block">
+                          <i className="fab fa-facebook-f mr-1"></i> Login
+                        </a>
+                      </div>
+                      <div className="col-6">
+                        <a href="#" className="btn btn-google btn-block">
+                          <i className="fab fa-google mr-1"></i> Login
+                        </a>
+                      </div>
+                    </div>
+                    <div className="text-center dont-have">
+                      Don’t have an account?{" "}
+                      <Link to="/register">Register</Link>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {/* /Login Tab Content */}
           </div>
-          <p className="text-gray-600">Phòng khám SpineTech Clinic</p>
-          <p className="text-gray-600">Tòa nhà GP, 257 Giải Phóng, Phương Mai, Đống Đa, Hà Nội</p>
-          <p className="text-gray-600">Giá khám: 500.000đ</p>
         </div>
       </div>
     </div>
   );
 };
 
-export default BookingUI;
+export default Login;

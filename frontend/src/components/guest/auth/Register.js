@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { Form, Input, Button, Card, message } from "antd";
+import { Form, Input, Button, Card, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const { Title, Text, Link } = Typography;
 
 const Register = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [form] = Form.useForm();
 
   const handleRegister = async (values) => {
     setLoading(true);
@@ -15,59 +19,127 @@ const Register = () => {
       toast.success("Đăng ký thành công! Đang chuyển hướng...");
       setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
-      message.error(error.response?.data?.message || "Đăng ký thất bại!");
+      toast.error(error.response?.data?.message || "Đăng ký thất bại!");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSubmit = async () => {
+    const values = form.getFieldsValue();
+    let hasError = false;
+
+    if (!values.name) {
+      toast.error("Vui lòng nhập họ tên!");
+      hasError = true;
+    }
+
+    if (!values.email) {
+      toast.error("Vui lòng nhập email!");
+      hasError = true;
+    } else if (!/\S+@\S+\.\S+/.test(values.email)) {
+      toast.error("Email không hợp lệ!");
+      hasError = true;
+    }
+
+    if (!values.password) {
+      toast.error("Vui lòng nhập mật khẩu!");
+      hasError = true;
+    }
+
+    if (!values.password_confirmation) {
+      toast.error("Vui lòng nhập lại mật khẩu!");
+      hasError = true;
+    } else if (values.password !== values.password_confirmation) {
+      toast.error("Mật khẩu không khớp!");
+      hasError = true;
+    }
+
+    if (!hasError) {
+      handleRegister(values);
+    }
+  };
+
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <Card className="w-full max-w-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Đăng Ký</h2>
-        <Form layout="vertical" onFinish={handleRegister}>
-          <Form.Item label="Họ và tên" name="name" rules={[{ required: true, message: "Vui lòng nhập họ tên!" }]}> 
-            <Input placeholder="Nhập họ và tên" />
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f5f5f5",
+        padding: 16,
+      }}
+    >
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+
+      <Card
+        style={{
+          width: 420,
+          padding: "24px 32px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          borderRadius: 12,
+        }}
+        bordered={false}
+      >
+        <Title level={3} style={{ textAlign: "center", marginBottom: 32 }}>
+          Đăng Ký
+        </Title>
+
+        <Form form={form} layout="vertical">
+          <Form.Item label="Họ và tên" name="name">
+            <Input placeholder="Nhập họ và tên" size="large" />
           </Form.Item>
 
-          <Form.Item label="Email" name="email" rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ!" }]}> 
-            <Input placeholder="Nhập email" />
+          <Form.Item label="Email" name="email">
+            <Input placeholder="Nhập email" size="large" />
           </Form.Item>
 
-          <Form.Item label="Mật khẩu" name="password" rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}> 
-            <Input.Password placeholder="Nhập mật khẩu" />
+          <Form.Item label="Mật khẩu" name="password">
+            <Input.Password placeholder="Nhập mật khẩu" size="large" />
           </Form.Item>
 
-          <Form.Item label="Xác nhận mật khẩu" name="password_confirmation" dependencies={["password"]} 
-            rules={[{ required: true, message: "Vui lòng nhập lại mật khẩu!" },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue("password") === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error("Mật khẩu không khớp!"));
-                },
-              }),
-            ]}> 
-            <Input.Password placeholder="Nhập lại mật khẩu" />
+          <Form.Item label="Xác nhận mật khẩu" name="password_confirmation">
+            <Input.Password placeholder="Nhập lại mật khẩu" size="large" />
           </Form.Item>
 
-          <button
-          
-            type="submit"
-            style={{
-              borderRadius: '30px',
-              padding: '12px 40px',
-            }}
-            className="w-full btn btn-warning text-black text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-            disabled={loading}
-          >
-            {loading ? "Đang xử lý..." : "Đăng Ký"}
-          </button>
+          <Form.Item>
+            <Button
+              type="primary"
+              onClick={handleSubmit}
+              block
+              loading={loading}
+              size="large"
+              style={{
+                backgroundColor: "#00E5BE",
+                borderColor: "#00E5BE",
+                fontWeight: 600,
+                width: "100%",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => (e.target.style.opacity = "0.8")}
+              onMouseLeave={(e) => (e.target.style.opacity = "1")}
+            >
+              {loading ? "Đang xử lý..." : "Đăng Ký"}
+            </Button>
+          </Form.Item>
+
+          <div style={{ textAlign: "center", marginTop: 24 }}>
+            <Text>Đã có tài khoản? </Text>
+            <Link href="/login" style={{ color: "#00E5BE" }}>
+              Đăng nhập ngay
+            </Link>
+          </div>
         </Form>
-        <p className="text-center mt-4 text-sm">
-          Đã có tài khoản? <a href="/login" className="!text-blue-600 font-semibold">Đăng nhập ngay</a>
-        </p>
       </Card>
     </div>
   );

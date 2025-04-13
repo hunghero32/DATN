@@ -367,32 +367,7 @@ export default function Header() {
     {clientPopoverVisible && clientNotificationContentJSX}
   </div>
 )}
-              {/* === NÚT CHUÔNG THÔNG BÁO CLIENT === */}
-              {token && user && user.role !== 'doctor' && user.role !== 'admin' && (
-                 <div
-                   ref={clientNotificationIconRef}
-                   className="relative"
-                 >
-                   <button
-                     className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full hover:bg-gray-200 transition"
-                     onClick={handleClientIconClick}
-                     aria-label="Thông báo"
-                   >
-                     {/* Badge Ant Design */}
-                     <Badge
-                       count={clientUnreadCount}
-                       overflowCount={9}
-                       size="default" // Sử dụng size default có thể trông đẹp hơn
-                       // offset={[0, 2]} // Điều chỉnh offset nếu cần
-                       // Style màu đỏ được thêm ở thẻ <style> bên trên
-                     >
-                       <i className="ri-notification-3-line text-xl text-gray-700"></i>
-                     </Badge>
-                   </button>
-                   {clientPopoverVisible && clientNotificationContentJSX}
-                 </div>
-              )}
-              {/* === KẾT THÚC NÚT CHUÔNG === */}
+          
 
               {/* User Menu / Login Button */}
               {token && user ? (
@@ -416,39 +391,42 @@ export default function Header() {
                     <div
                       ref={userMenuDropdownRef}
                       id="user-menu-dropdown"
-                      className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 py-1" // Style gốc
+                      className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50"
                     >
-                      {/* Changed text/hover color and background for dropdown links */}
-                       <Link
-                         to="/patientProfile"
-                         onClick={() => setUserMenuOpen(false)}
-                         className="flex items-center px-4 py-2 text-sm text-blue-600 hover:text-white hover:bg-blue-600 transition-colors duration-150" // Updated style
-                       >
-                         <i className="ri-user-line mr-2"></i> Thông tin cá nhân
-                       </Link>
-                       <Link
-                         to="/lichhen"
-                         onClick={() => setUserMenuOpen(false)}
-                         className="flex items-center px-4 py-2 text-sm text-blue-600 hover:text-white hover:bg-blue-600 transition-colors duration-150" // Updated style
-                       >
-                         <i className="ri-calendar-check-line mr-2"></i> Lịch hẹn
-                       </Link>
-                       <Link
-                         to="/danhgia"
-                         onClick={() => setUserMenuOpen(false)}
-                         className="flex items-center px-4 py-2 text-sm text-blue-600 hover:text-white hover:bg-blue-600 transition-colors duration-150"
-                       >
-                         <i className="ri-star-line mr-2"></i> Đánh giá
-                       </Link>
-                       {/* Keep the divider */}
-                       <div className="border-t my-1 border-gray-100"></div>
-                       {/* Keep the logout button style */}
-                       <button
-                         onClick={thoatTrang}
-                         className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150" // Added transition
-                       >
-                         <i className="ri-logout-box-r-line mr-2"></i> Đăng xuất
-                       </button>
+                      <div className="py-1">
+                        <Link
+                          to="/patientProfile"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <i className="ri-user-line text-lg min-w-[20px]"></i>
+                          <span className="font-medium">Thông tin cá nhân</span>
+                        </Link>
+                        <Link
+                          to="/lichhen"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <i className="ri-calendar-check-line text-lg min-w-[20px]"></i>
+                          <span className="font-medium">Lịch hẹn</span>
+                        </Link>
+                        <Link
+                          to="/danhgia"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <i className="ri-star-line text-lg min-w-[20px]"></i>
+                          <span className="font-medium">Đánh giá</span>
+                        </Link>
+                        <div className="border-t border-gray-100 my-1"></div>
+                        <button
+                          onClick={thoatTrang}
+                          className="flex items-center space-x-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 w-full"
+                        >
+                          <i className="ri-logout-box-r-line text-lg min-w-[20px]"></i>
+                          <span className="font-medium">Đăng xuất</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
