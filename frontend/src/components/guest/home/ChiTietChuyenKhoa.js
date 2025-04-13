@@ -44,46 +44,55 @@ const SpecialtyDetail = () => {
   if (!specialty) return <p className="text-center text-gray-500">Không có thông tin chuyên khoa.</p>;
 
   return (
-    <div className="container mx-auto p-6 bg-blue-50">  
-      {/* Tiêu đề */}
-      <h2 className="text-4xl font-bold text-blue-600 text-center">{specialty.name}</h2>
+    <div className="container mx-auto mt-4 mb-4 p-6">
+      {/* Specialty Title */}
+      <h2 className="text-3xl font-bold text-gray-800 text-center mb-8">{specialty.name}</h2>
 
-      {/* Hình ảnh ngẫu nhiên từ Lorem Picsum */}
-      <div className="flex justify-center my-6">
-        <img
-          src={`https://picsum.photos/200?random=${id}`}  // Sử dụng ảnh ngẫu nhiên với ID để đảm bảo tính duy nhất
-          alt={specialty.name}
-          className="w-48 h-48 object-cover rounded-full"  
-        />
+      {/* Specialty Image */}
+      <div className="flex justify-center mb-8">
+        <div className="w-48 h-48 rounded-full overflow-hidden">
+          <img
+            src={specialty.image}
+            alt={specialty.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
 
-      {/* Mô tả chuyên khoa */}
-      <div
-  className="text-center text-gray-700 leading-relaxed"
-  dangerouslySetInnerHTML={{ __html: specialty.description || "<p>Chưa có mô tả</p>" }}
-></div>
+      {/* Specialty Description */}
+      <div className="max-w-3xl mx-auto mb-12">
+        <div
+          className="text-center text-gray-600 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: specialty.description || "<p>No description available</p>" }}
+        ></div>
+      </div>
 
-      {/* Danh sách dịch vụ */}
-      <h3 className="text-2xl font-semibold text-blue-500 mt-6 text-center">Danh Sách Dịch Vụ</h3>
+      {/* Services Grid */}
       {services.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mt-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {services.map((service) => (
             <div
               key={service.id}
               onClick={() => handleServiceClick(service.id)}
-              className="bg-white shadow-lg rounded-xl p-4 text-center cursor-pointer hover:bg-blue-100 transition ease-in-out duration-300"
+              className="flex flex-col items-center p-6 cursor-pointer transition-transform hover:transform hover:scale-105"
             >
-              <img
-                src={`https://picsum.photos/100?random=${service.id}`} // Ảnh ngẫu nhiên cho dịch vụ
-                alt={service.services_name}
-                className="w-24 h-24 object-cover mx-auto mb-4"  
-              />
-              <p className="text-md font-semibold text-gray-800">{service.services_name}</p>
+              {/* Circular Icon Container */}
+              <div className="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mb-4 overflow-hidden">
+                <img
+                  src={service.image || specialty.icon} // Use service image if available, fallback to specialty icon
+                  alt={service.services_name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {/* Service Name */}
+              <h3 className="text-xl font-semibold text-gray-800 text-center">
+                {service.services_name}
+              </h3>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 text-center">Không có dịch vụ nào trong chuyên khoa này.</p>
+        <p className="text-gray-500 text-center">No services available in this specialty.</p>
       )}
     </div>
   );

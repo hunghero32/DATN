@@ -49,11 +49,11 @@ const ClinicDetail = () => {
         key={index}
         className="bg-white rounded-lg shadow-md flex flex-col h-full w-full"
       >
-        <div className="relative w-full aspect-[4/3] flex items-center justify-center">
+        <div className="relative w-full aspect-[4/3] flex items-center justify-center overflow-hidden">
           <img
             src={doctor.doctor_avatar || "https://via.placeholder.com/150"}
             alt={doctor.doctor_name}
-            className="w-[200px] h-[200px] object-cover rounded-t-lg"
+            className="w-[200px] h-[200px] object-cover rounded-t-lg transition-transform duration-300 hover:scale-110"
             style={{ objectPosition: 'center' }}
           />
           <div className="absolute top-2 right-2 flex items-center space-x-2">
