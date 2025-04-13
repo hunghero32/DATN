@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChatController;
 
 // Controllers for authentication
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -12,7 +13,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\SocialController;
 
-// Controllers for API routes 
+// Controllers for API routes
 use App\Http\Controllers\Api\Admin\SystemController;
 use App\Http\Controllers\Api\Admin\SpecialtyController;
 use App\Http\Controllers\Api\Admin\DoctorSpecialtyController;
@@ -79,6 +80,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 });
 
 Route::get('/client/search', [SearchController::class, 'search']);
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/conversations', [ChatController::class, 'getConversations']);
+    Route::get('/conversations/{id}/messages', [ChatController::class, 'getMessages']);
+    Route::post('/messages', [ChatController::class, 'sendMessage']);
+});
+Route::middleware('auth:sanctum')->post('/start-conversation', [ChatController::class, 'startConversation']);
 
 Route::apiResource('system', SystemController::class);
 Route::apiResource('specialties', SpecialtyController::class);
