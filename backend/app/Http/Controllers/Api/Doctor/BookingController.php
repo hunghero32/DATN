@@ -43,6 +43,11 @@ class BookingController extends Controller
             ->when(auth()->user()->role === 'doctor' && $request->status === 'completed', function ($query) {
                 return $query->filterDoctorCompleted(); // lọc theo trạng thái hoàn thành
             })
+            // Chỉ lấy booking chưa có kết quả khi có yêu cầu từ form
+            ->when($request->boolean('available_for_result'), function ($query) {
+                return $query->whereDoesntHave('result') // Chỉ lấy booking chưa có kết quả
+                    ->whereIn('status', ['confirmed', 'completed']); // Chỉ lấy booking đã xác nhận hoặc hoàn thành
+            })
             ->orderBy('booking_date', 'asc')
             ->orderBy('booking_time', 'asc')
             ->paginate(10);
@@ -106,6 +111,12 @@ class BookingController extends Controller
         }
         // Nếu trạng thái là completed, tạo kết quả
         if ($validate['status'] === 'completed') {
+            // Gộp ngày và giờ thành 1 đối tượng Carbon để so sánh
+            $bookingDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->booking_time);
+
+            if (now()->lt($bookingDateTime)) {
+                return response()->json(['message' => 'Bạn chỉ có thể hoàn thành lịch hẹn sau thời gian đã đặt.'], 400);
+            }
             $this->createResultForBooking($booking);
         }
         // Cập nhật trạng thái
@@ -147,8 +158,8 @@ class BookingController extends Controller
         $statusVi = $statusMap[$status] ?? 'Không xác định';
         $bookingDate = Carbon::parse($booking->booking_date)->format('d/m/Y');
         $bookingTime = Carbon::parse($booking->booking_time)->format('H:i');
-        $title = "Cập nhật trạng thái lịch khám về {$booking->service->services_name }";
-        $content = "Lịch khám #{$booking->id} về {$booking->service->services_name } vào lúc {$bookingTime} ngày {$bookingDate} đã được cập nhật trạng thái: {$statusVi}";
+        $title = "Cập nhật trạng thái lịch khám về {$booking->service->services_name}";
+        $content = "Lịch khám #{$booking->id} về {$booking->service->services_name} vào lúc {$bookingTime} ngày {$bookingDate} đã được cập nhật trạng thái: {$statusVi}";
         // Lấy ID của bác sĩ & khách hàng
         $doctorId = $booking->doctor->user_id ?? null;
         $guestId = $booking->guest->user_id ?? null;
@@ -165,7 +176,6 @@ class BookingController extends Controller
                 $booking->id
             );
         }
-
         // Nếu trạng thái là "completed", gửi thêm thông báo về kết quả khám
         if ($status === 'completed' && $guestId) {
             $this->notificationService->sendNotification(

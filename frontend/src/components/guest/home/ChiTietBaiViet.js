@@ -54,44 +54,77 @@ const ChiTietBaiViet = () => {
 
     // Hiển thị bài viết
     return (
-        <div className="container mx-auto p-6 mt-4 mb-4">
-            <article className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-                {/* Ảnh đại diện */}
+        <div className="container mx-auto p-6 mt-16 mb-8">
+            <article className="max-w-4xl mx-auto">
+                {/* Header Section */}
+                <div className="mb-8">
+                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                        {post.title}
+                    </h1>
+                    
+                    <div className="flex items-center gap-6 text-gray-600 mb-4">
+                        {post.category?.name && (
+                            <span className="flex items-center bg-blue-50 px-3 py-1 rounded-full">
+                                <svg className="w-4 h-4 mr-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                </svg>
+                                {post.category.name}
+                            </span>
+                        )}
+                        {post.published_at && (
+                            <span className="flex items-center">
+                                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                                </svg>
+                                {new Date(post.published_at).toLocaleDateString('vi-VN')}
+                            </span>
+                        )}
+                        <span className="flex items-center">
+                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                            </svg>
+                            {post.views} lượt xem
+                        </span>
+                    </div>
+                </div>
+
+                {/* Featured Image */}
                 {post.image && (
-                    <div className="w-full h-96 relative">
+                    <div className="mb-8 rounded-2xl overflow-hidden shadow-lg w-[800px] h-[400px] mx-auto relative group">
                         <img
                             src={post.image}
                             alt={post.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                         />
                     </div>
                 )}
 
-                <div className="p-6">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                        {post.title}
-                    </h1>
-
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-6">
-                        {post.category?.name && (
-                            <span>Danh mục: {post.category.name}</span>
-                        )}
-                        {post.created_at && (
-                            <span>
-                                Ngày đăng: {new Date(post.created_at).toLocaleDateString('vi-VN')}
-                            </span>
-                        )}
-                        <span>Lượt xem: {post.views}</span>
+                {/* Author Info */}
+                <div className="bg-blue-50 rounded-lg p-6 mb-8">
+                    <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                            <div className="h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl font-bold">
+                                {post.user?.name.charAt(0)}
+                            </div>
+                        </div>
+                        <div className="ml-4">
+                            <h3 className="text-lg font-medium text-gray-900">
+                                {post.user?.name}
+                            </h3>
+                            <div className="flex items-center gap-3 text-sm text-gray-500">
+                                <span>{post.user?.role === 'doctor' ? 'Bác sĩ' : 'Tác giả'}</span>
+                                {post.user?.phone && (
+                                    <span>• {post.user.phone}</span>
+                                )}
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    <div className="mb-6">
-                        <p className="text-gray-700">
-                            Tác giả: {post.user?.name || "Không rõ"}
-                        </p>
-                    </div>
-
+                {/* Content */}
+                <div className="prose max-w-none prose-lg prose-blue prose-img:rounded-xl prose-headings:text-gray-900">
                     <div
-                        className="prose max-w-none prose-lg prose-blue"
                         dangerouslySetInnerHTML={{
                             __html: post.content || 'Không có nội dung'
                         }}

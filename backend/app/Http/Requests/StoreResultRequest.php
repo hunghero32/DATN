@@ -23,8 +23,6 @@ class StoreResultRequest extends FormRequest
     {
         return [
             'booking_id' => 'required|exists:bookings,id',
-            'doctor_id' => 'required|exists:doctors,id',
-            'guest_id' => 'required|exists:guests,id',
             'diagnosis' => 'nullable|string',
             'prescription' => 'nullable|string',
             'note' => 'nullable|string',
@@ -37,10 +35,6 @@ class StoreResultRequest extends FormRequest
         return [
             'booking_id.required' => 'Mã đặt lịch là bắt buộc.',
             'booking_id.exists' => 'Mã đặt lịch không tồn tại.',
-            'doctor_id.required' => 'Mã bác sĩ là bắt buộc.',
-            'doctor_id.exists' => 'Mã bác sĩ không tồn tại.',
-            'guest_id.required' => 'Mã khách hàng là bắt buộc.',
-            'guest_id.exists' => 'Mã khách hàng không tồn tại.',
             'file.mimes' => 'File phải có định dạng: pdf, jpg, jpeg, png.',
             'file.max' => 'File không được vượt quá 2MB.',
         ];

@@ -170,32 +170,32 @@ const Header = () => {
         }
       }
       
-      // Điều hướng
-      if (notif.type === 'new_appointment' || notif.type === 'booking') {
-        console.log('Navigating to appointments page');
-        navigate('/doctor/appointment');
-      }
+      // Điều hướng (chỉ điều hướng nếu không phải click vào nút xóa - logic này có thể bỏ nếu xóa riêng)
+      // if (notif.type === 'new_appointment' || notif.type === 'booking') {
+      //   console.log('Navigating to appointments page');
+      //   navigate('/doctor/appointment');
+      // }
     }, 300);
   }, [doctorInfo?.doctor_id, navigate]);
 
   // --- Xử lý xóa thông báo ---
   const handleDeleteNotification = useCallback(async (notificationId, e) => {
-    if (e) e.stopPropagation(); // Ngăn chặn sự kiện click lan ra
-    console.log('🗑️ Attempting to delete notification:', notificationId);
+    if (e) e.stopPropagation(); // Ngăn chặn sự kiện click lan ra list item
+    console.log('🗑️ [Doctor] Attempting to delete notification:', notificationId);
     if (!doctorInfo?.doctor_id) {
-        console.error("Doctor ID is missing, cannot delete notification.");
+        console.error("🗑️ [Doctor] Doctor ID is missing, cannot delete notification.");
         return;
     }
     try {
         const notificationRef = ref(database, `notifications/${doctorInfo.doctor_id}/${notificationId}`);
+        console.log("🗑️ [Doctor] Notification ref path:", notificationRef.toString());
         await remove(notificationRef);
-        console.log('🗑️ Notification deleted successfully:', notificationId);
-        // Popover có thể tự đóng hoặc không tùy vào luồng UX, ở đây ta để nó mở
-        // Nếu muốn đóng, gọi setPopoverVisible(false);
+        console.log('🗑️ [Doctor] Notification deleted successfully:', notificationId);
+        // Không cần làm gì thêm sau khi xóa thành công
     } catch (error) {
-        console.error('Error deleting notification:', error);
+        console.error('🗑️ [Doctor] Error deleting notification:', error);
         notification.error({
-            message: 'Lỗi',
+            message: 'Lỗi xóa thông báo',
             description: 'Không thể xóa thông báo. Vui lòng thử lại.',
             placement: 'topRight',
         });
@@ -331,25 +331,16 @@ const Header = () => {
                     <div className="notification-timestamp" style={{ fontSize: '11px', color: '#8c8c8c', textAlign: 'right', flexShrink: 0, whiteSpace: 'nowrap', marginRight: '8px' }}>
                       {item.timestamp ? formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi }) : ''}
                     </div>
-                    {/* Nút Xóa Thông Báo */}
-                    <Popconfirm
-                      title="Xóa thông báo này?"
-                      onConfirm={(e) => handleDeleteNotification(item.id, e)}
-                      onCancel={(e) => e.stopPropagation()} // Ngăn đóng popover khi hủy
-                      okText="Xóa"
-                      cancelText="Hủy"
-                      placement="left"
-                    >
-                      <Button
-                        icon={<DeleteOutlined />}
-                        type="text"
-                        size="small"
-                        danger
-                        onClick={(e) => e.stopPropagation()} // Ngăn click vào item khi bấm nút xóa
-                        style={{ color: '#ff4d4f', border: 'none', background: 'none', padding: '0 4px', flexShrink: 0 }}
-                        aria-label="Xóa thông báo"
-                      />
-                    </Popconfirm>
+                    {/* Nút Xóa Thông Báo - Xóa trực tiếp */}
+                    <Button
+                      icon={<DeleteOutlined />}
+                      type="text"
+                      size="small"
+                      danger
+                      onClick={(e) => handleDeleteNotification(item.id, e)} // Gọi thẳng hàm xóa
+                      style={{ color: '#ff4d4f', border: 'none', background: 'none', padding: '0 4px', flexShrink: 0 }}
+                      aria-label="Xóa thông báo"
+                    />
                 </div>
               </List.Item>
             )}
@@ -447,6 +438,7 @@ const Header = () => {
             border: 1px solid #f0f0f0;
             overflow: hidden; /* Để border-radius hoạt động */
             /* Style vị trí được đặt bằng inline style 'popoverStyle' */
+            z-index: 1100; /* << Tăng z-index lên cao hơn */
           }
           .custom-popover-header {
             display: flex;
