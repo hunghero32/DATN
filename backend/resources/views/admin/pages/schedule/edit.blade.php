@@ -31,19 +31,64 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label text-uppercase fw-semibold mb-2">Ngày làm việc</label>
-                                    <input type="date" name="working_date"
-                                           class="form-control form-control-lg shadow-sm @error('working_date') is-invalid @enderror"
+                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn tuần</label>
+                                    <input type="week" name="working_week"
+                                           class="form-control form-control-lg shadow-sm @error('working_week') is-invalid @enderror"
                                            required
-                                           min="{{ date('Y-m-d') }}"
-                                           value="{{ old('working_date', date('Y-m-d', strtotime($data->working_date))) }}">
-                                    @error('working_date')
+                                           min="{{ date('Y-\WW') }}"
+                                           value="{{ old('working_week', date('Y-\WW', strtotime($data->working_date))) }}">
+                                    @error('working_week')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
                         </div>
 
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ngày trong tuần</label>
+                                <div class="d-flex flex-wrap gap-3 mb-4">
+                                    @php
+                                        $currentDayOfWeek = date('w', strtotime($data->working_date));
+                                    @endphp
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="1" id="monday"
+                                            {{ $currentDayOfWeek == 1 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="monday">Thứ 2</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="2" id="tuesday"
+                                            {{ $currentDayOfWeek == 2 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="tuesday">Thứ 3</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="3" id="wednesday"
+                                            {{ $currentDayOfWeek == 3 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="wednesday">Thứ 4</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="4" id="thursday"
+                                            {{ $currentDayOfWeek == 4 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="thursday">Thứ 5</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="5" id="friday"
+                                            {{ $currentDayOfWeek == 5 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="friday">Thứ 6</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="6" id="saturday"
+                                            {{ $currentDayOfWeek == 6 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="saturday">Thứ 7</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="0" id="sunday"
+                                            {{ $currentDayOfWeek == 0 ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="sunday">Chủ nhật</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="row mb-4">
                             <div class="col-12">
@@ -100,28 +145,63 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('scheduleForm');
+            const workingDaysCheckboxes = document.querySelectorAll('input[name="working_days[]"]');
+            const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
+
+            // Function to handle day selection
+            function handleDaySelection(selectedCheckbox) {
+                workingDaysCheckboxes.forEach(checkbox => {
+                    if (checkbox !== selectedCheckbox) {
+                        checkbox.checked = false;
+                    }
+                });
+            }
+
+            // Function to handle time slot selection
+            function handleTimeSlotSelection(selectedSlot) {
+                timeSlots.forEach(slot => {
+                    if (slot !== selectedSlot) {
+                        slot.checked = false;
+                    }
+                });
+            }
+
+            // Add click event listeners to day checkboxes
+            workingDaysCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('click', function() {
+                    handleDaySelection(this);
+                });
+            });
+
+            // Add click event listeners to time slots
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    handleTimeSlotSelection(this);
+                });
+            });
 
             form.addEventListener('submit', function(e) {
-                const timeStart = document.querySelector('input[name="time_start"]').value;
-                const timeEnd = document.querySelector('input[name="time_end"]').value;
-                const workingDate = document.querySelector('input[name="working_date"]').value;
-                const maxPatients = document.querySelector('input[name="max_patients"]').value;
+                // Check if exactly one day is selected
+                let selectedDays = 0;
+                workingDaysCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) selectedDays++;
+                });
 
-                if (timeStart >= timeEnd) {
+                if (selectedDays !== 1) {
                     e.preventDefault();
-                    alert('Giờ kết thúc phải sau giờ bắt đầu');
+                    alert('Vui lòng chọn một ngày trong tuần');
                     return;
                 }
 
-                if (workingDate < '{{ date('Y-m-d') }}') {
-                    e.preventDefault();
-                    alert('Ngày làm việc không thể là ngày trong quá khứ');
-                    return;
-                }
+                // Check if exactly one time slot is selected
+                let selectedTimeSlots = 0;
+                timeSlots.forEach(slot => {
+                    if (slot.checked) selectedTimeSlots++;
+                });
 
-                if (maxPatients < 1 || maxPatients > 100) {
+                if (selectedTimeSlots !== 1) {
                     e.preventDefault();
-                    alert('Số lượng bệnh nhân phải từ 1 đến 100');
+                    alert('Vui lòng chọn một ca làm việc');
                     return;
                 }
             });

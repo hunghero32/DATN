@@ -61,7 +61,8 @@ class SchedulesController extends Controller
         $validator = Validator::make($request->all(), [
             'doctor_id' => 'required|exists:doctors,id',
             'time_slots' => 'required|array',
-            'working_date' => 'required|date',
+            'working_week' => 'required',
+            'working_days' => 'required|array',
         ]);
 
         if ($validator->fails()) {
@@ -69,43 +70,69 @@ class SchedulesController extends Controller
         }
 
         try {
-            $formattedDate = date('Y-m-d', strtotime($request->working_date));
-            $duplicateFound = false;
+            // Parse the week input to get the start date of the week
+            $weekYear = substr($request->working_week, 0, 4);
+            $weekNumber = substr($request->working_week, 6);
+            $startDate = new \DateTime();
+            $startDate->setISODate($weekYear, $weekNumber);
+
+            $schedulesCreated = 0;
             $duplicateTimeSlots = [];
 
-            foreach ($request->time_slots as $timeSlot) {
-                list($timeStart, $timeEnd) = explode(',', $timeSlot);
-
-                $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
-                    ->where('working_date', $formattedDate)
-                    ->where('time_start', $timeStart . ':00')
-                    ->where('time_end', $timeEnd . ':00')
-                    ->where('isDeleted', 0)
-                    ->first();
-
-                if ($existingSchedule) {
-                    $duplicateFound = true;
-                    $duplicateTimeSlots[] = $timeStart . ' - ' . $timeEnd;
-                    continue;
+            // For each selected day in the week
+            foreach ($request->working_days as $dayOfWeek) {
+                // Clone the start date and modify it to the current day of week
+                $currentDate = clone $startDate;
+                if ($dayOfWeek == 0) { // Sunday
+                    $currentDate->modify('+6 days');
+                } else {
+                    $currentDate->modify('+' . ($dayOfWeek - 1) . ' days');
                 }
 
-                Schedule::create([
-                    'doctor_id' => $request->doctor_id,
-                    'time_start' => $timeStart . ':00',
-                    'time_end' => $timeEnd . ':00',
-                    'working_date' => $formattedDate,
-                    'isDeleted' => 0,
-                    'status' => 1  // Changed from 'status' to 'approve'
-                ]);
+                // For each time slot
+                foreach ($request->time_slots as $timeSlot) {
+                    list($timeStart, $timeEnd) = explode(',', $timeSlot);
+
+                    // Check for existing schedule
+                    $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
+                        ->where('working_date', $currentDate->format('Y-m-d'))
+                        ->where('time_start', $timeStart . ':00')
+                        ->where('time_end', $timeEnd . ':00')
+                        ->where('isDeleted', 0)
+                        ->first();
+
+                    if ($existingSchedule) {
+                        $duplicateTimeSlots[] = $currentDate->format('d/m/Y') . ' ' . $timeStart . '-' . $timeEnd;
+                        continue;
+                    }
+
+                    // Create new schedule
+                    Schedule::create([
+                        'doctor_id' => $request->doctor_id,
+                        'time_start' => $timeStart . ':00',
+                        'time_end' => $timeEnd . ':00',
+                        'working_date' => $currentDate->format('Y-m-d'),
+                        'isDeleted' => 0,
+                        'status' => 1
+                    ]);
+
+                    $schedulesCreated++;
+                }
             }
 
-            if ($duplicateFound) {
-                $message = 'Lịch làm việc cho khung giờ: ' . implode(', ', $duplicateTimeSlots) . ' đã tồn tại từ trước đó!';
-                return redirect()->back()->with('error', $message)->withInput();
+            if (!empty($duplicateTimeSlots)) {
+                $message = 'Một số lịch đã tồn tại và được bỏ qua: ' . implode(', ', $duplicateTimeSlots);
+                return redirect()->back()->with('warning', $message)->withInput();
             }
 
-            return redirect()->route('admin.schedule.index')
-                ->with('success', 'Lịch làm việc đã được tạo thành công!');
+            if ($schedulesCreated > 0) {
+                return redirect()->route('admin.schedule.index')
+                    ->with('success', 'Đã tạo ' . $schedulesCreated . ' lịch làm việc thành công!');
+            } else {
+                return redirect()->back()
+                    ->with('error', 'Không thể tạo lịch làm việc do trùng lặp!')->withInput();
+            }
+
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Có lỗi xảy ra khi tạo lịch làm việc: ' . $e->getMessage());
@@ -125,52 +152,70 @@ class SchedulesController extends Controller
         $validator = Validator::make($request->all(), [
             'doctor_id' => 'required|exists:doctors,id',
             'time_slots' => 'required|array',
-            'working_date' => 'required|date',
-            'status' => 'nullable|integer|in:0,1',
-        ], [
-            'doctor_id.required' => 'Vui lòng chọn bác sĩ.',
-            'doctor_id.exists' => 'Bác sĩ không tồn tại trong hệ thống.',
-            'time_slots.required' => 'Vui lòng chọn ca làm việc.',
-            'working_date.required' => 'Vui lòng chọn ngày làm việc.',
-            'working_date.date' => 'Ngày làm việc không hợp lệ.',
-            'status.integer' => 'Trạng thái phải là số 0 hoặc 1.',
-            'status.in' => 'Trạng thái không hợp lệ.',
+            'working_week' => 'required',
+            'working_days' => 'required|array',
+            'status' => 'required|in:0,1',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $schedule = Schedule::findOrFail($id);
-        
-        foreach ($request->time_slots as $timeSlot) {
+        try {
+            $schedule = Schedule::findOrFail($id);
+
+            // Parse the week input to get the date
+            $weekYear = substr($request->working_week, 0, 4);
+            $weekNumber = substr($request->working_week, 6);
+            $startDate = new \DateTime();
+            $startDate->setISODate($weekYear, $weekNumber);
+
+            // Get the selected day and adjust the date
+            $dayOfWeek = $request->working_days[0]; // We only allow one day in edit mode
+            if ($dayOfWeek == 0) { // Sunday
+                $startDate->modify('+6 days');
+            } else {
+                $startDate->modify('+' . ($dayOfWeek - 1) . ' days');
+            }
+
+            $workingDate = $startDate->format('Y-m-d');
+
+            // Get time slot
+            $timeSlot = $request->time_slots[0]; // We only allow one time slot in edit mode
             list($timeStart, $timeEnd) = explode(',', $timeSlot);
-            
+
+            // Check for conflicting schedules
             $existingSchedule = Schedule::where('doctor_id', $request->doctor_id)
-                ->where('working_date', $request->working_date)
+                ->where('working_date', $workingDate)
                 ->where('time_start', $timeStart . ':00')
                 ->where('time_end', $timeEnd . ':00')
-                ->where('isDeleted', 0)
                 ->where('id', '!=', $id)
+                ->where('isDeleted', 0)
                 ->first();
 
             if ($existingSchedule) {
                 return redirect()->back()
-                    ->with('error', 'Lịch làm việc cho khung giờ này đã tồn tại!')
+                    ->with('error', 'Đã tồn tại lịch làm việc cho bác sĩ này vào ngày ' . date('d/m/Y', strtotime($workingDate)) . ' từ ' . $timeStart . ' đến ' . $timeEnd)
                     ->withInput();
             }
+
+            // Update the schedule
+            $schedule->update([
+                'doctor_id' => $request->doctor_id,
+                'time_start' => $timeStart . ':00',
+                'time_end' => $timeEnd . ':00',
+                'working_date' => $workingDate,
+                'status' => $request->status
+            ]);
+
+            return redirect()->route('admin.schedule.index')
+                ->with('success', 'Lịch làm việc đã được cập nhật thành công!');
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Có lỗi xảy ra khi cập nhật lịch làm việc: ' . $e->getMessage())
+                ->withInput();
         }
-
-        $schedule->update([
-            'doctor_id' => $request->doctor_id,
-            'time_start' => $timeStart . ':00',
-            'time_end' => $timeEnd . ':00',
-            'working_date' => $request->working_date,
-            'status' => $request->status
-        ]);
-
-        return redirect()->route('admin.schedule.index')
-            ->with('success', 'Lịch làm việc đã được cập nhật!');
     }
     public function destroy($id)
     {
