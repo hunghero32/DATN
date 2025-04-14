@@ -30,15 +30,51 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn ngày</label>
-                                    <input type="date" name="working_date"
-                                           class="form-control form-control-lg shadow-sm @error('working_date') is-invalid @enderror"
+                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn tuần</label>
+                                    <input type="week" name="working_week"
+                                           class="form-control form-control-lg shadow-sm @error('working_week') is-invalid @enderror"
                                            required
-                                           min="{{ date('Y-m-d', strtotime('+2 days')) }}"
-                                           value="{{ old('working_date') }}">
-                                    @error('working_date')
+                                           min="{{ date('Y-\WW', strtotime('+2 days')) }}"
+                                           value="{{ old('working_week') }}">
+                                    @error('working_week')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ngày trong tuần</label>
+                                <div class="d-flex flex-wrap gap-3 mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="1" id="monday">
+                                        <label class="form-check-label" for="monday">Thứ 2</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="2" id="tuesday">
+                                        <label class="form-check-label" for="tuesday">Thứ 3</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="3" id="wednesday">
+                                        <label class="form-check-label" for="wednesday">Thứ 4</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="4" id="thursday">
+                                        <label class="form-check-label" for="thursday">Thứ 5</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="5" id="friday">
+                                        <label class="form-check-label" for="friday">Thứ 6</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="6" id="saturday">
+                                        <label class="form-check-label" for="saturday">Thứ 7</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="working_days[]" value="0" id="sunday">
+                                        <label class="form-check-label" for="sunday">Chủ nhật</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
