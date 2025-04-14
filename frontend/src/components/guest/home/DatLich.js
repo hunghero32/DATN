@@ -14,6 +14,7 @@ import {
   message,
   Badge
 } from "antd";
+import { toast, ToastContainer } from "react-toastify";
 import api from "../../../ultils/api/axios";
 import axios from "axios";
 import { Modal } from "react-bootstrap";  // Bootstrap Modal
@@ -60,11 +61,11 @@ const DatLich = () => {
           setBookingData(parsedData);
           setDoctorDetails(parsedData);
         } else {
-          message.error("Dữ liệu đặt lịch bị lỗi. Vui lòng đặt lại!");
+          toast.error("Dữ liệu đặt lịch bị lỗi. Vui lòng đặt lại!");
           navigate("/services");
         }
       } catch (error) {
-        message.error("Lỗi dữ liệu. Vui lòng thử lại!");
+        toast.error("Lỗi dữ liệu. Vui lòng thử lại!");
         navigate("/services");
       }
     } else {
@@ -151,7 +152,7 @@ const DatLich = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      message.error(error.response?.data?.message || "Không thể đặt lịch, thử lại sau!");
+      toast.error(error.response?.data?.message || "Không thể đặt lịch, thử lại sau!");
     } finally {
       setLoading(false);
       handleCloseModal();

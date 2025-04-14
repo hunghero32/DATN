@@ -1114,3 +1114,22 @@ body {
 }
 
 
+/* thuoc tinh chu chay  */
+.marquee-container {
+  width: 100%; /* Hoặc kích thước mong muốn */
+  overflow: hidden; /* Ẩn phần chữ thừa */
+  white-space: nowrap; /* Ngăn chữ xuống dòng */
+}
+
+.marquee-text {
+  display: inline-block; /* Cho phép nội dung co lại theo chiều ngang */
+  padding-left: 100%; /* Đặt chữ ra ngoài bên phải ban đầu */
+  animation: marquee 17s linear infinite; /* Thiết lập animation */
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); } /* Di chuyển chữ hoàn toàn sang trái */
+}
+
+

@@ -10,10 +10,11 @@ const KetQuaKham = () => {
 
   useEffect(() => {
     api
-      .get(`/api/results/${bookingId}`)
+      .get(`/api/client/result/${bookingId}`)
       .then((response) => {
-        if (response.data) {
-          setResult(response.data);
+        if (response.data && response.data.data && response.data.data.length > 0) {
+          setResult(response.data.data[0]);
+          console.log("dddddddddddddddddddddddd" ,response.data.data[0]);
         } else {
           setError("Không tìm thấy kết quả khám.");
         }
@@ -24,69 +25,111 @@ const KetQuaKham = () => {
 
   if (loading) return <p className="text-center mt-10 text-gray-500">Đang tải dữ liệu...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+  if (!result) return <p className="text-center mt-10 text-red-500">Không có dữ liệu</p>;
 
-  const { diagnosis, prescription, note, doctor, guest, booking, id } = result;
+  // Destructure the properties from result
+  const { 
+    id, 
+    diagnosis, 
+    prescription, 
+    note, 
+    doctor,
+    guest,
+    created_at,
+    updated_at,  // Add this line
+    file
+  } = result;
 
   return (
-    <div className="max-w-4xl mx-auto mt-4 mb-4 bg-white border shadow-lg rounded-xl p-8 mt-10 text-sm font-sans text-gray-700">
-      {/* I. Header */}
-      <div className="text-center mb-6 border-b pb-4">
-        <h1 className="text-2xl font-bold text-blue-900">KẾT QUẢ KHÁM BỆNH</h1>
-        <p className="text-gray-500 italic">Ngày khám: {new Date(booking.booking_date).toLocaleDateString()}</p>
-        <p className="text-xs text-gray-400">Mã kết quả: #{id} - Trạng thái: <span className="text-green-600 font-medium">Đã hoàn thành</span></p>
-      </div>
-
-      {/* II. Thông tin bệnh nhân */}
-      <div className="mb-6">
-        <h2 className="font-semibold text-base text-gray-800 mb-2">1. Thông tin bệnh nhân</h2>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <p><strong>Họ tên:</strong> {guest.guest_name}</p>
-          <p><strong>Giới tính:</strong> {guest.gender === "female" ? "Nữ" : "Nam"}</p>
-          <p><strong>Ngày sinh:</strong> {new Date(guest.birthday).toLocaleDateString()}</p>
-          <p><strong>SĐT:</strong> {guest.guest_phone}</p>
-          <p><strong>Email:</strong> {guest.guest_email}</p>
-          <p><strong>Địa chỉ:</strong> {guest.address?.street}, {guest.address?.city}</p>
-        </div>
-      </div>
-
-      {/* III. Thông tin bác sĩ */}
-      <div className="mb-6">
-        <h2 className="font-semibold text-base text-gray-800 mb-2">2. Bác sĩ phụ trách</h2>
-        <div className="flex items-center gap-4">
-          <img
-            src={`/${doctor.doctor_avatar}`}
-            alt={doctor.doctor_name}
-            className="w-20 h-20 rounded-full object-cover border"
-          />
-          <div className="text-sm">
-            <p><strong>{doctor.doctor_name}</strong></p>
-            <p>{doctor.doctor_bio}</p>
-            <p><strong>Kinh nghiệm:</strong> {doctor.exp} năm</p>
+    <div className="min-h-screen bg-gray-50 py-8 mb-4 mt-4">
+      <div className="max-w-4xl mx-auto bg-white border rounded-lg shadow-md p-8">
+        {/* Header Section */}
+        <div className="flex justify-between items-start mb-6 pb-4 border-b">
+          <div>
+            <h1 className="text-2xl font-bold text-blue-800">PHIẾU KẾT QUẢ KHÁM BỆNH</h1>
+            <p className="text-gray-600 mt-2">Mã phiếu: #{id}</p>
+            <p className="text-gray-600">Ngày khám: {new Date(created_at).toLocaleDateString('vi-VN')}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-gray-600">Mã đặt lịch: #{bookingId}</p>
           </div>
         </div>
-      </div>
 
-      {/* IV. Kết quả khám bệnh */}
-      <div className="mb-6">
-        <h2 className="font-semibold text-base text-gray-800 mb-2">3. Kết quả khám</h2>
-        <div className="border rounded-md p-4 bg-gray-50 space-y-2 text-sm">
-          <p><strong>Chẩn đoán:</strong> {diagnosis}</p>
-          <p><strong>Toa thuốc:</strong> {prescription}</p>
-          <p><strong>Ghi chú bác sĩ:</strong> {note}</p>
+        {/* Patient and Doctor Info */}
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h2 className="text-lg font-semibold mb-4 text-blue-700">Thông tin bệnh nhân</h2>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Họ và tên:</span>
+                <span className="font-medium">{guest.guest_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Giới tính:</span>
+                <span>{guest.gender === 'male' ? 'Nam' : 'Nữ'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Số điện thoại:</span>
+                <span>{guest.phone}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h2 className="text-lg font-semibold mb-4 text-blue-700">Thông tin bác sĩ</h2>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Bác sĩ phụ trách:</span>
+                <span className="font-medium">{doctor.doctor_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Chuyên khoa:</span>
+                <span>{doctor.specialty !== 'N/A' ? doctor.specialty : 'Đa khoa'}</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* V. Lịch hẹn khám */}
-      <div>
-        <h2 className="font-semibold text-base text-gray-800 mb-2">4. Thông tin lịch hẹn</h2>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <p><strong>Ngày khám:</strong> {new Date(booking.booking_date).toLocaleDateString()}</p>
-          <p><strong>Giờ khám:</strong> {booking.booking_time}</p>
-          <p className="col-span-2"><strong>Ghi chú:</strong> {booking.notes}</p>
+        {/* Diagnosis Results */}
+        <div className="space-y-6 mb-8">
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-blue-700">Chẩn đoán</h3>
+            <p className="text-gray-800">{diagnosis}</p>
+          </div>
+
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold mb-3 text-blue-700">Đơn thuốc</h3>
+            <p className="text-gray-800">{prescription}</p>
+          </div>
+
+          {note && (
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-3 text-blue-700">Ghi chú</h3>
+              <p className="text-gray-800">{note}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Image Result */}
+        {file && (
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4 text-blue-700">Hình ảnh kết quả</h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <img 
+                src={`http://localhost:8000/storage/${file}`} 
+                alt="Kết quả khám"
+                className="max-w-full h-auto rounded-lg shadow-sm mx-auto"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="text-right mt-8 pt-4 border-t">
+          <p className="text-gray-600">Ngày cập nhật: {new Date(updated_at).toLocaleString('vi-VN')}</p>
         </div>
       </div>
     </div>
-  );
-};
-
+);
+}
 export default KetQuaKham;
