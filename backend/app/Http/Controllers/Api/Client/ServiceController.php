@@ -28,52 +28,52 @@ class ServiceController extends Controller
     }
 
     public function detailService(Request $request)
-    {
-        // Lấy ngày hiện tại
-        $currentDate = now()->format('Y-m-d');
+{
+    // Lấy ngày hiện tại
+    $currentDate = now()->format('Y-m-d');
 
-        // Lấy thông tin dịch vụ cùng chuyên khoa và danh mục
-        $service = Services::where('status', 1)
-            ->where('services.isDeleted', 0)
-            ->where('id', $request->id)
-            ->with([
-                'specialty:id,name,image',
-                'doctors' => function ($query) use ($currentDate) {
-                    $query->where('doctors.isDeleted', 0)
-                        ->where('doctors.approve', 1)
-                        ->with(['schedules' => function ($q) use ($currentDate) {
-                            $q->where('schedules.isDeleted', 0)
-                              ->where('working_date', $currentDate); // Chỉ lấy lịch trình của ngày hiện tại
-                        }]);
-                }
-            ])
-            ->first();
+    // Lấy thông tin dịch vụ cùng chuyên khoa và danh mục
+    $service = Services::where('status', 1)
+        ->where('services.isDeleted', 0)
+        ->where('id', $request->id)
+        ->with([
+            'specialty:id,name,image',
+            'doctors' => function ($query) use ($currentDate) {
+                $query->where('doctors.isDeleted', 0)
+                    ->where('doctors.approve', 1)
+                    ->with(['schedules' => function ($q) use ($currentDate) {
+                        $q->where('schedules.isDeleted', 0)
+                          ->where('working_date', '>=', $currentDate); // Lấy lịch từ ngày hiện tại trở đi
+                    }]);
+            }
+        ])
+        ->first();
 
-        if (!$service) {
-            return response()->json(['message' => 'Service not found'], 404);
-        }
-
-        // Xử lý URL hình ảnh cho service
-        if ($service->image && !str_starts_with($service->image, 'http')) {
-            $service->image = $this->getImageUrl($service->image);
-        }
-
-        // Xử lý URL hình ảnh cho specialty
-        if ($service->specialty && $service->specialty->image && !str_starts_with($service->specialty->image, 'http')) {
-            $service->specialty->image = $this->getImageUrl($service->specialty->image);
-        }
-
-        // Xử lý URL hình ảnh cho doctors
-        if ($service->doctors) {
-            $service->doctors->each(function ($doctor) {
-                if ($doctor->doctor_avatar && !str_starts_with($doctor->doctor_avatar, 'http')) {
-                    $doctor->doctor_avatar = $this->getImageUrl($doctor->doctor_avatar);
-                }
-            });
-        }
-
-        return response()->json($service);
+    if (!$service) {
+        return response()->json(['message' => 'Service not found'], 404);
     }
+
+    // Xử lý URL hình ảnh cho service
+    if ($service->image && !str_starts_with($service->image, 'http')) {
+        $service->image = $this->getImageUrl($service->image);
+    }
+
+    // Xử lý URL hình ảnh cho specialty
+    if ($service->specialty && $service->specialty->image && !str_starts_with($service->specialty->image, 'http')) {
+        $service->specialty->image = $this->getImageUrl($service->specialty->image);
+    }
+
+    // Xử lý URL hình ảnh cho doctors
+    if ($service->doctors) {
+        $service->doctors->each(function ($doctor) {
+            if ($doctor->doctor_avatar && !str_starts_with($doctor->doctor_avatar, 'http')) {
+                $doctor->doctor_avatar = $this->getImageUrl($doctor->doctor_avatar);
+            }
+        });
+    }
+
+    return response()->json($service);
+}
 
     public function searchBySpecialtyName(Request $request)
     {

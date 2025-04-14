@@ -55,5 +55,5 @@ Route::middleware('web')->group(function () {
     Route::post('momo-callback', [CheckoutController::class, 'momoCallback']);
 
     //****************** Lấy ra kết quả khám  **********************/
-    Route::get('result', [ResultController::class, 'result']);
+    Route::get('result/{booking_id}', [ResultController::class, 'result']);
 });
