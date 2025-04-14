@@ -29,7 +29,6 @@ const ChatSupport = () => {
         setUser(userResponse.data);
 
         if (userResponse.data.role === "guest") {
-          // Tạo hoặc lấy conversation cho guest
           const convResponse = await axios.post(
             "http://localhost:8000/api/start-conversation",
             {},
@@ -37,7 +36,6 @@ const ChatSupport = () => {
           );
           setSelectedConversation(convResponse.data);
         } else if (userResponse.data.role === "admin") {
-          // Lấy danh sách conversation cho admin
           const convResponse = await axios.get("http://localhost:8000/api/conversations", {
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -115,12 +113,12 @@ const ChatSupport = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation) return;
-  
+
     const token = localStorage.getItem("authToken");
-    console.log("Token being sent:", token); // Kiểm tra token
-  
+    console.log("Token being sent:", token);
+
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8000/api/messages",
         {
           conversation_id: selectedConversation.id,
@@ -128,18 +126,6 @@ const ChatSupport = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: response.data.id,
-          sender: user.role === "admin" ? "support" : "user",
-          text: response.data.content,
-          time: new Date(response.data.created_at).toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        },
-      ]);
       setNewMessage("");
     } catch (error) {
       console.error("Error sending message:", error.response?.data || error.message);
@@ -233,26 +219,25 @@ const ChatSupport = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col ml-2 h-full">
+      <div className="flex-1 flex flex-col h-full">
         {/* Chat Header */}
         <div className="px-6 py-3 bg-white shadow-sm rounded-t-2xl flex items-center">
           <div className="flex items-center">
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 relative">
               <img
-                src="/images/support-avatar.png"
-                alt="Support"
+                src={
+                  user?.role === "admin" && selectedConversation?.guest
+                    ? `https://ui-avatars.com/api/?name=${selectedConversation.guest.name}&background=0D8ABC&color=fff`
+                    : "/images/support-avatar.png"
+                }
+                alt={user?.role === "admin" ? selectedConversation?.guest?.name : "Support"}
                 className="w-8 h-8 rounded-full"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src =
-                    "https://ui-avatars.com/api/?name=Support&background=0D8ABC&color=fff";
-                }}
               />
               <div className="w-2.5 h-2.5 bg-green-500 rounded-full absolute bottom-0 right-0 border border-white" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-800">
-                Hỗ trợ khách hàng
+                {user?.role === "admin" ? selectedConversation?.guest?.name : "Hỗ trợ khách hàng"}
               </h2>
               <span className="text-sm text-green-600 flex items-center gap-1">
                 <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
@@ -262,47 +247,64 @@ const ChatSupport = () => {
           </div>
         </div>
 
-        {/* Messages Container - Fixed Height */}
-        <div
-          className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"
-          style={{ minHeight: 0 }}
-        >
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex items-end ${
-                message.sender === "user" ? "justify-end" : "justify-start"
-              } space-x-2`}
-            >
-              {message.sender !== "user" && (
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-blue-500" />
-                </div>
-              )}
+        {/* Messages Container */}
+        <div className="flex-1 overflow-y-auto p-4 bg-gray-50 flex flex-col">
+          <div className="flex-1"></div> {/* Spacer to push messages to the bottom */}
+          <div className="space-y-3">
+            {messages.map((message) => (
               <div
-                className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                  message.sender === "user"
-                    ? "bg-blue-600 text-white rounded-br-none"
-                    : "bg-white text-gray-800 rounded-bl-none"
-                } shadow-sm`}
+                key={message.id}
+                className={`flex items-end ${
+                  (user?.role === "admin" && message.sender === "support") ||
+                  (user?.role === "guest" && message.sender === "user")
+                    ? "justify-end"
+                    : "justify-start"
+                } space-x-2`}
               >
-                <p className="text-[15px] leading-relaxed">{message.text}</p>
-                <span
-                  className={`text-xs ${
-                    message.sender === "user" ? "text-blue-200" : "text-gray-400"
-                  } block text-right mt-1`}
+                {((user?.role === "admin" && message.sender !== "support") ||
+                  (user?.role === "guest" && message.sender !== "user")) && (
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center">
+                    {user?.role === "admin" ? (
+                      <img
+                        src={`https://ui-avatars.com/api/?name=${selectedConversation?.guest?.name || "Guest"}&background=0D8ABC&color=fff`}
+                        alt="Guest"
+                        className="w-8 h-8 rounded-full"
+                      />
+                    ) : (
+                      <Bot className="w-5 h-5 text-blue-500" />
+                    )}
+                  </div>
+                )}
+                <div
+                  className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                    (user?.role === "admin" && message.sender === "support") ||
+                    (user?.role === "guest" && message.sender === "user")
+                      ? "bg-blue-600 text-white rounded-br-none"
+                      : "bg-white text-gray-800 rounded-bl-none"
+                  } shadow-sm`}
                 >
-                  {message.time}
-                </span>
-              </div>
-              {message.sender === "user" && (
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center">
-                  <User className="w-5 h-5 text-blue-500" />
+                  <p className="text-[15px] leading-relaxed">{message.text}</p>
+                  <span
+                    className={`text-xs ${
+                      (user?.role === "admin" && message.sender === "support") ||
+                      (user?.role === "guest" && message.sender === "user")
+                        ? "text-blue-200"
+                        : "text-gray-400"
+                    } block text-right mt-1`}
+                  >
+                    {message.time}
+                  </span>
                 </div>
-              )}
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
+                {((user?.role === "admin" && message.sender === "support") ||
+                  (user?.role === "guest" && message.sender === "user")) && (
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center">
+                    <User className="w-5 h-5 text-blue-500" />
+                  </div>
+                )}
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
 
         {/* Input Area - Fixed at Bottom */}
