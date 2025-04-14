@@ -82,9 +82,12 @@ const DatLich = () => {
       if (response.data.status === true && response.data.data) {
         setDoctorDetails(response.data.data);
         setBookingData(response.data.data);
+        console.log("Doctor details loaded:", response.data.data);
+        console.log("Booking data loaded:", bookingData);
+      
       }
     } catch (error) {
-      message.error(error.message);
+      // message.error(error.message);
     }
   };
 
@@ -143,7 +146,6 @@ const DatLich = () => {
         //   console.error('Notification error:', notificationError);
         // }
         
-        message.success('Đặt lịch thành công!');
         localStorage.removeItem("bookingData");
         navigate("/thongbao");
       }
@@ -203,9 +205,16 @@ const DatLich = () => {
             <div className="flex items-start space-x-4">
               {bookingData?.doctor_avatar && (
                 <img
-                  src={bookingData.doctor_avatar}
+                  src={bookingData.doctor_avatar.startsWith('http') ? 
+                    bookingData.doctor_avatar : 
+                    `http://localhost:8000/storage/${bookingData.doctor_avatar}`
+                  }
                   alt={bookingData.doctor_name}
                   className="w-20 h-20 rounded-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://via.placeholder.com/100";
+                  }}
                 />
               )}
               <div>
@@ -213,7 +222,9 @@ const DatLich = () => {
                   {bookingData?.doctor_name}
                 </Title>
                 {bookingData?.doctor_bio && (
-                  <Text className="block text-gray-600 mb-2">{bookingData.doctor_bio}</Text>
+                  <Text className="block text-gray-600 mb-2">
+                    <div dangerouslySetInnerHTML={{ __html: bookingData.doctor_bio }} />
+                  </Text>
                 )}
                 {bookingData?.doctor_exp && (
                   <Text className="block text-gray-600 mb-2">
@@ -310,23 +321,50 @@ const DatLich = () => {
 </Card>
 
 
-      {/* Bootstrap Modal for confirmation */}
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-        <Modal.Title className="bg-warning w-100 border border-dark text-center py-2 fw-bold">
-  Xác nhận đặt lịch
-</Modal.Title>
+      {/* Enhanced Modal Design */}
+      <Modal 
+        show={showModal} 
+        onHide={handleCloseModal}
+        centered
+        className="fade-in-modal"
+      >
+        <Modal.Header closeButton className="border-0 pb-0">
+          <Modal.Title className="w-100 text-center">
+            <div className="confirmation-header">
+              <div className="confirmation-icon">
+                <i className="fas fa-calendar-check"></i>
+              </div>
+              <h4 className="mt-3 confirmation-title">Xác nhận đặt lịch</h4>
+            </div>
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <p>Bạn có chắc chắn muốn đặt lịch với thông tin sau?</p>
-          <p><strong>Họ tên:</strong> {formData?.guest_name}</p>
-          <p><strong>SĐT:</strong> {formData?.guest_phone}</p>
-          <p><strong>Email:</strong> {formData?.guest_email}</p>
-          <p><strong>Địa chỉ:</strong> {formData?.address}</p>
+        <Modal.Body className="px-4 py-4">
+          <div className="confirmation-details">
+            <div className="info-item">
+              <span className="info-label"><i className="fas fa-user"></i> Họ tên:</span>
+              <span className="info-value">{formData?.guest_name}</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label"><i className="fas fa-phone"></i> SĐT:</span>
+              <span className="info-value">{formData?.guest_phone}</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label"><i className="fas fa-envelope"></i> Email:</span>
+              <span className="info-value">{formData?.guest_email}</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label"><i className="fas fa-map-marker-alt"></i> Địa chỉ:</span>
+              <span className="info-value">{formData?.address}</span>
+            </div>
+          </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" className="btn btn-warning" onClick={handleCloseModal}>Trở về</Button>
-          <Button variant="primary"  className="btn btn-danger" onClick={() => handleSubmitBooking(formData)}>Xác nhận</Button>
+        <Modal.Footer className="border-0 justify-content-center gap-2 pb-4">
+          <button className="btn-modal btn-cancel" onClick={handleCloseModal}>
+            <i className="fas fa-times"></i> Trở về
+          </button>
+          <button className="btn-modal btn-confirm" onClick={() => handleSubmitBooking(formData)}>
+            <i className="fas fa-check"></i> Xác nhận
+          </button>
         </Modal.Footer>
       </Modal>
     </div>

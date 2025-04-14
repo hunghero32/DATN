@@ -159,16 +159,25 @@ const ServiceDetail = () => {
           <div key={doctor.id} className="flex gap-6 bg-white rounded-lg shadow-lg p-6 mb-8">
             <div className="w-1/2 flex items-center gap-4">
               <img
-                src={doctor.doctor_avatar || "https://via.placeholder.com/100"}
+                src={doctor.doctor_avatar ? 
+                  (doctor.doctor_avatar.startsWith('http') ? 
+                    doctor.doctor_avatar : 
+                    `http://localhost:8000/storage/${doctor.doctor_avatar}`
+                  ) 
+                : "https://via.placeholder.com/100"}
                 alt={doctor.doctor_name}
                 className="w-20 h-20 rounded-full object-cover"
+              
               />
               <YeuThich />
               <div>
                 <h2 className="text-2xl font-bold" style={{ color: '#45c3d2' }}>
                   {doctor.doctor_name}
                 </h2>
-                <p className="text-gray-700">{doctor.doctor_bio}</p>
+                <div 
+                  className="text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: doctor.doctor_bio }}
+                />
                 <Link
                   to={`/chitietbacsi/${doctor.id}`}
                   className="mt-4 inline-block !text-blue-500 hover:underline"
