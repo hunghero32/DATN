@@ -69,9 +69,23 @@ const ServiceDetail = () => {
     const endTime = new Date(`1970-01-01T${schedule.time_end}`);
     const duration = service?.duration || 30;
 
+    // Check if the schedule is for today
+    const isToday = selectedDates[schedule.doctor_id] === todayString;
+    const currentTime = new Date();
+
     while (startTime < endTime) {
       const slotEnd = new Date(startTime.getTime() + duration * 60000);
       if (slotEnd > endTime) break;
+
+      // Skip time slots in the past if it's today
+      if (isToday) {
+        const slotTime = new Date();
+        slotTime.setHours(startTime.getHours(), startTime.getMinutes());
+        if (slotTime < currentTime) {
+          startTime.setMinutes(startTime.getMinutes() + duration);
+          continue;
+        }
+      }
 
       slots.push({
         id: `${schedule.id}-${startTime.toTimeString().slice(0, 5)}`,
@@ -131,12 +145,12 @@ const ServiceDetail = () => {
   if (!service) return <p className="text-center text-gray-500">Không có dữ liệu.</p>;
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="bg-gray-100 p-6 rounded-lg mb-6 p-3 mb-4">
-        <h2 className="text-2xl font-bold text-blue-800">{service.services_name}</h2>
+    <div className="container mx-auto p-4 sm:p-6 max-w-6xl">
+      <div className="bg-gray-100 p-4 sm:p-6 rounded-lg mb-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-blue-800">{service.services_name}</h2>
         <p className="text-gray-700 mt-2">
           <b>Danh sách bác sĩ uy tín đầu ngành chuyên khoa {service.services_name} tại Việt Nam:</b>
-          <ul>
+          <ul className="text-sm sm:text-base">
             <li>Các chuyên gia có quá trình đào tạo bài bản, nhiều kinh nghiệm</li>
             <li>Các giáo sư, phó giáo sư đang trực tiếp nghiên cứu và giảng dạy tại Đại học Y khoa Hà Nội</li>
             <li>Các bác sĩ đã, đang công tác tại các bệnh viện hàng đầu Khoa Cơ Xương Khớp - Bệnh viện Bạch Mai, Bệnh viện Hữu nghị Việt Đức, Bệnh Viện E.</li>
@@ -156,38 +170,39 @@ const ServiceDetail = () => {
           .sort((a, b) => new Date(a) - new Date(b));
 
         return (
-          <div key={doctor.id} className="flex gap-6 bg-white rounded-lg shadow-lg p-6 mb-8">
-            <div className="w-1/2 flex items-center gap-4">
-              <img
-                src={doctor.doctor_avatar ? 
-                  (doctor.doctor_avatar.startsWith('http') ? 
-                    doctor.doctor_avatar : 
-                    `http://localhost:8000/storage/${doctor.doctor_avatar}`
-                  ) 
-                : "https://via.placeholder.com/100"}
-                alt={doctor.doctor_name}
-                className="w-20 h-20 rounded-full object-cover"
-              
-              />
-              <YeuThich />
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: '#45c3d2' }}>
+          <div key={doctor.id} className="flex flex-col lg:flex-row gap-4 sm:gap-6 bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="w-full lg:w-1/2 flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex items-center gap-4">
+                <img
+                  src={doctor.doctor_avatar ? 
+                    (doctor.doctor_avatar.startsWith('http') ? 
+                      doctor.doctor_avatar : 
+                      `http://localhost:8000/storage/${doctor.doctor_avatar}`
+                    ) 
+                  : "https://via.placeholder.com/100"}
+                  alt={doctor.doctor_name}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover"
+                />
+                <YeuThich />
+              </div>
+              <div className="text-center sm:text-left">
+                <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#45c3d2' }}>
                   {doctor.doctor_name}
                 </h2>
                 <div 
-                  className="text-gray-700"
+                  className="text-sm sm:text-base text-gray-700"
                   dangerouslySetInnerHTML={{ __html: doctor.doctor_bio }}
                 />
                 <Link
                   to={`/chitietbacsi/${doctor.id}`}
-                  className="mt-4 inline-block !text-blue-500 hover:underline"
+                  className="mt-2 sm:mt-4 inline-block !text-blue-500 hover:underline"
                 >
                   Xem thêm
                 </Link>
               </div>
             </div>
 
-            <div className="w-1/2">
+            <div className="w-full lg:w-1/2">
               <label className="block text-gray-700 font-semibold mb-2">Chọn ngày khám:</label>
               <select
                 className="w-full p-2 border rounded-md mb-4"
@@ -207,11 +222,19 @@ const ServiceDetail = () => {
                 ))}
               </select>
 
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
                 {doctor.schedules
                   .filter((s) => s.working_date === selectedDates[doctor.id])
-                  .flatMap((schedule) =>
-                    generateTimeSlots(schedule).map((slot) => (
+                  .flatMap((schedule) => {
+                    const slots = generateTimeSlots(schedule);
+                    if (slots.length === 0) {
+                      return [
+                        <div key="no-slots" className="col-span-full text-center text-red-500 p-2">
+                          Đã hết thời gian làm việc trong ngày
+                        </div>
+                      ];
+                    }
+                    return slots.map((slot) => (
                       <button
                         key={slot.id}
                         className="p-2 rounded-lg bg-blue-100 border hover:border-blue-500 hover:shadow-md"
@@ -226,8 +249,8 @@ const ServiceDetail = () => {
                       >
                         {slot.time_start} - {slot.time_end}
                       </button>
-                    ))
-                  )}
+                    ));
+                  })}
               </div>
             </div>
           </div>

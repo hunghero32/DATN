@@ -51,7 +51,11 @@ const SpecialtiesSection = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900">Phòng khám và Chuyên khoa</h2>
           <p className="text-gray-600 mt-2">
-          Khám phá hệ thống chuyên khoa toàn diện, nơi quy tụ đội ngũ bác sĩ đầu ngành và trang thiết bị hiện đại, đáp ứng mọi nhu cầu chăm sóc sức khỏe của bạn – từ khám tổng quát đến điều trị chuyên sâu.
+          <div className="marquee-container">
+      <div className="marquee-text">
+      Khám phá hệ thống chuyên khoa toàn diện, nơi quy tụ đội ngũ bác sĩ đầu ngành và trang thiết bị hiện đại, đáp ứng mọi nhu cầu chăm sóc sức khỏe của bạn – từ khám tổng quát đến điều trị chuyên sâu.
+      </div>
+    </div>
           </p>
         </div>
 
