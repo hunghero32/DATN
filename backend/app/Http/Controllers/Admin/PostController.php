@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\UpdatePostRequest;
 
 
 class PostController  extends Controller
@@ -57,7 +58,7 @@ class PostController  extends Controller
     {
         $categories = Category::all();
         $users = User::all();
-        $statuss = ['draft' => 'Nháp', 'published' => 'Đã xuất bản', 'archived' => 'Lưu trữ'];
+        $statuss = ['draft' => 'Nháp', 'published' => 'Đã xuất bản',];
 
         return view('admin.pages.posts.create')->with([
             'categories' => $categories,
@@ -70,7 +71,7 @@ class PostController  extends Controller
     public function store(StorePostRequest $rep)
     {
         $data = $rep->validated(); // Lấy dữ liệu đã validate
-      
+
         if ($rep->hasFile('image')) {
             $data['image'] = $rep->file('image')->store('uploads', 'public'); // Chỉ lưu "uploads/filename.jpg"
         }
@@ -103,7 +104,7 @@ class PostController  extends Controller
 
         $categories = Category::all();
         $users = User::all();
-        $statuss = ['draft' => 'Nháp', 'published' => 'Đã xuất bản', 'archived' => 'Lưu trữ'];
+        $statuss = ['draft' => 'Nháp', 'published' => 'Đã xuất bản',];
         $post = Post::find($id);
         return view('admin.pages.posts.edit')->with([
             'post' => $post,
@@ -114,34 +115,29 @@ class PostController  extends Controller
 
         ]);
     }
-    public function update($id, Request $rep)
+    public function update(UpdatePostRequest $request, $id)
     {
-        $post = Post::find($id);
+        $post = Post::findOrFail($id); // Tìm bài viết hoặc báo lỗi 404 nếu không thấy
 
-        // Lấy dữ liệu đầu vào
-        $data = [
-            'title' => $rep->title,
-            'content' => $rep->content,
-            'category_id' => $rep->category_id,
-            'user_id' => $rep->user_id,
-            'status' => $rep->status,
-            'slug' => $rep->slug,
-        ];
+        // Lấy dữ liệu đã validated từ FormRequest
+        $data = $request->validated();
 
-        // Kiểm tra xem có ảnh mới không
-        if ($rep->hasFile('image')) {
-            // Xóa ảnh cũ nếu có
+        // Xử lý upload ảnh nếu có
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu tồn tại
             if ($post->image) {
                 Storage::delete('public/' . $post->image);
             }
 
-            // Lưu ảnh mới vào thư mục 'uploads' trong storage
-            $data['image'] = $rep->file('image')->store('uploads', 'public');
+            // Lưu ảnh mới
+            $data['image'] = $request->file('image')->store('uploads', 'public');
         }
 
         // Cập nhật bài viết
         $post->update($data);
 
-        return redirect()->route('admin.posts.index')->with('success', 'Bài viết đã được cập nhật thành công.');
+        // Chuyển hướng về trang danh sách với thông báo
+        return redirect()->route('admin.posts.index')
+            ->with('success', 'Bài viết đã được cập nhật thành công.');
     }
 }

@@ -62,9 +62,15 @@ class CategoryController extends Controller
 
 
         ]);
-    }public function update(Request $rep, $id)
+    }
+    public function update(Request $rep, $id)
     {
         $category = Category::findOrFail($id);
+        // Kiểm tra nếu đã quá 3 ngày kể từ khi tạo
+        if ($category->created_at->diffInDays(now()) > 3) {
+            return redirect()->route('admin.categories.index')
+                ->with('error', 'Danh mục đã được tạo hơn 3 ngày và không thể chỉnh sửa được  nữa.');
+        }
 
         $data = [
             'name' => $rep->name,
@@ -79,10 +85,17 @@ class CategoryController extends Controller
 
     public function delete($id)
     {
-        $category = Category::find($id);
-        $category->delete();
+        $category = Category::withCount('posts')->findOrFail($id);
+
+        if ($category->posts_count > 0) {
+            return redirect()->route('admin.categories.index')->with([
+                'error' => 'Không thể xoá danh mục vì vẫn còn bài viết thuộc danh mục này.'
+            ]);
+        }
+
+        $category->delete(); 
         return redirect()->route('admin.categories.index')->with([
-            'succers' => 'Ban da xoa thanh cong'
+            'success' => 'Bạn đã xoá danh mục thành công.'
         ]);
     }
     public function search(Request $request)
