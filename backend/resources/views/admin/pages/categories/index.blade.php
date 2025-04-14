@@ -10,7 +10,27 @@
                 </a>
             </div>
 
-            <!-- Form tìm kiếm -->
+            {{-- Thông báo --}}
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    <i class="bx bx-check-circle"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    <i class="bx bx-error-circle"></i> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+    
+
+            {{-- Form tìm kiếm --}}
             <form action="{{ route('admin.categories.index') }}" method="GET" class="d-flex justify-content-end mb-3">
                 <div class="input-group w-25">
                     <input type="text" id="searchInput" name="search" class="form-control"
@@ -23,7 +43,7 @@
 
             <div class="card shadow-sm">
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped table-bordered">
+                    <table class="table table-hover table-striped table-bordered" id="categoryTable">
                         <thead class="table-primary text-center">
                             <tr>
                                 <th>ID</th>
@@ -48,20 +68,20 @@
                                         <textarea class="form-control" readonly>{{ $category->description }}</textarea>
                                     </td>
                                     <td>
-                                        <div class="btn-group">
-                                            <a href="{{ route('admin.categories.edit', $category->id) }}"
-                                                class="btn btn-warning btn-sm">
-                                                <i class="bx bx-edit-alt"></i> Sửa
-                                            </a>
-                                            <form action="{{ route('admin.categories.delete', $category->id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"
-                                                    onclick="return confirm('Bạn có muốn xóa không?')">
-                                                    <i class="bx bx-trash"></i> Xóa
-                                                </button>
-                                            </form>
+                                        <div class="dropdown text-center">
+                                            <button class="btn btn-link text-dark p-0" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bx bx-dots-vertical-rounded fs-4"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('admin.categories.edit', $category->id) }}">
+                                                        <i class="bx bx-pencil"></i> Sửa
+                                                    </a>
+                                                </li>
+
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
@@ -70,7 +90,7 @@
                     </table>
                 </div>
 
-                <!-- Phân trang -->
+                {{-- Phân trang --}}
                 <div class="mt-3 d-flex justify-content-center">
                     {{ $listCategory->links('pagination::bootstrap-5') }}
                 </div>
@@ -78,19 +98,11 @@
         </div>
     </div>
 
-    <!-- Hiển thị thông báo thành công -->
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bx bx-check-circle"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <!-- Script tìm kiếm -->
+    {{-- Script tìm kiếm realtime --}}
     <script>
         document.getElementById('searchInput').addEventListener('keyup', function() {
             let filter = this.value.toLowerCase();
-            let rows = document.querySelectorAll('#categoryTable tr');
+            let rows = document.querySelectorAll('#categoryTable tbody tr');
 
             rows.forEach(row => {
                 let name = row.querySelector('td:nth-child(2) a').innerText.toLowerCase();
