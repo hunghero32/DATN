@@ -13,7 +13,7 @@ class SpecialtyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Specialty::where('isDeleted', 0);
+        $query =Specialty::query(); 
     
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = '%' . $request->search . '%';
@@ -79,6 +79,13 @@ class SpecialtyController extends Controller
     
         return redirect()->route('admin.specialties.index')->with('success', 'Cập nhật thành công');
     }
+    public function updateStatus(Request $request, $id)
+    {
+        $specialty = Specialty::findOrFail($id);
+        $specialty->update(['isDeleted' => $request->isDeleted]);
+        return redirect()->back()->with('success', 'Trạng thái đã được cập nhật.');
+    }
+
     public function delete($id)
     {
         $specialty = Specialty::where('id', $id)->where('isDeleted', 0)->firstOrFail();

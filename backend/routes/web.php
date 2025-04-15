@@ -164,6 +164,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::put('specialties/{id}', [SpecialtyController::class, 'update'])->name('admin.specialties.update');
     Route::delete('specialties/{id}', [SpecialtyController::class, 'delete'])->name('admin.specialties.delete');
     Route::get('specialties/{id}', [SpecialtyController::class, 'show'])->name('admin.specialties.show');
+    Route::put('/admin/specialties/{id}/status', [SpecialtyController::class, 'updateStatus'])->name('admin.specialties.updateStatus');
+
 
     // Reports
     Route::get('report', [ReportController::class, 'index'])->name('admin.report.index');
