@@ -27,17 +27,17 @@ class AutoUpdateBookings extends Command
 
     public function handle()
     {
-        $bookings = $this->getPendingBookings();
+        $bookings = $this->getPendingBookings(); //Lấy danh sách booking đang chờ xác nhận
 
         $updatedCount = 0;
         $canceledCount = 0;
 
-        $groupedBookings = $this->groupBookings($bookings);
+        $groupedBookings = $this->groupBookings($bookings); // Nhóm booking theo dịch vụ, ngày và giờ
 
         foreach ($groupedBookings as $group) {
-            if ($group->isEmpty()) continue;
+            if ($group->isEmpty()) continue; // Nếu nhóm booking rỗng thì bỏ qua
 
-            [$confirmed, $canceled] = $this->processBookingGroup($group);
+            [$confirmed, $canceled] = $this->processBookingGroup($group); // Xử lý nhóm booking
             $updatedCount += $confirmed;
             $canceledCount += $canceled;
         }
@@ -67,11 +67,11 @@ class AutoUpdateBookings extends Command
         $canceledCount = 0;
 
         $firstBooking = $group->first();
-        $this->confirmBooking($firstBooking);
+        $this->confirmBooking($firstBooking); // Xác nhận booking đầu tiên
         $confirmedCount++;
 
         foreach ($group->skip(1) as $booking) {
-            $this->cancelBooking($booking);
+            $this->cancelBooking($booking); // Hủy booking tiếp theo
             $canceledCount++;
         }
 

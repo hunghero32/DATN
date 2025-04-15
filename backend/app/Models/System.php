@@ -15,6 +15,7 @@ class System extends Model
         'site_logo',
         'site_favicon',
         'site_url',
+        'site_video',
         'meta_tags',
         'default_language',
         'timezone',
