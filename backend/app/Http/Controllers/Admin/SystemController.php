@@ -53,104 +53,89 @@ class SystemController extends Controller
     }
     public function update(UpdateSystemRequest $request)
     {
-        $system = System::first(); 
-
-
-        // Xử lý upload logo nếu có file mới
+        $system = System::first();
+    
+        // Xử lý upload logo nếu có
         if ($request->hasFile('site_logo')) {
-            // Xóa logo cũ nếu có
             if ($system->site_logo) {
-                Storage::delete($system->site_logo);
+                Storage::disk('public')->delete($system->site_logo);
             }
-            $logoPath = $request->file('site_logo')->store('logos', 'public');
-            $system->site_logo = $logoPath;
+            $system->site_logo = $request->file('site_logo')->store('logos', 'public');
         }
-
-        // Xử lý upload favicon nếu có file mới
+    
+        // Xử lý upload favicon nếu có
         if ($request->hasFile('site_favicon')) {
-            // Xóa favicon cũ nếu có
             if ($system->site_favicon) {
-                Storage::delete($system->site_favicon);
+                Storage::disk('public')->delete($system->site_favicon);
             }
-            $faviconPath = $request->file('site_favicon')->store('favicons', 'public');
-            $system->site_favicon = $faviconPath;
+            $system->site_favicon = $request->file('site_favicon')->store('favicons', 'public');
         }
-
-        // Cập nhật các trường khác
-        $system->update([
-            'site_name' => $request->site_name,
-            'site_description' => $request->site_description,
-            'site_keywords' => $request->site_keywords,
-            'site_url' => $request->site_url,
-            'default_language' => $request->default_language,
-            'timezone' => $request->timezone,
-            'meta_tags' => $request->meta_tags,
-            'tracking_code' => $request->tracking_code,
-            'company_address' => $request->company_address,
-            'company_phone' => $request->company_phone,
-            'company_email' => $request->company_email,
-        ]);
-
+    
+        // Cập nhật các trường còn lại (trừ logo & favicon đã xử lý riêng)
+        $system->update($request->except(['site_logo', 'site_favicon']));
+    
         return redirect()->route('admin.systems.edit')->with('success', 'Cấu hình hệ thống đã được cập nhật thành công!');
     }
+    
     public function editBanner(Request $request)
     {
         $system = System::first(); // Hoặc tìm bản ghi hệ thống tương ứng
         $banners = $system->banner ? json_decode($system->banner, true) : [];
         return view('admin.pages.system.editBanner', compact('system', 'banners'));
     }
+
     public function updateBanner(Request $request)
     {
         $request->validate([
-            'banners' => 'nullable|array', // Kiểm tra mảng banner
-            'banners.*.image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Hình ảnh của banner
-            'banners.*.title' => 'nullable|string|max:255', // Tên của banner
+            'banners' => 'nullable|array',
+            'banners.*.image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'banners.*.title' => 'nullable|string|max:255',
         ]);
     
-        $system = System::first(); // Hoặc tìm bản ghi tương ứng
-    
-        // Lấy dữ liệu cũ của banner
+        $system = System::first();
         $existingBanners = json_decode($system->banner, true) ?? [];
     
-        // Xử lý mảng banner
+        $submittedBanners = $request->banners ?? [];
+    
         $banners = [];
-        foreach ($request->banners as $index => $banner) {
+    
+        // Duyệt qua các dòng còn lại để cập nhật hoặc giữ ảnh
+        foreach ($submittedBanners as $index => $banner) {
             $imageName = null;
+            $oldImage = $existingBanners[$index]['image_url'] ?? null;
     
-            // Kiểm tra nếu có file hình ảnh mới
-            if (isset($banner['image_url']) && $request->hasFile("banners.$index.image_url")) {
+            if ($request->hasFile("banners.$index.image_url")) {
                 // Xóa ảnh cũ nếu có
-                if (isset($existingBanners[$index]['image_url'])) {
-                    $oldImagePath = public_path('storage/banner_images/' . $existingBanners[$index]['image_url']);
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath); // Xóa ảnh cũ
-                    }
+                if ($oldImage && Storage::disk('public')->exists($oldImage)) {
+                    Storage::disk('public')->delete($oldImage);
                 }
     
-                // Lưu ảnh mới
-                $imagePath = $banner['image_url']->store('banner_images', 'public'); // Lưu vào thư mục public/banner_images
-                $imageName = basename($imagePath); // Lưu tên file vào DB
-            } elseif (isset($banner['image_url']) && empty($banner['image_url'])) {
-                // Nếu không có ảnh mới và để trống, thì xóa ảnh cũ
-                if (isset($existingBanners[$index]['image_url'])) {
-                    $oldImagePath = public_path('storage/banner_images/' . $existingBanners[$index]['image_url']);
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath); // Xóa ảnh cũ nếu không có ảnh mới
-                    }
+                $imageName = $banner['image_url']->store('banner_images', 'public');
+            }
+            elseif (!empty($banner['remove'])) {
+                if ($oldImage && Storage::disk('public')->exists($oldImage)) {
+                    Storage::disk('public')->delete($oldImage);
                 }
-            } else {
-                // Nếu không có ảnh mới, giữ nguyên ảnh cũ
-                $imageName = $existingBanners[$index]['image_url'] ?? null;
+                $imageName = null;
+            }
+            else {
+                $imageName = $oldImage;
             }
     
-            // Thêm banner vào mảng
             $banners[] = [
                 'title' => $banner['title'] ?? null,
-                'image_url' => $imageName, // Nếu không có ảnh mới thì giữ nguyên
+                'image_url' => $imageName,
             ];
         }
     
-        // Lưu mảng banner vào cơ sở dữ liệu
+        // Xử lý các dòng bị xóa hoàn toàn (không còn tồn tại trong request)
+        foreach ($existingBanners as $index => $oldBanner) {
+            if (!isset($submittedBanners[$index]) && isset($oldBanner['image_url'])) {
+                if (Storage::disk('public')->exists($oldBanner['image_url'])) {
+                    Storage::disk('public')->delete($oldBanner['image_url']);
+                }
+            }
+        }
         $system->banner = json_encode($banners);
         $system->save();
     

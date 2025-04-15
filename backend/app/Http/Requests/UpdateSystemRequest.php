@@ -28,6 +28,7 @@ class UpdateSystemRequest extends FormRequest
             'site_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'site_favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
             'site_url' => 'required|url',
+            'site_video' => 'required|url',
             'default_language' => 'required|string|max:5',
             'timezone' => 'required|string|max:255',
             'meta_tags' => 'nullable|string',
