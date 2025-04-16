@@ -67,7 +67,7 @@
                         <table class="table table-hover table-striped table-bordered align-middle text-center rounded">
                             <thead class="table-primary">
                                 <tr>
-                                    <th>STT</th>
+                                    <th>#</th>
                                     <th>Tên</th>
                                     <th>Email</th>
                                     <th>SĐT</th>

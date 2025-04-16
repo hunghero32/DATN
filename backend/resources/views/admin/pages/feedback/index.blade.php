@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mt-4">
-    <h2 class="mb-3">Danh Sách Phản Hồi</h2>
+    <h2 class="mb-3">Danh Sách Đánh giá</h2>
 
     <form action="{{ route('admin.feedback.index') }}" method="GET" class="mb-3">
         <div class="row d-flex align-items-center">
@@ -22,14 +22,18 @@
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary">Tìm kiếm</button>
             </div>
-            <div class="col-md-3">
-                <a href="{{ route('admin.feedback.create') }}" class="btn btn-success">Thêm feedback</a>
-            </div>
         </div>
     </form>
-    
+
 
     <table class="table table-bordered">
+    @php
+    $statusMap = [
+        'pending' => 'Đang đánh giá',
+        'approved' => 'Đã đánh giá',
+        'rejected' => 'Đã hủy',
+    ];
+@endphp
         <thead>
             <tr>
                 <th>#</th>
@@ -39,27 +43,18 @@
                 <th>Đánh Giá</th>
                 <th>Bình Luận</th>
                 <th>Trạng Thái</th>
-                <th>Hành Động</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($feedbacks as $feedback)
             <tr>
-                <td>{{ $feedback->id }}</td>
+            <td>{{ ($feedbacks->currentPage() - 1) * $feedbacks->perPage() + $loop->iteration }}</td>
                 <td>{{ $feedback->guest->guest_name ?? 'N/A' }}</td>
                 <td>{{ $feedback->doctor->doctor_name ?? 'N/A' }}</td>
                 <td>{{ $feedback->service->services_name ?? 'N/A' }}</td>
                 <td>{{ $feedback->rating }}/5</td>
                 <td>{{ $feedback->comments ?? 'Không có' }}</td>
-                <td>{{ ucfirst($feedback->status) }}</td>
-                <td>
-                    <a href="{{ route('admin.feedback.edit', $feedback->id) }}" class="btn btn-warning btn-sm">Sửa</a>
-                    <form action="{{ route('admin.feedback.delete', $feedback->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">Xóa</button>
-                    </form>
-                </td>
+                <td>{{ $statusMap[$feedback->status] ?? 'Không xác định' }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -86,6 +81,10 @@
             @endforeach
         </tbody>
     </table>
+
+    <div class="mt-3 d-flex justify-content-center">
+    {{ $averageRatings->appends(['avg_page' => request('avg_page')])->links() }}
+    </div>
 </div>
 
 @endsection

@@ -8,6 +8,9 @@ use App\Models\Guest;
 use App\Models\Doctor;
 use App\Models\Services;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+
 
 class FeedbackController extends Controller
 {
@@ -31,15 +34,29 @@ class FeedbackController extends Controller
             $query->where('rating', $request->rating);
         }
     
-        // Lấy danh sách feedback
-        $feedbacks = $query->paginate(10);
+        // Phân trang danh sách feedback
+        $feedbacks = $query->orderByDesc('id')->paginate(10)->withQueryString();
     
-        // Tính trung bình rating của từng dịch vụ
-        $averageRatings = Feedback::where('isDeleted', 0)
+        // Phân trang trung bình theo dịch vụ
+        $perPage = 10;
+        $page = $request->get('avg_page', 1);
+    
+        $allData = Feedback::where('isDeleted', 0)
             ->selectRaw('service_id, AVG(rating) as avg_rating')
             ->groupBy('service_id')
             ->with('service')
-            ->get();
+            ->get()
+            ->sortByDesc('avg_rating');
+    
+        $currentPageItems = $allData->slice(($page - 1) * $perPage, $perPage)->values();
+    
+        $averageRatings = new LengthAwarePaginator(
+            $currentPageItems,
+            $allData->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'pageName' => 'avg_page', 'query' => $request->query()]
+        );
     
         return view('admin.pages.feedback.index', compact('feedbacks', 'averageRatings'));
     }

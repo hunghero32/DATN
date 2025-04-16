@@ -21,7 +21,7 @@
     ];
 
     ?>
-    <x-table-list-component :title="'Danh sách đặt lịch'" :route="route('admin.schedule.search')" :columns="[
+    <x-table-list-component :title="'Lịch Làm Việc'" :route="route('admin.schedule.search')" :columns="[
         ['key' => 'doctor_name', 'label' => 'Họ và Tên Bác sĩ'],
         ['key' => 'time_start', 'label' => 'Giờ bắt đầu'],
         ['key' => 'time_end', 'label' => 'Giờ kết thúc'],
