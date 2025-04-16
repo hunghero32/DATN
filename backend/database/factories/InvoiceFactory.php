@@ -22,11 +22,13 @@ class InvoiceFactory extends Factory
         $totalAmount = $this->faker->randomFloat(0, 100, 10000); // Tổng tiền ngẫu nhiên từ 100 đến 10,000
         $discount = $this->faker->randomFloat(0, 0, $totalAmount * 0.2); // Giảm giá tối đa 20% của tổng tiền
         $tax = ($totalAmount - $discount) * 0.1; // Thuế 10% trên số tiền sau giảm giá
+        $status = $this->faker->randomElement(['unpaid', 'paid', 'pending', 'cancelled']);
 
         return [
             'total_amount' => $totalAmount, // Tổng số tiền
             'discount' => $discount,       // Giảm giá
             'tax' => $tax,                 // Thuế
+            'status' =>   $status,
         ];
     }
 }

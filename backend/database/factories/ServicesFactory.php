@@ -23,7 +23,6 @@ class ServicesFactory extends Factory
     {
         return [
             'specialty_id' => Specialty::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID chuyên môn
-            'category_id' => Category::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID danh mục
             'services_name' => $this->faker->words(3, true), // Tên dịch vụ 
             'description' => $this->faker->optional()->paragraph(), // Mô tả dịch vụ  (có thể null)
             'price' => $this->faker->randomFloat(0, 100, 10000), // Giá dịch vụ  (từ 100 đến 10,000)

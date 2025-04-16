@@ -5,7 +5,7 @@
     <h2>Danh sách chuyên khoa</h2>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
     <form action="{{ route('admin.specialties.index') }}" method="GET" class="mb-3">
@@ -21,13 +21,13 @@
             </div>
         </div>
     </form>
-    
+
 
 
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>STT</th>
+                <th>#</th>
                 <th>Tên</th>
                 <th>Biểu tượng</th>
                 <th>Hình ảnh</th>
@@ -37,44 +37,45 @@
         </thead>
         <tbody>
             @foreach($specialties as $item)
-                <tr>
-                    <td>{{ ($specialties->currentPage() - 1) * $specialties->perPage() + $loop->iteration }}</td>
-                    <td>{{ $item->name }}</td>
-                    <td>
-                        @if($item->icon)
-                            <img src="{{ asset('storage/' . $item->icon) }}" width="50" height="50">
-                        @endif
-                    </td>
-                    <td>
-                        @if($item->image)
-                            <img src="{{ asset('storage/' . $item->image) }}" width="100" height="70">
-                        @endif
-                    </td>
-                    {{-- <td>{!! Str::limit($item->description, 100) !!}</td> --}}
-                    <td>
-                        <div class="dropdown">
-                            <a href="#" role="button" id="dropdownMenuButton{{ $item->id }}" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; font-size: 20px; color: #000;">
-                                &#8942;
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $item->id }}">
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.specialties.show', $item->id) }}">Xem</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('admin.specialties.edit', $item->id) }}">Sửa</a>
-                                </li>
-                                <li>
-                                    <form action="{{ route('admin.specialties.delete', $item->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger">Xóa</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
-                    </td>
-                    
-                </tr>
+            <tr>
+                <td>{{ ($specialties->currentPage() - 1) * $specialties->perPage() + $loop->iteration }}</td>
+                <td>{{ $item->name }}</td>
+                <td>
+                    @if($item->icon)
+                    <img src="{{ asset('storage/' . $item->icon) }}" width="50" height="50">
+                    @endif
+                </td>
+                <td>
+                    @if($item->image)
+                    <img src="{{ asset('storage/' . $item->image) }}" width="100" height="70">
+                    @endif
+                </td>
+                {{-- <td>{!! Str::limit($item->description, 100) !!}</td> --}}
+                <td>
+                    <div class="dropdown">
+                        <a href="#" role="button" id="dropdownMenuButton{{ $item->id }}" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; font-size: 20px; color: #000;">
+                            &#8942;
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $item->id }}">
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewModal{{ $item->id }}">Xem</a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item" href="{{ route('admin.specialties.edit', $item->id) }}">Sửa</a>
+                            </li>
+                            <li>
+                                <form action="{{ route('admin.specialties.delete', $item->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="dropdown-item text-danger">Xóa</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+                @include('admin.pages.specialties.show', ['specialtie' => $item])
+            </tr>
             @endforeach
         </tbody>
     </table>
