@@ -103,4 +103,18 @@ class InvoiceController extends Controller
 
         return redirect()->route('admin.invoices.index')->with('success', 'Hóa đơn đã bị xóa!');
     }
+    // Cập nhật trạng thái thanh toán (chỉ update field status)
+public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:unpaid,paid,pending,cancelled',
+    ]);
+
+    $invoice = Invoice::where('id', $id)->where('isDeleted', 0)->firstOrFail();
+    $invoice->update([
+        'status' => $request->status,
+    ]);
+
+    return redirect()->back()->with('success', 'Cập nhật trạng thái thanh toán thành công!');
+}
 }

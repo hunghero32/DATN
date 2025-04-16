@@ -19,7 +19,7 @@ class ResultController extends Controller
         try {
             // Get authenticated user's ID
             $userId = auth()->id();
-
+    
             // Validate booking_id
             if (!$request->booking_id) {
                 return response()->json([
@@ -27,50 +27,51 @@ class ResultController extends Controller
                     'message' => 'Booking ID is required'
                 ], 400);
             }
-
-            // Get result for specific booking ID and authenticated user
-            $result = Result::with(['booking', 'doctor', 'guest'])
-                ->whereHas('guest', function($query) use ($userId) {
-                    $query->where('user_id', $userId);
-                })
+    
+            // Get results for specific booking ID and authenticated user
+            $results = Result::with(['booking', 'doctor.specialty', 'guest'])
                 ->where('booking_id', $request->booking_id)
                 ->where('isDeleted', 0)
+                ->whereHas('guest', function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
                 ->first();
-
-            if (!$result) {
+    
+            if (!$results) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Không tìm thấy kết quả khám bệnh'
                 ], 404);
             }
-
+    
+            // Format results
             $formattedResult = [
-                'id' => $result->id,
-                'booking_id' => $result->booking_id,
+                'id' => $results->id,
+                'booking_id' => $results->booking_id,
                 'doctor' => [
-                    'id' => $result->doctor->id ?? null,
-                    'doctor_name' => $result->doctor->doctor_name ?? 'N/A',
-                    'specialty' => $result->doctor->specialty->specialty_name ?? 'N/A'
+                    'id' => $results->doctor->id ?? null,
+                    'doctor_name' => $results->doctor->doctor_name ?? 'N/A',
+                    'specialty' => $results->doctor->specialty->specialty_name ?? 'N/A'
                 ],
                 'guest' => [
-                    'guest_name' => $result->guest->guest_name ?? 'N/A',
-                    'gender' => $result->guest->gender ?? 'N/A',
-                    'phone' => $result->guest->guest_phone ?? 'N/A'
+                    'guest_name' => $results->guest->guest_name ?? 'N/A',
+                    'gender' => $results->guest->gender ?? 'N/A',
+                    'phone' => $results->guest->guest_phone ?? 'N/A'
                 ],
-                'diagnosis' => $result->diagnosis,
-                'prescription' => $result->prescription,
-                'note' => $result->note,
-                'file' => $result->file,
-                'created_at' => $result->created_at,
-                'updated_at' => $result->updated_at
+                'diagnosis' => $results->diagnosis,
+                'prescription' => $results->prescription,
+                'note' => $results->note,
+                'file' => $results->file,
+                'created_at' => $results->created_at,
+                'updated_at' => $results->updated_at
             ];
-
+    
             return response()->json([
                 'status' => true,
                 'message' => 'Lấy kết quả khám bệnh thành công',
-                'data' => $formattedResult
+                'data' => [$formattedResult]
             ]);
-
+    
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

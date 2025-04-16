@@ -1,9 +1,11 @@
 @extends('admin.index')
+
 @section('title', 'Chỉnh sửa danh mục')
+
 @section('content')
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y">
-            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Settings /</span> Chỉnh sửa danh mục</h4>
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Cài đặt /</span> Chỉnh sửa danh mục</h4>
 
             <div class="row">
                 <div class="col-md-12">
@@ -46,11 +48,27 @@
                                     @enderror
                                 </div>
 
-                                <div class="mt-2">
-                                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                                    <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-secondary">Quay
-                                        lại</a>
+                                <!-- Nút Lưu & Xoá -->
+                                <div class="d-flex justify-content-start gap-2 mt-3">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bx bx-save"></i> Lưu thay đổi
+                                    </button>
+
+                                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                                        <i class="bx bx-trash"></i> Xoá
+                                    </button>
+
+                                    <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-secondary">
+                                        Quay lại
+                                    </a>
                                 </div>
+                            </form>
+
+                            <!-- Form xoá ẩn -->
+                            <form id="delete-form" action="{{ route('admin.categories.delete', $category->id) }}"
+                                method="POST" style="display: none;">
+                                @csrf
+                                @method('DELETE')
                             </form>
                         </div>
                     </div>
@@ -59,6 +77,7 @@
         </div>
     </div>
 
+    <!-- JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -86,10 +105,8 @@
                             });
 
                             $('.dropdown-item').on('click', function() {
-                                let selectedText = $(this).text();
-                                let selectedId = $(this).data('id');
-                                $('#search-parent').val(selectedText);
-                                $('#parent_id').val(selectedId);
+                                $('#search-parent').val($(this).text());
+                                $('#parent_id').val($(this).data('id'));
                                 $('#parent-results').hide();
                             });
                         } else {
@@ -109,11 +126,18 @@
                     $('#parent-results').hide();
                 }
             });
+
             $('#search-parent').on('input', function() {
                 if ($(this).val().trim() === '') {
                     $('#parent_id').val('');
                 }
             });
         });
+
+        function confirmDelete() {
+            if (confirm('Bạn có chắc chắn muốn xoá danh mục này không?')) {
+                document.getElementById('delete-form').submit();
+            }
+        }
     </script>
 @endsection

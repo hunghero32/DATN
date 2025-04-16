@@ -22,10 +22,10 @@
                             <div class="col-md-3">
                                 <select name="role" class="form-select">
                                     <option value="">-- Chọn vai trò --</option>
-                                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="doctor" {{ request('role') == 'doctor' ? 'selected' : '' }}>Doctor
+                                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>QUẢN TRỊ VIÊN </option>
+                                    <option value="doctor" {{ request('role') == 'doctor' ? 'selected' : '' }}>BÁC SĨ
                                     </option>
-                                    <option value="guest" {{ request('role') == 'guest' ? 'selected' : '' }}>Guest</option>
+                                    <option value="guest" {{ request('role') == 'guest' ? 'selected' : '' }}>BỆNH NHÂN </option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -67,7 +67,7 @@
                         <table class="table table-hover table-striped table-bordered align-middle text-center rounded">
                             <thead class="table-primary">
                                 <tr>
-                                    <th>STT</th>
+                                    <th>#</th>
                                     <th>Tên</th>
                                     <th>Email</th>
                                     <th>SĐT</th>

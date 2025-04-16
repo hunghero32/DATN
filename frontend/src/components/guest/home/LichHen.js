@@ -52,9 +52,12 @@ const LichHen = () => {
             >
               <div className="flex items-center space-x-4">
                 <img
-                  src={appointment.doctor_avatar}
+                  src={`http://localhost:8000/storage/${appointment.doctor_avatar}`}
                   alt={appointment.doctor_name}
                   className="w-16 h-16 rounded-full object-cover border"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/64x64?text=Doctor';
+                  }}
                 />
                 <div>
                   <h3 className="text-lg font-semibold text-blue-600">
