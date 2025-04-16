@@ -4,17 +4,43 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Doctor;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Get filter parameters from request
+        $filterType = $request->input('filter_type', 'year'); // Default to year
+        $customStartDate = $request->input('start_date');
+        $customEndDate = $request->input('end_date');
+
+        // Determine date range based on filter type
+        $startDate = Carbon::today();
+        $endDate = Carbon::today();
+
+        if ($filterType === 'day') {
+            $startDate = Carbon::today()->startOfDay();
+            $endDate = Carbon::today()->endOfDay();
+        } elseif ($filterType === 'week') {
+            $startDate = Carbon::today()->startOfWeek();
+            $endDate = Carbon::today()->endOfWeek();
+        } elseif ($filterType === 'month') {
+            $startDate = Carbon::today()->startOfMonth();
+            $endDate = Carbon::today()->endOfMonth();
+        } elseif ($filterType === 'year') {
+            $startDate = Carbon::today()->startOfYear();
+            $endDate = Carbon::today()->endOfYear();
+        } elseif ($filterType === 'custom' && $customStartDate && $customEndDate) {
+            $startDate = Carbon::parse($customStartDate)->startOfDay();
+            $endDate = Carbon::parse($customEndDate)->endOfDay();
+        }
+
         // Đếm tổng số lịch đặt khám
-        $totalAppointments = DB::table('bookings')->count();
+        $totalAppointments = DB::table('bookings')
+            ->whereBetween('booking_date', [$startDate, $endDate])
+            ->count();
 
         // Đếm số lịch đặt khám sắp tới
         $upcomingAppointments = DB::table('bookings')
@@ -25,20 +51,23 @@ class DashboardController extends Controller
         // Đếm số lịch đặt khám đã hoàn thành
         $completedAppointments = DB::table('bookings')
             ->where('status', 'completed')
+            ->whereBetween('booking_date', [$startDate, $endDate])
             ->count();
 
         // Đếm số lịch đặt khám đã hủy
         $cancelledAppointments = DB::table('bookings')
-            ->where('status', 'cancelled')
+            ->where('status', 'canceled')
+            ->whereBetween('booking_date', [$startDate, $endDate])
             ->count();
 
         // Đếm tổng số bệnh nhân
-        $totalPatients = DB::table('guests')->count();
+        $totalPatients = DB::table('guests')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
 
-        // Đếm số bệnh nhân mới trong tháng này
-        $newPatientsThisMonth = DB::table('guests')
-            ->whereMonth('created_at', Carbon::now()->month)
-            ->whereYear('created_at', Carbon::now()->year)
+        // Đếm số bệnh nhân mới
+        $newPatients = DB::table('guests')
+            ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
 
         // Đếm tổng số bác sĩ
@@ -47,51 +76,104 @@ class DashboardController extends Controller
         // Đếm tổng số chuyên khoa
         $totalDepartments = DB::table('specialties')->count();
 
-        // Lấy số lịch đặt khám theo tháng trong năm hiện tại
-        $appointmentsByMonth = DB::table('bookings')
-            ->select(
-                DB::raw('MONTH(booking_date) as month'),
-                DB::raw('COUNT(*) as count')
-            )
-            ->whereYear('booking_date', Carbon::now()->year)
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get()
-            ->pluck('count', 'month')
-            ->toArray();
+        // Lấy số lịch đặt khám theo khoảng thời gian
+        $appointmentsByPeriod = [];
+        if ($filterType === 'day') {
+            // Group by hour
+            $appointmentsByPeriod = DB::table('bookings')
+                ->select(
+                    DB::raw('HOUR(booking_time) as period'),
+                    DB::raw('COUNT(*) as count')
+                )
+                ->whereBetween('booking_date', [$startDate, $endDate])
+                ->groupBy('period')
+                ->orderBy('period')
+                ->get()
+                ->pluck('count', 'period')
+                ->toArray();
 
-        // Điền số 0 cho các tháng không có lịch đặt khám
-        for ($i = 1; $i <= 12; $i++) {
-            if (!isset($appointmentsByMonth[$i])) {
-                $appointmentsByMonth[$i] = 0;
+            for ($i = 0; $i <= 23; $i++) {
+                if (!isset($appointmentsByPeriod[$i])) {
+                    $appointmentsByPeriod[$i] = 0;
+                }
             }
+            ksort($appointmentsByPeriod);
+        } elseif ($filterType === 'week') {
+            // Group by day of week
+            $appointmentsByPeriod = DB::table('bookings')
+                ->select(
+                    DB::raw('DAYOFWEEK(booking_date) as period'),
+                    DB::raw('COUNT(*) as count')
+                )
+                ->whereBetween('booking_date', [$startDate, $endDate])
+                ->groupBy('period')
+                ->orderBy('period')
+                ->get()
+                ->pluck('count', 'period')
+                ->toArray();
+
+            for ($i = 1; $i <= 7; $i++) {
+                if (!isset($appointmentsByPeriod[$i])) {
+                    $appointmentsByPeriod[$i] = 0;
+                }
+            }
+            ksort($appointmentsByPeriod);
+        } elseif ($filterType === 'month') {
+            // Group by day of month
+            $appointmentsByPeriod = DB::table('bookings')
+                ->select(
+                    DB::raw('DAY(booking_date) as period'),
+                    DB::raw('COUNT(*) as count')
+                )
+                ->whereBetween('booking_date', [$startDate, $endDate])
+                ->groupBy('period')
+                ->orderBy('period')
+                ->get()
+                ->pluck('count', 'period')
+                ->toArray();
+
+            $daysInMonth = $startDate->daysInMonth;
+            for ($i = 1; $i <= $daysInMonth; $i++) {
+                if (!isset($appointmentsByPeriod[$i])) {
+                    $appointmentsByPeriod[$i] = 0;
+                }
+            }
+            ksort($appointmentsByPeriod);
+        } else {
+            // Group by month for year or custom
+            $appointmentsByPeriod = DB::table('bookings')
+                ->select(
+                    DB::raw('MONTH(booking_date) as period'),
+                    DB::raw('COUNT(*) as count')
+                )
+                ->whereBetween('booking_date', [$startDate, $endDate])
+                ->groupBy('period')
+                ->orderBy('period')
+                ->get()
+                ->pluck('count', 'period')
+                ->toArray();
+
+            for ($i = 1; $i <= 12; $i++) {
+                if (!isset($appointmentsByPeriod[$i])) {
+                    $appointmentsByPeriod[$i] = 0;
+                }
+            }
+            ksort($appointmentsByPeriod);
         }
-        ksort($appointmentsByMonth);
 
         // Lấy số lịch đặt khám theo chuyên khoa
         $appointmentsByDepartment = DB::table('bookings')
             ->select(
                 'specialties.name as department',
-                DB::raw('MONTH(bookings.booking_date) as month'),
                 DB::raw('COUNT(*) as count')
             )
             ->join('services', 'bookings.service_id', '=', 'services.id')
             ->join('specialties', 'services.specialty_id', '=', 'specialties.id')
-            ->whereYear('bookings.booking_date', Carbon::now()->year) // Chỉ lấy dữ liệu trong năm hiện tại (2025)
-            ->where('bookings.status', 'completed') // Chỉ lấy các lịch hẹn đã hoàn thành
-            ->groupBy('specialties.name', DB::raw('MONTH(bookings.booking_date)'))
-            ->orderBy('month', 'asc') // Sắp xếp theo tháng
-            ->orderBy('count', 'desc') // Sắp xếp theo số lượng lịch hẹn giảm dần
+            ->whereBetween('bookings.booking_date', [$startDate, $endDate])
+            ->where('bookings.status', 'completed')
+            ->groupBy('specialties.name')
+            ->orderBy('count', 'desc')
             ->get();
-
-        // Transform data for easier use in chart
-        $departmentsByMonth = [];
-        foreach ($appointmentsByDepartment as $record) {
-            if (!isset($departmentsByMonth[$record->department])) {
-                $departmentsByMonth[$record->department] = array_fill(1, 12, 0);
-            }
-            $departmentsByMonth[$record->department][$record->month] = $record->count;
-        }
 
         // Lấy các lịch đặt khám gần đây
         $recentAppointments = DB::table('bookings')
@@ -106,16 +188,29 @@ class DashboardController extends Controller
                 'guests.guest_name as patient_name',
                 'doctors.doctor_name as doctor_name'
             )
+            ->whereBetween('bookings.booking_date', [$startDate, $endDate])
             ->orderBy('bookings.created_at', 'desc')
             ->limit(5)
             ->get();
 
         // Lấy thống kê theo trạng thái
         $statusStats = [
-            'pending' => DB::table('bookings')->where('status', 'pending')->count(),
-            'confirmed' => DB::table('bookings')->where('status', 'confirmed')->count(),
-            'completed' => DB::table('bookings')->where('status', 'completed')->count(),
-            'cancelled' => DB::table('bookings')->where('status', 'cancelled')->count(),
+            'pending' => DB::table('bookings')
+                ->where('status', 'pending')
+                ->whereBetween('booking_date', [$startDate, $endDate])
+                ->count(),
+            'confirmed' => DB::table('bookings')
+                ->where('status', 'confirmed')
+                ->whereBetween('booking_date', [$startDate, $endDate])
+                ->count(),
+            'completed' => DB::table('bookings')
+                ->where('status', 'completed')
+                ->whereBetween('booking_date', [$startDate, $endDate])
+                ->count(),
+            'canceled' => DB::table('bookings')
+                ->where('status', 'canceled')
+                ->whereBetween('booking_date', [$startDate, $endDate])
+                ->count(),
         ];
 
         // Lấy top bác sĩ có nhiều lịch đặt khám nhất
@@ -126,25 +221,26 @@ class DashboardController extends Controller
                 DB::raw('COUNT(bookings.id) as appointment_count')
             )
             ->join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
+            ->whereBetween('bookings.booking_date', [$startDate, $endDate])
             ->groupBy('doctors.id', 'doctors.doctor_name')
             ->orderBy('appointment_count', 'desc')
             ->limit(5)
             ->get();
 
-        // Lấy bác sĩ có doanh thu cao nhất trong tháng
-        $topRevenueDoctorsByMonth = DB::table('bookings')
+        // Lấy bác sĩ có doanh thu cao nhất
+        $topRevenueDoctors = DB::table('bookings')
             ->select(
                 'doctors.id',
                 'doctors.doctor_name',
-                DB::raw('MONTH(bookings.booking_date) as month'),
                 DB::raw('SUM(services.price) as total_revenue')
             )
             ->join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
             ->join('services', 'bookings.service_id', '=', 'services.id')
-            ->whereYear('bookings.booking_date', Carbon::now()->year)
+            ->whereBetween('bookings.booking_date', [$startDate, $endDate])
             ->where('bookings.status', 'completed')
-            ->groupBy('doctors.id', 'doctors.doctor_name', DB::raw('MONTH(bookings.booking_date)'))
+            ->groupBy('doctors.id', 'doctors.doctor_name')
             ->orderBy('total_revenue', 'desc')
+            ->limit(5)
             ->get();
 
         return view('admin.pages.dashboard', compact(
@@ -153,16 +249,18 @@ class DashboardController extends Controller
             'completedAppointments',
             'cancelledAppointments',
             'totalPatients',
-            'newPatientsThisMonth',
+            'newPatients',
             'totalDoctors',
             'totalDepartments',
-            'appointmentsByMonth',
+            'appointmentsByPeriod',
             'appointmentsByDepartment',
-            'departmentsByMonth', // Add this line
             'recentAppointments',
             'statusStats',
             'topDoctors',
-            'topRevenueDoctorsByMonth'
+            'topRevenueDoctors',
+            'filterType',
+            'customStartDate',
+            'customEndDate'
         ));
     }
 }
