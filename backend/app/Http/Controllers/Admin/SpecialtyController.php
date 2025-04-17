@@ -13,7 +13,7 @@ class SpecialtyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Specialty::where('isDeleted', 0);
+        $query =Specialty::query(); 
     
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = '%' . $request->search . '%';
@@ -40,10 +40,10 @@ class SpecialtyController extends Controller
     {
         $data = $request->validated();
         if ($request->hasFile('icon')) {
-            $data['icon'] = $request->file('icon')->store('uploads', 'public');
+            $data['icon'] = $request->file('icon')->store('icons', 'public');
         }
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('uploads', 'public');
+            $data['image'] = $request->file('image')->store('images', 'public');
         }
         Specialty::create($data);
         return redirect()->route('admin.specialties.index')->with('success', 'Chuyên khoa được tạo thành công.');
@@ -65,20 +65,27 @@ class SpecialtyController extends Controller
             if ($specialty->icon) {
                 Storage::delete('public/' . $specialty->icon);
             }
-            $data['icon'] = $request->file('icon')->store('uploads', 'public');
+            $data['icon'] = $request->file('icon')->store('incons', 'public');
         }
     
         if ($request->hasFile('image')) {
             if ($specialty->image) {
                 Storage::delete('public/' . $specialty->image);
             }
-            $data['image'] = $request->file('image')->store('uploads', 'public');
+            $data['image'] = $request->file('image')->store('images', 'public');
         }
     
         $specialty->update($data);
     
         return redirect()->route('admin.specialties.index')->with('success', 'Cập nhật thành công');
     }
+    public function updateStatus(Request $request, $id)
+    {
+        $specialty = Specialty::findOrFail($id);
+        $specialty->update(['isDeleted' => $request->isDeleted]);
+        return redirect()->back()->with('success', 'Trạng thái đã được cập nhật.');
+    }
+
     public function delete($id)
     {
         $specialty = Specialty::where('id', $id)->where('isDeleted', 0)->firstOrFail();
