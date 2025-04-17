@@ -57,7 +57,7 @@
                     <table class="table table-bordered table-hover align-middle">
                         <thead class="table-primary ">
                             <tr>
-                                <th>STT</th>
+                                <th>#</th>
                                 <th>Danh mục</th>
                                 <th>Tác giả</th>
 

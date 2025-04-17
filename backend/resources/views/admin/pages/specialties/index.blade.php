@@ -5,7 +5,7 @@
     <h2>Danh sách chuyên khoa</h2>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
     <form action="{{ route('admin.specialties.index') }}" method="GET" class="mb-3">
@@ -21,13 +21,13 @@
             </div>
         </div>
     </form>
-    
+
 
 
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>STT</th>
+                <th>#</th>
                 <th>Tên</th>
                 <th>Biểu tượng</th>
                 <th>Hình ảnh</th>
@@ -132,7 +132,6 @@
                         </div>
                     </div>
                 </div>
-
             @endforeach
         </tbody>
     </table>

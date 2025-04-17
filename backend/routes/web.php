@@ -140,7 +140,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('invoices/{id}/edit', [InvoiceController::class, 'edit'])->name('admin.invoices.edit');
     Route::put('invoices/{id}', [InvoiceController::class, 'update'])->name('admin.invoices.update');
     Route::delete('invoices/{id}', [InvoiceController::class, 'delete'])->name('admin.invoices.delete');
-
+    Route::patch('/admin/invoices/{id}/status', [InvoiceController::class, 'updateStatus'])->name('admin.invoices.updateStatus');
+    
     Route::get('invoice-details', [InvoiceDetailController::class, 'index'])->name('invoice_details.index');
     Route::get('invoice-details/create', [InvoiceDetailController::class, 'create'])->name('invoice_details.create');
     Route::post('invoice-details', [InvoiceDetailController::class, 'store'])->name('invoice_details.store');

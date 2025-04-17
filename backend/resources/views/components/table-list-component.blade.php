@@ -68,7 +68,7 @@
                         <th>{{ $column['label'] }}</th>
                     @endforeach
                     @if (collect($actions)->where('type', 'row')->isNotEmpty())
-                        <th>Actions</th>
+                        <th><i class='bx bx-menu'></i></th>
                     @endif
                 </tr>
             </thead>

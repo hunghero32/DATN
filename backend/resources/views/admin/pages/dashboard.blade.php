@@ -2,11 +2,44 @@
 @section('title', 'Thống kê')
 @section('content')
     <div class="container-fluid">
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Bảng Điều Khiển</h1>
-            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                <i class="fas fa-download fa-sm text-white-50"></i> Tạo Báo Cáo
-            </a>
+        <!-- Filter Form -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Lọc Dữ Liệu</h6>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ route('admin.dashboard') }}">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="filter_type">Khoảng Thời Gian</label>
+                                <select name="filter_type" id="filter_type" class="form-control" onchange="toggleCustomDateFields()">
+                                    <option value="day" {{ $filterType === 'day' ? 'selected' : '' }}>Hôm Nay</option>
+                                    <option value="week" {{ $filterType === 'week' ? 'selected' : '' }}>Tuần Này</option>
+                                    <option value="month" {{ $filterType === 'month' ? 'selected' : '' }}>Tháng Này</option>
+                                    <option value="year" {{ $filterType === 'year' ? 'selected' : '' }}>Năm Này</option>
+                                    <option value="custom" {{ $filterType === 'custom' ? 'selected' : '' }}>Tùy Chỉnh</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="start_date_field" style="display: {{ $filterType === 'custom' ? 'block' : 'none' }};">
+                            <div class="form-group">
+                                <label for="start_date">Từ Ngày</label>
+                                <input type="date" name="start_date" id="start_date" class="form-control" value="{{ $customStartDate }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3" id="end_date_field" style="display: {{ $filterType === 'custom' ? 'block' : 'none' }};">
+                            <div class="form-group">
+                                <label for="end_date">Đến Ngày</label>
+                                <input type="date" name="end_date" id="end_date" class="form-control" value="{{ $customEndDate }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3 align-self-end">
+                            <button type="submit" class="btn btn-primary">Lọc</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Statistics Cards -->
@@ -104,15 +137,15 @@
                 </div>
             </div>
 
-            <!-- New Patients This Month Card -->
+            <!-- New Patients Card -->
             <div class="col-xl-3 col-md-6 mb-4">
                 <div class="card border-left-danger shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                    Bệnh Nhân Mới (Tháng Này)</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $newPatientsThisMonth }}</div>
+                                    Bệnh Nhân Mới</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $newPatients }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-user-plus fa-2x text-gray-300"></i>
@@ -159,14 +192,12 @@
             </div>
         </div>
 
-        <!-- Top Revenue Doctor Card -->
         <!-- Top Revenue Doctors Chart -->
-        <!-- Trong file view -->
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Doanh Thu Bác Sĩ Theo Tháng ({{ date('Y') }})</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Doanh Thu Bác Sĩ</h6>
                         <div class="dropdown no-arrow">
                             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -183,14 +214,14 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        @if (isset($topRevenueDoctorsByMonth) && $topRevenueDoctorsByMonth->isNotEmpty())
+                        @if (isset($topRevenueDoctors) && $topRevenueDoctors->isNotEmpty())
                             <div class="chart-container" style="position: relative; height:400px;">
-                                <canvas id="doctorsRevenueByMonthChart"></canvas>
+                                <canvas id="doctorsRevenueChart"></canvas>
                             </div>
                         @else
                             <div class="text-center py-4">
                                 <i class="fas fa-user-md fa-4x text-gray-300 mb-3"></i>
-                                <p class="text-muted">Chưa có dữ liệu doanh thu bác sĩ trong năm {{ date('Y') }}</p>
+                                <p class="text-muted">Chưa có dữ liệu doanh thu bác sĩ</p>
                             </div>
                         @endif
                     </div>
@@ -200,11 +231,11 @@
 
         <!-- Charts Row -->
         <div class="row">
-            <!-- Monthly Appointments Chart -->
+            <!-- Appointments Chart -->
             <div class="col-xl-8 col-lg-7">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Lịch Hẹn Theo Tháng ({{ date('Y') }})</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Lịch Hẹn</h6>
                         <div class="dropdown no-arrow">
                             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -222,7 +253,7 @@
                     </div>
                     <div class="card-body">
                         <div class="chart-area">
-                            <canvas id="appointmentsMonthlyChart"></canvas>
+                            <canvas id="appointmentsChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -257,13 +288,12 @@
             </div>
         </div>
 
-        <!-- Third Row - Specialty and Top Doctors -->
+        <!-- Appointments by Department Chart -->
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">
-                    <!-- Remove this section -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Lịch Hẹn Theo Chuyên Khoa (Theo Tháng - {{ date('Y') }})</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">Lịch Hẹn Theo Chuyên Khoa</h6>
                         <div class="dropdown no-arrow">
                             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -272,8 +302,10 @@
                             <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                                 aria-labelledby="dropdownMenuLink">
                                 <div class="dropdown-header">Tùy Chọn Xuất:</div>
-                                <a class="dropdown-item" href="#"><i class="fas fa-file-csv fa-sm fa-fw mr-2 text-gray-400"></i>CSV</a>
-                                <a class="dropdown-item" href="#"><i class="fas fa-file-pdf fa-sm fa-fw mr-2 text-gray-400"></i>PDF</a>
+                                <a class="dropdown-item" href="#"><i
+                                        class="fas fa-file-csv fa-sm fa-fw mr-2 text-gray-400"></i>CSV</a>
+                                <a class="dropdown-item" href="#"><i
+                                        class="fas fa-file-pdf fa-sm fa-fw mr-2 text-gray-400"></i>PDF</a>
                             </div>
                         </div>
                     </div>
@@ -315,7 +347,7 @@
                                     <td>{{ $appointment->patient_name ?? 'N/A' }}</td>
                                     <td>{{ $appointment->doctor_name ?? 'N/A' }}</td>
                                     <td>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('d/m/Y') }}</td>
-                                    <td>{{\Carbon\Carbon::parse($appointment->appointment_time)->format('H:i') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('H:i') }}</td>
                                     <td>
                                         @switch($appointment->status)
                                             @case('confirmed')
@@ -325,7 +357,7 @@
                                                 <span>Đang Chờ</span>
                                                 @break
                                             @case('completed')
-                                                <span >Đã Hoàn Thành</span>
+                                                <span>Đã Hoàn Thành</span>
                                                 @break
                                             @case('cancelled')
                                                 <span>Đã Hủy</span>
@@ -352,165 +384,61 @@
             </div>
         </div>
     </div>
-@endsection
 
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
-<!-- Chart.js -->
-<!-- Chart.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script>
+        // Toggle custom date fields based on filter type
+        function toggleCustomDateFields() {
+            const filterType = document.getElementById('filter_type').value;
+            const startDateField = document.getElementById('start_date_field');
+            const endDateField = document.getElementById('end_date_field');
+            if (filterType === 'custom') {
+                startDateField.style.display = 'block';
+                endDateField.style.display = 'block';
+            } else {
+                startDateField.style.display = 'none';
+                endDateField.style.display = 'none';
+            }
+        }
 
-<script>
-    // Add immediate console log to verify script loading
-    console.log('Script section started');
-
-    // Wrap in try-catch to catch potential errors
-    try {
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard page loaded.');
 
-            // Doctor Revenue By Month Chart (giữ nguyên)
-            const doctorRevenueData = @json($topRevenueDoctorsByMonth);
-            const months = ['Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6',
-                          'Th.7', 'Th.8', 'Th.9', 'Th.10', 'Th.11', 'Th.12'];
-            const doctorNames = [...new Set(doctorRevenueData.map(item => item.doctor_name))];
-            const datasets = doctorNames.map(doctor => {
-                const monthlyRevenue = months.map((_, index) => {
-                    const monthData = doctorRevenueData.find(d =>
-                        d.doctor_name === doctor && d.month === (index + 1)
-                    );
-                    return monthData ? monthData.total_revenue : 0;
-                });
-                return {
-                    label: doctor,
-                    data: monthlyRevenue,
-                    backgroundColor: `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, 0.5)`,
-                    borderColor: `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, 1)`,
-                    borderWidth: 1
-                };
-            });
+            const filterType = @json($filterType);
 
-            const revenueChartCanvas = document.getElementById('doctorsRevenueByMonthChart');
-            if (!revenueChartCanvas) {
-                console.error('Canvas element "doctorsRevenueByMonthChart" not found!');
-            } else if (doctorRevenueData.length === 0) {
-                console.warn('No data available for Doctor Revenue Chart.');
+            // Labels for charts based on filter type
+            let appointmentLabels = [];
+            if (filterType === 'day') {
+                appointmentLabels = Array.from({length: 24}, (_, i) => `${i}:00`);
+            } else if (filterType === 'week') {
+                appointmentLabels = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+            } else if (filterType === 'month') {
+                const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+                appointmentLabels = Array.from({length: daysInMonth}, (_, i) => `Ngày ${i + 1}`);
             } else {
-                new Chart(revenueChartCanvas, {
-                    type: 'bar',
-                    data: {
-                        labels: months,
-                        datasets: datasets
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return value.toLocaleString('vi-VN') + ' VNĐ';
-                                    }
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Tháng'
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: { position: 'top' },
-                            title: { display: true, text: 'Doanh Thu Bác Sĩ Theo Tháng' }
-                        }
-                    }
-                });
+                appointmentLabels = ['Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6',
+                                    'Th.7', 'Th.8', 'Th.9', 'Th.10', 'Th.11', 'Th.12'];
             }
 
-            // Monthly Appointments Chart
-            const monthlyAppointments = @json(array_values($appointmentsByMonth));
-            console.log('Monthly Appointments:', monthlyAppointments);
-            const monthlyChartCanvas = document.getElementById('appointmentsMonthlyChart');
-            if (!monthlyChartCanvas) {
-                console.error('Canvas element "appointmentsMonthlyChart" not found!');
+            // Appointments Chart
+            const appointmentsData = @json(array_values($appointmentsByPeriod));
+            const appointmentsChartCanvas = document.getElementById('appointmentsChart');
+            if (!appointmentsChartCanvas) {
+                console.error('Canvas element "appointmentsChart" not found!');
             } else {
-                new Chart(monthlyChartCanvas, {
+                new Chart(appointmentsChartCanvas, {
                     type: 'line',
                     data: {
-                        labels: ['Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6', 'Th.7', 'Th.8', 'Th.9', 'Th.10', 'Th.11', 'Th.12'],
+                        labels: appointmentLabels,
                         datasets: [{
                             label: 'Số lịch hẹn',
-                            data: monthlyAppointments,
+                            data: appointmentsData,
                             borderColor: 'rgba(78, 115, 223, 1)',
                             backgroundColor: 'rgba(78, 115, 223, 0.1)',
                             fill: true
                         }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-            }
-
-            // Status Chart
-            const statusChart = new Chart(
-                document.getElementById('appointmentsByStatusChart'),
-                {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Đang chờ', 'Đã xác nhận', 'Đã hoàn thành', 'Đã hủy'],
-                        datasets: [{
-                            data: [
-                                @json($statusStats['pending']),
-                                @json($statusStats['confirmed']),
-                                @json($statusStats['completed']),
-                                @json($statusStats['cancelled'])
-                            ],
-                            backgroundColor: ['#f6c23e', '#36b9cc', '#1cc88a', '#e74a3b']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                }
-            );
-
-            // Appointments By Department Chart (cập nhật để hiển thị theo tháng)
-            const departmentData = @json($appointmentsByDepartment);
-            const departmentNames = [...new Set(departmentData.map(item => item.department))]; // Lấy danh sách chuyên khoa duy nhất
-
-            // Tạo datasets cho từng chuyên khoa
-            const departmentDatasets = departmentNames.map(department => {
-                const monthlyCounts = months.map((_, index) => {
-                    const monthData = departmentData.find(d =>
-                        d.department === department && d.month === (index + 1)
-                    );
-                    return monthData ? monthData.count : 0;
-                });
-
-                return {
-                    label: department,
-                    data: monthlyCounts,
-                    backgroundColor: `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, 0.5)`,
-                    borderColor: `rgba(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255}, 1)`,
-                    borderWidth: 1
-                };
-            });
-
-            const departmentChartCanvas = document.getElementById('appointmentsByDepartmentChart');
-            if (!departmentChartCanvas) {
-                console.error('Canvas element "appointmentsByDepartmentChart" not found!');
-            } else if (departmentData.length === 0) {
-                console.warn('No data available for Department Appointments Chart.');
-            } else {
-                new Chart(departmentChartCanvas, {
-                    type: 'bar', // Sử dụng bar chart để hiển thị theo tháng
-                    data: {
-                        labels: months, // Trục X là các tháng
-                        datasets: departmentDatasets
                     },
                     options: {
                         responsive: true,
@@ -526,24 +454,158 @@
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Tháng'
+                                    text: filterType === 'day' ? 'Giờ' : filterType === 'week' ? 'Ngày' : filterType === 'month' ? 'Ngày' : 'Tháng'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Lịch Hẹn Theo ' + (filterType === 'day' ? 'Giờ' : filterType === 'week' ? 'Ngày' : filterType === 'month' ? 'Ngày' : 'Tháng')
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Status Chart
+            const statusChartCanvas = document.getElementById('appointmentsByStatusChart');
+            if (!statusChartCanvas) {
+                console.error('Canvas element "appointmentsByStatusChart" not found!');
+            } else {
+                new Chart(statusChartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Đang chờ', 'Đã xác nhận', 'Đã hoàn thành', 'Đã hủy'],
+                        datasets: [{
+                            data: [
+                                @json($statusStats['pending']),
+                                @json($statusStats['confirmed']),
+                                @json($statusStats['completed']),
+                                @json($statusStats['canceled'])
+                            ],
+                            backgroundColor: ['#f6c23e', '#36b9cc', '#1cc88a', '#e74a3b']
+                        }]
+                    },
+                    options: {
+                        producers: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // Appointments By Department Chart
+            const departmentData = @json($appointmentsByDepartment);
+            const departmentLabels = departmentData.map(item => item.department);
+            const departmentCounts = departmentData.map(item => item.count);
+
+            const departmentChartCanvas = document.getElementById('appointmentsByDepartmentChart');
+            if (!departmentChartCanvas) {
+                console.error('Canvas element "appointmentsByDepartmentChart" not found!');
+            } else if (departmentData.length === 0) {
+                console.warn('No data available for Department Appointments Chart.');
+            } else {
+                new Chart(departmentChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: departmentLabels,
+                        datasets: [{
+                            label: 'Số lịch hẹn',
+                            data: departmentCounts,
+                            backgroundColor: 'rgba(78, 115, 223, 0.5)',
+                            borderColor: 'rgba(78, 115, 223, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Số Lịch Hẹn'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Chuyên Khoa'
                                 }
                             }
                         },
                         plugins: {
                             legend: {
-                                position: 'top',
+                                display: false
                             },
                             title: {
                                 display: true,
-                                text: 'Lịch Hẹn Theo Chuyên Khoa (Theo Tháng)'
+                                text: 'Lịch Hẹn Theo Chuyên Khoa'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Top Revenue Doctors Chart
+            const revenueData = @json($topRevenueDoctors);
+            const doctorNames = revenueData.map(item => item.doctor_name);
+            const revenues = revenueData.map(item => item.total_revenue);
+
+            const revenueChartCanvas = document.getElementById('doctorsRevenueChart');
+            if (!revenueChartCanvas) {
+                console.error('Canvas element "doctorsRevenueChart" not found!');
+            } else if (revenueData.length === 0) {
+                console.warn('No data available for Doctor Revenue Chart.');
+            } else {
+                new Chart(revenueChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: doctorNames,
+                        datasets: [{
+                            label: 'Doanh thu',
+                            data: revenues,
+                            backgroundColor: 'rgba(28, 200, 138, 0.5)',
+                            borderColor: 'rgba(28, 200, 138, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString('vi-VN') + ' VNĐ';
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Doanh Thu'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Bác Sĩ'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Doanh Thu Bác Sĩ'
                             }
                         }
                     }
                 });
             }
         });
-    } catch (error) {
-        console.error('Error in dashboard initialization:', error);
-    }
-</script>
+    </script>
+@endsection

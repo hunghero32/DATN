@@ -13,16 +13,28 @@
                         @csrf
                         <div class="row mb-4">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group custom-select2">
                                     <label class="form-label text-uppercase fw-semibold mb-2">Chọn bác sĩ</label>
-                                    <select name="doctor_id" class="form-select form-select-lg shadow-sm @error('doctor_id') is-invalid @enderror" required>
-                                        <option value="">Chọn bác sĩ</option>
-                                        @foreach($doctors as $doctor)
-                                            <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
-                                                {{ $doctor->doctor_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="select2-container">
+                                        <div class="select2-selection form-select form-select-lg shadow-sm @error('doctor_id') is-invalid @enderror">
+                                            <span class="select2-selection__rendered">Chọn bác sĩ</span>
+                                            <span class="select2-selection__arrow"></span>
+                                        </div>
+                                        <select name="doctor_id" class="form-select form-select-lg hidden-select" required>
+                                            <option value="">Chọn bác sĩ</option>
+                                            @foreach($doctors as $doctor)
+                                                <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
+                                                    {{ $doctor->doctor_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="select2-dropdown">
+                                            <input type="text" class="select2-search" placeholder="Tìm kiếm bác sĩ...">
+                                            <ul class="select2-results">
+                                                <!-- Options will be populated by JavaScript -->
+                                            </ul>
+                                        </div>
+                                    </div>
                                     @error('doctor_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -100,13 +112,38 @@
                                             <label class="btn btn-outline-warning" for="afternoon">13:00-17:00</label>
                                         </div>
                                     </div>
+
+                                    <!-- Custom Shift -->
+                                    <div class="shift-container">
+                                        <h6 class="mb-3">Ca tùy chỉnh</h6>
+                                        <div class="time-slot-container">
+                                            <div class="d-flex gap-2">
+                                                <select id="custom_start" class="form-control form-control-sm" name="custom_start">
+                                                    <option value="">Giờ bắt đầu</option>
+                                                    @for ($hour = 7; $hour <= 17; $hour++)
+                                                        <option value="{{ str_pad($hour, 2, '0', STR_PAD_LEFT) }}:00">
+                                                            {{ str_pad($hour, 2, '0', STR_PAD_LEFT) }}:00
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                                <select id="custom_end" class="form-control form-control-sm" name="custom_end">
+                                                    <option value="">Giờ kết thúc</option>
+                                                    @for ($hour = 7; $hour <= 17; $hour++)
+                                                        <option value="{{ str_pad($hour, 2, '0', STR_PAD_LEFT) }}:00">
+                                                            {{ str_pad($hour, 2, '0', STR_PAD_LEFT) }}:00
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mt-4 d-flex gap-2">
                             <button type="submit" class="btn btn-primary btn-lg px-4">Lưu thông tin</button>
-                            <button type="button" class="btn btn-outline-secondary btn-lg px-4">Hủy</button>
+                            <a href="{{ route('admin.schedule.index') }}" class="btn btn-outline-secondary btn-lg px-4">Hủy</a>
                         </div>
                     </form>
                 </div>
@@ -167,89 +204,6 @@
             font-weight: 500;
             letter-spacing: 0.3px;
         }
-    </style>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('scheduleForm');
-            const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
-
-            form.addEventListener('submit', function(e) {
-                let isTimeSlotSelected = false;
-
-                timeSlots.forEach(slot => {
-                    if (slot.checked) {
-                        isTimeSlotSelected = true;
-                    }
-                });
-
-                if (!isTimeSlotSelected) {
-                    alert('Vui lòng chọn ít nhất một khung giờ');
-                    e.preventDefault();
-                    return;
-                }
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('scheduleForm');
-            const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
-
-            form.addEventListener('submit', function(e) {
-                let isTimeSlotSelected = false;
-
-                timeSlots.forEach(slot => {
-                    if (slot.checked) {
-                        isTimeSlotSelected = true;
-                    }
-                });
-
-                if (!isTimeSlotSelected) {
-                    alert('Vui lòng chọn ít nhất một khung giờ');
-                    e.preventDefault();
-                    return;
-                }
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('scheduleForm');
-
-            form.addEventListener('submit', function(e) {
-                const selectedShifts = document.querySelectorAll('input[name="time_slots[]"]:checked');
-
-                if (selectedShifts.length === 0) {
-                    alert('Vui lòng chọn ít nhất một ca làm việc');
-                    e.preventDefault();
-                    return;
-                }
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('scheduleForm');
-            const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
-
-            form.addEventListener('submit', function(e) {
-                let isTimeSlotSelected = false;
-
-                timeSlots.forEach(slot => {
-                    if (slot.checked) {
-                        isTimeSlotSelected = true;
-                    }
-                });
-
-                if (!isTimeSlotSelected) {
-                    alert('Vui lòng chọn ít nhất một khung giờ');
-                    e.preventDefault();
-                    return;
-                }
-            });
-        });
-    </script>
-    <style>
         .is-invalid {
             border-color: #dc3545 !important;
             padding-right: calc(1.5em + 0.75rem) !important;
@@ -275,6 +229,266 @@
             color: #566a7f;
             font-weight: 600;
         }
+        .custom-select2 {
+            position: relative;
+        }
+        .select2-container {
+            position: relative;
+            width: 100%;
+        }
+        .select2-selection {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.5rem;
+            padding: 0.625rem 1rem;
+        }
+        .select2-selection:hover {
+            border-color: #696cff;
+        }
+        .select2-selection__rendered {
+            flex-grow: 1;
+            color: #333;
+        }
+        .select2-selection__arrow {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #566a7f;
+        }
+        .select2-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            margin-top: 0.25rem;
+        }
+        .select2-dropdown.open {
+            display: block;
+        }
+        .select2-search {
+            width: 100%;
+            padding: 0.5rem;
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+            outline: none;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        .select2-results {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .select2-results li {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .select2-results li:hover {
+            background: #f8f9fa;
+        }
+        .select2-results li.selected {
+            background: #696cff;
+            color: #fff;
+        }
+        .hidden-select {
+            display: none;
+        }
     </style>
-@endsection
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize custom select2-like functionality
+            const customSelects = document.querySelectorAll('.custom-select2');
+            customSelects.forEach(select => {
+                const selectElement = select.querySelector('select');
+                const selection = select.querySelector('.select2-selection');
+                const rendered = select.querySelector('.select2-selection__rendered');
+                const dropdown = select.querySelector('.select2-dropdown');
+                const searchInput = select.querySelector('.select2-search');
+                const results = select.querySelector('.select2-results');
 
+                const options = Array.from(selectElement.options).slice(1);
+                const updateOptions = (filter = '') => {
+                    results.innerHTML = '';
+                    options.forEach(option => {
+                        if (option.text.toLowerCase().includes(filter.toLowerCase())) {
+                            const li = document.createElement('li');
+                            li.textContent = option.text;
+                            li.dataset.value = option.value;
+                            if (option.selected) {
+                                li.classList.add('selected');
+                                rendered.textContent = option.text;
+                            }
+                            results.appendChild(li);
+                        }
+                    });
+                };
+                updateOptions();
+
+                selection.addEventListener('click', () => {
+                    dropdown.classList.toggle('open');
+                    if (dropdown.classList.contains('open')) {
+                        searchInput.focus();
+                    }
+                });
+
+                searchInput.addEventListener('input', () => {
+                    updateOptions(searchInput.value);
+                });
+
+                results.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'LI') {
+                        const value = e.target.dataset.value;
+                        selectElement.value = value;
+                        rendered.textContent = e.target.textContent;
+                        results.querySelectorAll('li').forEach(li => li.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        dropdown.classList.remove('open');
+                        searchInput.value = '';
+                        updateOptions();
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!select.contains(e.target)) {
+                        dropdown.classList.remove('open');
+                        searchInput.value = '';
+                        updateOptions();
+                    }
+                });
+
+                if (selectElement.value) {
+                    const selectedOption = selectElement.options[selectElement.selectedIndex];
+                    rendered.textContent = selectedOption.text;
+                }
+            });
+
+            // Form validation and selection logic
+            const form = document.getElementById('scheduleForm');
+            const workingDaysCheckboxes = document.querySelectorAll('input[name="working_days[]"]');
+            const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
+            const customStart = document.getElementById('custom_start');
+            const customEnd = document.getElementById('custom_end');
+
+            // Function to handle time slot selection
+            function handleTimeSlotSelection(selectedSlot) {
+                timeSlots.forEach(slot => {
+                    if (slot !== selectedSlot) {
+                        slot.checked = false;
+                    }
+                });
+                customStart.value = '';
+                customEnd.value = '';
+            }
+
+            // Add click event listeners to time slots
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    handleTimeSlotSelection(this);
+                });
+            });
+
+            // Handle custom time slot input
+            function processCustomTimeSlots() {
+                const startTime = customStart.value;
+                const endTime = customEnd.value;
+
+                if (startTime && endTime) {
+                    const startHour = parseInt(startTime.split(':')[0]);
+                    const endHour = parseInt(endTime.split(':')[0]);
+
+                    // Basic validation
+                    if (startHour >= endHour) {
+                        alert('Giờ kết thúc phải lớn hơn giờ bắt đầu');
+                        return false;
+                    }
+
+                    // Check if time is within valid range (7:00-17:00)
+                    if (startHour < 7 || endHour > 17) {
+                        alert('Vui lòng chọn khoảng thời gian hợp lệ (7:00-17:00)');
+                        return false;
+                    }
+
+                    // Check if time slot crosses break time (11:00-13:00)
+                    if ((startHour < 11 && endHour > 13) ||
+                        (startHour >= 11 && startHour < 13) ||
+                        (endHour > 11 && endHour <= 13)) {
+                        alert('Không thể đặt lịch trong khoảng thời gian nghỉ trưa (11:00-13:00)');
+                        return false;
+                    }
+
+                    // Create and append hidden input for custom time slot
+                    let customSlotInput = document.getElementById('custom_time_slot');
+                    if (!customSlotInput) {
+                        customSlotInput = document.createElement('input');
+                        customSlotInput.type = 'hidden';
+                        customSlotInput.name = 'time_slots[]';
+                        customSlotInput.id = 'custom_time_slot';
+                        form.appendChild(customSlotInput);
+                    }
+                    customSlotInput.value = `${startTime},${endTime}`;
+                    return true;
+                }
+                return false;
+            }
+
+            form.addEventListener('submit', function(e) {
+                // Check if at least one day is selected
+                let selectedDays = 0;
+                workingDaysCheckboxes.forEach(checkbox => {
+                    if (checkbox.checked) selectedDays++;
+                });
+
+                if (selectedDays === 0) {
+                    e.preventDefault();
+                    alert('Vui lòng chọn ít nhất một ngày trong tuần');
+                    return;
+                }
+
+                // Check time slots
+                let hasValidTimeSlot = false;
+
+                // Check predefined time slots
+                timeSlots.forEach(slot => {
+                    if (slot.checked) hasValidTimeSlot = true;
+                });
+
+                // Check custom time slot
+                if (customStart.value || customEnd.value) {
+                    if (!customStart.value || !customEnd.value) {
+                        e.preventDefault();
+                        alert('Vui lòng chọn cả giờ bắt đầu và giờ kết thúc cho ca tùy chỉnh');
+                        return;
+                    }
+                    hasValidTimeSlot = processCustomTimeSlots();
+                }
+
+                if (!hasValidTimeSlot) {
+                    e.preventDefault();
+                    alert('Vui lòng chọn ít nhất một ca làm việc hoặc nhập ca tùy chỉnh hợp lệ');
+                    return;
+                }
+            });
+
+            // Clear predefined checkboxes when custom inputs are used
+            customStart.addEventListener('change', () => {
+                timeSlots.forEach(slot => slot.checked = false);
+            });
+            customEnd.addEventListener('change', () => {
+                timeSlots.forEach(slot => slot.checked = false);
+            });
+        });
+    </script>
+@endsection

@@ -63,7 +63,7 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Mã Đặt Lịch</th>
+                    <th>Mã Booking</th>
                     <th>Tên Bệnh Nhân</th>
                     <th>SĐT</th>
                     <th>Ngày Đặt</th>
@@ -75,7 +75,7 @@
             <tbody>
                 @foreach($bookings as $booking)
                     <tr>
-                        <td>{{ $booking->id }}</td>
+                        <td>#{{ $booking->id }}</td>
                         <td>{{ $booking->guest->guest_name ?? 'N/A' }}</td>
                         <td>{{ $booking->guest->guest_phone?? 'N/A' }}</td>
                         <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}</td>

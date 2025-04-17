@@ -56,7 +56,7 @@
                         <tbody class="text-center align-middle">
                             @foreach ($listCategory as $category)
                                 <tr>
-                                    <td><strong>{{ $category->id }}</strong></td>
+                                    <td><strong>{{ ($listCategory->currentPage() - 1) * $listCategory->perPage() + $loop->iteration }}</strong></td>
                                     <td>
                                         <a href="{{ route('admin.categories.index', $category->id) }}"
                                             class="text-primary fw-bold">

@@ -36,10 +36,8 @@
                                 @if(isset($banner['image_url']))
                                 <div class="col-6 text-center mb-3">
                                     <label class="form-label">Ảnh hiện tại</label>
-                                    <img src="{{ asset('storage/banner_images/' . $banner['image_url']) }}" alt="Banner Image" class="img-fluid" style="max-height: 250px; margin-bottom: 10px;">
-                                    <!-- Xóa ảnh -->
-                                    <button type="button" class="btn btn-warning mt-2" onclick="removeCurrentImage({{ $index }})">Xóa ảnh cũ</button>
-                                </div>
+                                    <img src="{{ asset('storage/' . $banner['image_url']) }}" alt="Banner Image" class="img-fluid" style="max-height: 250px; margin-bottom: 10px;">
+                               </div>
                                 @else
                                 <div class="col-6 text-center mb-3">
                                     <label class="form-label">Ảnh chưa có</label>
@@ -62,10 +60,11 @@
             @endforeach
         </div>
 
-        <button type="submit" class="btn btn-primary">Cập nhật Banner</button>
-    </form>
-
-    <button type="button" class="btn btn-secondary mt-3" onclick="addBannerField()">Thêm Banner</button>
+        <div class="d-flex justify-content-between align-items-center mt-4">
+    <button type="button" class="btn btn-secondary" onclick="addBannerField()">+ Thêm Banner</button>
+    <button type="submit" class="btn btn-primary">💾 Cập nhật Banner</button>
+</div>
+</form>
 </div>
 
 <script>
@@ -140,16 +139,6 @@
         if (file) {
             reader.readAsDataURL(file);
         }
-    }
-
-    // Hàm xóa ảnh cũ
-    function removeCurrentImage(index) {
-        const previewImage = document.getElementById('preview-image-' + index);
-        const fileInput = document.querySelector(`input[name="banners[${index}][image_url]"]`);
-        
-        // Xóa ảnh cũ
-        previewImage.style.display = 'none';
-        fileInput.value = ''; // Đặt lại giá trị file input
     }
 </script>
 

@@ -1,15 +1,15 @@
 @extends('admin.index')
 
-@section('title', 'Danh sách khách mời')
+@section('title', 'Danh sách khách hàng')
 
 @section('content')
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y">
-            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Khách mời /</span> Danh sách khách hàng </h4>
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">khách hàng /</span> Danh sách khách hàng </h4>
 
             <div class="card">
                 <div class="card-header d-flex justify-content-between">
-                    <h5 class="mb-0">Danh sách khách mời</h5>
+                    <h5 class="mb-0">Danh sách khách hàng</h5>
                 </div>
 
                 <!-- FORM TÌM KIẾM & BỘ LỌC -->
@@ -51,13 +51,13 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>STT</th>
+                                <th>#</th>
                                 <th>Tên khách</th>
                                 <th>Giới tính</th>
                                 <th>Ngày sinh</th>
                                 <th>SĐT</th>
                                 <th>Email</th>
-                                <th>Hành động</th>
+                                <th><i class='bx bx-menu'></i></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -67,20 +67,21 @@
                                 @endphp
                                 <tr>
                                     <td>{{ ($guests->currentPage() - 1) * $guests->perPage() + $loop->iteration }}</td>
-                                    <td>{{ $guest->user->name ?? 'N/A' }}</td>
+                                    <td>{{ $guest->guest_name ?? 'N/A' }}</td>
                                     <td>{{ $genderMapping[$guest->gender] ?? 'Không xác định' }}</td>
                                     <td>{{ $guest->birthday ?? 'N/A' }}</td>
                                     <td>{{ $guest->guest_phone ?? 'N/A' }}</td>
                                     <td>{{ $guest->guest_email ?? 'N/A' }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-warning btn-show-guest"
+                                        <button type="button" class="btn btn-sm border-danger btn-warning btn-show-guest"
                                             data-bs-toggle="modal" data-bs-target="#guestModal"
                                             data-name="{{ $guest->user->name ?? 'N/A' }}"
                                             data-gender="{{ $genderMapping[$guest->gender] ?? 'Không xác định' }}"
                                             data-birthday="{{ $guest->birthday ?? 'N/A' }}"
                                             data-phone="{{ $guest->guest_phone ?? 'N/A' }}"
-                                            data-email="{{ $guest->guest_email ?? 'N/A' }}">
-                                            Show
+                                            data-email="{{ $guest->guest_email ?? 'N/A' }}"
+                                            data-address="{{ $guest->address ?? 'N/A' }}">
+                                            <i class='bx bxs-info-circle' ></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -100,8 +101,8 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow rounded-3">
                 <div class="modal-header  text-white rounded-top">
-                    <h5 class="modal-title" id="guestModalLabel"><i class="bx bx-user"></i> Thông tin khách mời</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    <h5 class="modal-title" id="guestModalLabel"><i class="bx bx-user"></i> Thông tin khách hàng</h5>
+                    <button type="button" class="btn-close btn-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -124,6 +125,10 @@
                     <div class="row mb-3">
                         <div class="col-4 fw-semibold text-muted">✉️ Email:</div>
                         <div class="col-8" id="modalGuestEmail"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-4 fw-semibold text-muted">📌 Địa chỉ:</div>
+                        <div class="col-8" id="modalGuestAddress"></div>
                     </div>
                 </div>
                 <div class="modal-footer bg-light rounded-bottom">
@@ -151,6 +156,8 @@
                             'data-phone');
                         document.getElementById('modalGuestEmail').innerText = this.getAttribute(
                             'data-email');
+                        document.getElementById('modalGuestAddress').innerText = this.getAttribute(
+                            'data-address');
                     });
                 });
             });
