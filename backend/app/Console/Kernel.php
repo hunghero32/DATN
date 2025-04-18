@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('bookings:autoupdate')->everyMinute();
+        $schedule->command('bookings:upcoming')->everyMinute();
     }
 
     /**
