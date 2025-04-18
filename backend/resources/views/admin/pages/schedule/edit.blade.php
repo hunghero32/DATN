@@ -15,7 +15,7 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group custom-select2">
-                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn bác sĩ</label>
+                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn bác sĩ <span class="text-danger">*</span></label>
                                     <div class="select2-container">
                                         <div class="select2-selection form-select form-select-lg shadow-sm @error('doctor_id') is-invalid @enderror">
                                             <span class="select2-selection__rendered">Chọn bác sĩ</span>
@@ -43,7 +43,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn tuần</label>
+                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn tuần <span class="text-danger">*</span></label>
                                     <input type="week" name="working_week"
                                            class="form-control form-control-lg shadow-sm @error('working_week') is-invalid @enderror"
                                            required
@@ -58,7 +58,7 @@
 
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ngày trong tuần</label>
+                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ngày trong tuần <span class="text-danger">*</span></label>
                                 <div class="d-flex flex-wrap gap-3 mb-4">
                                     @php
                                         $currentDayOfWeek = date('w', strtotime($data->working_date));
@@ -104,7 +104,7 @@
 
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ca làm việc</label>
+                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ca làm việc <span class="text-danger">*</span></label>
                                 <div class="d-flex flex-wrap gap-3">
                                     <!-- Morning Shift -->
                                     <div class="shift-container">
@@ -404,111 +404,77 @@
                 }
             });
 
+            // Form validation and selection logic
             const form = document.getElementById('scheduleForm');
             const workingDaysCheckboxes = document.querySelectorAll('input[name="working_days[]"]');
             const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
             const customStart = document.getElementById('custom_start');
             const customEnd = document.getElementById('custom_end');
 
-            function handleDaySelection(selectedCheckbox) {
-                workingDaysCheckboxes.forEach(checkbox => {
-                    if (checkbox !== selectedCheckbox) {
-                        checkbox.checked = false;
-                    }
-                });
+            function clearErrorMessages() {
+                const errorElements = document.querySelectorAll('.error-message');
+                errorElements.forEach(element => element.remove());
             }
 
-            function handleTimeSlotSelection(selectedSlot) {
-                timeSlots.forEach(slot => {
-                    if (slot !== selectedSlot) {
-                        slot.checked = false;
-                    }
-                });
-                customStart.value = '';
-                customEnd.value = '';
-            }
+            function displayError(id, message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message invalid-feedback d-block';
+                errorDiv.id = id;
+                errorDiv.textContent = message;
 
-            workingDaysCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('click', function() {
-                    handleDaySelection(this);
-                });
-            });
-
-            timeSlots.forEach(slot => {
-                slot.addEventListener('click', function() {
-                    handleTimeSlotSelection(this);
-                });
-            });
-
-            function processCustomTimeSlots() {
-                const startTime = customStart.value;
-                const endTime = customEnd.value;
-
-                if (startTime && endTime) {
-                    const startHour = parseInt(startTime.split(':')[0]);
-                    const endHour = parseInt(endTime.split(':')[0]);
-
-                    if (startHour >= endHour) {
-                        alert('Giờ kết thúc phải lớn hơn giờ bắt đầu');
-                        return false;
-                    }
-
-                    if (startHour < 7 || endHour > 17) {
-                        alert('Vui lòng chọn khoảng thời gian hợp lệ (7:00-17:00)');
-                        return false;
-                    }
-
-                    if ((startHour < 11 && endHour > 13) ||
-                        (startHour >= 11 && startHour < 13) ||
-                        (endHour > 11 && endHour <= 13)) {
-                        alert('Không thể đặt lịch trong khoảng thời gian nghỉ trưa (11:00-13:00)');
-                        return false;
-                    }
-
-                    let customSlotInput = document.getElementById('custom_time_slot');
-                    if (!customSlotInput) {
-                        customSlotInput = document.createElement('input');
-                        customSlotInput.type = 'hidden';
-                        customSlotInput.name = 'time_slots[]';
-                        customSlotInput.id = 'custom_time_slot';
-                        form.appendChild(customSlotInput);
-                    }
-                    customSlotInput.value = `${startTime},${endTime}`;
-                    return true;
+                let container;
+                switch(id) {
+                    case 'working-days-error':
+                        container = document.querySelector('.d-flex.flex-wrap.gap-3.mb-4');
+                        break;
+                    case 'time-slots-error':
+                    case 'custom-time-error':
+                        container = document.getElementById('time-slots-error-container');
+                        break;
                 }
-                return false;
+
+                if (container) {
+                    container.appendChild(errorDiv);
+                }
             }
 
+            // Add form submit validation
             form.addEventListener('submit', function(e) {
+                clearErrorMessages();
+                let hasError = false;
+
+                // Validate working days
                 let selectedDays = 0;
                 workingDaysCheckboxes.forEach(checkbox => {
                     if (checkbox.checked) selectedDays++;
                 });
 
-                if (selectedDays !== 1) {
+                if (selectedDays === 0) {
                     e.preventDefault();
-                    alert('Vui lòng chọn một ngày trong tuần');
-                    return;
+                    displayError('working-days-error', 'Vui lòng chọn ít nhất một ngày trong tuần');
+                    hasError = true;
                 }
 
+                // Validate time slots
                 let hasValidTimeSlot = false;
                 timeSlots.forEach(slot => {
                     if (slot.checked) hasValidTimeSlot = true;
                 });
 
+                // Check custom time slot
                 if (customStart.value || customEnd.value) {
                     if (!customStart.value || !customEnd.value) {
                         e.preventDefault();
-                        alert('Vui lòng chọn cả giờ bắt đầu và giờ kết thúc cho ca tùy chỉnh');
-                        return;
+                        displayError('custom-time-error', 'Vui lòng chọn cả giờ bắt đầu và giờ kết thúc cho ca tùy chỉnh');
+                        hasError = true;
+                    } else {
+                        hasValidTimeSlot = processCustomTimeSlots();
                     }
-                    hasValidTimeSlot = processCustomTimeSlots();
                 }
 
-                if (!hasValidTimeSlot) {
+                if (!hasValidTimeSlot && !hasError) {
                     e.preventDefault();
-                    alert('Vui lòng chọn ít nhất một ca làm việc hoặc nhập ca tùy chỉnh hợp lệ');
-                    return;
+                    displayError('time-slots-error', 'Vui lòng chọn ít nhất một ca làm việc hoặc nhập ca tùy chỉnh hợp lệ');
                 }
             });
 
