@@ -18,8 +18,18 @@ export default function HomeMain() {
       {/* <Service/> */}
       <TopSpecialties />
       <TopBookedServices />
-      {/* <Categori /> */}
-      {/* <Appointment />   // Trang đặt lịch khám  */}
+      <div className="flex justify-center my-8 container mx-auto mt-2 mb-2 px-4">
+        <iframe 
+          width="100%" 
+          height="600" 
+          src="https://www.youtube.com/embed/7JHVlnoWx3Y?si=p8hIOOgA86ouRfZY" 
+          title="YouTube video player" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          referrerpolicy="strict-origin-when-cross-origin" 
+          allowfullscreen
+        ></iframe>
+      </div>
       <ClinicDetail />    { /* Trang giới thiệu phòng khám */}
       <ArticleList />
       {/* <Team/> */}
