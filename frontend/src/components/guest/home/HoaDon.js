@@ -27,7 +27,7 @@ const InvoicePage = () => {
     if (method === "Momo" && invoice) {
       setPaymentLoading(true);
       try {
-        const amount = Math.round(invoice.total_amount - invoice.discount + invoice.tax);
+        const amount = Math.round(invoice.total_amount.toLocaleString());
         const paymentData = {
           booking_id: invoice.booking_id,
           amount: amount,
@@ -146,7 +146,7 @@ const InvoicePage = () => {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm font-medium text-gray-700">Tổng tiền thanh toán:</span>
-                          <span className="text-sm font-bold text-blue-600">{(invoice.total_amount - invoice.discount + invoice.tax).toLocaleString()} VNĐ</span>
+                          <span className="text-sm font-bold text-blue-600">{invoice.total_amount.toLocaleString()} VNĐ</span>
                         </div>
                         <div className="flex justify-between items-center mt-2">
                           <span className="text-sm font-medium text-gray-700">Hạn thanh toán:</span>
@@ -189,25 +189,22 @@ const InvoicePage = () => {
                           <td className="border border-gray-300 px-4 py-2 text-sm">{detail.service_name}</td>
                           <td className="border border-gray-300 px-4 py-2 text-sm">Lần</td>
                           <td className="border border-gray-300 px-4 py-2 text-sm">1</td>
-                          <td className="border border-gray-300 px-4 py-2 text-sm">{detail.price ? detail.price.toLocaleString() : '0'} VNĐ</td>
-                          <td className="border border-gray-300 px-4 py-2 text-sm">{detail.price ? detail.price.toLocaleString() : '0'} VNĐ</td>
+                          <td className="border border-gray-300 px-4 py-2 text-sm">{detail.price ? detail.price.toLocaleString('vi-VN') : '0'} VNĐ</td>
+                          <td className="border border-gray-300 px-4 py-2 text-sm">{detail.price ? detail.price.toLocaleString('vi-VN') : '0'} VNĐ</td>
                         </tr>
                       ))}
+                     
                       <tr>
-                        <td colSpan="5" className="border border-gray-300 px-4 py-2 text-sm font-medium text-right">Cộng tiền hàng:</td>
-                        <td className="border border-gray-300 px-4 py-2 text-sm font-medium">{invoice.total_amount.toLocaleString()} VNĐ</td>
-                      </tr>
-                      <tr>
-                        <td colSpan="5" className="border border-gray-300 px-4 py-2 text-sm font-medium text-right">Thuế suất GTGT: 10%</td>
-                        <td className="border border-gray-300 px-4 py-2 text-sm font-medium">{invoice.tax.toLocaleString()} VNĐ</td>
+                        <td colSpan="5" className="border border-gray-300 px-4 py-2 text-sm font-medium text-right">Thuế suất GTGT:</td>
+                        <td className="border border-gray-300 px-4 py-2 text-sm font-medium">{invoice.tax.toLocaleString('vi-VN')} %</td>
                       </tr>
                       <tr>
                         <td colSpan="5" className="border border-gray-300 px-4 py-2 text-sm font-medium text-right">Giảm giá:</td>
-                        <td className="border border-gray-300 px-4 py-2 text-sm font-medium">{invoice.discount.toLocaleString()} VNĐ</td>
+                        <td className="border border-gray-300 px-4 py-2 text-sm font-medium">{invoice.discount.toLocaleString('vi-VN')} VNĐ</td>
                       </tr>
                       <tr>
                         <td colSpan="5" className="border border-gray-300 px-4 py-2 text-sm font-medium text-right">Tổng tiền thanh toán:</td>
-                        <td className="border border-gray-300 px-4 py-2 text-sm font-bold">{(invoice.total_amount - invoice.discount + invoice.tax).toLocaleString()} VNĐ</td>
+                        <td className="border border-gray-300 px-4 py-2 text-sm font-medium">{invoice.total_amount.toLocaleString('vi-VN')} VNĐ</td>
                       </tr>
                     </tbody>
                   </table>
@@ -218,9 +215,7 @@ const InvoicePage = () => {
                   <p className="text-sm">
                     <span className="font-medium">Số tiền viết bằng chữ: </span>
                     <span className="italic">
-                      {/* You may need a function to convert number to Vietnamese words */}
-                      {/* For now, just a placeholder */}
-                      {(invoice.total_amount - invoice.discount + invoice.tax).toLocaleString()} đồng
+                      {numberToVietnameseWords(invoice.total_amount)}
                     </span>
                   </p>
                 </div>
@@ -265,7 +260,7 @@ const InvoicePage = () => {
                 <div className="flex flex-col justify-between mb-6">
                   <div className="mb-4">
                     <p className="text-gray-600 mb-1">Số hóa đơn: {invoice.id.toString().padStart(7, '0')}</p>
-                    <p className="text-gray-600">Tổng tiền thanh toán: <span className="font-bold text-blue-600">{(invoice.total_amount - invoice.discount + invoice.tax).toLocaleString()} VNĐ</span></p>
+                    <p className="text-gray-600">Tổng tiền thanh toán: <span className="font-bold text-blue-600">{invoice.total_amount.toLocaleString()} VNĐ</span></p>
                   </div>
                   <button
                     className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center justify-center"
@@ -330,3 +325,59 @@ const InvoicePage = () => {
 };
 
 export default InvoicePage;
+
+// Add this function at the top of the file, after the imports
+const numberToVietnameseWords = (number) => {
+  const units = ["", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"];
+  const positions = ["", "nghìn", "triệu", "tỷ"];
+
+  if (number === 0) return "không";
+
+  const convertGroup = (n) => {
+    let str = "";
+    const hundreds = Math.floor(n / 100);
+    const tens = Math.floor((n % 100) / 10);
+    const ones = n % 10;
+
+    if (hundreds > 0) {
+      str += units[hundreds] + " trăm ";
+    }
+
+    if (tens > 0) {
+      if (tens === 1) {
+        str += "mười ";
+      } else {
+        str += units[tens] + " mươi ";
+      }
+    }
+
+    if (ones > 0) {
+      if (tens === 0 && hundreds !== 0) {
+        str += "lẻ ";
+      }
+      if (ones === 1 && tens > 1) {
+        str += "mốt ";
+      } else if (ones === 5 && tens > 0) {
+        str += "lăm ";
+      } else {
+        str += units[ones] + " ";
+      }
+    }
+
+    return str;
+  };
+
+  let result = "";
+  let count = 0;
+  
+  while (number > 0) {
+    const group = number % 1000;
+    if (group !== 0) {
+      result = convertGroup(group) + positions[count] + " " + result;
+    }
+    number = Math.floor(number / 1000);
+    count++;
+  }
+
+  return result.trim() + " đồng";
+};
