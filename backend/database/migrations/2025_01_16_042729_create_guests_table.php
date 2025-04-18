@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female', 'other'])->nullable(); // Giới tính của khách (male/female/other)
             $table->date('birthday')->nullable(); // Ngày sinh của khách (có thể null)
             $table->string('guest_phone')->nullable(); // Số điện thoại khách (có thể null)
-            $table->string('guest_email')->unique()->nullable(); // Email khách (duy nhất, có thể null)
+            $table->string('guest_email')->nullable(); // Email khách (có thể null)
             $table->json('address')->nullable(); // Địa chỉ khách (có thể null)
             $table->string('file')->nullable(); // File đính kèm (có thể null)
             $table->timestamps();

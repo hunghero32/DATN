@@ -36,7 +36,8 @@ const ChiTietBacSi = () => {
   if (!doctor) return null;
 
   const handleServiceClick = (service) => {
-    navigate(`/booking/${service}`);
+    if (!service || !service.id) return;
+    navigate(`/detail-service/${service.id}`);
   };
 
   return (
@@ -115,7 +116,7 @@ const ChiTietBacSi = () => {
                       <p className="text-red-600 font-semibold mt-2">Giá: {formatPrice(service.price)}</p>
                     </div>
                     <button
-                      onClick={() => handleServiceClick(service.id)}
+                      onClick={() => handleServiceClick(service)}
                       className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
                     >
                       Đặt lịch

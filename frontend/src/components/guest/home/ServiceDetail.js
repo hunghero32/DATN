@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { message } from "antd";
 import api from "../../../ultils/api/axios";
-import YeuThich from "../../loadding/yeuthich";
 
 const ServiceDetail = () => {
   const navigate = useNavigate();
@@ -181,9 +180,8 @@ const ServiceDetail = () => {
                     ) 
                   : "https://via.placeholder.com/100"}
                   alt={doctor.doctor_name}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover"
+                  className="w-24 h-24 rounded-full object-cover flex-shrink-0"
                 />
-                <YeuThich />
               </div>
               <div className="text-center sm:text-left">
                 <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#45c3d2' }}>

@@ -23,7 +23,7 @@ const LichHen = () => {
       .finally(() => setLoading(false)); // Hoàn tất
   }, []);
   return (
-    <div className="container mx-auto p-6 min-h-screen">
+    <div className="container mx-auto mt-4 p-6 min-h-screen">
       <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
         Lịch Hẹn Đã Đặt
       </h2>
@@ -44,7 +44,7 @@ const LichHen = () => {
           Bạn chưa có lịch hẹn nào!
         </div>
       ) : (
-        <div className="flex flex-col items-center">
+        <div className="flex mt-2 flex-col items-center">
           {appointments.map((appointment) => (
             <div
               key={appointment.id}
@@ -55,9 +55,6 @@ const LichHen = () => {
                   src={`http://localhost:8000/storage/${appointment.doctor_avatar}`}
                   alt={appointment.doctor_name}
                   className="w-16 h-16 rounded-full object-cover border"
-                  onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/64x64?text=Doctor';
-                  }}
                 />
                 <div>
                   <h3 className="text-lg font-semibold text-blue-600">
