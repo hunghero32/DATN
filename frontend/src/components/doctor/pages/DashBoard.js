@@ -36,12 +36,14 @@ const Dashboard = () => {
     monthly_patients: 0,
     total_appointments: 0,
     completed_appointments: 0,
+    confirmed_appointments: 0,
     days_off: 0,
     available_slots: 0,
     appointments_by_status: {},
     patients_by_month: {},
     appointments_by_day: {},
     patients_today: [],
+    today_appointments_count: 0,
     upcoming_appointments: [],
     completed_appointments_list: [],
     totalAppointments: 0,
@@ -369,7 +371,7 @@ const Dashboard = () => {
                 <FaChartLine />
               </div>
               <div className="stat-title">Đang Chờ</div>
-              <div className="stat-value">{dashboardData.pendingAppointments}</div>
+              <div className="stat-value">{dashboardData.confirmed_appointments}</div>
               <div className="stat-description">Số cuộc hẹn đang chờ xử lý</div>
             </Card.Body>
           </Card>
@@ -388,29 +390,6 @@ const Dashboard = () => {
           </Card>
         </Col>
       </Row>
-
-      <div className="secondary-stats">
-        <Row>
-          <Col md={4}>
-            <div className="text-center p-4">
-              <h6 className="text-uppercase text-muted mb-2">Ngày nghỉ trong tháng</h6>
-              <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.days_off}</h3>
-            </div>
-          </Col>
-          <Col md={4}>
-            <div className="text-center p-4">
-              <h6 className="text-uppercase text-muted mb-2">Số khung giờ trống</h6>
-              <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.available_slots}</h3>
-            </div>
-          </Col>
-          <Col md={4}>
-            <div className="text-center p-4">
-              <h6 className="text-uppercase text-muted mb-2">Lịch hẹn hôm nay</h6>
-              <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.patients_today.length}</h3>
-            </div>
-          </Col>
-        </Row>
-      </div>
 
       <div className="content-inner container-fluid pb-0" id="page_layout" style={{ backgroundColor: "#f0f4f8", padding: "20px" }}>
         <div>
@@ -436,7 +415,7 @@ const Dashboard = () => {
               <div className="card shadow-sm hover-shadow" style={{ borderRadius: "10px", transition: "all 0.3s" }}>
                 <div className="card-body text-center">
                   <h6 className="text-uppercase text-muted mb-2">Lịch hẹn hôm nay</h6>
-                  <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.patients_today.length}</h3>
+                  <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.today_appointments_count}</h3>
                 </div>
               </div>
             </div>

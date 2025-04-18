@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AppointmentFilter from "./AppointmentFilter";
@@ -33,7 +33,7 @@ const Appointment = () => {
   const [medicalRecord, setMedicalRecord] = useState(null);
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [appointments, setAppointments] = useState([]);
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
@@ -49,15 +49,99 @@ const Appointment = () => {
     note: "",
   });
   const [doctorInfo, setDoctorInfo] = useState(null);
+  const [highlightedBookingId, setHighlightedBookingId] = useState(null);
+  const [searchMatchIds, setSearchMatchIds] = useState(null);
 
+  const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchAppointments();
   }, [navigate]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get('search') || '';
+    const bookingIdParam = params.get('bookingId');
+    const newHighlightId = bookingIdParam ? parseInt(bookingIdParam, 10) : null;
+
+    if (searchParam !== searchQuery) {
+      setSearchQuery(searchParam);
+    }
+
+    if (newHighlightId !== highlightedBookingId) {
+      setHighlightedBookingId(newHighlightId);
+      // Tìm và chuyển tab nếu appointments đã load
+      // ... (logic chuyển tab statusFilter)
+
+      // --- BỎ PHẦN XÓA bookingId KHỎI URL --- 
+      /*
+      const currentParams = new URLSearchParams(location.search);
+      currentParams.delete('bookingId');
+      navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
+      */
+
+    } else if (bookingIdParam === null && highlightedBookingId !== null) {
+      // Clear highlight notification nếu bookingId bị xóa khỏi URL
+      console.log("[Effect 2] Clearing highlight ID as bookingId param is null");
+    }
+
+  }, [
+      location.search,        // Chỉ cần theo dõi URL thay đổi
+      navigate,             // Dependency cho navigate (để xóa bookingId)
+      searchQuery,          // Để so sánh và tránh set lại nếu không đổi
+      highlightedBookingId  // Để so sánh và tránh set lại nếu không đổi
+  ]);
+
+  useEffect(() => {
+    if (highlightedBookingId !== null && appointments.length > 0) {
+      const appointmentToHighlight = appointments.find(app => app.id === highlightedBookingId);
+      if (appointmentToHighlight && appointmentToHighlight.status !== statusFilter) {
+        console.log(`[Effect 3] Switching tab based on notification highlight to: ${appointmentToHighlight.status}`);
+        setStatusFilter(appointmentToHighlight.status);
+      }
+    }
+  }, [highlightedBookingId, appointments]);
+
+  useEffect(() => {
+    console.log("[Effect 4] Running. searchQuery:", searchQuery, "Appointments count:", appointments.length);
+    if (appointments.length > 0) {
+      if (searchQuery) {
+        const lowerSearchQuery = searchQuery.toLowerCase();
+        const matchingAppointments = appointments.filter(app =>
+          app.guest?.guest_name?.toLowerCase().includes(lowerSearchQuery)
+        );
+        const matchingIds = new Set(matchingAppointments.map(app => app.id));
+
+        if (!searchMatchIds || ![...matchingIds].every(id => searchMatchIds.has(id)) || matchingIds.size !== searchMatchIds.size) {
+          console.log("[Effect 4] Updating searchMatchIds:", matchingIds);
+          setSearchMatchIds(matchingIds);
+
+          if (highlightedBookingId === null && matchingAppointments.length > 0) {
+            const firstMatchStatus = matchingAppointments[0].status;
+            if (firstMatchStatus !== statusFilter) {
+              console.log(`[Effect 4] Search found results in status '${firstMatchStatus}'. Switching tab.`);
+              setStatusFilter(firstMatchStatus);
+            }
+          }
+        }
+      } else {
+        if (searchMatchIds !== null) {
+          console.log("[Effect 4] Clearing searchMatchIds as searchQuery is empty.");
+          setSearchMatchIds(null);
+        }
+      }
+    } else {
+      if (searchMatchIds !== null) {
+        console.log("[Effect 4] Clearing searchMatchIds because appointments are empty");
+        setSearchMatchIds(null);
+      }
+    }
+  }, [searchQuery, appointments, searchMatchIds, statusFilter, highlightedBookingId]);
+
   const fetchAppointments = async () => {
     setLoading(true);
+    setError(null);
     const token = getAuthToken();
     if (!token) {
       setError("Vui lòng đăng nhập để tiếp tục.");
@@ -66,16 +150,17 @@ const Appointment = () => {
       return;
     }
     try {
+      console.log("Fetching appointments...");
       const response = await axios.get("http://127.0.0.1:8000/api/doctor/bookings", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      let appointmentsData = response.data.data || [];
+      console.log("Appointments fetched:", response.data);
+      const appointmentsData = Array.isArray(response.data) ? response.data : response.data.data || [];
       setAppointments(appointmentsData);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Lỗi khi tải dữ liệu cuộc hẹn.";
-      setError(errorMessage);
-      toast.error(errorMessage);
+       console.error("Error fetching appointments:", error);
+       const errorMessage = error.response?.data?.message || "Lỗi khi tải dữ liệu cuộc hẹn.";
+       setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -120,7 +205,6 @@ const Appointment = () => {
         autoClose: 3000,
       });
 
-      // Gửi thông báo
       await NotificationService.sendNotification(doctorInfo.id, {
         type: 'booking_accepted',
         title: 'Lịch hẹn được chấp nhận',
@@ -419,10 +503,8 @@ const Appointment = () => {
         autoClose: 3000,
       });
 
-      // Tắt form chỉnh sửa
       setShowMedicalRecordFormModal(false);
       
-      // Cập nhật lại dữ liệu
       handleShowMedicalRecord(selectedAppointment);
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi lưu hồ sơ bệnh án.";
@@ -499,7 +581,6 @@ const Appointment = () => {
     setError(null);
 
     try {
-      // Tạo object data thay vì FormData
       const data = {
         diagnosis: diagnosis.trim(),
         prescription: prescription.trim(),
@@ -509,7 +590,6 @@ const Appointment = () => {
 
       console.log("Sending data:", data);
 
-      // Gửi request cập nhật với JSON
       const updateResponse = await axios({
         method: 'put',
         url: `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
@@ -523,10 +603,8 @@ const Appointment = () => {
 
       console.log("Update response:", updateResponse.data);
 
-      // Đóng modal chỉnh sửa
       setShowEditResultModal(false);
 
-      // Cập nhật state với dữ liệu mới
       if (updateResponse.data && updateResponse.data.data) {
         const newData = updateResponse.data.data;
         setDiagnosis(newData.diagnosis || '');
@@ -534,18 +612,15 @@ const Appointment = () => {
         setPrescription(newData.prescription || '');
         setFile(newData.file || null);
         
-        // Hiển thị thông báo thành công
         toast.success("Cập nhật kết quả khám thành công!", {
           position: "top-right",
           autoClose: 3000,
         });
 
-        // Mở lại modal xem
         setTimeout(() => {
           setShowResultViewModal(true);
         }, 100);
       } else {
-        // Nếu không có data trong response, fetch lại dữ liệu mới
         const getResponse = await axios.get(
           `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
           {
@@ -563,13 +638,11 @@ const Appointment = () => {
           setPrescription(getResponse.data.prescription || '');
           setFile(getResponse.data.file || null);
           
-          // Hiển thị thông báo thành công
           toast.success("Cập nhật kết quả khám thành công!", {
             position: "top-right",
             autoClose: 3000,
           });
 
-          // Mở lại modal xem
           setTimeout(() => {
             setShowResultViewModal(true);
           }, 100);
@@ -597,26 +670,24 @@ const Appointment = () => {
     return appointmentDate.getTime() === filterDate.getTime();
   };
 
-  const filteredAppointments = {
-    pending: appointments
-      .filter((app) => app.status === "pending")
-      .filter((app) =>
-        app.guest?.guest_name?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .filter(filterAppointmentsByDate),
-    confirmed: appointments
-      .filter((app) => app.status === "confirmed")
-      .filter((app) =>
-        app.guest?.guest_name?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .filter(filterAppointmentsByDate),
-    completed: appointments
-      .filter((app) => app.status === "completed")
-      .filter((app) =>
-        app.guest?.guest_name?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .filter(filterAppointmentsByDate),
+  const getFilteredAppointments = () => {
+    console.log("[Filter] Starting. Full list count:", appointments.length, "Current Tab:", statusFilter, "Search:", searchQuery, "Date:", date);
+    let filtered = [...appointments];
+
+    filtered = filtered.filter(app => app.status === statusFilter);
+    console.log(`[Filter] Count after status filter ('${statusFilter}'): ${filtered.length}`);
+
+    if (date) {
+      console.log(`[Filter] Filtering by date: ${date}`);
+      filtered = filtered.filter(filterAppointmentsByDate);
+      console.log(`[Filter] Count after date filter: ${filtered.length}`);
+    }
+
+    console.log("[Filter] Final appointmentsToDisplay (only filtered by status & date):", filtered.map(a => ({id: a.id, name: a.guest?.guest_name})) );
+    return filtered;
   };
+
+  const appointmentsToDisplay = getFilteredAppointments();
 
   return (
     <div className="container mt-5 table-responsive">
@@ -743,7 +814,7 @@ const Appointment = () => {
         </div>
       </div>
       <AppointmentList
-        filteredAppointments={filteredAppointments}
+        appointmentsToDisplay={appointmentsToDisplay}
         statusFilter={statusFilter}
         loading={loading}
         error={error}
@@ -752,6 +823,8 @@ const Appointment = () => {
         handleShowMedicalRecord={handleShowMedicalRecord}
         handleShowExamResult={handleShowExamResult}
         handleTransferAppointment={handleTransferAppointment}
+        highlightedBookingId={highlightedBookingId}
+        searchMatchIds={searchMatchIds}
       />
       <AppointmentDetailModal
         show={showModal}

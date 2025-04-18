@@ -50,10 +50,12 @@ class DashboardController extends Controller
             ->whereYear('working_date', $currentYear)
             ->count();
 
-        // Số lượng lịch còn trống theo lịch làm việc của bác sĩ
+        // Số lượng lịch còn trống theo lịch làm việc của bác sĩ (trong tháng hiện tại, từ hôm nay trở đi)
         $availableSlots = Schedule::where('doctor_id', $doctorId)
             ->where('status', 'available')
             ->where('working_date', '>=', $today)
+            ->whereMonth('working_date', $currentMonth)
+            ->whereYear('working_date', $currentYear)
             ->count();
 
         // Thống kê số lượng lịch theo trạng thái
@@ -62,12 +64,15 @@ class DashboardController extends Controller
             ->groupBy('status')
             ->pluck('count', 'status');
 
-        // Thống kê số lượng lịch theo ngày
+        // Thống kê số lượng lịch theo ngày (pending, confirmed) - Lấy danh sách
         $appointmentsByDate = Booking::where('doctor_id', $doctorId)
             ->whereDate('booking_date', $today)
             ->whereIn('status', ['pending', 'confirmed'])
             ->with(['guest:id,guest_name', 'service:id,services_name'])
             ->get();
+
+        // Đếm số lượng lịch hẹn hôm nay (pending hoặc confirmed)
+        $todayAppointmentsCount = $appointmentsByDate->count();
 
         // Thống kê số lượng khách theo từng tháng trong năm
         $patientsByMonth = Booking::where('doctor_id', $doctorId)
@@ -115,7 +120,7 @@ class DashboardController extends Controller
             'total_patients' => $totalPatients, // Tổng số khách đã khám
             'monthly_patients' => $monthlyPatients, // Số khách đã khám trong tháng này
             'total_appointments' => $totalAppointments, // Tổng số lịch đã nhận
-            'today_appointments' => $appointmentsByDate, // Thống kê lịch hẹn theo ngày
+            'today_appointments_count' => $todayAppointmentsCount, // Số lượng lịch hẹn hôm nay (pending, confirmed)
             'completed_appointments' => $completedAppointments, // Tổng số lịch đã hoàn thành
             'confirmed_appointments' => $confirmedAppointments, // Tổng số lịch đã đang chờ
             'days_off' => $daysOff, // Tổng số ngày nghỉ trong tháng này
