@@ -8,19 +8,31 @@
 
     <div class="container-xxl flex-grow-1 container-p-y">
 
-        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Thông báo /</span> Thêm mới</h4>
+        <h4 class="fw-bold py-3 mb-4">
+            <span class="text-muted fw-light">Thông báo /</span> Thêm mới
+        </h4>
 
         <div class="card">
 
             <div class="card-body">
 
                 <form action="{{ route('admin.notifications.store') }}" method="POST">
-
+                    
                     @csrf
 
                     <div class="row">
-
+                        
                         <div class="mb-3 col-md-6">
+                            <label for="recipient_type" class="form-label">Gửi đến</label>
+                            <select name="recipient_type" id="recipient_type" class="form-control">
+                                <option value="">-- Chọn người nhận --</option>
+                                <option value="user">Người dùng</option>
+                                <option value="role">vai trò</option>
+                            </select>
+                        </div>
+
+                        
+                        <div class="mb-3 col-md-6 user-group" style="display:none;">
                             <label for="user_id" class="form-label">Người dùng</label>
                             <select id="user_id" name="user_id" class="form-control select2">
                                 <option value="">-- Chọn người dùng --</option>
@@ -30,6 +42,18 @@
                             </select>
                         </div>
 
+                        
+                        <div class="mb-3 col-md-6 role-group" style="display:none;">
+                            <label for="role" class="form-label">Vai trò</label>
+                            <select id="role" name="role" class="form-control">
+                                <option value="">-- Chọn vai trò --</option>
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role }}">{{ ucfirst($role) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        
                         <div class="mb-3 col-md-6">
                             <label for="booking_id" class="form-label">Mã đặt lịch</label>
                             <select id="booking_id" name="booking_id" class="form-control select2">
@@ -40,11 +64,13 @@
                             </select>
                         </div>
 
+                        
                         <div class="mb-3 col-md-12">
                             <label for="title" class="form-label">Tiêu đề</label>
                             <textarea class="form-control" id="title" name="title"></textarea>
                         </div>
 
+                        
                         <div class="mb-3 col-md-6">
                             <label for="type" class="form-label">Loại</label>
                             <select id="type" name="type" class="form-control">
@@ -55,24 +81,24 @@
                             </select>
                         </div>
 
+                        
                         <div class="mb-3 col-md-12">
                             <label for="content" class="form-label">Nội dung</label>
                             <textarea class="form-control" id="content" name="content"></textarea>
                         </div>
-
-                        <div class="mb-3 col-md-6">
-                            <label for="is_read" class="form-label">Trạng thái</label>
-                            <select id="is_read" name="is_read" class="form-control">
-                                <option value="">-- Trạng thái --</option>
-                                <option value="1">Đã đọc</option>
-                                <option value="0" selected>Chưa đọc</option>
-                            </select>
-                        </div>
-
                     </div>
 
+                    <div class="mb-3 col-md-6">
+                        <label for="is_read" class="form-label">Trạng thái</label>
+                        <select id="is_read" name="is_read" class="form-control">
+                            <option value="">-- Trạng thái --</option>
+                            <option value="1">Đã đọc</option>
+                            <option value="0" selected>Chưa đọc</option>
+                        </select>
+                    </div>
+                    
                     <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">Lưu</button>
+                        <button type="submit" class="btn btn-primary">Gửi thông báo</button>
                         <a href="{{ route('admin.notifications.index') }}" class="btn btn-secondary">Quay lại</a>
                     </div>
 
@@ -95,24 +121,24 @@
 <script src="https://cdn.ckeditor.com/ckeditor5/34.0.0/classic/ckeditor.js"></script>
 
 <script>
+
     $.noConflict();
     jQuery(document).ready(function($) {
         $(".select2").select2();
+        ClassicEditor.create(document.querySelector('#content'));
+        ClassicEditor.create(document.querySelector('#title'));
 
-        ClassicEditor
-            .create(document.querySelector('#content'))
-            .catch(error => {
-                console.error(error);
-            });
-        
-        ClassicEditor
-            .create(document.querySelector('#title'))
-            .catch(error => {
-                console.error(error);
-            });
+        $('#recipient_type').change(function() {
+            let type = $(this).val();
+            $('.user-group, .role-group').hide(); 
+            if (type === 'user') {
+                $('.user-group').show(); 
+            } else if (type === 'role') {
+                $('.role-group').show(); 
+            }
+        });
     });
+    
 </script>
 
 @endsection
-
-

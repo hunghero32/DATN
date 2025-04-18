@@ -23,11 +23,11 @@ class NotificationController extends Controller
             $query->where('title', 'like', "%$search%")
                   ->orWhere('content', 'like', "%$search%");
         }
-        
+
         if (!empty($type)) {
             $query->where('type', $type);
         }
-        
+
         if (!is_null($isRead)) {
             $query->where('is_read', $isRead);
         }
@@ -45,66 +45,50 @@ class NotificationController extends Controller
 
     public function create()
     {
-        $users = User::all(); // Lấy tất cả người dùng
+        $users = User::all();
+        $roles = User::select('role')->distinct()->pluck('role')->toArray();
         $bookings = Booking::all();
-        return view('admin.pages.notifications.create', compact('users','bookings'));
+
+        return view('admin.pages.notifications.create', compact('users', 'roles', 'bookings'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'booking_id' => 'nullable|exists:bookings,id',
+            'recipient_type' => 'required|in:user,role',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'type' => 'required|string|max:50',
+            'is_read' => 'nullable|in:0,1',
         ]);
 
-        Notification::create([
-            'user_id' => $request->user_id,
-            'booking_id' => $request->booking_id,
-            'title' => $request->title,
-            'content' => $request->content,
-            'type' => $request->type,
-            'is_read' => $request->is_read ?? 0, // Nếu không có thì mặc định là 0
-        ]);
+        $userIds = [];
 
-        return redirect()->route('admin.notifications.index')->with('success', 'Thông báo đã được tạo!');
-    }
+        if ($request->recipient_type === 'user') {
+            $request->validate([
+                'user_id' => 'required|exists:users,id',
+            ]);
+            $userIds[] = $request->user_id;
+        } elseif ($request->recipient_type === 'role') {
+            $request->validate([
+                'role' => 'required|string',
+            ]);
+            $userIds = User::where('role', $request->role)->pluck('id')->toArray();
+        }
 
-    public function edit($id)
-    {
-        $notification = Notification::findOrFail($id);
-        $users = User::all(); // Lấy danh sách người dùng
-        $bookings = Booking::all();
-        return view('admin.pages.notifications.edit', compact('notification','users','bookings'));
-    }
+        $isRead = $request->input('is_read', 0); 
 
-    public function update(Request $request, $id)
-    {
-        $notification = Notification::findOrFail($id);
+        foreach ($userIds as $uid) {
+            Notification::create([
+                'user_id' => $uid,
+                'booking_id' => $request->booking_id,
+                'title' => $request->title,
+                'content' => $request->content,
+                'type' => $request->type,
+                'is_read' => $isRead,
+            ]);
+        }
 
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'booking_id' => 'nullable|exists:bookings,id',
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'type' => 'required|string|max:50',
-            'is_read' => 'required|boolean',
-        ]);
-
-        $notification->update($request->all());
-
-        return redirect()->route('admin.notifications.index')->with('success', 'Cập nhật thông báo thành công!');
-    }
-
-    public function destroy($id)
-    {
-        $notification = Notification::findOrFail($id);
-        $notification->delete();
-
-        return redirect()->route('admin.notifications.index')->with('success', 'Thông báo đã bị xóa!');
+        return redirect()->route('admin.notifications.index')->with('success', 'Thông báo đã được gửi!');
     }
 }
-
-
