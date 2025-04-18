@@ -14,13 +14,17 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group custom-select2">
-                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn bác sĩ</label>
+                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn bác sĩ <span class="text-danger">*</span></label>
                                     <div class="select2-container">
                                         <div class="select2-selection form-select form-select-lg shadow-sm @error('doctor_id') is-invalid @enderror">
                                             <span class="select2-selection__rendered">Chọn bác sĩ</span>
                                             <span class="select2-selection__arrow"></span>
                                         </div>
-                                        <select name="doctor_id" class="form-select form-select-lg hidden-select" required>
+                                        <div class="select2-dropdown">
+                                            <input type="text" class="select2-search form-control" placeholder="Tìm kiếm...">
+                                            <ul class="select2-results"></ul>
+                                        </div>
+                                        <select name="doctor_id" class="form-select form-select-lg hidden-select" tabindex="0">
                                             <option value="">Chọn bác sĩ</option>
                                             @foreach($doctors as $doctor)
                                                 <option value="{{ $doctor->id }}" {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}>
@@ -28,21 +32,15 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <div class="select2-dropdown">
-                                            <input type="text" class="select2-search" placeholder="Tìm kiếm bác sĩ...">
-                                            <ul class="select2-results">
-                                                <!-- Options will be populated by JavaScript -->
-                                            </ul>
-                                        </div>
+                                        @error('doctor_id')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
-                                    @error('doctor_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn tuần</label>
+                                    <label class="form-label text-uppercase fw-semibold mb-2">Chọn tuần <span class="text-danger">*</span></label>
                                     <input type="week" name="working_week"
                                            class="form-control form-control-lg shadow-sm @error('working_week') is-invalid @enderror"
                                            required
@@ -57,7 +55,7 @@
 
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ngày trong tuần</label>
+                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ngày trong tuần <span class="text-danger">*</span></label>
                                 <div class="d-flex flex-wrap gap-3 mb-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="working_days[]" value="1" id="monday">
@@ -93,7 +91,7 @@
 
                         <div class="row mb-4">
                             <div class="col-12">
-                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ca làm việc</label>
+                                <label class="form-label text-uppercase fw-semibold mb-3">Chọn ca làm việc <span class="text-danger">*</span></label>
                                 <div class="d-flex flex-wrap gap-3">
                                     <!-- Morning Shift -->
                                     <div class="shift-container">
@@ -138,6 +136,8 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Add error container here -->
+                                <div id="time-slots-error-container" class="mt-2"></div>
                             </div>
                         </div>
 
@@ -213,11 +213,20 @@
             background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
         }
         .invalid-feedback {
-            display: block;
+            display: none;
             width: 100%;
-            margin-top: 0.25rem;
-            font-size: 0.875em;
+            margin-top: 0.5rem;
             color: #dc3545;
+            font-size: 0.875em;
+        }
+        .invalid-feedback.d-block {
+            display: block;
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .is-invalid ~ .invalid-feedback {
+            display: block;
         }
         .shift-container {
             background: #f8f9fa;
@@ -305,6 +314,12 @@
         }
         .hidden-select {
             display: none;
+        } .error-message {
+            display: block;
+            width: 100%;
+            margin-top: 0.5rem;
+            color: #dc3545;
+            font-size: 0.875em;
         }
     </style>
     <script>
@@ -337,18 +352,24 @@
                 };
                 updateOptions();
 
-                selection.addEventListener('click', () => {
+                // Update the click event handler for the selection
+                selection.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent event bubbling
+                    const allDropdowns = document.querySelectorAll('.select2-dropdown');
+                    allDropdowns.forEach(d => {
+                        if (d !== dropdown) {
+                            d.classList.remove('open');
+                        }
+                    });
                     dropdown.classList.toggle('open');
                     if (dropdown.classList.contains('open')) {
                         searchInput.focus();
                     }
                 });
 
-                searchInput.addEventListener('input', () => {
-                    updateOptions(searchInput.value);
-                });
-
+                // Update the click event handler for results
                 results.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent event bubbling
                     if (e.target.tagName === 'LI') {
                         const value = e.target.dataset.value;
                         selectElement.value = value;
@@ -358,9 +379,17 @@
                         dropdown.classList.remove('open');
                         searchInput.value = '';
                         updateOptions();
+
+                        // Remove error state if exists
+                        selection.classList.remove('is-invalid');
+                        const errorMessage = select.querySelector('.invalid-feedback');
+                        if (errorMessage) {
+                            errorMessage.remove();
+                        }
                     }
                 });
 
+                // Update document click handler
                 document.addEventListener('click', (e) => {
                     if (!select.contains(e.target)) {
                         dropdown.classList.remove('open');
@@ -368,11 +397,6 @@
                         updateOptions();
                     }
                 });
-
-                if (selectElement.value) {
-                    const selectedOption = selectElement.options[selectElement.selectedIndex];
-                    rendered.textContent = selectedOption.text;
-                }
             });
 
             // Form validation and selection logic
@@ -445,6 +469,10 @@
             }
 
             form.addEventListener('submit', function(e) {
+                // Clear previous error messages
+                clearErrorMessages();
+                let hasError = false;
+
                 // Check if at least one day is selected
                 let selectedDays = 0;
                 workingDaysCheckboxes.forEach(checkbox => {
@@ -453,8 +481,8 @@
 
                 if (selectedDays === 0) {
                     e.preventDefault();
-                    alert('Vui lòng chọn ít nhất một ngày trong tuần');
-                    return;
+                    displayError('working-days-error', 'Vui lòng chọn ít nhất một ngày trong tuần');
+                    hasError = true;
                 }
 
                 // Check time slots
@@ -469,18 +497,46 @@
                 if (customStart.value || customEnd.value) {
                     if (!customStart.value || !customEnd.value) {
                         e.preventDefault();
-                        alert('Vui lòng chọn cả giờ bắt đầu và giờ kết thúc cho ca tùy chỉnh');
-                        return;
+                        displayError('custom-time-error', 'Vui lòng chọn cả giờ bắt đầu và giờ kết thúc cho ca tùy chỉnh');
+                        hasError = true;
+                    } else {
+                        hasValidTimeSlot = processCustomTimeSlots();
                     }
-                    hasValidTimeSlot = processCustomTimeSlots();
                 }
 
-                if (!hasValidTimeSlot) {
+                if (!hasValidTimeSlot && !hasError) {
                     e.preventDefault();
-                    alert('Vui lòng chọn ít nhất một ca làm việc hoặc nhập ca tùy chỉnh hợp lệ');
-                    return;
+                    displayError('time-slots-error', 'Vui lòng chọn ít nhất một ca làm việc hoặc nhập ca tùy chỉnh hợp lệ');
                 }
             });
+
+            // Add these helper functions
+            function clearErrorMessages() {
+                const errorElements = document.querySelectorAll('.error-message');
+                errorElements.forEach(element => element.remove());
+            }
+
+            function displayError(id, message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message invalid-feedback d-block';
+                errorDiv.id = id;
+                errorDiv.textContent = message;
+
+                let container;
+                switch(id) {
+                    case 'working-days-error':
+                        container = document.querySelector('.d-flex.flex-wrap.gap-3.mb-4');
+                        break;
+                    case 'time-slots-error':
+                    case 'custom-time-error':
+                        container = document.getElementById('time-slots-error-container');
+                        break;
+                }
+
+                if (container) {
+                    container.appendChild(errorDiv);
+                }
+            }
 
             // Clear predefined checkboxes when custom inputs are used
             customStart.addEventListener('change', () => {
