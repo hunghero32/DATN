@@ -132,138 +132,146 @@ class BookingController extends Controller
     }
 
     public function confirmBooking(Request $request)
-    {
-        $validated = $request->validate([
-            'guest_name' => 'required|string|max:255',
-            'gender' => 'required|in:male,female,other',
-            'birthday' => 'required|date',
-            'guest_phone' => 'required|string|max:20',
-            'guest_email' => 'nullable|email',
-            'address' => 'nullable|array',
-            'notes' => 'nullable|string'
-        ]);
+{
+    $validated = $request->validate([
+        'guest_name' => 'required|string|max:255',
+        'gender' => 'required|in:male,female,other',
+        'birthday' => 'required|date',
+        'guest_phone' => 'required|string|max:20',
+        'guest_email' => 'nullable|email',
+        'address' => 'nullable|array',
+        'notes' => 'nullable|string'
+    ]);
 
-        // Get authenticated user ID
-        $userId = $request->user()->id;
+    // Get authenticated user ID
+    $userId = $request->user()->id;
 
-        // Check for cancellation limit
-        $yesterday = now()->subDay()->startOfDay();
-        $today = now()->startOfDay();
+    // Check for cancellation limit
+    $yesterday = now()->subDay()->startOfDay();
+    $today = now()->startOfDay();
 
-        $cancelledBookingsToday = Booking::whereHas('guest', function($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })
-        ->where('status', 'canceled')
-        ->whereBetween('updated_at', [$today, now()])
-        ->count();
+    $cancelledBookingsToday = Booking::whereHas('guest', function($query) use ($userId) {
+        $query->where('user_id', $userId);
+    })
+    ->where('status', 'canceled')
+    ->whereBetween('updated_at', [$today, now()])
+    ->count();
 
-        if ($cancelledBookingsToday >= 2) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Bạn đã hủy lịch 2 lần trong ngày hôm nay. Vui lòng đợi 24 giờ để đặt lịch lại.'
-            ], 422);
-        }
-
-        // Check weekly booking limit
-        $startOfWeek = now()->startOfWeek();
-        $endOfWeek = now()->endOfWeek();
-
-        $weeklyBookingsCount = Booking::whereHas('guest', function($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })
-        ->whereBetween('booking_date', [$startOfWeek, $endOfWeek])
-        ->where('status', '!=', 'cancelled')
-        ->count();
-
-        if ($weeklyBookingsCount >= 5) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Bạn đã đạt giới hạn đặt lịch trong tuần này (tối đa 5 lần/tuần)'
-            ], 422);
-        }
-
-        $tempBooking = Session::get('temp_booking');
-        if (!$tempBooking) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Không tìm thấy thông tin đặt lịch tạm thời'
-            ], 422);
-        }
-
-        // Check for existing booking with same service, date and time
-        $existingTimeBooking = Booking::where('service_id', $tempBooking['service_id'])
-            ->where('booking_date', $tempBooking['date'])
-            ->where('booking_time', $tempBooking['time'])
-            ->where('status', '!=', 'cancelled')
-            ->first();
-
-        if ($existingTimeBooking) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Đã có người đặt lịch dịch vụ này vào thời gian này'
-            ], 422);
-        }
-
-        // Get authenticated user ID
-        $userId = $request->user()->id;
-
-        // Check for existing guest with same name and service
-        $existingGuest = Guest::where('user_id', $userId)
-            ->where('guest_name', $request->guest_name)
-            ->first();
-
-        if ($existingGuest) {
-            // Check if there's an existing booking with the same service
-            $existingBooking = Booking::where('guest_id', $existingGuest->id)
-                ->where('service_id', $tempBooking['service_id'])
-                ->where('status', '!=', 'completed')
-                ->first();
-
-            if ($existingBooking) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Khách hàng này đã đặt lịch hẹn cho dịch vụ này'
-                ], 422);
-            }
-        }
-
-        // Create new guest
-        $guest = Guest::create([
-            'user_id' => $userId,
-            'guest_name' => $request->guest_name,
-            'gender' => $request->gender,
-            'birthday' => $request->birthday,
-            'guest_phone' => $request->guest_phone,
-            'guest_email' => $request->guest_email,
-            'address' => json_encode($request->address),
-            'file' => $request->file ?? null
-        ]);
-
-        $booking = Booking::create([
-            'doctor_id' => $tempBooking['doctor_id'],
-            'service_id' => $tempBooking['service_id'],
-            'guest_id' => $guest->id,
-            'booking_date' => $tempBooking['date'],
-            'booking_time' => $tempBooking['time'],
-            'notes' => $request->notes ?? null,
-            'status' => 'pending'
-        ]);
-
-        // Send notification
-        $this->sendBookingNotification($booking);
-
-        // Clear all related booking sessions
-        Session::forget(['temp_booking', 'last_booking_guest']);
-
+    if ($cancelledBookingsToday >= 2) {
         return response()->json([
-            'status' => true,
-            'message' => 'Đặt lịch thành công',
-            'data' => [
-                'booking' => $booking,
-                'guest' => $guest
-            ]
-        ]);
+            'status' => false,
+            'message' => 'Bạn đã hủy lịch 2 lần trong ngày hôm nay. Vui lòng đợi 24 giờ để đặt lịch lại.'
+        ], 422);
     }
+
+    // Check weekly booking limit
+    $startOfWeek = now()->startOfWeek();
+    $endOfWeek = now()->endOfWeek();
+
+    $weeklyBookingsCount = Booking::whereHas('guest', function($query) use ($userId) {
+        $query->where('user_id', $userId);
+    })
+    ->whereBetween('booking_date', [$startOfWeek, $endOfWeek])
+    ->where('status', '!=', 'cancelled')
+    ->count();
+
+    if ($weeklyBookingsCount >= 5) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Bạn đã đạt giới hạn đặt lịch trong tuần này (tối đa 5 lần/tuần)'
+        ], 422);
+    }
+
+    $tempBooking = Session::get('temp_booking');
+    if (!$tempBooking) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Không tìm thấy thông tin đặt lịch tạm thời'
+        ], 422);
+    }
+
+    // Check for existing booking with same service, date and time
+    $existingTimeBooking = Booking::where('service_id', $tempBooking['service_id'])
+        ->where('booking_date', $tempBooking['date'])
+        ->where('booking_time', $tempBooking['time'])
+        ->where('status', '!=', 'cancelled')
+        ->first();
+
+    if ($existingTimeBooking) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Đã có người đặt lịch dịch vụ này vào thời gian này'
+        ], 422);
+    }
+
+    // Get authenticated user ID
+    $userId = $request->user()->id;
+
+    // Check for existing guest with same name and service
+    $existingGuest = Guest::where('user_id', $userId)
+        ->where('guest_name', $request->guest_name)
+        ->first();
+
+    if ($existingGuest) {
+        // Check if there's an existing booking with the same service
+        $existingBooking = Booking::where('guest_id', $existingGuest->id)
+            ->where('service_id', $tempBooking['service_id'])
+            ->where('status', '!=', 'completed')
+            ->first();
+
+        if ($existingBooking) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Khách hàng này đã đặt lịch hẹn cho dịch vụ này'
+            ], 422);
+        }
+    }
+
+    // Create new guest
+    $guest = Guest::create([
+        'user_id' => $userId,
+        'guest_name' => $request->guest_name,
+        'gender' => $request->gender,
+        'birthday' => $request->birthday,
+        'guest_phone' => $request->guest_phone,
+        'guest_email' => $request->guest_email,
+        'address' => json_encode($request->address),
+        'file' => $request->file ?? null
+    ]);
+
+    // Fetch doctor and service details
+    $doctor = Doctor::find($tempBooking['doctor_id']);
+    $service = Services::find($tempBooking['service_id']);
+
+    // Create new booking with additional fields
+    $booking = Booking::create([
+        'doctor_id' => $tempBooking['doctor_id'],
+        'service_id' => $tempBooking['service_id'],
+        'guest_id' => $guest->id,
+        'booking_date' => $tempBooking['date'],
+        'booking_time' => $tempBooking['time'],
+        'notes' => $request->notes ?? null,
+        'status' => 'pending',
+        'doctor_name' => $doctor ? $doctor->doctor_name : null,
+        'service_name' => $service ? $service->services_name : null,
+        'service_price' => $service ? $service->price : null
+    ]);
+
+    // Send notification
+    $this->sendBookingNotification($booking);
+
+    // Clear all related booking sessions
+    Session::forget(['temp_booking', 'last_booking_guest']);
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Đặt lịch thành công',
+        'data' => [
+            'booking' => $booking,
+            'guest' => $guest
+        ]
+    ]);
+}
 
     public function appointments()
     {

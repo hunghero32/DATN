@@ -195,20 +195,6 @@ class SchedulesController extends Controller
         try {
             $schedule = Schedule::findOrFail($id);
 
-            // Check if schedule has any bookings
-            $hasBookings = Booking::where('doctor_id', $schedule->doctor_id)
-                ->where('booking_date', $schedule->working_date)
-                ->where('booking_time', '>=', $schedule->time_start)
-                ->where('booking_time', '<=', $schedule->time_end)
-                ->where('isDeleted', 0)
-                ->exists();
-
-            if ($hasBookings) {
-                return redirect()->back()
-                    ->with('error', 'Không thể chỉnh sửa lịch làm việc này vì đã có bệnh nhân đặt lịch!')
-                    ->withInput();
-            }
-
             $validator = Validator::make($request->all(), [
                 'doctor_id' => 'required|exists:doctors,id',
                 'time_slots' => 'required|array|min:1',
