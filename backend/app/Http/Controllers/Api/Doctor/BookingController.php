@@ -50,7 +50,7 @@ class BookingController extends Controller
             })
             ->orderBy('booking_date', 'asc')
             ->orderBy('booking_time', 'asc')
-            ->paginate(10);
+            ->get(); // Lấy tất cả kết quả thay vì phân trang
         if ($bookings->isEmpty()) {
             return response()->json([
                 'message' => 'Không tìm thấy thông tin đặt lịch phù hợp.',

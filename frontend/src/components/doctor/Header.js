@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../guest/auth/AuthContext";
 import axios from "axios";
 import { Badge, notification, List, Avatar, Spin, Empty, Button, Popconfirm } from 'antd';
@@ -20,6 +20,7 @@ const Header = () => {
   const [popoverStyle, setPopoverStyle] = useState({});
   const notificationIconRef = useRef(null);
   const popoverRef = useRef(null);
+  const [headerSearchTerm, setHeaderSearchTerm] = useState("");
 
   // --- Fetch Doctor Info ---
   useEffect(() => {
@@ -148,20 +149,20 @@ const Header = () => {
 
   // --- Xử lý click thông báo ---
   const handleNotificationClick = useCallback(async (notif, e) => {
-    // Ngăn sự kiện click lan ra xa hơn
     if (e) e.stopPropagation();
     
     console.log('🔔 Notification clicked:', notif.id);
     
-    // Quan trọng: Đóng popover trước khi làm bất cứ thứ gì khác
+    // Đóng popover ngay lập tức
     setPopoverVisible(false);
-    console.log('🔔 Setting popoverVisible to false');
+    console.log('🔔 Popover closed immediately on click');
     
-    // Thêm delay trước khi xử lý các hoạt động khác
-    setTimeout(async () => {
+    // Xử lý đánh dấu đã đọc và điều hướng
+    const processNotification = async () => {
       if (!notif.read && doctorInfo?.doctor_id) {
         try {
           const updates = {};
+          // Đánh dấu đã đọc trên Firebase
           updates[`notifications/${doctorInfo.doctor_id}/${notif.id}/read`] = true;
           await update(ref(database), updates);
           console.log('Marked as read:', notif.id);
@@ -170,12 +171,20 @@ const Header = () => {
         }
       }
       
-      // Điều hướng (chỉ điều hướng nếu không phải click vào nút xóa - logic này có thể bỏ nếu xóa riêng)
-      // if (notif.type === 'new_appointment' || notif.type === 'booking') {
-      //   console.log('Navigating to appointments page');
-      //   navigate('/doctor/appointment');
-      // }
-    }, 300);
+      // Điều hướng nếu có bookingId
+      if (notif.bookingId) {
+        console.log(`Navigating to appointment with bookingId: ${notif.bookingId}`);
+        // Sử dụng replace: true để không thêm vào lịch sử trình duyệt nếu người dùng chỉ click thông báo liên tục
+        navigate(`/doctor/appointment?bookingId=${notif.bookingId}`, { replace: true });
+      } else {
+        console.log('Notification does not have bookingId, not navigating.');
+        // Có thể điều hướng đến trang chung nếu cần
+        // navigate('/doctor/appointment');
+      }
+    };
+
+    // Thêm một delay nhỏ trước khi xử lý để popover kịp đóng hoàn toàn
+    setTimeout(processNotification, 100);
   }, [doctorInfo?.doctor_id, navigate]);
 
   // --- Xử lý xóa thông báo ---
@@ -379,6 +388,15 @@ const Header = () => {
     navigate("/doctor/schedule");
   };
 
+  // --- Xử lý tìm kiếm từ Header ---
+  const handleHeaderSearch = (e) => {
+    if (e.key === 'Enter') {
+      const term = headerSearchTerm.trim();
+      // Chuyển hướng đến trang lịch hẹn với query param
+      navigate(`/doctor/appointment?search=${encodeURIComponent(term)}`);
+    }
+  };
+
   return (
     <div className="doctor-header-wrapper">
       <style>
@@ -502,6 +520,9 @@ const Header = () => {
               type="text"
               placeholder="Tìm kiếm bệnh nhân..."
               className="form-control"
+              value={headerSearchTerm}
+              onChange={(e) => setHeaderSearchTerm(e.target.value)}
+              onKeyDown={handleHeaderSearch}
             />
           </div>
         </div>

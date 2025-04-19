@@ -27,4 +27,11 @@ class Guest extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Define the relationship with MedicalRecord
+    public function medicalRecord()
+    {
+        // Assuming MedicalRecord model exists and has a 'guest_id' foreign key
+        return $this->hasOne(MedicalRecord::class);
+    }
 }
