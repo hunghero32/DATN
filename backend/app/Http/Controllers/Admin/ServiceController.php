@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Specialty;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Booking;
 
 class ServiceController extends Controller
 {
@@ -146,6 +147,16 @@ class ServiceController extends Controller
     public function update(Request $request, $id)
     {
         $service = Services::findOrFail($id);
+
+        // Check if service has any bookings
+        $hasBookings = Booking::where('service_id', $id)
+            ->where('isDeleted', 0)
+            ->exists();
+
+        if ($hasBookings) {
+            return redirect()->back()
+                ->with('error', 'Không thể chỉnh sửa thông tin dịch vụ vì đã có lịch đặt khám.');
+        }
 
         $validator = Validator::make($request->all(), [
             'services_name'   => 'required|string|max:255',

@@ -110,7 +110,7 @@
                                     <div class="shift-container">
                                         <h6 class="mb-3">Ca sáng (7:00 - 11:00)</h6>
                                         <div class="time-slot-container">
-                                            <input type="checkbox" class="btn-check" name="time_slots[]" id="morning" value="07:00,11:00"
+                                            <input type="checkbox" class="btn-check time-slot" name="time_slots[]" id="morning" value="07:00,11:00"
                                                 {{ ($data->time_start === '07:00:00' && $data->time_end === '11:00:00') ? 'checked' : '' }}>
                                             <label class="btn btn-outline-warning" for="morning">7:00-11:00</label>
                                         </div>
@@ -120,7 +120,7 @@
                                     <div class="shift-container">
                                         <h6 class="mb-3">Ca chiều (13:00 - 17:00)</h6>
                                         <div class="time-slot-container">
-                                            <input type="checkbox" class="btn-check" name="time_slots[]" id="afternoon" value="13:00,17:00"
+                                            <input type="checkbox" class="btn-check time-slot" name="time_slots[]" id="afternoon" value="13:00,17:00"
                                                 {{ ($data->time_start === '13:00:00' && $data->time_end === '17:00:00') ? 'checked' : '' }}>
                                             <label class="btn btn-outline-warning" for="afternoon">13:00-17:00</label>
                                         </div>
@@ -337,79 +337,20 @@
             display: none;
         }
     </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const customSelects = document.querySelectorAll('.custom-select2');
-            customSelects.forEach(select => {
-                const selectElement = select.querySelector('select');
-                const selection = select.querySelector('.select2-selection');
-                const rendered = select.querySelector('.select2-selection__rendered');
-                const dropdown = select.querySelector('.select2-dropdown');
-                const searchInput = select.querySelector('.select2-search');
-                const results = select.querySelector('.select2-results');
-
-                const options = Array.from(selectElement.options).slice(1);
-                const updateOptions = (filter = '') => {
-                    results.innerHTML = '';
-                    options.forEach(option => {
-                        if (option.text.toLowerCase().includes(filter.toLowerCase())) {
-                            const li = document.createElement('li');
-                            li.textContent = option.text;
-                            li.dataset.value = option.value;
-                            if (option.selected) {
-                                li.classList.add('selected');
-                                rendered.textContent = option.text;
-                            }
-                            results.appendChild(li);
-                        }
-                    });
-                };
-                updateOptions();
-
-                selection.addEventListener('click', () => {
-                    dropdown.classList.toggle('open');
-                    if (dropdown.classList.contains('open')) {
-                        searchInput.focus();
-                    }
-                });
-
-                searchInput.addEventListener('input', () => {
-                    updateOptions(searchInput.value);
-                });
-
-                results.addEventListener('click', (e) => {
-                    if (e.target.tagName === 'LI') {
-                        const value = e.target.dataset.value;
-                        selectElement.value = value;
-                        rendered.textContent = e.target.textContent;
-                        results.querySelectorAll('li').forEach(li => li.classList.remove('selected'));
-                        e.target.classList.add('selected');
-                        dropdown.classList.remove('open');
-                        searchInput.value = '';
-                        updateOptions();
-                    }
-                });
-
-                document.addEventListener('click', (e) => {
-                    if (!select.contains(e.target)) {
-                        dropdown.classList.remove('open');
-                        searchInput.value = '';
-                        updateOptions();
-                    }
-                });
-
-                if (selectElement.value) {
-                    const selectedOption = selectElement.options[selectElement.selectedIndex];
-                    rendered.textContent = selectedOption.text;
-                }
-            });
-
-            // Form validation and selection logic
             const form = document.getElementById('scheduleForm');
             const workingDaysCheckboxes = document.querySelectorAll('input[name="working_days[]"]');
-            const timeSlots = document.querySelectorAll('input[name="time_slots[]"]');
+            const timeSlotCheckboxes = document.querySelectorAll('input.time-slot[name="time_slots[]"]');
             const customStart = document.getElementById('custom_start');
             const customEnd = document.getElementById('custom_end');
+
+            // Hidden input to store custom time slot
+            const hiddenCustomTimeSlot = document.createElement('input');
+            hiddenCustomTimeSlot.type = 'hidden';
+            hiddenCustomTimeSlot.name = 'time_slots[]';
+            form.appendChild(hiddenCustomTimeSlot);
 
             function clearErrorMessages() {
                 const errorElements = document.querySelectorAll('.error-message');
@@ -425,11 +366,13 @@
                 let container;
                 switch(id) {
                     case 'working-days-error':
-                        container = document.querySelector('.d-flex.flex-wrap.gap-3.mb-4');
+                        container = document.querySelector('.d-flex.flex-wrap.gap-3.mb-4').parentElement;
                         break;
                     case 'time-slots-error':
+                        container = document.querySelector('.d-flex.flex-wrap.gap-3').parentElement;
+                        break;
                     case 'custom-time-error':
-                        container = document.getElementById('time-slots-error-container');
+                        container = document.querySelector('.time-slot-container .d-flex.gap-2').parentElement;
                         break;
                 }
 
@@ -438,7 +381,96 @@
                 }
             }
 
-            // Add form submit validation
+            // Update hidden input for custom time slot
+            function updateCustomTimeSlot() {
+                if (customStart.value && customEnd.value) {
+                    hiddenCustomTimeSlot.value = `${customStart.value},${customEnd.value}`;
+                } else {
+                    hiddenCustomTimeSlot.value = '';
+                }
+            }
+
+            // Clear other days when one is selected
+            function handleDaySelection(selectedCheckbox) {
+                workingDaysCheckboxes.forEach(checkbox => {
+                    if (checkbox !== selectedCheckbox) {
+                        checkbox.checked = false;
+                    }
+                });
+            }
+
+            // Clear other time slots when one is selected
+            function handleTimeSlotSelection(selectedCheckbox) {
+                timeSlotCheckboxes.forEach(checkbox => {
+                    if (checkbox !== selectedCheckbox) {
+                        checkbox.checked = false;
+                    }
+                });
+                // Clear custom time inputs if a predefined slot is selected
+                if (selectedCheckbox) {
+                    customStart.value = '';
+                    customEnd.value = '';
+                    updateCustomTimeSlot();
+                }
+            }
+
+            // Clear predefined slots when custom time is selected
+            function handleCustomTimeSelection() {
+                if (customStart.value || customEnd.value) {
+                    timeSlotCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                }
+                updateCustomTimeSlot();
+            }
+
+            // Validate custom time slot
+            function validateCustomTimeSlot() {
+                if (customStart.value && customEnd.value) {
+                    const startTime = new Date(`1970-01-01T${customStart.value}:00`);
+                    const endTime = new Date(`1970-01-01T${customEnd.value}:00`);
+                    if (endTime <= startTime) {
+                        displayError('custom-time-error', 'Giờ kết thúc phải sau giờ bắt đầu');
+                        return false;
+                    }
+                    if (startTime < new Date(`1970-01-01T07:00:00`) || endTime > new Date(`1970-01-01T17:00:00`)) {
+                        displayError('custom-time-error', 'Thời gian làm việc phải nằm trong khoảng 7:00 - 17:00');
+                        return false;
+                    }
+                    if ((startTime < new Date(`1970-01-01T11:00:00`) && endTime > new Date(`1970-01-01T13:00:00`)) ||
+                        (startTime >= new Date(`1970-01-01T11:00:00`) && startTime < new Date(`1970-01-01T13:00:00`)) ||
+                        (endTime > new Date(`1970-01-01T11:00:00`) && endTime <= new Date(`1970-01-01T13:00:00`))) {
+                        displayError('custom-time-error', 'Không thể đặt lịch trong khoảng thời gian nghỉ trưa (11:00-13:00)');
+                        return false;
+                    }
+                    return true;
+                }
+                return customStart.value === '' && customEnd.value === '';
+            }
+
+            // Event listeners for working days checkboxes
+            workingDaysCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        handleDaySelection(checkbox);
+                    }
+                });
+            });
+
+            // Event listeners for time slot checkboxes
+            timeSlotCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        handleTimeSlotSelection(checkbox);
+                    }
+                });
+            });
+
+            // Event listeners for custom time inputs
+            customStart.addEventListener('change', handleCustomTimeSelection);
+            customEnd.addEventListener('change', handleCustomTimeSelection);
+
+            // Form submit validation
             form.addEventListener('submit', function(e) {
                 clearErrorMessages();
                 let hasError = false;
@@ -457,7 +489,7 @@
 
                 // Validate time slots
                 let hasValidTimeSlot = false;
-                timeSlots.forEach(slot => {
+                timeSlotCheckboxes.forEach(slot => {
                     if (slot.checked) hasValidTimeSlot = true;
                 });
 
@@ -467,8 +499,11 @@
                         e.preventDefault();
                         displayError('custom-time-error', 'Vui lòng chọn cả giờ bắt đầu và giờ kết thúc cho ca tùy chỉnh');
                         hasError = true;
+                    } else if (validateCustomTimeSlot()) {
+                        hasValidTimeSlot = true;
                     } else {
-                        hasValidTimeSlot = processCustomTimeSlots();
+                        e.preventDefault();
+                        hasError = true;
                     }
                 }
 
@@ -478,12 +513,76 @@
                 }
             });
 
-            customStart.addEventListener('change', () => {
-                timeSlots.forEach(slot => slot.checked = false);
+            // Initialize custom time slot
+            updateCustomTimeSlot();
+
+            // Initialize select2
+            const customSelect = document.querySelector('.custom-select2');
+            const selectElement = customSelect.querySelector('select');
+            const selection = customSelect.querySelector('.select2-selection');
+            const rendered = customSelect.querySelector('.select2-selection__rendered');
+            const dropdown = customSelect.querySelector('.select2-dropdown');
+            const searchInput = customSelect.querySelector('.select2-search');
+            const results = customSelect.querySelector('.select2-results');
+
+            // Set initial selected value
+            if (selectElement.value) {
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                rendered.textContent = selectedOption.text;
+            }
+
+            // Toggle dropdown
+            selection.addEventListener('click', () => {
+                dropdown.classList.toggle('open');
+                if (dropdown.classList.contains('open')) {
+                    searchInput.focus();
+                    populateResults();
+                }
             });
-            customEnd.addEventListener('change', () => {
-                timeSlots.forEach(slot => slot.checked = false);
+
+            // Populate results
+            function populateResults(filter = '') {
+                results.innerHTML = '';
+                Array.from(selectElement.options).forEach(option => {
+                    if (option.text.toLowerCase().includes(filter.toLowerCase())) {
+                        const li = document.createElement('li');
+                        li.textContent = option.text;
+                        li.dataset.value = option.value;
+                        if (option.value === selectElement.value) {
+                            li.classList.add('selected');
+                        }
+                        results.appendChild(li);
+                    }
+                });
+            }
+
+            // Handle search
+            searchInput.addEventListener('input', (e) => {
+                populateResults(e.target.value);
             });
+
+            // Handle option selection
+            results.addEventListener('click', (e) => {
+                if (e.target.tagName === 'LI') {
+                    const value = e.target.dataset.value;
+                    const text = e.target.textContent;
+                    selectElement.value = value;
+                    rendered.textContent = text;
+                    dropdown.classList.remove('open');
+                    searchInput.value = '';
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!customSelect.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                    searchInput.value = '';
+                }
+            });
+
+            // Initial population of results
+            populateResults();
         });
     </script>
 @endsection

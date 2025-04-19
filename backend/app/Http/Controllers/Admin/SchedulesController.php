@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\Schedule;
+use App\Models\Booking;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -191,30 +192,46 @@ class SchedulesController extends Controller
     }
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'doctor_id' => 'required|exists:doctors,id',
-            'time_slots' => 'required|array',
-            'working_week' => 'required',
-            'working_days' => 'required|array',
-            'status' => 'required|in:0,1',
-        ], [
-            'doctor_id.required' => 'Vui lòng chọn bác sĩ',
-            'doctor_id.exists' => 'Bác sĩ không tồn tại trong hệ thống',
-            'time_slots.required' => 'Vui lòng chọn khung giờ làm việc',
-            'time_slots.array' => 'Định dạng khung giờ không hợp lệ',
-            'working_week.required' => 'Vui lòng chọn tuần làm việc',
-            'working_days.required' => 'Vui lòng chọn ngày làm việc',
-            'working_days.array' => 'Định dạng ngày làm việc không hợp lệ',
-            'status.required' => 'Vui lòng chọn trạng thái',
-            'status.in' => 'Trạng thái không hợp lệ',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
         try {
             $schedule = Schedule::findOrFail($id);
+
+            // Check if schedule has any bookings
+            $hasBookings = Booking::where('doctor_id', $schedule->doctor_id)
+                ->where('booking_date', $schedule->working_date)
+                ->where('booking_time', '>=', $schedule->time_start)
+                ->where('booking_time', '<=', $schedule->time_end)
+                ->where('isDeleted', 0)
+                ->exists();
+
+            if ($hasBookings) {
+                return redirect()->back()
+                    ->with('error', 'Không thể chỉnh sửa lịch làm việc này vì đã có bệnh nhân đặt lịch!')
+                    ->withInput();
+            }
+
+            $validator = Validator::make($request->all(), [
+                'doctor_id' => 'required|exists:doctors,id',
+                'time_slots' => 'required|array|min:1',
+                'working_week' => 'required',
+                'working_days' => 'required|array|min:1',
+                'status' => 'required|in:0,1',
+            ], [
+                'doctor_id.required' => 'Vui lòng chọn bác sĩ',
+                'doctor_id.exists' => 'Bác sĩ không tồn tại trong hệ thống',
+                'time_slots.required' => 'Vui lòng chọn ít nhất một ca làm việc',
+                'time_slots.array' => 'Định dạng ca làm việc không hợp lệ',
+                'time_slots.min' => 'Vui lòng chọn ít nhất một ca làm việc',
+                'working_week.required' => 'Vui lòng chọn tuần làm việc',
+                'working_days.required' => 'Vui lòng chọn ít nhất một ngày làm việc',
+                'working_days.array' => 'Định dạng ngày làm việc không hợp lệ',
+                'working_days.min' => 'Vui lòng chọn ít nhất một ngày làm việc',
+                'status.required' => 'Vui lòng chọn trạng thái',
+                'status.in' => 'Trạng thái không hợp lệ',
+            ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
 
             // Parse the week input to get the date
             $weekYear = substr($request->working_week, 0, 4);
@@ -222,8 +239,8 @@ class SchedulesController extends Controller
             $startDate = new \DateTime();
             $startDate->setISODate($weekYear, $weekNumber);
 
-            // Get the selected day and adjust the date
-            $dayOfWeek = $request->working_days[0]; // We only allow one day in edit mode
+            // Get the first selected day and adjust the date
+            $dayOfWeek = $request->working_days[0]; // Only one day in edit mode
             if ($dayOfWeek == 0) { // Sunday
                 $startDate->modify('+6 days');
             } else {
@@ -232,15 +249,32 @@ class SchedulesController extends Controller
 
             $workingDate = $startDate->format('Y-m-d');
 
-            // Get time slot
-            $timeSlot = $request->time_slots[0]; // We only allow one time slot in edit mode
+            // Check if the working date is in the past
+            $currentDate = new \DateTime();
+            $currentDate->setTime(0, 0, 0); // Set time to 00:00:00 for date-only comparison
+            $selectedDate = new \DateTime($workingDate);
+            $selectedDate->setTime(0, 0, 0);
+
+            if ($selectedDate < $currentDate) {
+                return redirect()->back()
+                    ->with('error', 'Không thể chọn ngày trong quá khứ. Vui lòng chọn ngày từ hôm nay trở đi.')
+                    ->withInput();
+            }
+
+            // Get the first time slot (predefined or custom)
+            $timeSlot = $request->time_slots[0]; // Only one time slot in edit mode
             list($timeStart, $timeEnd) = explode(',', $timeSlot);
 
-            // Convert to DateTime for comparison
+            // Validate time slot
             $newStart = \DateTime::createFromFormat('H:i', $timeStart);
             $newEnd = \DateTime::createFromFormat('H:i', $timeEnd);
 
-            // Check for invalid time slots (e.g., 7:00-11:00 crossing break time)
+            if (!$newStart || !$newEnd || $newEnd <= $newStart) {
+                return redirect()->back()
+                    ->with('error', 'Thời gian làm việc không hợp lệ: Giờ kết thúc phải sau giờ bắt đầu.')
+                    ->withInput();
+            }
+
             if ($newStart->format('H:i') < '07:00' || $newEnd->format('H:i') > '17:00') {
                 return redirect()->back()
                     ->with('error', 'Thời gian làm việc phải nằm trong khoảng 7:00 - 17:00.')
@@ -266,7 +300,6 @@ class SchedulesController extends Controller
                 $existingStart = \DateTime::createFromFormat('H:i:s', $existing->time_start);
                 $existingEnd = \DateTime::createFromFormat('H:i:s', $existing->time_end);
 
-                // Check for any overlap
                 if (!($newEnd <= $existingStart || $newStart >= $existingEnd)) {
                     return redirect()->back()
                         ->with('error', 'Lịch làm việc bị trùng với lịch hiện có từ ' . $existingStart->format('H:i') . ' đến ' . $existingEnd->format('H:i') . ' vào ngày ' . date('d/m/Y', strtotime($workingDate)))
@@ -292,6 +325,7 @@ class SchedulesController extends Controller
                 ->withInput();
         }
     }
+
     public function destroy($id)
     {
 
