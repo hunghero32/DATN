@@ -14,8 +14,8 @@
                         #{{ $booking->id }} | {{ $booking->booking_date }} | 
                         {{ $booking->guest->guest_name ?? 'Không có khách' }} | 
                         {{ $booking->guest->guest_phone ?? 'Không có SĐT' }} | 
-                        {{ $booking->service->services_name ?? 'Không có dịch vụ' }} | 
-                        {{ number_format($booking->service->price ?? 0, 0, ',', '.') }} VNĐ
+                        {{ $booking->service_name ?? 'Không có dịch vụ' }} | 
+                        {{ number_format($booking->service_price ?? 0, 0, ',', '.') }} VNĐ
                     </option>
                 @endforeach
             </select>

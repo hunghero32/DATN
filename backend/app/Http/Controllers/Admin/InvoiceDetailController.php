@@ -48,7 +48,7 @@ public function store(Request $request)
 
     $booking = Booking::with('service')->findOrFail($request->booking_id);
 
-    $price = $booking->service->price ?? 0;
+    $price = $booking->service_price ?? 0;
     $discount = $request->discount ?? 0;
     $tax = $request->tax ?? 0;
 
@@ -95,7 +95,6 @@ public function edit($id)
     $request->validate([
         'invoice_id'   => 'required|exists:invoices,id',
         'booking_id'   => 'required|exists:bookings,id',
-        'total_amount' => 'required|numeric|min:0',
         'discount'     => 'nullable|numeric|min:0',
         'tax'          => 'nullable|numeric|min:0',
     ]);
@@ -106,9 +105,18 @@ public function edit($id)
         'booking_id' => $request->booking_id,
     ]);
 
+    $booking = Booking::with('service')->findOrFail($request->booking_id);
+    $price = $booking->service_price ?? 0;
+    $discount = $request->discount ?? 0;
+    $tax = $request->tax ?? 0;
+
+    $subtotal = $price - $discount;
+    $taxAmount = ($subtotal * $tax) / 100;
+    $totalAmount = $subtotal + $taxAmount;
+
     $invoice = Invoice::where('id', $invoiceDetail->invoice_id)->where('isDeleted', 0)->firstOrFail();
     $invoice->update([
-        'total_amount' => $request->total_amount,
+        'total_amount' => $totalAmount,
         'discount'     => $request->discount,
         'tax'          => $request->tax,
     ]);
