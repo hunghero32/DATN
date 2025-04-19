@@ -20,8 +20,9 @@
     $detailModal=[
         'fields'=>[
             ['name'=>'doctor_name','label'=>'Bác sĩ','type'=>'text'],
-            ['name'=>'services_name','label'=>'Dịch vụ','type'=>'text'],
             ['name'=>'guest_name','label'=>'Khách hàng','type'=>'text'],
+            ['name'=>'service_name','label'=>'Dịch vụ','type'=>'text'],
+            ['name'=>'service_price','label'=>'Giá dịch vụ','type'=>'text'],
             ['name'=>'booking_date','label'=>'Ngày hẹn','type'=>'text'],
             ['name'=>'booking_time','label'=>'Giờ hẹn','type'=>'text'],
             ['name'=>'status','label'=>'Trạng thái','type'=>'text'],
@@ -37,7 +38,7 @@
         ['key' => 'id', 'label' => 'ID'],
         ['key' => 'doctor_name', 'label' => 'Bác sĩ'],
         ['key' => 'guest_name', 'label' => 'Bệnh nhân'],
-        ['key' => 'services_name', 'label' => 'Dịch vụ'],
+        ['key' => 'service_name', 'label' => 'Dịch vụ'],
         ['key' => 'guest_name', 'label' => 'Khách hàng'],
         ['key' => 'booking_date', 'label' => 'Ngày hẹn'],
         ['key' => 'booking_time', 'label' => 'Giờ hẹn'],

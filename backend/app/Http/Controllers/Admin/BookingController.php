@@ -16,22 +16,12 @@ class BookingController extends Controller
         $data = Booking::join('doctors','bookings.doctor_id','=','doctors.id')
             ->join('guests','bookings.guest_id','=','guests.id')
             ->join('services','bookings.service_id','=','services.id')
-            ->select('bookings.*','doctors.doctor_name','guests.guest_name','services.services_name')
+            ->select('bookings.*','guests.guest_name')
             ->where('bookings.isDeleted',0)
             ->orderBy('bookings.created_at', 'desc')
             ->paginate($perPage);
 
-        $doctors = Doctor::where('isDeleted', 0)->pluck('doctor_name', 'id')->toArray();
-        $services = Services::where('isDeleted', 0)->pluck('services_name', 'id')->toArray();
-        $statuses = [
-            '' => 'Tất cả trạng thái',
-            'pending' => 'Chờ xác nhận',
-            'confirmed' => 'Đã xác nhận',
-            'completed' => 'Hoàn thành',
-            'cancelled' => 'Đã hủy'
-        ];
-
-        return view('admin.pages.booking.index', compact('data', 'doctors', 'services', 'statuses'));
+        return view('admin.pages.booking.index', compact('data'));
     }
 
     public function search(Request $request)

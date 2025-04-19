@@ -41,10 +41,10 @@ class InvoiceController extends Controller
                                 'invoice_id' => $detail->invoice_id,
                                 'booking_id' => $detail->booking_id,
                                 'booking_status' => $detail->booking->status ?? 'N/A',
-                                'service_name' => $detail->booking->service->name ?? 'Dịch vụ khám nha khoa',
-                                'price' => $detail->booking->service->price ?? $detail->booking->price ?? 0,
+                                'service_name' => $detail->booking->service_name ?? 'Dịch vụ khám nha khoa',
+                                'price' => $detail->booking->service_price ?? 0,
                                 'doctor' => [
-                                    'doctor_name' => $detail->booking->doctor->doctor_name ?? 'N/A',
+                                    'doctor_name' => $detail->booking->doctor_name ?? 'N/A',
                                     'specialty_id' => $detail->booking->doctor->specialty_id ?? 'N/A',
                                     'specialty_name' => $detail->booking->doctor->specialty->name ?? 'N/A',
                                     'exp' => $detail->booking->doctor->exp ?? 'N/A',

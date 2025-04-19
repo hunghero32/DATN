@@ -203,12 +203,11 @@
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content modal-scrollable">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="detailModalLabel{{ $row['id'] }}">Chi tiết bác sĩ</h5>
+                            <h5 class="modal-title" id="detailModalLabel{{ $row['id'] }}">Chi tiết {{ $title }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="card mb-4">
-                                <h5 class="card-header">Profile Details</h5>
                                 <hr class="my-0" />
                                 <div class="card-body">
                                     <div class="row mt-3">
@@ -276,7 +275,6 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <a href="{{ route('admin.doctors.edit', $row['id']) }}" class="btn btn-primary">Chỉnh sửa</a>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                         </div>
                     </div>

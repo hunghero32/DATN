@@ -198,15 +198,6 @@ class DoctorController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Check if doctor has any bookings
-        $hasBookings = Booking::where('doctor_id', $id)
-            ->where('isDeleted', 0)
-            ->exists();
-
-        if ($hasBookings) {
-            return redirect()->back()->with('error', 'Không thể chỉnh sửa thông tin bác sĩ vì đã có lịch đặt khám.');
-        }
-
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'doctor_name' => [

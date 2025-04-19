@@ -148,16 +148,6 @@ class ServiceController extends Controller
     {
         $service = Services::findOrFail($id);
 
-        // Check if service has any bookings
-        $hasBookings = Booking::where('service_id', $id)
-            ->where('isDeleted', 0)
-            ->exists();
-
-        if ($hasBookings) {
-            return redirect()->back()
-                ->with('error', 'Không thể chỉnh sửa thông tin dịch vụ vì đã có lịch đặt khám.');
-        }
-
         $validator = Validator::make($request->all(), [
             'services_name'   => 'required|string|max:255',
             'description'     => 'nullable|string',
