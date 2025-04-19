@@ -49,8 +49,8 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>{{ $detail->booking->service->services_name ?? 'N/A' }}</td>
-                            <td>{{ $detail->booking->doctor->doctor_name ?? 'N/A' }}</td>
+                            <td>{{ $detail->booking->service_name ?? 'N/A' }}</td>
+                            <td>{{ $detail->booking->doctor_name ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::parse($detail->booking->booking_date)->format('d/m/Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($detail->booking->booking_time)->format('H:i') }}</td>
                         </tr>
@@ -62,12 +62,12 @@
 
                 <div class="row">
                     <div class="col-md-6">
-                        <p><strong>Giá Dịch Vụ:</strong> {{ number_format($detail->booking->service->price ?? 0, 0, ',', '.') }} VNĐ</p>
+                        <p><strong>Giá Dịch Vụ:</strong> {{ number_format($detail->booking->service_price ?? 0, 0, ',', '.') }} VNĐ</p>
                         <p><strong>Thuế:</strong> {{ number_format($detail->invoice->tax ?? 0, 0, ',', '.') }} %</p>
                     </div>
                     <div class="col-md-6 text-end pe-4">                      <p><strong>Giảm Giá:</strong> {{ number_format($detail->invoice->discount ?? 0, 0, ',', '.') }} VNĐ</p>
                         @php
-                            $gia = $detail->booking->service->price ?? 0;
+                            $gia = $detail->booking->service_price ?? 0;
                             $giam_gia = $detail->invoice->discount ?? 0;
                             $thue_phan_tram = $detail->invoice->tax ?? 0;
                             $tien_sau_giam = $gia - $giam_gia;
@@ -92,13 +92,13 @@
                     <i class="fas fa-edit"></i> Sửa
                 </a>
         
-                <form action="{{ route('invoice_details.delete', $detail->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa không?');">
+                {{-- <form action="{{ route('invoice_details.delete', $detail->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa không?');">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-trash-alt"></i> Xóa
                     </button>
-                </form>
+                </form> --}}
             </div>
         
             <button class="btn btn-primary mt-3" onclick="printInvoice('{{ $detail->invoice_id }}')">
