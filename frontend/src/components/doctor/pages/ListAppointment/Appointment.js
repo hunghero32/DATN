@@ -71,27 +71,10 @@ const Appointment = () => {
 
     if (newHighlightId !== highlightedBookingId) {
       setHighlightedBookingId(newHighlightId);
-      // Tìm và chuyển tab nếu appointments đã load
-      // ... (logic chuyển tab statusFilter)
-
-      // --- BỎ PHẦN XÓA bookingId KHỎI URL --- 
-      /*
-      const currentParams = new URLSearchParams(location.search);
-      currentParams.delete('bookingId');
-      navigate(`${location.pathname}?${currentParams.toString()}`, { replace: true });
-      */
-
     } else if (bookingIdParam === null && highlightedBookingId !== null) {
-      // Clear highlight notification nếu bookingId bị xóa khỏi URL
       console.log("[Effect 2] Clearing highlight ID as bookingId param is null");
     }
-
-  }, [
-      location.search,        // Chỉ cần theo dõi URL thay đổi
-      navigate,             // Dependency cho navigate (để xóa bookingId)
-      searchQuery,          // Để so sánh và tránh set lại nếu không đổi
-      highlightedBookingId  // Để so sánh và tránh set lại nếu không đổi
-  ]);
+  }, [location.search, navigate, searchQuery, highlightedBookingId]);
 
   useEffect(() => {
     if (highlightedBookingId !== null && appointments.length > 0) {
@@ -417,6 +400,7 @@ const Appointment = () => {
     setShowMedicalRecordModal(true);
     setMedicalRecord(null);
     setResults([]);
+    setError(null); // Clear previous errors
 
     const token = getAuthToken();
     if (!token) {
@@ -448,7 +432,6 @@ const Appointment = () => {
       } else {
         setMedicalRecord(null);
         setResults([]);
-        setError("Không tìm thấy hồ sơ y tế cho bệnh nhân này.");
         setMedicalForm({
           BHYT: "",
           medical_condition: "",
@@ -461,8 +444,11 @@ const Appointment = () => {
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi tải hồ sơ y tế.";
-      setError(errorMessage);
-      toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
+      // Only set error and show toast if it's not "No query results for model"
+      if (!errorMessage.includes("No query results for model")) {
+        setError(errorMessage);
+        toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
+      }
     } finally {
       setLoading(false);
     }
