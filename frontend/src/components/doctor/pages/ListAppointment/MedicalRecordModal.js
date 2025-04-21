@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Form, Button, Collapse } from "react-bootstrap";
+import { Modal, Form, Button } from "react-bootstrap";
 import { FaChevronDown, FaChevronUp, FaFileMedical, FaNotesMedical, FaCalendarAlt, FaUserMd, FaPrescriptionBottleAlt } from "react-icons/fa";
 
 const MedicalRecordModal = ({
@@ -21,14 +21,14 @@ const MedicalRecordModal = ({
     console.log("Results data:", results);
   }, [results]);
 
-  // Reset form khi đóng modal
+  // Reset form when closing modal
   useEffect(() => {
     if (!show) {
       setShowForm(false);
     }
   }, [show, setShowForm]);
 
-  // Reset form khi lưu thành công
+  // Reset form when saving is successful
   useEffect(() => {
     if (!loading && medicalRecord) {
       setShowForm(false);
@@ -36,7 +36,7 @@ const MedicalRecordModal = ({
   }, [loading, medicalRecord, setShowForm]);
 
   const toggleResult = (index) => {
-    setExpandedResults(prev => {
+    setExpandedResults((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(index)) {
         newSet.delete(index);
@@ -55,44 +55,44 @@ const MedicalRecordModal = ({
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+    return date.toLocaleDateString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
   };
 
   return (
-      <Modal show={show} onHide={onHide} size="lg">
-        <style>
-          {`
-            .modal-content {
-              border-radius: 15px;
-              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            }
+    <Modal show={show} onHide={onHide} size="lg">
+      <style>
+        {`
+          .modal-content {
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          }
 
-            .modal-header {
+          .modal-header {
             background-color: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
             padding: 1.5rem;
-            }
+          }
 
-            .modal-title {
-              font-size: 1.5rem;
-              font-weight: 600;
+          .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
             color: #1e293b;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            }
+          }
 
-            .modal-body {
+          .modal-body {
             padding: 1.5rem;
             max-height: 80vh;
-              overflow-y: auto;
-            }
+            overflow-y: auto;
+          }
 
           .record-section {
             background-color: #fff;
@@ -179,9 +179,9 @@ const MedicalRecordModal = ({
           }
 
           .info-label {
-              font-weight: 600;
+            font-weight: 600;
             color: #475569;
-              margin-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -222,20 +222,20 @@ const MedicalRecordModal = ({
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            }
+          }
 
-            .form-control {
+          .form-control {
             border: 1px solid #e2e8f0;
-              border-radius: 8px;
-              padding: 0.75rem;
+            border-radius: 8px;
+            padding: 0.75rem;
             font-size: 0.875rem;
             color: #1e293b;
             background-color: #fff;
             transition: all 0.2s ease;
-            }
+          }
 
-            .form-control:focus {
-              border-color: #3b82f6;
+          .form-control:focus {
+            border-color: #3b82f6;
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
             outline: none;
           }
@@ -244,22 +244,22 @@ const MedicalRecordModal = ({
             font-weight: 500;
             color: #475569;
             margin-bottom: 0.5rem;
-            }
+          }
 
-            .btn-primary {
-              background-color: #3b82f6;
-              border-color: #3b82f6;
+          .btn-primary {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
             color: #fff;
             padding: 0.75rem 1.5rem;
             font-weight: 500;
             border-radius: 8px;
             transition: all 0.2s ease;
-            }
+          }
 
-            .btn-primary:hover {
-              background-color: #2563eb;
-              border-color: #2563eb;
-            }
+          .btn-primary:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+          }
 
           .btn-outline-primary {
             color: #3b82f6;
@@ -274,19 +274,22 @@ const MedicalRecordModal = ({
           .btn-outline-primary:hover {
             background-color: #3b82f6;
             color: #fff;
-            }
-          `}
-        </style>
+          }
+        `}
+      </style>
 
-        <Modal.Header closeButton>
+      <Modal.Header closeButton>
         <Modal.Title>
           <FaFileMedical className="text-primary" />
           Hồ sơ bệnh án
         </Modal.Title>
-        </Modal.Header>
+      </Modal.Header>
 
-        <Modal.Body>
-        {error && <div className="alert alert-danger">{error}</div>}
+      <Modal.Body>
+        {/* Only display error if it's not "No query results for model" */}
+        {error && !error.includes("No query results for model") && (
+          <div className="alert alert-danger">{error}</div>
+        )}
 
         {/* Medical Record Section */}
         <div className="record-section">
@@ -386,14 +389,14 @@ const MedicalRecordModal = ({
             )
           ) : (
             // Edit Mode
-              <Form>
+            <Form>
               <div className="row g-3">
                 <div className="col-md-6">
                   <Form.Group>
                     <Form.Label>BHYT:</Form.Label>
                     <Form.Control
                       type="text"
-                      value={medicalForm.BHYT}
+                      value={medicalForm.BHYT || ""}
                       onChange={(e) =>
                         setMedicalForm({ ...medicalForm, BHYT: e.target.value })
                       }
@@ -407,7 +410,7 @@ const MedicalRecordModal = ({
                     <Form.Label>Tình trạng y tế:</Form.Label>
                     <Form.Control
                       type="text"
-                      value={medicalForm.medical_condition}
+                      value={medicalForm.medical_condition || ""}
                       onChange={(e) =>
                         setMedicalForm({
                           ...medicalForm,
@@ -424,7 +427,7 @@ const MedicalRecordModal = ({
                     <Form.Label>Thuốc:</Form.Label>
                     <Form.Control
                       type="text"
-                      value={medicalForm.medications}
+                      value={medicalForm.medications || ""}
                       onChange={(e) =>
                         setMedicalForm({
                           ...medicalForm,
@@ -441,7 +444,7 @@ const MedicalRecordModal = ({
                     <Form.Label>Dị ứng:</Form.Label>
                     <Form.Control
                       type="text"
-                      value={medicalForm.allergies}
+                      value={medicalForm.allergies || ""}
                       onChange={(e) =>
                         setMedicalForm({
                           ...medicalForm,
@@ -459,7 +462,7 @@ const MedicalRecordModal = ({
                     <Form.Control
                       as="textarea"
                       rows={3}
-                      value={medicalForm.family_history}
+                      value={medicalForm.family_history || ""}
                       onChange={(e) =>
                         setMedicalForm({
                           ...medicalForm,
@@ -476,7 +479,7 @@ const MedicalRecordModal = ({
                     <Form.Label>Phương pháp điều trị:</Form.Label>
                     <Form.Control
                       type="text"
-                      value={medicalForm.treatment}
+                      value={medicalForm.treatment || ""}
                       onChange={(e) =>
                         setMedicalForm({
                           ...medicalForm,
@@ -494,7 +497,7 @@ const MedicalRecordModal = ({
                     <Form.Control
                       as="textarea"
                       rows={3}
-                      value={medicalForm.note}
+                      value={medicalForm.note || ""}
                       onChange={(e) =>
                         setMedicalForm({
                           ...medicalForm,
@@ -522,13 +525,17 @@ const MedicalRecordModal = ({
 
           {/* Toggle Edit Button */}
           <div className="text-center mt-4">
-          <Button
+            <Button
               variant="outline-primary"
               onClick={() => setShowForm(!showForm)}
               className="px-4"
             >
-              {showForm ? "Hủy chỉnh sửa" : medicalRecord ? "Chỉnh sửa hồ sơ" : "Tạo hồ sơ mới"}
-          </Button>
+              {showForm
+                ? "Hủy chỉnh sửa"
+                : medicalRecord
+                ? "Chỉnh sửa hồ sơ"
+                : "Tạo hồ sơ mới"}
+            </Button>
           </div>
         </div>
 
@@ -546,7 +553,9 @@ const MedicalRecordModal = ({
                 return (
                   <div key={index} className="result-item">
                     <div
-                      className={`result-header ${expandedResults.has(index) ? 'active' : ''}`}
+                      className={`result-header ${
+                        expandedResults.has(index) ? "active" : ""
+                      }`}
                       onClick={() => toggleResult(index)}
                     >
                       <div className="result-title">
@@ -558,7 +567,7 @@ const MedicalRecordModal = ({
                           {formatDate(result.created_at || result.updated_at)}
                         </span>
                       </div>
-                      <button 
+                      <button
                         type="button"
                         className="toggle-button"
                         onClick={(e) => {
@@ -566,15 +575,19 @@ const MedicalRecordModal = ({
                           toggleResult(index);
                         }}
                       >
-                        {expandedResults.has(index) ? <FaChevronUp /> : <FaChevronDown />}
+                        {expandedResults.has(index) ? (
+                          <FaChevronUp />
+                        ) : (
+                          <FaChevronDown />
+                        )}
                       </button>
                     </div>
 
-                    <div 
+                    <div
                       className="result-content"
-                      style={{ 
-                        display: expandedResults.has(index) ? 'block' : 'none',
-                        transition: 'all 0.3s ease-in-out'
+                      style={{
+                        display: expandedResults.has(index) ? "block" : "none",
+                        transition: "all 0.3s ease-in-out",
                       }}
                     >
                       {result.doctor && (
@@ -641,7 +654,7 @@ const MedicalRecordModal = ({
           )}
         </div>
       </Modal.Body>
-      </Modal>
+    </Modal>
   );
 };
 
