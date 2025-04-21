@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Notification;
 use App\Models\User;
+use App\Mail\NotificationEmail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
@@ -21,7 +24,7 @@ class NotificationController extends Controller
 
         if (!empty($search)) {
             $query->where('title', 'like', "%$search%")
-                  ->orWhere('content', 'like', "%$search%");
+                ->orWhere('content', 'like', "%$search%");
         }
 
         if (!empty($type)) {
@@ -76,10 +79,11 @@ class NotificationController extends Controller
             $userIds = User::where('role', $request->role)->pluck('id')->toArray();
         }
 
-        $isRead = $request->input('is_read', 0); 
+        $isRead = $request->input('is_read', 0);
 
+        // Lưu thông báo vào DB và gửi email nếu có
         foreach ($userIds as $uid) {
-            Notification::create([
+            $notification = Notification::create([
                 'user_id' => $uid,
                 'booking_id' => $request->booking_id,
                 'title' => $request->title,
@@ -87,6 +91,19 @@ class NotificationController extends Controller
                 'type' => $request->type,
                 'is_read' => $isRead,
             ]);
+
+            // Gửi email cho người dùng nếu có email
+            $user = User::find($uid);
+            if ($user && $user->email) {
+                try {
+                    $url = env('FRONTEND_BOOKING_URL', 'http://localhost:3000/lichhen');
+
+                    Mail::to($user->email)->send(new NotificationEmail($request->title, $request->content, $url));
+                    Log::info('Email sent to user: ' . $user->email);
+                } catch (\Exception $e) {
+                    Log::error('Error sending email to user ' . $user->email . ': ' . $e->getMessage());
+                }
+            }
         }
 
         return redirect()->route('admin.notifications.index')->with('success', 'Thông báo đã được gửi!');
