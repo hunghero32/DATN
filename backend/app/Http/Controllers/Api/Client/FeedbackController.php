@@ -50,9 +50,10 @@ class FeedbackController extends Controller
         try {
             $validatedData = $request->validate([
                 'service_id' => 'required|exists:services,id',
+                'booking_id' => 'required|exists:bookings,id', // Add booking_id validation
                 'rating' => 'required|integer|min:1|max:5',
                 'comments' => 'required|string|max:255',
-                'status' => 'nullable|in:pending,approved,rejected',
+                'status' => 'nullable',
             ]);
 
             $user = auth()->user();
@@ -65,20 +66,31 @@ class FeedbackController extends Controller
                 return response()->json(['status' => false, 'message' => 'Không tìm thấy thông tin khách hàng.'], 400);
             }
 
-            // Kiểm tra nếu người dùng đã có booking confirmed với dịch vụ
-            if (!Booking::where([['guest_id', $guestId], ['service_id', $validatedData['service_id']], ['status', 'confirmed']])->exists()) {
-                return response()->json(['status' => false, 'message' => 'Bạn phải đặt lịch trước khi gửi đánh giá.'], 400);
+            // Check if the booking exists and is completed
+            $booking = Booking::where([
+                ['id', $validatedData['booking_id']],
+                ['guest_id', $guestId],
+                ['service_id', $validatedData['service_id']],
+                ['status', 'completed']
+            ])->first();
+
+            if (!$booking) {
+                return response()->json(['status' => false, 'message' => 'Bạn chỉ có thể đánh giá sau khi hoàn thành dịch vụ.'], 400);
             }
 
-            // Kiểm tra nếu feedback đã tồn tại cho dịch vụ
-            if (Feedback::where([['guest_id', $guestId], ['service_id', $validatedData['service_id']]])->exists()) {
+            // Check if feedback already exists
+            if (Feedback::where([
+                ['guest_id', $guestId],
+                ['service_id', $validatedData['service_id']]
+            ])->exists()) {
                 return response()->json(['status' => false, 'message' => 'Bạn đã gửi đánh giá cho dịch vụ này.'], 400);
             }
 
-            // Tạo mới feedback với guest_id chính xác
+            // Create feedback
             $feedback = Feedback::create([
-                'guest_id' => $guestId, // Đảm bảo guest_id được gán đúng
+                'guest_id' => $guestId,
                 'service_id' => $validatedData['service_id'],
+                'booking_id' => $validatedData['booking_id'], // Add booking_id
                 'rating' => $validatedData['rating'],
                 'comments' => $validatedData['comments'],
                 'status' => $validatedData['status'] ?? 'pending',

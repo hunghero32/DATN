@@ -127,7 +127,7 @@ export default function Footer() {
           <div className="col-md-12">
             <div className="pq-copyright-footer">
               <span className="pq-copyright">
-                Bản quyền 2024 {footerData.site_name} | Đã đăng ký bản quyền
+                Bản quyền 2025 {footerData.site_name} | Đã đăng ký bản quyền
               </span>
             </div>
           </div>

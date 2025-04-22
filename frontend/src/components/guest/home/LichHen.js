@@ -20,18 +20,15 @@ const LichHen = () => {
     e.preventDefault();
     try {
       const response = await api.post("/api/client/feedbacks", {
-        // service_id: feedbackData.service_id, // ✅ Đã sửa lại dùng service_id
-        // rating: feedbackData.rating,
-        // comments: feedbackData.comments,
-        // status: "pending",
-          service_id: 3, // ✅ ID thực của dịch vụ
-          rating: 5,
-          comments: "Tốt",
-          status: "pending"
-        
+        service_id: selectedAppointment.service_id,
+        booking_id: selectedAppointment.id,
+        rating: feedbackData.rating,
+        comments: feedbackData.comments,
+        status: "pending",
+        guest_id: selectedAppointment.guest_id  // Add guest_id
       });
-
-      if (response) {
+      
+      if (response.data.status) {
         alert("Đánh giá đã được gửi thành công!");
         setShowFeedbackModal(false);
         window.location.reload();
@@ -39,6 +36,7 @@ const LichHen = () => {
         alert(response.data.message || "Không thể gửi đánh giá");
       }
     } catch (error) {
+      console.error("Error details:", error.response?.data);
       const errorMessage =
         error.response?.data?.message || "Đã xảy ra lỗi khi gửi đánh giá";
       alert(errorMessage);
@@ -156,16 +154,19 @@ const LichHen = () => {
                     >
                       <i className="ri-clipboard-line mr-2"></i> Xem Kết Quả
                     </Link>
-
                     {!appointment.has_feedback && (
                       <button
                         onClick={() => {
-                          setSelectedAppointment(appointment);
-                         setFeedbackData(prevState => ({
-  ...prevState,
-  service_id: appointment.service_id, // <-- dùng service_id thay vì appointment.id
-  comments: ""
-}));
+                          setSelectedAppointment({
+                            ...appointment,
+                            id: appointment.id,
+                            service_id: appointment.service_id,
+                            guest_id: appointment.guest_id  // Add guest_id
+                          });
+                          setFeedbackData({
+                            rating: 5,
+                            comments: "",
+                          });
                           setShowFeedbackModal(true);
                         }}
                         className="inline-block px-4 py-2 bg-purple-600 text-white font-semibold rounded hover:bg-purple-700 transition"
