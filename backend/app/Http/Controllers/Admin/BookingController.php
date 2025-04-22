@@ -7,17 +7,19 @@ use App\Models\Booking;
 use App\Models\Doctor;
 use App\Models\Services;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NotificationEmail;
 
 class BookingController extends Controller
 {
     public function index()
     {
         $perPage = request()->get('per_page', 10);
-        $data = Booking::join('doctors','bookings.doctor_id','=','doctors.id')
-            ->join('guests','bookings.guest_id','=','guests.id')
-            ->join('services','bookings.service_id','=','services.id')
-            ->select('bookings.*','guests.guest_name')
-            ->where('bookings.isDeleted',0)
+        $data = Booking::join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
+            ->join('guests', 'bookings.guest_id', '=', 'guests.id')
+            ->join('services', 'bookings.service_id', '=', 'services.id')
+            ->select('bookings.*', 'guests.guest_name')
+            ->where('bookings.isDeleted', 0)
             ->orderBy('bookings.created_at', 'desc')
             ->paginate($perPage);
 
@@ -42,11 +44,10 @@ class BookingController extends Controller
 
         // Enhanced search functionality
         if ($search !== null && $search !== '') {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('guests.guest_name', 'like', '%' . $search . '%')
-                  ->orWhere('doctors.doctor_name', 'like', '%' . $search . '%')
-                  ->orWhere('services.services_name', 'like', '%' . $search . '%');
-
+                    ->orWhere('doctors.doctor_name', 'like', '%' . $search . '%')
+                    ->orWhere('services.services_name', 'like', '%' . $search . '%');
             });
         }
 
@@ -71,7 +72,7 @@ class BookingController extends Controller
         }
 
         $data = $query->orderBy('bookings.created_at', 'desc')
-                     ->paginate($perPage);
+            ->paginate($perPage);
         $data->appends($request->all());
 
         $doctors = Doctor::where('isDeleted', 0)->pluck('doctor_name', 'id')->toArray();
@@ -87,6 +88,19 @@ class BookingController extends Controller
             $booking = Booking::findOrFail($id);
             $booking->status = $request->status;
             $booking->save();
+
+            // 2. Gửi email thông báo nếu booking liên kết với guest có email
+            //    (giả sử bảng guests có cột `email`)
+            $guest = $booking->guest;
+            if ($guest && isset($guest->email)) {
+                $title   = 'Cập nhật trạng thái đặt lịch';
+                $content = "Lịch khám #{$booking->id} của bạn đã được cập nhật sang trạng thái: {$booking->status}.";
+                
+                $url     = route('admin.bookings.edit', ['booking' => $booking->id]);
+
+                Mail::to($guest->email)
+                    ->send(new NotificationEmail($title, $content, $url));
+            }
 
             return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
         } catch (\Exception $e) {
