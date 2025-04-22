@@ -26,6 +26,7 @@ class InvoiceController extends Controller
                         'total_amount' => $invoice->total_amount,
                         'discount' => $invoice->discount,
                         'tax' => $invoice->tax,
+                        'status'=> $invoice->status,
                         'isDeleted' => $invoice->isDeleted,
                         'created_at' => $invoice->created_at,
                         'updated_at' => $invoice->updated_at,

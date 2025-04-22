@@ -17,8 +17,49 @@ class DoctorServiceController extends Controller
             $data = DoctorService::join('doctors', 'doctor_service.doctor_id', '=', 'doctors.id')
                 ->join('services', 'doctor_service.service_id', '=', 'services.id')
                 ->select('doctor_service.*', 'doctors.doctor_name', 'services.services_name')
-                ->where('doctor_service.isDeleted', 0)  // Specify the table name
+                ->where('doctor_service.isDeleted', 0)
                 ->paginate(10);
+            return view('admin.pages.doctor_service.index', compact('data'));
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    // Add this new search method
+    public function search(Request $request)
+    {
+        try {
+            $query = DoctorService::join('doctors', 'doctor_service.doctor_id', '=', 'doctors.id')
+                ->join('services', 'doctor_service.service_id', '=', 'services.id')
+                ->select('doctor_service.*', 'doctors.doctor_name', 'services.services_name')
+                ->where('doctor_service.isDeleted', 0);
+    
+            // Get the search term from the request
+            $searchTerm = $request->input('search');
+    
+            // Apply search filter if search term exists
+            if ($searchTerm) {
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('doctors.doctor_name', 'LIKE', '%' . $searchTerm . '%')
+                      ->orWhere('services.services_name', 'LIKE', '%' . $searchTerm . '%');
+                });
+            }
+    
+            // Apply doctor filter if selected
+            if ($request->filled('doctor_id') && $request->doctor_id != 'all') {
+                $query->where('doctor_service.doctor_id', $request->doctor_id);
+            }
+    
+            // Apply service filter if selected
+            if ($request->filled('service_id') && $request->service_id != 'all') {
+                $query->where('doctor_service.service_id', $request->service_id);
+            }
+    
+            $data = $query->paginate(10);
+            
+            // Preserve search parameters in pagination
+            $data->appends($request->all());
+    
             return view('admin.pages.doctor_service.index', compact('data'));
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());

@@ -7,6 +7,7 @@
         [
             'id' => 'exp',
             'name' => 'exp',
+            'class' => 'select-search',  // Add class
             'options' => [
                 'all' => 'Tất cả kinh nghiệm',
                 '0-5' => '0 - 5 năm',
@@ -17,7 +18,8 @@
         [
             'id' => 'status',
             'name' => 'approve',
-            'options' => config('app.statuses')
+            'class' => 'select-search',  // Add class
+            'options' => ['all' => 'Tất cả trạng thái'] + (config('app.statuses') ?? [])  // Add default option and null check
         ],
     ];
 
@@ -47,7 +49,6 @@ $detailModal = [
     :title="'Bác sĩ'"
     :route="route('admin.doctors.search')"
     :columns="[
-        ['key' => 'id', 'label' => 'ID'],
         ['key' => 'doctor_name', 'label' => 'Họ và Tên'],
         ['key' => 'doctor_avatar', 'label' => 'Ảnh đại diện'],
         ['key' => 'exp', 'label' => 'Kinh nghiệm (Năm)'],
