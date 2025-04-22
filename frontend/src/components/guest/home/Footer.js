@@ -36,7 +36,11 @@ export default function Footer() {
             <div className="col-sm-6 col-lg-3">
               <div className="pq-widget">
                 <div className="pq-widget-img">
-                  <img src={`http://localhost:8000/${footerData.site_logo}`} alt="Logo" className="pq-img" />
+                  <img 
+                    src={footerData.site_logo ? `http://localhost:8000/storage/${footerData.site_logo}` : 'img/header/logo-primary-dark.webp'} 
+                    alt="Logo" 
+                    className="pq-img" 
+                  />
                 </div>
                 <p className="pq-description">
                   Có rất nhiều phiên bản khác nhau của văn bản, được tạo ra bằng cách thêm yếu tố hài hước ngẫu nhiên.

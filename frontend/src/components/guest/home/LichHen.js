@@ -2,18 +2,81 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "remixicon/fonts/remixicon.css";
 import api from "../../../ultils/api/axios";
+import { Modal } from 'react-bootstrap';
 
 const LichHen = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [feedbackData, setFeedbackData] = useState({
+    rating: 5,
+    comments: "",
+    service_id: null
+  });
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+  const handleFeedbackSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Check if appointment is completed
+      console.log("aponeneeenene" , appointments);
+      console.log("feedbakcdata " , feedbackData);
+      console.log("feedbakcdatađasđas " , feedbackData.service_id);
+      // if (feedbackData !== 1) {
+      //   alert("Chỉ có thể đánh giá cho các lịch hẹn đã hoàn thành!");
+      //   return;
+      // }
+  
+      // Validate service_id before submission
+      // if (!feedbackData?.service_id) {
+      //   alert("Không tìm thấy thông tin dịch vụ!");
+      //   return;
+      // }
+  
+      const response = await api.post(
+        "/api/client/feedbacks",
+        {
+          service_id: feedbackData.service_id,
+          rating: feedbackData.rating,
+          comments: feedbackData.comments || "Không có nhận xét",
+          status: 'pending',
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    console.log("responsedsdsadsad ", response);
+      
+      if (response.data.status) {
+        alert("Đánh giá đã được gửi thành công!");
+        setShowFeedbackModal(false);
+        setFeedbackData({
+          rating: 5,
+          comments: "",
+          service_id: null
+        });
+        // Refresh the appointments list to update the feedback status
+        window.location.reload();
+      } else {
+        alert(response.data.message || "Không thể gửi đánh giá");
+      }
+    } catch (error) {
+      console.error("Feedback submission error:", error.response?.data);
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || "Đã xảy ra lỗi khi gửi đánh giá";
+      alert(errorMessage);
+    }
+  };
 
   useEffect(() => {
     api.get("/api/client/appointments")
       .then((response) => {
         if (response.data.status) {
           setAppointments(response.data.data);
-          console.log(response.data.data);
+          // Debug log to check appointment data structure
+          console.log("Appointments data:", response.data.data);
         } else {
           setError(response.data.message);
         }
@@ -22,6 +85,7 @@ const LichHen = () => {
       .catch(() => setError("Lỗi khi lấy danh sách lịch hẹn.")) // Xử lý lỗi
       .finally(() => setLoading(false)); // Hoàn tất
   }, []);
+
   return (
     <div className="container mx-auto mt-4 p-6 min-h-screen">
       <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
@@ -114,17 +178,110 @@ const LichHen = () => {
                     </Link>
 
                     <Link
-                      to={`/ketqua/${appointment.id}`} // Dùng ID của booking
+                      to={`/ketqua/${appointment.id}`}
                       className="inline-block px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700 transition"
                     >
                       <i className="ri-clipboard-line mr-2"></i> Xem Kết Quả
                     </Link>
+                    
+                    {!appointment.has_feedback && (
+                      <button
+                        onClick={() => {
+                          console.log('Selected appointment:', appointment);
+                          setSelectedAppointment(appointment);
+                          setFeedbackData(prevState => ({
+                            ...prevState,
+                            service_id: appointment.id,
+                            comments: ""
+                          }));
+                          setShowFeedbackModal(true);
+                        }}
+                        className="inline-block px-4 py-2 bg-purple-600 text-white font-semibold rounded hover:bg-purple-700 transition"
+                      >
+                        <i className="ri-star-line mr-2"></i> Đánh giá
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
             </div>
           ))}
         </div>
+      )}
+      {showFeedbackModal && (
+        <Modal 
+          show={showFeedbackModal} 
+          onHide={() => setShowFeedbackModal(false)}
+          centered
+          className="fade-in-modal"
+        >
+          <Modal.Header closeButton className="border-0 pb-0">
+            <Modal.Title className="w-100 text-center">
+              <div className="confirmation-header">
+                <div className="confirmation-icon">
+                  <i className="ri-star-line text-4xl text-purple-600"></i>
+                </div>
+                <h4 className="mt-3 confirmation-title">Đánh giá dịch vụ</h4>
+              </div>
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="px-4 py-4">
+            <div className="confirmation-details">
+              <div className="info-item mb-4">
+                <span className="info-label">
+                  <i className="ri-user-line"></i> Bác sĩ:
+                </span>
+                <span className="info-value">{selectedAppointment?.doctor_name}</span>
+              </div>
+              <div className="info-item mb-4">
+                <span className="info-label">
+                  <i className="ri-service-line"></i> Dịch vụ:
+                </span>
+                <span className="info-value">{selectedAppointment?.service_name}</span>
+              </div>
+              <div className="info-item mb-4">
+                <label className="block text-gray-700 mb-2">
+                  <i className="ri-star-line"></i> Đánh giá:
+                </label>
+                <select
+                  className="w-full border rounded p-2"
+                  value={feedbackData.rating}
+                  onChange={(e) => setFeedbackData({...feedbackData, rating: parseInt(e.target.value)})}
+                >
+                  {[5,4,3,2,1].map(num => (
+                    <option key={num} value={num}>{num} sao</option>
+                  ))}
+                </select>
+              </div>
+              <div className="info-item">
+                <label className="block text-gray-700 mb-2">
+                  <i className="ri-message-2-line"></i> Nhận xét:
+                </label>
+                <textarea
+                  className="w-full border rounded p-2"
+                  value={feedbackData.comments}
+                  onChange={(e) => setFeedbackData({...feedbackData, comments: e.target.value})}
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className="border-0 justify-content-center gap-2 pb-4">
+            <button 
+              className="btn-modal btn-cancel"
+              onClick={() => setShowFeedbackModal(false)}
+            >
+              <i className="ri-close-line"></i> Trở về
+            </button>
+            <button 
+              className="btn-modal btn-confirm"
+              onClick={handleFeedbackSubmit}
+            >
+              <i className="ri-check-line"></i> Gửi đánh giá
+            </button>
+          </Modal.Footer>
+        </Modal>
       )}
     </div>
   );
