@@ -75,7 +75,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     // Medical Records & Notifications
     Route::resource('medical_records', MedicalRecordController::class)->names('admin.medical_records');
     Route::resource('notifications', NotificationController::class)->names('admin.notifications');
-   
+
 
 
     // Bookings
@@ -85,6 +85,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::delete('bookings-{booking}', [BookingController::class, 'destroy'])->name('admin.bookings.delete');
     Route::get('bookings-search', [BookingController::class, 'search'])->name('admin.bookings.search');
     Route::patch('bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
+
 
     // Services
     Route::get('services', [ServiceController::class, 'index'])->name('admin.services.index');

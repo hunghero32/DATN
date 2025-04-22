@@ -3,13 +3,6 @@
 @section('content')
 
 @php
-    $selects = [
-        [
-            'id' => 'status',
-            'name' => 'status',
-            'options' =>config('app.order_statuses'),
-        ]
-    ];
 
     // Add status configuration
     $statusConfig = [
@@ -35,20 +28,50 @@
     :title="'Danh sách đặt lịch'"
     :route="route('admin.bookings.search')"
     :columns="[
-        ['key' => 'id', 'label' => 'ID'],
         ['key' => 'doctor_name', 'label' => 'Bác sĩ'],
         ['key' => 'guest_name', 'label' => 'Bệnh nhân'],
         ['key' => 'service_name', 'label' => 'Dịch vụ'],
-        ['key' => 'guest_name', 'label' => 'Khách hàng'],
         ['key' => 'booking_date', 'label' => 'Ngày hẹn'],
         ['key' => 'booking_time', 'label' => 'Giờ hẹn'],
         ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái', 'status_config' => $statusConfig],
         ['key' => 'created_at', 'label' => 'Ngày tạo'],
     ]"
-
     :data="$data"
     :detailModal="$detailModal"
-    :selects="$selects"
+    :filters="[
+        [
+            'type' => 'text',
+            'name' => 'search',
+            'placeholder' => 'Tìm kiếm...',
+            'class' => 'form-control'
+        ],
+        [
+            'type' => 'date',
+            'name' => 'date_from',
+            'placeholder' => 'Từ ngày',
+            'class' => 'form-control'
+        ],
+        [
+            'type' => 'date',
+            'name' => 'date_to',
+            'placeholder' => 'Đến ngày',
+            'class' => 'form-control'
+        ]
+    ]"
+    :selects="[
+        [
+            'id' => 'doctor_id',
+            'name' => 'doctor_id',
+            'class' => 'select-search',
+            'options' => ['all' => 'Tất cả bác sĩ'] + ($doctors ?? [])
+        ],
+        [
+            'id' => 'status',
+            'name' => 'status',
+            'class' => 'select-search',
+            'options' => ['all' => 'Tất cả trạng thái'] + (config('app.statuses') ?? [])
+        ]
+    ]"
     :actions="[
         [
             'label' => 'Xóa',

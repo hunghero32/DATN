@@ -7,11 +7,11 @@
         <div class="app-brand justify-content-center">
             <a href="index.html" class="app-brand-link gap-2">
                 <span class="app-brand-logo demo">
-                    <span class="app-brand-text demo text-body fw-bolder">TDZ</span>
+                    <span class="app-brand-text demo text-body fw-bolder">QuickCare</span>
             </a>
         </div>
         <!-- /Logo -->
-        <h4 class="mb-2">Welcome to TDZ! 👋</h4>
+        <h4 class="mb-2">Welcome to QuickCare! 👋</h4>
         <p class="mb-4">Đăng Nhập Ngay</p>
 
         <form id="formAuthentication" class="mb-3" action="{{ route('admin.login') }}" method="POST">

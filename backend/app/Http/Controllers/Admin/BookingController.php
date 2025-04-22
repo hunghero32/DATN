@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Doctor;
 use App\Models\Services;
+use App\Models\Guest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NotificationEmail;
 
 class BookingController extends Controller
 {
+
     public function index()
     {
         $perPage = request()->get('per_page', 10);
@@ -23,7 +25,14 @@ class BookingController extends Controller
             ->orderBy('bookings.created_at', 'desc')
             ->paginate($perPage);
 
-        return view('admin.pages.booking.index', compact('data'));
+        $doctors = Doctor::join('bookings', 'doctors.id', '=', 'bookings.doctor_id')
+            ->where('doctors.isDeleted', 0)
+            ->where('bookings.isDeleted', 0)
+            ->distinct()
+            ->pluck('doctors.doctor_name', 'doctors.id')
+            ->toArray();
+
+        return view('admin.pages.booking.index', compact('data', 'doctors'));
     }
 
     public function search(Request $request)
@@ -31,55 +40,74 @@ class BookingController extends Controller
         $perPage = $request->get('per_page', 10);
         $status = $request->input('status');
         $search = $request->input('search');
-        $doctor_id = $request->input('doctor_id');
-        $service_id = $request->input('service_id');
-        $date_from = $request->input('date_from');
-        $date_to = $request->input('date_to');
+        $guest_name = $request->input('guest_name');
 
         $query = Booking::join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
             ->join('guests', 'bookings.guest_id', '=', 'guests.id')
             ->join('services', 'bookings.service_id', '=', 'services.id')
-            ->select('bookings.*', 'doctors.doctor_name', 'guests.guest_name', 'services.services_name')
+            ->select(
+                'bookings.*',
+                'doctors.doctor_name',
+                'guests.guest_name',
+                'services.services_name',
+                'services.price as service_price'
+            )
             ->where('bookings.isDeleted', 0);
 
-        // Enhanced search functionality
-        if ($search !== null && $search !== '') {
+        // Search by keyword across multiple fields
+        if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('guests.guest_name', 'like', '%' . $search . '%')
-                    ->orWhere('doctors.doctor_name', 'like', '%' . $search . '%')
-                    ->orWhere('services.services_name', 'like', '%' . $search . '%');
+                $q->where('doctors.doctor_name', 'like', '%' . $search . '%')
+                    ->orWhere('guests.guest_name', 'like', '%' . $search . '%')
+                    ->orWhere('services.services_name', 'like', '%' . $search . '%')
+                    ->orWhere('bookings.booking_date', 'like', '%' . $search . '%')
+                    ->orWhere('bookings.booking_time', 'like', '%' . $search . '%');
             });
         }
 
-        if ($status !== null && $status !== '') {
+        // Filter by guest name
+        if ($guest_name) {
+            $query->where('guests.guest_name', 'like', '%' . $guest_name . '%');
+        }
+
+        // Filter by status
+        if ($status && $status !== 'all') {
             $query->where('bookings.status', $status);
         }
 
-        if ($doctor_id !== null && $doctor_id !== '') {
-            $query->where('bookings.doctor_id', $doctor_id);
+        // Add specific filters
+        if ($request->input('guest_id') && $request->input('guest_id') !== 'all') {
+            $query->where('bookings.guest_id', $request->input('guest_id'));
         }
-
-        if ($service_id !== null && $service_id !== '') {
-            $query->where('bookings.service_id', $service_id);
+        if ($request->input('doctor_id') && $request->input('doctor_id') !== 'all') {
+            $query->where('bookings.doctor_id', $request->input('doctor_id'));
         }
-
-        if ($date_from !== null && $date_from !== '') {
-            $query->whereDate('bookings.booking_date', '>=', $date_from);
-        }
-
-        if ($date_to !== null && $date_to !== '') {
-            $query->whereDate('bookings.booking_date', '<=', $date_to);
+        if ($request->input('service_id') && $request->input('service_id') !== 'all') {
+            $query->where('bookings.service_id', $request->input('service_id'));
         }
 
         $data = $query->orderBy('bookings.created_at', 'desc')
             ->paginate($perPage);
         $data->appends($request->all());
 
-        $doctors = Doctor::where('isDeleted', 0)->pluck('doctor_name', 'id')->toArray();
-        $services = Services::where('isDeleted', 0)->pluck('services_name', 'id')->toArray();
-        $statuses = config('app.order_statuses');
+        // Get data for dropdowns
+        $guests = Guest::join('bookings', 'guests.id', '=', 'bookings.guest_id')
+            ->where('guests.isDeleted', 0)
+            ->where('bookings.isDeleted', 0)
+            ->distinct()
+            ->pluck('guests.guest_name', 'guests.id')
+            ->toArray();
+        $doctors = Doctor::join('bookings', 'doctors.id', '=', 'bookings.doctor_id')
+            ->where('doctors.isDeleted', 0)
+            ->where('bookings.isDeleted', 0)
+            ->distinct()
+            ->pluck('doctors.doctor_name', 'doctors.id')
+            ->toArray();
 
-        return view('admin.pages.booking.index', compact('data', 'doctors', 'services', 'statuses'));
+        $services = Services::where('isDeleted', 0)->pluck('services_name', 'id')->toArray();
+        $statuses = config('app.statuses');
+
+        return view('admin.pages.booking.index', compact('data', 'guests', 'doctors', 'services', 'statuses'));
     }
 
     public function updateStatus(Request $request, $id)
@@ -95,7 +123,7 @@ class BookingController extends Controller
             if ($guest && isset($guest->email)) {
                 $title   = 'Cập nhật trạng thái đặt lịch';
                 $content = "Lịch khám #{$booking->id} của bạn đã được cập nhật sang trạng thái: {$booking->status}.";
-                
+
                 $url     = route('admin.bookings.edit', ['booking' => $booking->id]);
 
                 Mail::to($guest->email)
