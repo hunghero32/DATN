@@ -56,6 +56,7 @@ Route::middleware('web')->group(function () {
     Route::get('invoice/{booking_id}', [InvoiceController::class, 'invoice']);
     Route::post('momo-payment', [CheckoutController::class, 'momoPayment']);
     Route::post('momo-callback', [CheckoutController::class, 'momoCallback']);
+    Route::post('momo-callback', [CheckoutController::class, 'momoCallback']);
 
     //****************** Lấy ra kết quả khám  **********************/
     Route::get('result/{booking_id}', [ResultController::class, 'result']);

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\AdminProfileController;
@@ -32,6 +33,7 @@ use App\Http\Controllers\Admin\{
 | Web Routes
 |--------------------------------------------------------------------------
 */
+Route::get('notification-read-redirect/{id}', [NotificationController::class, 'readAndRedirect'])->name('notification.read.redirect');
 Route::get('/', [AdminAuthController::class, 'create'])->name('admin.login');
 Route::get('admin', [AdminAuthController::class, 'create'])->name('admin.login');
 Route::prefix('admin')->group(function () {
@@ -73,6 +75,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     // Medical Records & Notifications
     Route::resource('medical_records', MedicalRecordController::class)->names('admin.medical_records');
     Route::resource('notifications', NotificationController::class)->names('admin.notifications');
+   
+
 
     // Bookings
     Route::get('bookings', [BookingController::class, 'index'])->name('admin.bookings.index');
@@ -141,7 +145,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::put('invoices/{id}', [InvoiceController::class, 'update'])->name('admin.invoices.update');
     Route::delete('invoices/{id}', [InvoiceController::class, 'delete'])->name('admin.invoices.delete');
     Route::patch('/admin/invoices/{id}/status', [InvoiceController::class, 'updateStatus'])->name('admin.invoices.updateStatus');
-    
+
     Route::get('invoice-details', [InvoiceDetailController::class, 'index'])->name('invoice_details.index');
     Route::get('invoice-details/create', [InvoiceDetailController::class, 'create'])->name('invoice_details.create');
     Route::post('invoice-details', [InvoiceDetailController::class, 'store'])->name('invoice_details.store');
@@ -174,6 +178,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // Doctor Services & Specialties
     Route::get('doctor-service', [DoctorServiceController::class, 'index'])->name('admin.doctor_service.index');
+    Route::get('doctor-service-search', [DoctorServiceController::class, 'search'])->name('admin.doctor_service.search'); // Add this line
     Route::get('doctor-service/create', [DoctorServiceController::class, 'create'])->name('admin.doctor_service.create');
     Route::post('doctor-service', [DoctorServiceController::class, 'store'])->name('admin.doctor_service.store');
     Route::get('doctor-service/{id}/edit', [DoctorServiceController::class, 'edit'])->name('admin.doctor_service.edit');

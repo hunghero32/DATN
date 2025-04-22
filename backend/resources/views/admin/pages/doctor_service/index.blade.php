@@ -2,22 +2,51 @@
 @section('title', 'Thông tin dịch vụ cho bác sĩ')
 @section('content')
 @php
-$detailModal = [
+    $doctors = App\Models\Doctor::pluck('doctor_name', 'id')->toArray();
+    $services = App\Models\Services::pluck('services_name', 'id')->toArray();
+
+    $selects = [
+        [
+            'id' => 'doctor_id',
+            'name' => 'doctor_id',
+            'class' => 'select-search',  // Add this line
+            'options' => ['all' => 'Tất cả bác sĩ'] + (!empty($doctors) ? $doctors : [])
+        ],
+        [
+            'id' => 'service_id',
+            'name' => 'service_id',
+            'class' => 'select-search',  // Add this line
+            'options' => ['all' => 'Tất cả dịch vụ'] + (!empty($services) ? $services : [])
+        ],
+    ];
+
+    // Add error logging to debug
+    if (empty($doctors)) {
+        \Log::warning('No doctors found in doctor-service index');
+    }
+    if (empty($services)) {
+        \Log::warning('No services found in doctor-service index');
+    }
+
+    $detailModal = [
         'fields' => [
            ['name' => 'doctor_name', 'label' => 'Họ và tên bác sĩ'],
-           ['name' => 'service_name', 'label' => 'Tên dịch vụ'],
+           ['name' => 'services_name', 'label' => 'Tên dịch vụ'],
            ['name' => 'created_at', 'label' => 'Ngày tạo'],
         ]
     ];
 @endphp
+
 <x-table-list-component
     :title="'Dịch vụ cho bác sĩ'"
+    :route="route('admin.doctor_service.search')"
     :columns="[
         ['key' => 'doctor_name', 'label' => 'Họ và tên bác sĩ'],
         ['key' => 'services_name', 'label' => 'Tên dịch vụ'],
         ['key' => 'created_at', 'label' => 'Ngày tạo'],
     ]"
     :data="$data"
+    :selects="$selects"
     :detailModal="$detailModal"
     :actions="[
         [
@@ -44,5 +73,4 @@ $detailModal = [
         ],
     ]"
 />
-
 @endsection

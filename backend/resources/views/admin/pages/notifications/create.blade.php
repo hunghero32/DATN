@@ -23,20 +23,19 @@
                         
                         <div class="mb-3 col-md-6">
                             <label for="recipient_type" class="form-label">Gửi đến</label>
-                            <select name="recipient_type" id="recipient_type" class="form-control">
+                            <select name="recipient_type" id="recipient_type" class="form-control" required>
                                 <option value="">-- Chọn người nhận --</option>
                                 <option value="user">Người dùng</option>
                                 <option value="role">Vai trò</option>
                             </select>
                         </div>
-
                         <div class="mb-3 col-md-6">
-                            <label for="booking_id" class="form-label">Mã đặt lịch</label>
-                            <select id="booking_id" name="booking_id" class="form-control select2">
-                                <option value="">-- Chọn mã đặt lịch --</option>
-                                @foreach ($bookings as $booking)
-                                    <option value="{{ $booking->id }}">{{ $booking->id }}</option>
-                                @endforeach
+                            <label for="type" class="form-label">Loại</label>
+                            <select id="type" name="type" class="form-control" required>
+                                <option value="">-- Chọn loại --</option>
+                                <option value="booking">Đặt lịch khám</option>
+                                <option value="noti">Nhắc nhở</option>
+                                <option value="general">Chung</option>
                             </select>
                         </div>
 
@@ -45,7 +44,7 @@
                             <select id="user_id" name="user_id" class="form-control select2">
                                 <option value="">-- Chọn người dùng --</option>
                                 @foreach ($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }} </option>
+                                    <option value="{{ $user->id }}">{{ $user->name }} / {{ $user->email }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -59,35 +58,25 @@
                                 @endforeach
                             </select>
                         </div>
-
+                        <div class="mb-3 col-md-6">
+                            <label for="booking_id" class="form-label">Mã đặt lịch</label>
+                            <select id="booking_id" name="booking_id" class="form-control select2">
+                                <option value="">-- Chọn mã đặt lịch --</option>
+                                @foreach ($bookings as $booking)
+                                    <option value="{{ $booking->id }}">#{{ $booking->id }} |{{ $booking->booking_time }}/{{ $booking->booking_date }}|👨‍⚕️{{ $booking->doctor->doctor_name }}|{{ $booking->service->services_name }}👉{{ $booking->guest->guest_name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="mb-3 col-md-12">
                             <label for="title" class="form-label">Tiêu đề</label>
                             <textarea class="form-control" id="title" name="title"></textarea>
                         </div>
-
-                        <div class="mb-3 col-md-6">
-                            <label for="type" class="form-label">Loại</label>
-                            <select id="type" name="type" class="form-control">
-                                <option value="">-- Chọn loại --</option>
-                                <option value="booking">Đặt phòng</option>
-                                <option value="payment">Thanh toán</option>
-                                <option value="general">Chung</option>
-                            </select>
-                        </div>
-
                         <div class="mb-3 col-md-12">
                             <label for="content" class="form-label">Nội dung</label>
                             <textarea class="form-control" id="content" name="content"></textarea>
                         </div>
 
-                        <div class="mb-3 col-md-6">
-                            <label for="is_read" class="form-label">Trạng thái</label>
-                            <select id="is_read" name="is_read" class="form-control">
-                                <option value="">-- Trạng thái --</option>
-                                <option value="1">Đã đọc</option>
-                                <option value="0" selected>Chưa đọc</option>
-                            </select>
-                        </div>
+                        <input type="hidden" name="is_read" value="0">
 
                     </div>
 
