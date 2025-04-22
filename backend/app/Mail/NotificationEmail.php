@@ -25,7 +25,7 @@ class NotificationEmail extends Mailable
      */
     public function __construct($title, $content, $url)
     {
-        $this->title = $title;
+        $this->title = strip_tags($title);
         $this->content = $content;
         $this->url = $url;
     }
