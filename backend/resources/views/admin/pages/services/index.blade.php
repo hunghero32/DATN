@@ -24,17 +24,24 @@ $detailModal=[
     :title="'Danh sách dịch vụ'"
     :route="route('admin.services.search')"
     :columns="[
-        ['key' => 'specialty_name', 'label' => 'Tên Chuyên khoa'],
         ['key' => 'services_name', 'label' => 'Tên dịch vụ'],
+        ['key' => 'specialty_name', 'label' => 'Tên Chuyên khoa'],
         ['key'=>'image','label'=>'Ảnh'],
         ['key' => 'price', 'label' => 'Giá'],
         ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái', 'status_config' => $statusConfig],
     ]"
     :selects="[
         [
+            'id' => 'specialty_id',
+            'name' => 'specialty_id',
+            'class' => 'select-search',
+            'options' => ['all' => 'Tất cả chuyên khoa'] + $specialties
+        ],
+        [
             'id' => 'status',
             'name' => 'status',
-            'options' =>config('app.statuses')
+            'class' => 'select-search',
+            'options' => ['all' => 'Tất cả trạng thái'] + (array)config('app.statuses')
         ]
     ]"
     :data="$data"

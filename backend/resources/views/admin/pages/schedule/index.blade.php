@@ -19,24 +19,34 @@
             ['name' => 'status', 'label' => 'Trạng thái', 'type' => 'select', 'options' => [0 => 'Không hoạt động', 1 => 'Hoạt động']]
         ],
     ];
-
     ?>
-    <x-table-list-component :title="'Lịch Làm Việc'" :route="route('admin.schedule.search')" :columns="[
-        ['key' => 'doctor_name', 'label' => 'Họ và Tên Bác sĩ'],
-        ['key' => 'time_start', 'label' => 'Giờ bắt đầu'],
-        ['key' => 'time_end', 'label' => 'Giờ kết thúc'],
-        ['key' => 'working_date', 'name' => 'approve', 'label' => 'Ngày làm việc'],
-        ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái', 'status_config' => $statusConfig],
-    ]"
-    :data="$data"
-    :selects="[
-        [
-            'id' => 'status',
-            'name' => 'status',
-            'options' =>config('app.statuses')
-        ]
-    ]"
-    :detailModal="$detailModal"
+
+    <x-table-list-component
+        :title="'Lịch Làm Việc'"
+        :route="route('admin.schedule.search')"
+        :columns="[
+            ['key' => 'doctor_name', 'label' => 'Họ và Tên Bác sĩ'],
+            ['key' => 'time_start', 'label' => 'Giờ bắt đầu'],
+            ['key' => 'time_end', 'label' => 'Giờ kết thúc'],
+            ['key' => 'working_date', 'name' => 'approve', 'label' => 'Ngày làm việc'],
+            ['key' => 'status', 'name' => 'status', 'label' => 'Trạng thái', 'status_config' => $statusConfig],
+        ]"
+        :data="$data"
+        :selects="[
+            [
+                'id' => 'doctor_id',
+                'name' => 'doctor_id',
+                'class' => 'select-search',
+                'options' => ['all' => 'Tất cả bác sĩ'] + $doctor
+            ],
+            [
+                'id' => 'status',
+                'name' => 'status',
+                'class' => 'select-search',
+                'options' => ['all' => 'Tất cả trạng thái'] + (config('app.statuses') ?? [])
+            ]
+        ]"
+        :detailModal="$detailModal"
         :actions="[
             [
                 'label' => 'Thêm mới',
