@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>{{ $title }}</title>
+    <title>{{strip_tags(html_entity_decode($title))}}</title>
 </head>
 
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px; margin: 0;">
@@ -15,20 +15,20 @@
                     cellpadding="0" cellspacing="0">
                     <tr>
                         <td style="text-align: center;">
-                            <h2 style="color: #2c3e50; margin-bottom: 10px;">{{ $title }}</h2>
+                            <h2 style="color: #2c3e50; margin-bottom: 10px;">{{strip_tags(html_entity_decode($title))}}</h2>
                             <hr style="border: none; border-top: 1px solid #ddd;">
                         </td>
                     </tr>
                     <tr>
                         <td style="padding-top: 15px; color: #333333; font-size: 16px;">
-                            <p>{{ $content }}</p>
+                            <p>{!! $content !!}</p>
                         </td>
                     </tr>
                     <tr>
                         <td style="padding: 30px 0; text-align: center;">
                             <a href="{{ $url }}"
                                 style="background-color: #3498db; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                                Xem chi tiết lịch hẹn
+                                Xem chi tiết
                             </a>
                         </td>
                     </tr>

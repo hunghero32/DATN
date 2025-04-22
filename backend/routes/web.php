@@ -33,7 +33,7 @@ use App\Http\Controllers\Admin\{
 | Web Routes
 |--------------------------------------------------------------------------
 */
-
+Route::get('notification-read-redirect/{id}', [NotificationController::class, 'readAndRedirect'])->name('notification.read.redirect');
 Route::get('/', [AdminAuthController::class, 'create'])->name('admin.login');
 Route::get('admin', [AdminAuthController::class, 'create'])->name('admin.login');
 Route::prefix('admin')->group(function () {

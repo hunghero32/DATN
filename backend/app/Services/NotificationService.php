@@ -114,11 +114,22 @@ class NotificationService
         // Gửi email nếu có email của user
         if ($user->email) {
             try {
-                $url = env('FRONTEND_BOOKING_URL', 'http://localhost:3000/lichhen') ;
-
-
-                Mail::to($user->email)->send(new NotificationEmail($title, $content, $url));
-                Log::info('Email sent to user ID: ' . $user_id);
+                $targetUrl = match ($user->role) {
+                    'doctor' => env('FRONTEND_DOCTOR_BOOKING_URL', 'http://localhost:3000/doctor/appointment'),
+                    'guest'  => env('FRONTEND_BOOKING_URL', 'http://localhost:3000/lichhen'),
+                    default  => null,
+                };
+                if ($targetUrl) {
+                    $redirectUrl = route('notification.read.redirect', [
+                        'id' => $notification->id,
+                        'redirect' => $targetUrl 
+                    ]);
+        
+                    Mail::to($user->email)->queue(new NotificationEmail($title, $content, $redirectUrl));
+                    Log::info('Email sent to user ID: ' . $user_id);
+                } else {
+                    Log::info("Email not sent - no matching role (doctor/guest) for user ID: {$user_id}");
+                }
             } catch (\Exception $e) {
                 Log::error("Error sending email to user ID {$user_id}: " . $e->getMessage());
             }
