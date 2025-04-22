@@ -18,6 +18,7 @@ class DoctorServiceController extends Controller
                 ->join('services', 'doctor_service.service_id', '=', 'services.id')
                 ->select('doctor_service.*', 'doctors.doctor_name', 'services.services_name')
                 ->where('doctor_service.isDeleted', 0)
+                ->orderBy('created_at', 'desc')
                 ->paginate(10);
             return view('admin.pages.doctor_service.index', compact('data'));
         } catch (\Exception $e) {

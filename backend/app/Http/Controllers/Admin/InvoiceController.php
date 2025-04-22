@@ -39,7 +39,7 @@ class InvoiceController extends Controller
     }
 
     // Sắp xếp theo thời gian tạo hóa đơn
-    $invoices = $query->orderBy('invoices.created_at', 'desc')->paginate(10);
+    $invoices = $query->orderBy('id', 'desc')->paginate(10);
 
     return view('admin.pages.invoices.index', compact('invoices'));
 }
