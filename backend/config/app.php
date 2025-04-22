@@ -217,12 +217,10 @@ return [
 
    // khai báo trạng thái cho admin
     'statuses' => [
-        '' => 'Tất cả trạng thái',
         '0' => 'Chưa phê duyệt',
         '1' => 'Đã phê duyệt',
     ],
     'order_statuses' => [
-            '' => 'Tất cả trạng thái',
             'pending' => 'Chờ xác nhận',
             'confirmed' => 'Đã xác nhận',
             'completed' => 'Hoàn thành',

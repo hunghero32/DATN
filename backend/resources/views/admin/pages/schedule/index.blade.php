@@ -2,7 +2,8 @@
 @section('title', 'Thông tin đặt lịch bác sĩ')
 @section('content')
     <?php
-    $doctor = $data->pluck('doctor_id', 'doctor_name')->toArray();
+    // Change this line
+    $doctor = $data->pluck('doctor_name', 'doctor_id')->toArray();
 
     // Add status configuration
     $statusConfig = [
@@ -34,8 +35,8 @@
         :data="$data"
         :selects="[
             [
-                'id' => 'doctor_id',
-                'name' => 'doctor_id',
+                'id' => 'doctor_name',
+                'name' => 'doctor_name',
                 'class' => 'select-search',
                 'options' => ['all' => 'Tất cả bác sĩ'] + $doctor
             ],

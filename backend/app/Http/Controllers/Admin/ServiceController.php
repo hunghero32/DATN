@@ -49,7 +49,7 @@ class ServiceController extends Controller
             });
         }
 
-        if ($status !== null && $status !== '') {
+        if ($status !== null && $status !== 'all') {
             $query->where('services.status', $status);
         }
 
