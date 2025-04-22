@@ -7,6 +7,7 @@ use App\Models\InvoiceDetail;
 use App\Models\Invoice;
 use App\Models\Booking;
 use App\Models\Result;
+use App\Models\System;
 use Illuminate\Http\Request;
 
 class InvoiceDetailController extends Controller
@@ -19,10 +20,10 @@ class InvoiceDetailController extends Controller
     if ($request->has('invoice_id')) {
         $query->where('invoice_id', $request->invoice_id);
     }
+    $system = System::first();
+    $invoiceDetails = $query->get();
 
-    $invoiceDetails = $query->paginate(10);
-
-    return view('admin.pages.invoice_details.index', compact('invoiceDetails'));
+    return view('admin.pages.invoice_details.index', compact('system','invoiceDetails'));
 }
 
 public function create()

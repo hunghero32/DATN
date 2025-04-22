@@ -38,8 +38,7 @@
                         </td>
                     </tr>
                 </table>
-                <p style="font-size: 12px; color: #999999; margin-top: 20px;">&copy; {{ date('Y') }} MyApp. All
-                    rights reserved.</p>
+                <p style="font-size: 12px; color: #999999; margin-top: 20px;">&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
             </td>
         </tr>
     </table>
