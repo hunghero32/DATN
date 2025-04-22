@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Log;
 
 class FeedbackController extends Controller
 {
-    // Lấy danh sách feedback của người dùng
+
+
     public function index()
     {
         $user = auth()->user();
@@ -25,17 +26,18 @@ class FeedbackController extends Controller
             ], 401);
         }
 
-        // Lấy guest_id từ users hoặc bảng guests
-        $guestId = $user->guest_id ?? Guest::where('user_id', $user->id)->value('id');
-        if (!$guestId) {
+
+        $guest = Guest::where('user_id', $user->id)->pluck('id');
+
+        if ($guest->isEmpty()) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy thông tin khách hàng.'
             ], 400);
         }
 
-        // Lấy danh sách feedback của guest_id
-        $feedbacks = Feedback::where('guest_id', $guestId)
+
+        $feedbacks = Feedback::whereIn('guest_id', $guest)
             ->where('isDeleted', 0)
             ->get();
 
@@ -45,9 +47,11 @@ class FeedbackController extends Controller
             'data' => $feedbacks
         ], 200);
     }
+
     public function store(Request $request)
     {
         try {
+
             $validatedData = $request->validate([
                 'service_id' => 'required|exists:services,id',
                 'rating' => 'required|integer|min:1|max:5',
@@ -55,40 +59,57 @@ class FeedbackController extends Controller
                 'status' => 'nullable|in:pending,approved,rejected',
             ]);
 
+
             $user = auth()->user();
             if (!$user) {
                 return response()->json(['status' => false, 'message' => 'Bạn cần đăng nhập để gửi feedback.'], 401);
             }
 
-            $guestId = $user->guest_id ?? Guest::where('user_id', $user->id)->value('id');
-            if (!$guestId) {
+
+            $guests = Guest::where('user_id', $user->id)->get();
+
+
+            if ($guests->isEmpty()) {
                 return response()->json(['status' => false, 'message' => 'Không tìm thấy thông tin khách hàng.'], 400);
             }
 
-            // Kiểm tra nếu người dùng đã có booking confirmed với dịch vụ
-            if (!Booking::where([['guest_id', $guestId], ['service_id', $validatedData['service_id']], ['status', 'confirmed']])->exists()) {
-                return response()->json(['status' => false, 'message' => 'Bạn phải đặt lịch trước khi gửi đánh giá.'], 400);
+
+            $createdFeedbacks = [];
+
+            foreach ($guests as $guest) {
+
+                if (!Booking::where([['guest_id', $guest->id], ['service_id', $validatedData['service_id']], ['status', 'confirmed']])->exists()) {
+                    continue;
+                }
+
+
+                if (Feedback::where([['guest_id', $guest->id], ['service_id', $validatedData['service_id']]])->exists()) {
+                    return response()->json(['status' => false, 'message' => 'Bạn đã gửi feedback cho dịch vụ này rồi.'], 400);
+                }
+
+
+                $feedback = Feedback::create([
+                    'guest_id' => $guest->id,
+                    'service_id' => $validatedData['service_id'],
+                    'rating' => $validatedData['rating'],
+                    'comments' => $validatedData['comments'],
+                    'status' => $validatedData['status']  ?? 'approved',
+                ]);
+
+                $createdFeedbacks[] = $feedback;
             }
 
-            // Kiểm tra nếu feedback đã tồn tại cho dịch vụ
-            if (Feedback::where([['guest_id', $guestId], ['service_id', $validatedData['service_id']]])->exists()) {
-                return response()->json(['status' => false, 'message' => 'Bạn đã gửi đánh giá cho dịch vụ này.'], 400);
+            if ($createdFeedbacks) {
+                return response()->json(['status' => true, 'message' => 'Đã gửi feedback thành công!', 'data' => $createdFeedbacks], 201);
             }
 
-            // Tạo mới feedback với guest_id chính xác
-            $feedback = Feedback::create([
-                'guest_id' => $guestId, // Đảm bảo guest_id được gán đúng
-                'service_id' => $validatedData['service_id'],
-                'rating' => $validatedData['rating'],
-                'comments' => $validatedData['comments'],
-                'status' => $validatedData['status'] ?? 'pending',
-            ]);
-
-            return response()->json(['status' => true, 'message' => 'Thêm feedback thành công!', 'data' => $feedback], 201);
+            return response()->json(['status' => false, 'message' => 'Không có feedback nào được tạo.'], 400);
         } catch (\Exception $e) {
-            return response()->json(['status' => false, 'message' => 'Đã xảy ra lỗi khi thêm feedback.', 'error' => $e->getMessage()], 500);
+            return response()->json(['status' => false, 'message' => 'Đã xảy ra lỗi.', 'error' => $e->getMessage()], 500);
         }
     }
+
+
 
     public function update(Request $request, $id)
     {
@@ -100,16 +121,17 @@ class FeedbackController extends Controller
             ], 401);
         }
 
-        // Lấy guest_id của người dùng
-        $guestId = $user->guest_id ?? Guest::where('user_id', $user->id)->value('id');
 
-        // Nếu không có guest_id
-        if (!$guestId) {
+        $guests = Guest::where('user_id', $user->id)->pluck('id')->toArray();
+
+
+        if (empty($guests)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy thông tin khách hàng.'
             ], 400);
         }
+
 
         $feedback = Feedback::find($id);
         if (!$feedback) {
@@ -120,15 +142,13 @@ class FeedbackController extends Controller
         }
 
 
-        // Kiểm tra quyền chỉnh sửa feedback
-        if ($feedback->guest_id !== $guestId) {
+        if (!in_array($feedback->guest_id, $guests)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Bạn không có quyền chỉnh sửa feedback này.'
             ], 403);
         }
 
-        // Kiểm tra thời gian chỉnh sửa (7 ngày)
         if ($feedback->created_at->diffInDays(now()) > 7) {
             return response()->json([
                 'status' => false,
@@ -136,7 +156,7 @@ class FeedbackController extends Controller
             ], 403);
         }
 
-        // Cập nhật feedback
+
         $feedback->update($request->only(['rating', 'comments', 'status']));
 
         return response()->json([
@@ -148,7 +168,8 @@ class FeedbackController extends Controller
 
 
 
-    // Xóa mềm feedback
+
+
     public function destroy($id)
     {
         $user = auth()->user();
@@ -159,11 +180,11 @@ class FeedbackController extends Controller
             ], 401);
         }
 
-        // Lấy guest_id của người dùng
-        $guestId = $user->guest_id ?? Guest::where('user_id', $user->id)->value('id');
 
-        // Nếu không có guest_id
-        if (!$guestId) {
+        $guests = Guest::where('user_id', $user->id)->pluck('id')->toArray();
+
+
+        if (empty($guests)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy thông tin khách hàng.'
@@ -178,19 +199,15 @@ class FeedbackController extends Controller
             ], 404);
         }
 
-        // Log::debug('User ID: ' . $user->id);
-        // Log::debug('User Guest ID: ' . $guestId);
-        // Log::debug('Feedback Guest ID: ' . $feedback->guest_id);
 
-        // Kiểm tra quyền xóa feedback
-        if ($feedback->guest_id !== $guestId) {
+        if (!in_array($feedback->guest_id, $guests)) {
             return response()->json([
                 'status' => false,
                 'message' => 'Bạn không có quyền xóa feedback này.'
             ], 403);
         }
 
-        // Thực hiện xóa mềm (đánh dấu isDeleted = 1)
+
         $feedback->update(['isDeleted' => 1]);
 
         return response()->json([
