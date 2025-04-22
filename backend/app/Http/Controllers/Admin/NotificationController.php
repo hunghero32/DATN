@@ -6,10 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Notification;
 use App\Models\User;
+use App\Mail\NotificationEmail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Services\NotificationService;
 
 class NotificationController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
@@ -21,7 +32,7 @@ class NotificationController extends Controller
 
         if (!empty($search)) {
             $query->where('title', 'like', "%$search%")
-                  ->orWhere('content', 'like', "%$search%");
+                ->orWhere('content', 'like', "%$search%");
         }
 
         if (!empty($type)) {
@@ -32,7 +43,7 @@ class NotificationController extends Controller
             $query->where('is_read', $isRead);
         }
 
-        $data = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $data = $query->orderBy('id', 'desc')->paginate($perPage);
 
         return view('admin.pages.notifications.index', compact('data'));
     }
@@ -76,19 +87,27 @@ class NotificationController extends Controller
             $userIds = User::where('role', $request->role)->pluck('id')->toArray();
         }
 
-        $isRead = $request->input('is_read', 0); 
-
-        foreach ($userIds as $uid) {
-            Notification::create([
-                'user_id' => $uid,
-                'booking_id' => $request->booking_id,
-                'title' => $request->title,
-                'content' => $request->content,
-                'type' => $request->type,
-                'is_read' => $isRead,
-            ]);
-        }
-
+        $this->notificationService->sendNotificationToMultiple(
+            $userIds,
+            $request->title,
+            $request->content,
+            $request->type,
+            $request->booking_id,
+            [] // có thể truyền dữ liệu phụ nếu cần, ví dụ ['link' => '...']
+        );
         return redirect()->route('admin.notifications.index')->with('success', 'Thông báo đã được gửi!');
+    }
+    public function readAndRedirect(Request $request, $id)
+    {
+        $notification = Notification::find($id);
+    
+        if ($notification && !$notification->is_read) {
+            $notification->is_read = true;
+            $notification->save();
+        }
+        $redirectUrl = $request->query('redirect', '/'); // Không cần phải giải mã thêm
+
+        // Chuyển hướng đến URL đã được xử lý đúng
+        return redirect($redirectUrl);
     }
 }

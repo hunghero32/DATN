@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\AdminProfileController;
@@ -32,6 +33,7 @@ use App\Http\Controllers\Admin\{
 | Web Routes
 |--------------------------------------------------------------------------
 */
+Route::get('notification-read-redirect/{id}', [NotificationController::class, 'readAndRedirect'])->name('notification.read.redirect');
 Route::get('/', [AdminAuthController::class, 'create'])->name('admin.login');
 Route::get('admin', [AdminAuthController::class, 'create'])->name('admin.login');
 Route::prefix('admin')->group(function () {
@@ -73,6 +75,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     // Medical Records & Notifications
     Route::resource('medical_records', MedicalRecordController::class)->names('admin.medical_records');
     Route::resource('notifications', NotificationController::class)->names('admin.notifications');
+   
+
 
     // Bookings
     Route::get('bookings', [BookingController::class, 'index'])->name('admin.bookings.index');
