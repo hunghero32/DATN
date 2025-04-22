@@ -68,7 +68,7 @@ class DoctorController extends Controller
             });
         }
 
-        if ($approve !== null && $approve !== '') {
+        if ($approve !== null && $approve !== 'all') {
             $query->where('doctors.approve', (int)$approve);
         }
 
