@@ -33,11 +33,23 @@ class FeedbackController extends Controller
                 'message' => 'Không tìm thấy thông tin khách hàng.'
             ], 400);
         }
-
-        // Lấy danh sách feedback của guest_id
-        $feedbacks = Feedback::where('guest_id', $guestId)
+        $feedbacks = Feedback::with(['doctor', 'service'])
+            ->where('guest_id', $guestId)
             ->where('isDeleted', 0)
-            ->get();
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'doctor_id' => $item->doctor_id,
+                    'doctor_name' => $item->doctor ? $item->doctor->doctor_name : '',
+                    'service_id' => $item->service_id,
+                    'service_name' => $item->service ? $item->service->services_name : '',
+                    'comments' => $item->comments,
+                    'rating' => $item->rating,
+                    'created_at' => $item->created_at,
+                ];
+            });
 
         return response()->json([
             'status' => true,
@@ -74,9 +86,9 @@ class FeedbackController extends Controller
                 ['status', 'completed']
             ])->first();
 
-            if (!$booking) {
-                return response()->json(['status' => false, 'message' => 'Bạn chỉ có thể đánh giá sau khi hoàn thành dịch vụ.'], 400);
-            }
+            // if (!$booking) {
+            //     return response()->json(['status' => false, 'message' => 'Bạn chỉ có thể đánh giá sau khi hoàn thành dịch vụ.'], 400);
+            // }
 
             // Check if feedback already exists
             if (Feedback::where([
@@ -209,5 +221,32 @@ class FeedbackController extends Controller
             'status' => true,
             'message' => 'Xóa feedback thành công!'
         ], 200);
+    }
+
+    public function averageRatingByService($serviceId)
+    {
+        $average = Feedback::where('service_id', $serviceId)
+            ->where('isDeleted', 0)
+            ->avg('rating');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Điểm đánh giá trung bình của dịch vụ',
+            'service_id' => $serviceId,
+            'average_rating' => round($average, 2)
+        ]);
+    }
+    public function averageRatingByDoctor($doctorId)
+    {
+        $average = Feedback::where('doctor_id', $doctorId)
+            ->where('isDeleted', 0)
+            ->avg('rating');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Điểm đánh giá trung bình của bác sĩ',
+            'doctor_id' => $doctorId,
+            'average_rating' => round($average, 2)
+        ]);
     }
 }
