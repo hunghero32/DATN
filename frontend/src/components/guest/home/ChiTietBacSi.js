@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../ultils/api/axios";
-
+import { StarFilled } from '@ant-design/icons';
+import axios from "axios";
 const ChiTietBacSi = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [averageRating, setAverageRating] = useState(null);
   // Hàm định dạng tiền Việt Nam
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + " ₫";
@@ -29,6 +30,24 @@ const ChiTietBacSi = () => {
     };
 
     fetchDoctor();
+  }, [id]);
+  const fetchAverageRating = async () => {
+    try {
+      const { data } = await api.get(`/api/client/feedbacks/doctor/${id}`);
+      if (data?.average_rating !== undefined) {
+        setAverageRating(data.average_rating);
+      }
+    } catch (error) {
+      console.error("Không thể lấy đánh giá:", error);
+    }
+  };
+  if (id) {
+    fetchAverageRating();
+  }
+  useEffect(() => {
+    if (id) {
+      fetchAverageRating();
+    }
   }, [id]);
 
   if (loading) return <div className="text-center mt-10">Đang tải thông tin...</div>;
@@ -77,6 +96,25 @@ const ChiTietBacSi = () => {
               __html: doctor.specialty?.description || "<p>Chưa có mô tả về chuyên khoa.</p>",
             }}
           ></div>
+            {averageRating !== null && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex">
+                      {[...Array(5)].map((_, index) => (
+                        <StarFilled
+                          key={index}
+                          style={{
+                            color: index < averageRating ? '#fadb14' : '#e8e8e8',
+                            fontSize: '16px',
+                            marginRight: '2px'
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-600">
+                      ({averageRating.toFixed(1)})
+                    </span>
+                  </div>
+                )}
 
           <div className="mt-4">
             <h4 className="text-lg font-semibold mb-2 text-gray-800">📄 Kinh nghiệm và CV</h4>

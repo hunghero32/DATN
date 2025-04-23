@@ -14,7 +14,8 @@ use App\Http\Controllers\Api\Client\DoctorController;
 use App\Models\Post;
 
 Route::get('/home', [HomeController::class, 'index']);
-
+Route::get('/feedbacks/service/{id}', [FeedbackController::class, 'averageRatingByService']);
+Route::get('/feedbacks/doctor/{id}', [FeedbackController::class, 'averageRatingByDoctor']);
 //*************** Lấy ra chi tiết chuyên khoa  ************/
 Route::get('/detail-specialty/{id}', [SpecialtyController::class, 'detailSpecialty']);
 
@@ -37,16 +38,13 @@ Route::get('bai-viet/{slug}/{id}', [PostController::class, 'detailPost'])
 
 //*************** Lấy ra chi tiết bác sĩ ************/
 Route::get('/doctor/{id}', [DoctorController::class, 'detailDoctor']);
-
 Route::middleware('auth:sanctum')->group(function () {
     //*************** Lấy danh sách feedback ************/
     Route::get('/feedbacks', [FeedbackController::class, 'index']);
     Route::post('/feedbacks', [FeedbackController::class, 'store']);
     Route::put('/feedbacks/{id}', [FeedbackController::class, 'update']);
     Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
-    
-    Route::get('/feedbacks/service/{id}', [FeedbackController::class, 'averageRatingByService']);
-    Route::get('/feedbacks/doctor/{id}', [FeedbackController::class, 'averageRatingByDoctor']);
+
 });
 Route::middleware('web')->group(function () {
 

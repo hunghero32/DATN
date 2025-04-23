@@ -78,12 +78,12 @@ export default function DanhGia() {
             </span>
           </div>
           <p className="text-gray-700 italic">"{fb.comments}"</p>
-          <button
+          {/* <button
             className="text-red-600 text-sm mt-2 underline"
             onClick={() => handleDelete(fb.id)}
           >
             Xóa
-          </button>
+          </button> */}
         </div>
       ))}
 
