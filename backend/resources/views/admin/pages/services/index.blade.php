@@ -2,7 +2,7 @@
 @section('title', 'Danh sách dịch vụ')
 @section('content')
 <?php
-$specialties = $data->pluck('specialty_id', 'specialty_name')->toArray();
+$specialties = $data->pluck('specialty_name','specialty_id',)->toArray();
 
 // Add status configuration
 $statusConfig = [
@@ -33,7 +33,7 @@ $detailModal=[
     :selects="[
         [
             'id' => 'specialty_id',
-            'name' => 'specialty_id',
+            'name' => 'specialty_name',
             'class' => 'select-search',
             'options' => ['all' => 'Tất cả chuyên khoa'] + $specialties
         ],

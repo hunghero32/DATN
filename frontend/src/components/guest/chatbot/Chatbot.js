@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Phone } from "lucide-react";
+import { MessageCircle, X, Send, Phone, Calendar } from "lucide-react";
 
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -50,6 +50,28 @@ const Chatbot = ({ isOpen, toggleChat }) => {
         : pythonResponse.data;
       
       if (parsedResponse.status === 'success') {
+        // Handle greeting response FIRST
+        if (parsedResponse.type === 'greeting') {
+          setMessages(prev => [...prev, {
+            text: parsedResponse.message,
+            sender: "bot"
+          }]);
+          setIsTyping(false);
+          return;
+        }
+
+        // Handle appointment response (with or without link)
+        if (parsedResponse.type === 'appointment' || parsedResponse.type === 'no_specialty') {
+          setMessages(prev => [...prev, {
+            text: parsedResponse.message,
+            sender: "bot",
+            isAppointment: true,
+            link: parsedResponse.link // may be undefined, handle in render
+          }]);
+          setIsTyping(false);
+          return;
+        }
+
         // Handle location response
         if (parsedResponse.type === 'location') {
           setMessages(prev => [...prev, {
@@ -96,6 +118,28 @@ const Chatbot = ({ isOpen, toggleChat }) => {
 };
 
   const renderMessage = (msg, index) => {
+    // Appointment message (with or without link)
+    if (msg.isAppointment) {
+      return (
+        <div key={index} className="flex justify-start">
+          <div className="p-4 rounded-lg text-sm max-w-[85%] shadow-md bg-white border border-gray-100 mb-3">
+            <div className="font-medium text-gray-700 mb-2">{msg.text}</div>
+            {msg.link && (
+              <a
+                href={msg.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                <Calendar className="w-4 h-4" />
+                Đặt lịch ngay
+              </a>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     if (msg.specialties) {
       return (
         <div key={index} className="flex justify-start">
@@ -107,16 +151,18 @@ const Chatbot = ({ isOpen, toggleChat }) => {
                   key={idx}
                   className="p-3 bg-gray-50 rounded-lg border border-gray-100 hover:border-blue-200 transition-all duration-200"
                 >
-                  <div className="font-medium text-gray-800 mb-2">{specialty.name}</div>
+                
                   <div className="flex flex-col gap-2">
                     <img
                       src={specialty.image}
                       alt={specialty.name}
-                      className="w-16 h-16 object-cover rounded-lg mb-2"
+                      className="w-100 h-100 object-cover rounded-lg mb-2"
                     />
-                    <div className="text-sm text-gray-600">
-                      {specialty.description}
-                    </div>
+                      <div className="font-medium text-gray-800 mb-2">{specialty.name}</div>
+                    <div 
+                      className="text-sm text-gray-600"
+                      dangerouslySetInnerHTML={{ __html: specialty.description }}
+                    />
                     <Link 
                       to={`/detail-specialty/${specialty.id}`} // Điều chỉnh đường dẫn theo cấu trúc của bạn
                       className="inline-flex items-center justify-center gap-1 px-4 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-medium transition-colors"

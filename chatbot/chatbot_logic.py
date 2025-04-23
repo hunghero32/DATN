@@ -295,6 +295,30 @@ def chatbot_response(user_input):
         user_input = user_input.lower()
         tokens = word_tokenize(user_input)
         
+        # Greeting detection
+        greeting_keywords = ['xin chào', 'chào', 'hello', 'hi', 'chào bạn', 'chào bác sĩ']
+        if any(greet in user_input for greet in greeting_keywords):
+            return json.dumps({
+                'status': 'success',
+                'type': 'greeting',
+                'message': 'Xin chào! Tôi là trợ lý sức khỏe của bạn. Bạn đang cảm thấy thế nào? Hãy mô tả triệu chứng hoặc câu hỏi của bạn để tôi có thể hỗ trợ nhé!'
+            })
+
+        # Check for appointment-related queries first
+        appointment_keywords = [
+            'đặt lịch', 'đặt khám', 'hẹn khám', 'lịch khám', 'đăng ký khám',
+            'làm sao để đặt', 'cách đặt', 'quy trình đặt', 'muốn đặt', 'như thế nào để đặt',
+            'thủ tục đặt', 'hướng dẫn đặt', 'đăng ký như thế nào', 'đặt khám như nào',
+            'đặt lịch ra sao', 'đặt khám thế nào', 'quy trình khám', 'cần hỗ trợ đặt lịch', 'hỗ trợ đặt lịch'
+        ]
+        if any(keyword in user_input for keyword in appointment_keywords):
+            return json.dumps({
+                'status': 'success',
+                'type': 'appointment',
+                'message': 'Bạn muốn đặt lịch khám? Vui lòng nhấn vào nút bên dưới để được hỗ trợ đặt lịch trực tuyến.',
+                'link': 'http://localhost:3000/chat-support'
+            })
+
         # Check for location-related queries first
         location_keywords = ['ở đâu', 'địa chỉ', 'địa điểm', 'phòng khám', 'bệnh viện', 'chỗ nào']
         if any(keyword in user_input for keyword in location_keywords):
@@ -342,6 +366,20 @@ def chatbot_response(user_input):
         # Nếu vẫn không khớp, gửi filtered_text làm từ khóa cuối cùng
         print(f"No match found, searching with filtered text: {filtered_text}")
         result = search_service(filtered_text)
+        # Nếu không có chuyên khoa phù hợp
+        if (
+            isinstance(result, dict)
+            and (
+                (result.get('specialties') is not None and len(result.get('specialties', [])) == 0)
+                or (result.get('status') == 'error')
+            )
+        ):
+            return json.dumps({
+                'status': 'success',
+                'type': 'no_specialty',
+                'message': 'Tôi không tìm thấy chuyên khoa nào phù hợp với triệu chứng của bạn. Bạn có thể nhấn vào nút bên dưới để được hỗ trợ trực tuyến.',
+                'link': 'http://localhost:3000/chat-support'
+            })
         return json.dumps(result)
 
     except Exception as e:
