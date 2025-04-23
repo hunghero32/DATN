@@ -9,12 +9,14 @@ import 'react-quill/dist/quill.snow.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import OAuthSuccess from './components/guest/auth/OAuthSuccess';
 import ProtectedRoute from "./components/guest/auth/ProtectedRoute";
+import ChatSupport from "./components/guest/chatSupport/chat";
 
 function App() {
   return (
     <div>
       <AuthProvider>
         <Routes>
+        <Route path="/chat-support" element={<ChatSupport/>}/>
           <Route path="/*" element={<ClientLayout />} />
           <Route element={<ProtectedRoute requiredRole="doctor" />}>
             <Route path="/doctor/*" element={<DoctorLayout />} />

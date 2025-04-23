@@ -20,7 +20,6 @@ export default function Header() {
   const [appointments, setAppointments] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [results, setResults] = useState(null);
-
   // State cho Client Notifications
   const [clientNotifications, setClientNotifications] = useState([]);
   const [clientUnreadCount, setClientUnreadCount] = useState(0);

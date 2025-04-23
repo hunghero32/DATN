@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { message } from "antd";
+import { message, Rate } from "antd";
 import api from "../../../ultils/api/axios";
+import { StarFilled } from '@ant-design/icons';
 
 const ServiceDetail = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const ServiceDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDates, setSelectedDates] = useState({});
+  const [averageRating, setAverageRating] = useState(null);
 
   const today = new Date();
   const maxDate = new Date();
@@ -32,7 +34,6 @@ const ServiceDetail = () => {
           setService(data);
           setDoctors(data.doctors || []);
 
-          // Set default ngày khám cho từng bác sĩ
           const defaultDates = {};
           (data.doctors || []).forEach((doctor) => {
             const workingDates = [
@@ -59,7 +60,21 @@ const ServiceDetail = () => {
       }
     };
 
-    if (id) fetchServiceDetail();
+    const fetchAverageRating = async () => {
+      try {
+        const { data } = await api.get(`/api/client/feedbacks/service/${id}`);
+        if (data?.average_rating !== undefined) {
+          setAverageRating(data.average_rating);
+        }
+      } catch (error) {
+        console.error("Không thể lấy đánh giá:", error);
+      }
+    };
+
+    if (id) {
+      fetchServiceDetail();
+      fetchAverageRating();
+    }
   }, [id]);
 
   const generateTimeSlots = (schedule) => {
@@ -68,7 +83,6 @@ const ServiceDetail = () => {
     const endTime = new Date(`1970-01-01T${schedule.time_end}`);
     const duration = service?.duration || 30;
 
-    // Check if the schedule is for today
     const isToday = selectedDates[schedule.doctor_id] === todayString;
     const currentTime = new Date();
 
@@ -76,7 +90,6 @@ const ServiceDetail = () => {
       const slotEnd = new Date(startTime.getTime() + duration * 60000);
       if (slotEnd > endTime) break;
 
-      // Skip time slots in the past if it's today
       if (isToday) {
         const slotTime = new Date();
         slotTime.setHours(startTime.getHours(), startTime.getMinutes());
@@ -147,6 +160,7 @@ const ServiceDetail = () => {
     <div className="container mx-auto p-4 sm:p-6 max-w-6xl">
       <div className="bg-gray-100 p-4 sm:p-6 rounded-lg mb-4">
         <h2 className="text-xl sm:text-2xl font-bold text-blue-800">{service.services_name}</h2>
+
         <p className="text-gray-700 mt-2">
           <b>Danh sách bác sĩ uy tín đầu ngành chuyên khoa {service.services_name} tại Việt Nam:</b>
           <ul className="text-sm sm:text-base">
@@ -173,12 +187,12 @@ const ServiceDetail = () => {
             <div className="w-full lg:w-1/2 flex flex-col sm:flex-row items-center gap-4">
               <div className="flex items-center gap-4">
                 <img
-                  src={doctor.doctor_avatar ? 
-                    (doctor.doctor_avatar.startsWith('http') ? 
-                      doctor.doctor_avatar : 
+                  src={doctor.doctor_avatar ?
+                    (doctor.doctor_avatar.startsWith('http') ?
+                      doctor.doctor_avatar :
                       `http://localhost:8000/storage/${doctor.doctor_avatar}`
-                    ) 
-                  : "https://via.placeholder.com/100"}
+                    )
+                    : "https://via.placeholder.com/100"}
                   alt={doctor.doctor_name}
                   className="w-24 h-24 rounded-full object-cover flex-shrink-0"
                 />
@@ -187,10 +201,29 @@ const ServiceDetail = () => {
                 <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#45c3d2' }}>
                   {doctor.doctor_name}
                 </h2>
-                <div 
+                <div
                   className="text-sm sm:text-base text-gray-700"
                   dangerouslySetInnerHTML={{ __html: doctor.doctor_bio }}
                 />
+                {averageRating !== null && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex">
+                      {[...Array(5)].map((_, index) => (
+                        <StarFilled
+                          key={index}
+                          style={{
+                            color: index < averageRating ? '#fadb14' : '#e8e8e8',
+                            fontSize: '16px',
+                            marginRight: '2px'
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-600">
+                      ({averageRating.toFixed(1)})
+                    </span>
+                  </div>
+                )}
                 <Link
                   to={`/chitietbacsi/${doctor.id}`}
                   className="mt-2 sm:mt-4 inline-block !text-blue-500 hover:underline"
@@ -254,6 +287,7 @@ const ServiceDetail = () => {
           </div>
         );
       })}
+      
     </div>
   );
 };
