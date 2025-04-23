@@ -118,9 +118,9 @@ class BookingController extends Controller
             // Gộp ngày và giờ thành 1 đối tượng Carbon để so sánh
             $bookingDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->booking_time);
 
-            // if (now()->lt($bookingDateTime)) {
-            //     return response()->json(['message' => 'Bạn chỉ có thể hoàn thành lịch hẹn sau thời gian đã đặt.'], 400);
-            // }
+            if (now()->lt($bookingDateTime)) {
+                return response()->json(['message' => 'Bạn chỉ có thể hoàn thành lịch hẹn sau thời gian đã đặt.'], 400);
+            }
             $this->createResultForBooking($booking);
         }
         // Cập nhật trạng thái
