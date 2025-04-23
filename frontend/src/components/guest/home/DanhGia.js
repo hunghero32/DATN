@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../ultils/api/axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const statusColor = {
   approved: "text-green-600",
@@ -13,25 +15,49 @@ export default function DanhGia() {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    DanhGia(currentPage);
+    fetchFeedbacks(currentPage);
   }, [currentPage]);
 
-  const DanhGia = async (page) => {
-    const res = await api.get(`/api/feedbacks?page=${page}`);
-    setFeedbacks(res.data.data);
-    setPagination({
-      current_page: res.data.current_page,
-      last_page: res.data.last_page,
-      next_page_url: res.data.next_page_url,
-      prev_page_url: res.data.prev_page_url,
-    });
+  const fetchFeedbacks = async (page) => {
+    try {
+      const res = await api.get(`/api/feedbacks?page=${page}`);
+      const activeFeedbacks = res.data.data.filter((fb) => fb.isDeleted !== 1);
+      setFeedbacks(activeFeedbacks);
+      setPagination({
+        current_page: res.data.current_page,
+        last_page: res.data.last_page,
+        next_page_url: res.data.next_page_url,
+        prev_page_url: res.data.prev_page_url,
+      });
+    } catch (error) {
+      toast.error("Không thể tải danh sách đánh giá.");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa đánh giá này không?")) {
+      try {
+        const res = await api.delete(`/api/client/feedbacks/${id}`);
+        if (res.data.status) {
+          toast.success("Xóa feedback thành công!");
+          await fetchFeedbacks(currentPage);
+        } else {
+          toast.error(res.data.message || "Xóa không thành công.");
+        }
+      } catch (error) {
+        toast.error("Có lỗi xảy ra khi xóa đánh giá.");
+        console.error("Delete error:", error);
+      }
+    }
   };
 
   const handlePageChange = (page) => setCurrentPage(page);
 
   return (
     <div className="max-w-3xl mx-auto p-4">
+      <ToastContainer position="top-right" />
       <h2 className="text-2xl font-bold mb-4">Đánh giá từ khách hàng</h2>
+
       {feedbacks.map((fb) => (
         <div
           key={fb.id}
@@ -40,20 +66,24 @@ export default function DanhGia() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex gap-1">
               {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i}>
-                  {i < fb.rating ? "⭐" : "☆"}
-                </span>
+                <span key={i}>{i < fb.rating ? "⭐" : "☆"}</span>
               ))}
             </div>
             <span className={`${statusColor[fb.status]} text-sm font-semibold`}>
               {fb.status === "approved"
                 ? "Đã duyệt"
-                : fb.status === "pending"
-                ? "Đã duyệt"
-                : "Từ chối"}
+                // : fb.status === "pending"
+                // ? "Chờ duyệt"
+                : "Đã duyệt"}
             </span>
           </div>
           <p className="text-gray-700 italic">"{fb.comments}"</p>
+          <button
+            className="text-red-600 text-sm mt-2 underline"
+            onClick={() => handleDelete(fb.id)}
+          >
+            Xóa
+          </button>
         </div>
       ))}
 

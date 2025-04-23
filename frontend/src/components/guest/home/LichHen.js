@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "remixicon/fonts/remixicon.css";
 import api from "../../../ultils/api/axios";
 import { Modal } from "react-bootstrap";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LichHen = () => {
   const [appointments, setAppointments] = useState([]);
@@ -15,7 +17,7 @@ const LichHen = () => {
   });
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-
+  const nav = useNavigate()
   const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -25,21 +27,21 @@ const LichHen = () => {
         rating: feedbackData.rating,
         comments: feedbackData.comments,
         status: "pending",
-        guest_id: selectedAppointment.guest_id  // Add guest_id
+        guest_id: selectedAppointment.guest_id
       });
       
       if (response.data.status) {
-        alert("Đánh giá đã được gửi thành công!");
+        toast.success("Đánh giá đã được gửi thành công!");
         setShowFeedbackModal(false);
-        window.location.reload();
+        setTimeout(() => {
+        nav('/danhgia')
+        }, 2000);
       } else {
-        alert(response.data.message || "Không thể gửi đánh giá");
+        toast.error(response.data.message || "Không thể gửi đánh giá");
       }
     } catch (error) {
       console.error("Error details:", error.response?.data);
-      const errorMessage =
-        error.response?.data?.message || "Đã xảy ra lỗi khi gửi đánh giá";
-      alert(errorMessage);
+      toast.error(error.response?.data?.message || "Đã xảy ra lỗi khi gửi đánh giá");
     }
   };
 
@@ -60,6 +62,7 @@ const LichHen = () => {
 
   return (
     <div className="container mx-auto mt-4 p-6 min-h-screen">
+      <ToastContainer position="top-right" />
       <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
         Lịch Hẹn Đã Đặt
       </h2>
