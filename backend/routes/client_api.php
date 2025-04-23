@@ -44,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/feedbacks', [FeedbackController::class, 'store']);
     Route::put('/feedbacks/{id}', [FeedbackController::class, 'update']);
     Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
+    
     Route::get('/feedbacks/service/{id}', [FeedbackController::class, 'averageRatingByService']);
     Route::get('/feedbacks/doctor/{id}', [FeedbackController::class, 'averageRatingByDoctor']);
 });

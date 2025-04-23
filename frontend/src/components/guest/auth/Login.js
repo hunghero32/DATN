@@ -42,7 +42,7 @@ const Login = () => {
         if (userData.role === "doctor") {
           navigate("/doctor");
         } else if (userData.role === "admin") {
-          navigate("/admin");
+          navigate("/chat-support");
         } else {
           navigate("/");
         }
