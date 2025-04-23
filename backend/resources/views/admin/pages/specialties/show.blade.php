@@ -16,7 +16,7 @@
                 </p>
                 <p><strong>Hình ảnh:</strong><br>
                     @if($specialtie->image)
-                        <img src="{{ asset('storage/' . $specialtie->image) }}" width="100">
+                        <img src="{{ asset($specialtie->image) }}" width="100">
                     @endif
                 </p>
             </div>

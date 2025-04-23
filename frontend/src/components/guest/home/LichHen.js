@@ -2,26 +2,62 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "remixicon/fonts/remixicon.css";
 import api from "../../../ultils/api/axios";
+import { Modal } from "react-bootstrap";
 
 const LichHen = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [feedbackData, setFeedbackData] = useState({
+    rating: 5,
+    comments: "",
+    service_id: null,
+  });
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+  const handleFeedbackSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("/api/client/feedbacks", {
+        service_id: selectedAppointment.service_id,
+        booking_id: selectedAppointment.id,
+        rating: feedbackData.rating,
+        comments: feedbackData.comments,
+        status: "pending",
+        guest_id: selectedAppointment.guest_id  // Add guest_id
+      });
+      
+      if (response.data.status) {
+        alert("Đánh giá đã được gửi thành công!");
+        setShowFeedbackModal(false);
+        window.location.reload();
+      } else {
+        alert(response.data.message || "Không thể gửi đánh giá");
+      }
+    } catch (error) {
+      console.error("Error details:", error.response?.data);
+      const errorMessage =
+        error.response?.data?.message || "Đã xảy ra lỗi khi gửi đánh giá";
+      alert(errorMessage);
+    }
+  };
 
   useEffect(() => {
-    api.get("/api/client/appointments")
+    api
+      .get("/api/client/appointments")
       .then((response) => {
         if (response.data.status) {
           setAppointments(response.data.data);
-          console.log(response.data.data);
+          console.log("Appointments data:", response.data.data);
         } else {
           setError(response.data.message);
         }
       })
-
-      .catch(() => setError("Lỗi khi lấy danh sách lịch hẹn.")) // Xử lý lỗi
-      .finally(() => setLoading(false)); // Hoàn tất
+      .catch(() => setError("Lỗi khi lấy danh sách lịch hẹn."))
+      .finally(() => setLoading(false));
   }, []);
+
   return (
     <div className="container mx-auto mt-4 p-6 min-h-screen">
       <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
@@ -89,10 +125,10 @@ const LichHen = () => {
                   <strong> Trạng thái:</strong>
                   <span
                     className={`ml-2 px-2 py-1 rounded text-sm ${appointment.status === "completed"
-                        ? "bg-green-500 text-white"
-                        : appointment.status === "confirmed"
-                          ? "bg-yellow-500 text-white"
-                          : "bg-gray-500 text-white"
+                      ? "bg-green-500 text-white"
+                      : appointment.status === "confirmed"
+                        ? "bg-yellow-500 text-white"
+                        : "bg-gray-500 text-white"
                       }`}
                   >
                     {appointment.status === "completed"
@@ -103,7 +139,6 @@ const LichHen = () => {
                   </span>
                 </p>
 
-                {/* Hiển thị nút "Xem Hóa Đơn" nếu trạng thái là "completed" */}
                 {appointment.status === "completed" && (
                   <div className="mt-4 flex gap-3">
                     <Link
@@ -114,17 +149,103 @@ const LichHen = () => {
                     </Link>
 
                     <Link
-                      to={`/ketqua/${appointment.id}`} // Dùng ID của booking
+                      to={`/ketqua/${appointment.id}`}
                       className="inline-block px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700 transition"
                     >
                       <i className="ri-clipboard-line mr-2"></i> Xem Kết Quả
                     </Link>
+                    {!appointment.has_feedback && (
+                      <button
+                        onClick={() => {
+                          setSelectedAppointment({
+                            ...appointment,
+                            id: appointment.id,
+                            service_id: appointment.service_id,
+                            guest_id: appointment.guest_id  // Add guest_id
+                          });
+                          setFeedbackData({
+                            rating: 5,
+                            comments: "",
+                          });
+                          setShowFeedbackModal(true);
+                        }}
+                        className="inline-block px-4 py-2 bg-purple-600 text-white font-semibold rounded hover:bg-purple-700 transition"
+                      >
+                        <i className="ri-star-line mr-2"></i> Đánh giá
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Modal đánh giá */}
+      {showFeedbackModal && (
+        <Modal
+          show={showFeedbackModal}
+          onHide={() => setShowFeedbackModal(false)}
+          centered
+        >
+          <Modal.Header closeButton className="border-0 pb-0">
+            <Modal.Title className="w-100 text-center">
+              <i className="ri-star-line text-4xl text-purple-600"></i>
+              <h4 className="mt-3 font-semibold">Đánh giá dịch vụ</h4>
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="px-4 py-4">
+            <div className="mb-3">
+              <p><strong>Bác sĩ:</strong> {selectedAppointment?.doctor_name}</p>
+              <p><strong>Dịch vụ:</strong> {selectedAppointment?.service_name}</p>
+            </div>
+            <div className="mb-3">
+              <label className="block mb-1">Đánh giá (số sao):</label>
+              <select
+                className="w-full border rounded p-2"
+                value={feedbackData.rating}
+                onChange={(e) =>
+                  setFeedbackData({
+                    ...feedbackData,
+                    rating: parseInt(e.target.value),
+                  })
+                }
+              >
+                {[5, 4, 3, 2, 1].map((rate) => (
+                  <option key={rate} value={rate}>
+                    {rate} sao
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="block mb-1">Nội dung đánh giá:</label>
+              <textarea
+                className="w-full border rounded p-2"
+                rows="3"
+                value={feedbackData.comments}
+                onChange={(e) =>
+                  setFeedbackData({ ...feedbackData, comments: e.target.value })
+                }
+              ></textarea>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className="border-0 justify-center">
+            <button
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              onClick={() => setShowFeedbackModal(false)}
+            >
+              Hủy
+            </button>
+            <button
+              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+              onClick={handleFeedbackSubmit}
+            >
+              Gửi đánh giá
+            </button>
+          </Modal.Footer>
+        </Modal>
       )}
     </div>
   );

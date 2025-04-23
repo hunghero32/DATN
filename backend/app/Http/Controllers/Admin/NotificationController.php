@@ -45,7 +45,11 @@ class NotificationController extends Controller
 
         $data = $query->orderBy('id', 'desc')->paginate($perPage);
 
-        return view('admin.pages.notifications.index', compact('data'));
+        $notificationTypes = Notification::select('type')
+        ->distinct()
+        ->pluck('type');
+
+    return view('admin.pages.notifications.index', compact('data', 'notificationTypes'));
     }
 
     public function show($id)

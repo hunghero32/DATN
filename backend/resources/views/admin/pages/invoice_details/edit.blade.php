@@ -46,8 +46,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="tax" class="form-label">Thuế</label>
-            <input type="number" class="form-control" name="tax" value="{{ $invoice->tax }}">
+            <label for="tax" class="form-label">Thuế (%)</label>
+            <input type="number" class="form-control" name="tax" value="{{ $invoice->tax }}" min="0" max="100">
         </div>
 
         <button type="submit" class="btn btn-primary">Cập Nhật</button>

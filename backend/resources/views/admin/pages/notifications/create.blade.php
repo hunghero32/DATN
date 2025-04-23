@@ -34,7 +34,7 @@
                             <select id="type" name="type" class="form-control" required>
                                 <option value="">-- Chọn loại --</option>
                                 <option value="booking">Đặt lịch khám</option>
-                                <option value="noti">Nhắc nhở</option>
+                                <option value="notify">Nhắc nhở</option>
                                 <option value="general">Chung</option>
                             </select>
                         </div>

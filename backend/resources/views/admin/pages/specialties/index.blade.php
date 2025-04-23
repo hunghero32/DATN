@@ -119,7 +119,7 @@
                                 <div class="mb-3">
                                     <label class="form-label"><strong>Hình ảnh:</strong></label><br>
                                     @if($item->image)
-                                        <img src="{{ asset('storage/' . $item->image) }}" width="150" height="100">
+                                        <img src="{{ asset($item->image) }}" width="150" height="100">
                                     @else
                                         <p>Không có</p>
                                     @endif

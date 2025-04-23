@@ -40,7 +40,12 @@ Route::get('/doctor/{id}', [DoctorController::class, 'detailDoctor']);
 
 Route::middleware('auth:sanctum')->group(function () {
     //*************** Lấy danh sách feedback ************/
-    Route::apiResource('feedbacks', FeedbackController::class,);
+    Route::get('/feedbacks', [FeedbackController::class, 'index']);
+    Route::post('/feedbacks', [FeedbackController::class, 'store']);
+    Route::put('/feedbacks/{id}', [FeedbackController::class, 'update']);
+    Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
+    Route::get('/feedbacks/service/{id}', [FeedbackController::class, 'averageRatingByService']);
+    Route::get('/feedbacks/doctor/{id}', [FeedbackController::class, 'averageRatingByDoctor']);
 });
 Route::middleware('web')->group(function () {
 

@@ -19,7 +19,7 @@ class ResultController extends Controller
         try {
             // Get authenticated user's ID
             $userId = auth()->id();
-    
+
             // Validate booking_id
             if (!$request->booking_id) {
                 return response()->json([
@@ -27,7 +27,7 @@ class ResultController extends Controller
                     'message' => 'Booking ID is required'
                 ], 400);
             }
-    
+
             // Get results for specific booking ID and authenticated user
             $results = Result::with(['booking', 'doctor.specialty', 'guest'])
                 ->where('booking_id', $request->booking_id)
@@ -36,14 +36,14 @@ class ResultController extends Controller
                     $query->where('user_id', $userId);
                 })
                 ->first();
-    
+
             if (!$results) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Không tìm thấy kết quả khám bệnh'
                 ], 404);
             }
-    
+
             // Format results
             $formattedResult = [
                 'id' => $results->id,
@@ -65,13 +65,12 @@ class ResultController extends Controller
                 'created_at' => $results->created_at,
                 'updated_at' => $results->updated_at
             ];
-    
+
             return response()->json([
                 'status' => true,
                 'message' => 'Lấy kết quả khám bệnh thành công',
                 'data' => [$formattedResult]
             ]);
-    
         } catch (\Exception $e) {
             return response()->json([
                 'status' => false,

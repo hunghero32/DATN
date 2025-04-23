@@ -28,12 +28,13 @@
                     <div class="col-md-3">
                         <select class="form-control" name="type">
                             <option value="">-- Loại thông báo --</option>
-                            <option value="booking">Đặt phòng</option>
-                            <option value="payment">Thanh toán</option>
-                            <option value="general">Chung</option>
+                            @foreach ($notificationTypes as $type)
+                            <option value="{{ $type }}" {{ request('type') == $type ? 'selected' : '' }}>
+                                {{ ucfirst($type) }}
+                            </option>
+                            @endforeach
                         </select>
                     </div>
-
                     <div class="col-md-2">
                         <select class="form-control" name="is_read">
                             <option value="">-- Trạng thái --</option>

@@ -17,7 +17,9 @@ class SchedulesController extends Controller
         $data = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
             ->select('schedules.*', 'doctors.doctor_name')
             ->where('schedules.isDeleted', 0)
-            ->orderBy('schedules.doctor_id')
+            ->whereDate('schedules.working_date', '>=', now()) // lọc các lịch từ hôm nay trở đi
+            ->orderBy('schedules.working_date', 'asc') // lịch gần nhất lên đầu
+            ->orderBy('schedules.doctor_id') // sau đó theo bác sĩ
             ->paginate($perPage);
 
         return view('admin.pages.schedule.index', [
