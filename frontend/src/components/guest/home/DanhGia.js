@@ -49,7 +49,7 @@ export default function DanhGia() {
               {fb.status === "approved"
                 ? "Đã duyệt"
                 : fb.status === "pending"
-                ? "Chờ duyệt"
+                ? "Đã duyệt"
                 : "Từ chối"}
             </span>
           </div>

@@ -19,7 +19,12 @@ export default function HomeBanner() {
     const fetchBanners = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/system');
-        const bannerData = response.data.data?.banner || [];
+        let bannerData = [];
+        if (response.data.banner) {
+          // Parse the JSON string to get the banner array
+          const parsedBanners = JSON.parse(response.data.banner);
+          bannerData = parsedBanners.map(banner => banner.image_url);
+        }
         setBanners(bannerData.length > 0 ? bannerData : fallbackImages);
       } catch (error) {
         console.error('Error fetching banners:', error);

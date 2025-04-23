@@ -337,7 +337,7 @@ export default function Header() {
             {/* Logo - Reverted to always show text */}
             <Link to="/" className="navbar-brand">
               {siteData && siteData.site_logo ? (
-                <img src={siteData.site_logo} alt="logo" className="h-10 w-40" />
+                <img src={`http://localhost:8000/storage/${siteData.site_logo}`} alt="logo" className="h-10 w-40" />
               ) : (
                 <img src="img/header/logo-primary-dark.webp" alt="logo" className="h-10 w-40" />
               )}

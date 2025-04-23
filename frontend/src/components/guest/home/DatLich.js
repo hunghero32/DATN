@@ -19,6 +19,7 @@ import api from "../../../ultils/api/axios";
 import axios from "axios";
 import { Modal } from "react-bootstrap";  // Bootstrap Modal
 import NotificationService from '../../../services/NotificationService';
+import moment from "moment";
 
 const { Title, Text } = Typography;
 
@@ -212,10 +213,7 @@ const DatLich = () => {
                   }
                   alt={bookingData.doctor_name}
                   className="w-20 h-20 rounded-full object-cover"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "https://via.placeholder.com/100";
-                  }}
+               
                 />
               )}
               <div>
@@ -253,73 +251,101 @@ const DatLich = () => {
       </Card>
 
       <Card className="p-6 mt-6">
-  <Form
-    form={form}
-    layout="vertical"
-    initialValues={{
-      guest_name: "",
-      gender: "",
-      guest_phone: "",
-      guest_email: "",
-      birthday: "",
-      address: "",
-      reason: ""
-    }}
-    onFinish={onFinish}
-    className="space-y-4"
-  >
-    <Form.Item name="guest_name" label="👤 Họ và Tên" rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}>
-      <Input size="large" placeholder="Nhập họ và tên" className="rounded-lg" />
-    </Form.Item>
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{
+            guest_name: "",
+            gender: "male", // Set default value to "male"
+            guest_phone: "",
+            guest_email: "",
+            birthday: "",
+            address: "",
+            reason: ""
+          }}
+          onFinish={onFinish}
+          className="space-y-4"
+        >
+          <Form.Item 
+            name="guest_name" 
+            label="👤 Họ và Tên" 
+            rules={[
+              { required: true, message: "Vui lòng nhập họ và tên" },
+              { validator: validateName }
+            ]}
+          >
+            <Input size="large" placeholder="Nhập họ và tên" className="rounded-lg" />
+          </Form.Item>
 
-    <Form.Item name="gender" label="⚧ Giới tính" rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}>
-      <Radio.Group className="flex gap-4">
-        <Radio.Button value="male">Nam</Radio.Button>
-        <Radio.Button value="female">Nữ</Radio.Button>
-        <Radio.Button value="other">Khác</Radio.Button>
-      </Radio.Group>
-    </Form.Item>
+          <Form.Item 
+            name="gender" 
+            label="⚧ Giới tính"
+            rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+          >
+            <Radio.Group className="flex gap-4">
+              <Radio.Button value="male">Nam</Radio.Button>
+              <Radio.Button value="female">Nữ</Radio.Button>
+              <Radio.Button value="other">Khác</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
 
-    <Form.Item name="guest_phone" label="📞 Số Điện Thoại" rules={[{ required: true, message: "Vui lòng nhập số điện thoại" }]}>
-      <Input size="large" placeholder="Nhập số điện thoại" className="rounded-lg" />
-    </Form.Item>
+          <Form.Item 
+            name="guest_phone" 
+            label="📞 Số Điện Thoại" 
+            rules={[
+              { required: true, message: "Vui lòng nhập số điện thoại" },
+              { pattern: /^[0-9]{10}$/, message: "Số điện thoại phải có đúng 10 chữ số" },
+              { validator: validatePhoneNumber }
+            ]}
+          >
+            <Input 
+              size="large" 
+              placeholder="Nhập số điện thoại" 
+              className="rounded-lg"
+              maxLength={10} 
+            />
+          </Form.Item>
 
-    <Form.Item name="guest_email" label="📧 Email" rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ" }]}>
-      <Input size="large" placeholder="Nhập email" className="rounded-lg" />
-    </Form.Item>
+          <Form.Item name="guest_email" label="📧 Email" rules={[{ required: true, type: "email", message: "Vui lòng nhập email hợp lệ" }]}>
+            <Input size="large" placeholder="Nhập email" className="rounded-lg" />
+          </Form.Item>
 
-    <Form.Item name="birthday" label="🎂 Ngày sinh" rules={[{ required: true, message: "Vui lòng nhập năm sinh" }]}>
-      <Input type="date" size="large" className="rounded-lg" />
-    </Form.Item>
-    <Form.Item name="address" label="🏠 Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
-      <Input.TextArea rows={2} placeholder="Nhập địa chỉ chi tiết" className="rounded-lg" />
-    </Form.Item>
-    <Divider />
-    <Text className="font-semibold text-green-700 text-base">
-      💳 Hình thức thanh toán: Thanh toán sau tại cơ sở y tế
-    </Text>
-    <Divider />
+          <Form.Item name="birthday" label="🎂 Ngày sinh" rules={[
+            { required: true, message: "Vui lòng nhập năm sinh" },
+            { validator: validateBirthday }
+          ]}
+          >
+            <Input type="date" size="large" className="rounded-lg" />
+          </Form.Item>
+          <Form.Item name="address" label="🏠 Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
+            <Input.TextArea rows={2} placeholder="Nhập địa chỉ chi tiết" className="rounded-lg" />
+          </Form.Item>
+          <Divider />
+          <Text className="font-semibold text-green-700 text-base">
+            💳 Hình thức thanh toán: Thanh toán sau tại cơ sở y tế
+          </Text>
+          <Divider />
 
-    <Alert
-      message="Thông tin bạn nhập sẽ được sử dụng để đặt lịch. Vui lòng kiểm tra trước khi xác nhận."
-      type="info"
-      showIcon
-    />
+          <Alert
+            message="Thông tin bạn nhập sẽ được sử dụng để đặt lịch. Vui lòng kiểm tra trước khi xác nhận."
+            type="info"
+            showIcon
+          />
 
-    <Form.Item>
-      <Button
-        type="primary"
-        htmlType="submit"
-        loading={loading}
-        block
-        size="large"
-        className="bg-blue-600 hover:bg-blue-700 border-none text-white rounded-lg font-semibold"
-      >
-        ✅ Xác nhận đặt lịch
-      </Button>
-    </Form.Item>
-  </Form>
-</Card>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              block
+              size="large"
+              className="bg-blue-600 hover:bg-blue-700 border-none text-white rounded-lg font-semibold"
+            >
+              ✅ Xác nhận đặt lịch
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
 
 
       {/* Enhanced Modal Design */}
@@ -373,3 +399,29 @@ const DatLich = () => {
 };
 
 export default DatLich;
+
+
+const validateName = (_, value) => {
+  if (/\d/.test(value)) {
+    return Promise.reject("Họ tên không được chứa số!");
+  }
+  return Promise.resolve();
+};
+
+const validateBirthday = (_, value) => {
+  const currentYear = moment().year();
+  const birthYear = moment(value).year();
+  
+  if (birthYear > currentYear) {
+    return Promise.reject("Năm sinh không được lớn hơn năm hiện tại!");
+  }
+  return Promise.resolve();
+};
+
+// Add this validation function at the bottom of the file with other validators
+const validatePhoneNumber = (_, value) => {
+  if (value && !/^[0-9]{10}$/.test(value.replace(/\s+/g, ""))) {
+    return Promise.reject("Số điện thoại không hợp lệ!");
+  }
+  return Promise.resolve();
+};
