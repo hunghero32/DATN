@@ -17,7 +17,7 @@ return new class extends Migration
             $table->time('time_start'); // Thời gian bắt đầu làm việc
             $table->time('time_end'); // Thời gian kết thúc làm việc
             $table->date('working_date'); // Ngày làm việc 
-            $table->integer('max_patients')->unsigned(); // Số lượng bệnh nhân tối đa
+            $table->integer('max_patients')->nullable()->unsigned(); // Số lượng bệnh nhân tối đa
             $table->boolean('status')->default(1); // Trạng thái lịch làm việc, mặc định là hoạt động (1)
             $table->timestamps();
         });
