@@ -103,14 +103,13 @@ class AutoUpdateBookings extends Command
 
             $this->notificationService->sendNotification(
                 $guest->user_id,
-                "Lịch hẹn {$booking->service->services_name} bị hủy",
+                "Lịch hẹn {$booking->service->services_name} đã bị hủy",
                 "Lịch hẹn của bạn vào lúc {$time} ngày {$date} đã bị hủy do hết chỗ.",
                 "booking",
                 $booking->id
             );
         }
     }
-
     private function createInvoiceForBooking($booking)
     {
         $price = $booking->service->price ?? 0;
@@ -151,8 +150,6 @@ class AutoUpdateBookings extends Command
             'note' => 'Lần khám đầu #' . $booking->id
         ]);
     }
-
-
     private function sendConfirmationNotifications($booking)
     {
         $doctor = optional(Doctor::find($booking->doctor_id));
@@ -163,8 +160,8 @@ class AutoUpdateBookings extends Command
         if ($doctor) {
             $this->notificationService->sendNotification(
                 $doctor->user_id,
-                "Lịch hẹn {$booking->service->services_name} đã xác nhận",
-                "Lịch hẹn với {$guest->guest_name} vào lúc {$time} ngày {$date} đã được xác nhận.",
+                "Lịch hẹn {$booking->service->services_name} đã xác nhận tự động",
+                "Lịch hẹn với {$guest->guest_name} vào lúc {$time} ngày {$date} đã được xác nhận tự động.",
                 "booking",
                 $booking->id
             );
@@ -173,8 +170,8 @@ class AutoUpdateBookings extends Command
         if ($guest) {
             $this->notificationService->sendNotification(
                 $guest->user_id,
-                "Lịch hẹn {$booking->service->services_name} đã xác nhận",
-                "Lịch hẹn của bạn với bác sĩ {$doctor->doctor_name} vào lúc {$time} ngày {$date} đã được xác nhận.",
+                "Lịch hẹn {$booking->service->services_name} đã xác nhận tự động",
+                "Lịch hẹn của bạn với bác sĩ {$doctor->doctor_name} vào lúc {$time} ngày {$date} đã được xác nhận tự động.",
                 "booking",
                 $booking->id
             );

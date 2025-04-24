@@ -45,7 +45,7 @@ class UpcomingBooking extends Command
     
             $this->notificationService->sendNotification(
                 $guest->user_id,
-                'Sắp đến giờ khám!',
+                "Sắp đến giờ khám {$booking->service->services_name} !",
                 "Bạn có lịch hẹn lúc $formattedTime ngày $formattedDate. Vui lòng chuẩn bị đến khám đúng giờ.",
                 'reminder',
                 $booking->id

@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Doctor;
-use App\Http\Requests\StoreBookingRequest;
-use App\Http\Requests\UpdateBookingRequest;
+use App\Models\Invoice;
+use App\Models\InvoiceDetail;
 use App\Services\NotificationService;
 use Carbon\Carbon;
 
@@ -112,6 +112,7 @@ class BookingController extends Controller
         // Nếu chuyển sang confirmed → tạo hồ sơ bệnh án nếu chưa có
         if ($validate['status'] === 'confirmed') {
             $this->createMedicalRecord($booking);
+            $this->createInvoiceForBooking($booking);
         }
         // Nếu trạng thái là completed, tạo kết quả
         if ($validate['status'] === 'completed') {
@@ -135,7 +136,29 @@ class BookingController extends Controller
         ], 200);
     }
 
+    private function createInvoiceForBooking(Booking $booking)
+    {
+        $price = $booking->service->price ?? 0;
+        $discount = 0;
+        $taxPercent = 0;
 
+        $taxable = max($price - $discount, 0);
+        $tax = $taxable * ($taxPercent / 100);
+        $total = $taxable + $tax;
+
+        $invoice = Invoice::create([
+            'total_amount' => $total,
+            'discount' => $discount,
+            'tax' => $tax,
+        ]);
+
+        InvoiceDetail::create([
+            'invoice_id' => $invoice->id,
+            'booking_id' => $booking->id,
+        ]);
+
+        return $invoice;
+    }
     private function createResultForBooking(Booking $booking)
     {
         // Kiểm tra nếu đã có Result thì không tạo lại
