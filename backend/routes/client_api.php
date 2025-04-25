@@ -53,6 +53,7 @@ Route::middleware('web')->group(function () {
     Route::get('/get-temp-booking', [BookingController::class, 'getTempBooking']);
     Route::post('/confirm-booking', [BookingController::class, 'confirmBooking']);
     Route::get('/appointments', [BookingController::class, 'appointments']);
+    Route::post('/cancel-booking/{id}', [BookingController::class, 'cancelBooking']);
     //*************** Lấy ra hóa đơn  ************/
     Route::get('invoice/{booking_id}', [InvoiceController::class, 'invoice']);
     Route::post('momo-payment', [CheckoutController::class, 'momoPayment']);

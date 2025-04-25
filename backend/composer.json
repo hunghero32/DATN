@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "guzzlehttp/guzzle": "^7.2",
+        "guzzlehttp/guzzle": "^7.9",
         "kreait/firebase-php": "^7.18",
         "kreait/laravel-firebase": "*",
         "laravel/framework": "^10.0",

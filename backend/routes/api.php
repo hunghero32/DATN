@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\Admin\PostController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Client\SearchController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\LinkPreviewController;
 
 /*
 |--------------------------------------------------------------------------

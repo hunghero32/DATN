@@ -349,4 +349,109 @@ class BookingController extends Controller
             $booking->id
         );
     }
+
+    public function cancelBooking(Request $request, $id)
+    {
+        try {
+            // Get authenticated user's ID
+            $userId = auth()->id();
+
+            // Find the booking
+            $booking = Booking::with('guest')->findOrFail($id);
+
+            // Check if the booking belongs to the authenticated user
+            if ($booking->guest->user_id != $userId) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Bạn không có quyền hủy lịch hẹn này'
+                ], 403);
+            }
+
+            // Check if booking is already completed or cancelled
+            if ($booking->status == 'completed') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không thể hủy lịch hẹn đã hoàn thành'
+                ], 422);
+            }
+
+            if ($booking->status == 'canceled') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Lịch hẹn này đã được hủy trước đó'
+                ], 422);
+            }
+
+            // Check if booking date is in the past
+            $bookingDate = Carbon::parse($booking->booking_date . ' ' . $booking->booking_time);
+            if ($bookingDate->isPast()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không thể hủy lịch hẹn đã qua'
+                ], 422);
+            }
+
+            // Check if cancellation is within 24 hours of appointment
+            $cancellationDeadline = $bookingDate->subHours(24);
+            if (now()->isAfter($cancellationDeadline)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không thể hủy lịch hẹn trong vòng 24 giờ trước thời gian hẹn'
+                ], 422);
+            }
+
+            // Update booking status
+            $booking->status = 'canceled';
+            $booking->cancellation_reason = $request->reason ?? 'Hủy bởi khách hàng';
+            $booking->save();
+
+            // Send notification about cancellation
+            $this->sendCancellationNotification($booking);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Hủy lịch hẹn thành công',
+                'data' => $booking
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy lịch hẹn'
+            ], 404);
+        } catch (\Exception $e) {
+            Log::error('Error in cancelBooking: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'Lỗi khi hủy lịch hẹn: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function sendCancellationNotification(Booking $booking)
+    {
+        $doctor = Doctor::find($booking->doctor_id);
+        $guest = Guest::find($booking->guest_id);
+
+        if (!$guest || !$doctor) return;
+        $bookingDate = Carbon::parse($booking->booking_date)->format('d/m/Y');
+        $bookingTime = Carbon::parse($booking->booking_time)->format('H:i');
+
+        // Gửi thông báo cho bác sĩ về việc hủy lịch hẹn
+        $this->notificationService->sendNotification(
+            $doctor->user_id,
+            "Lịch hẹn đã bị hủy",
+            "Lịch hẹn về {$booking->service_name} với bệnh nhân {$guest->guest_name} vào lúc {$bookingTime} ngày {$bookingDate} đã bị hủy. Lý do: {$booking->cancellation_reason}",
+            "booking",
+            $booking->id
+        );
+
+        // Gửi thông báo xác nhận cho khách hàng
+        $this->notificationService->sendNotification(
+            $guest->user_id,
+            "Xác nhận hủy lịch hẹn",
+            "Lịch hẹn của bạn với bác sĩ {$doctor->doctor_name} về {$booking->service_name} vào lúc {$bookingTime} ngày {$bookingDate} đã được hủy thành công.",
+            "booking",
+            $booking->id
+        );
+    }
 }
