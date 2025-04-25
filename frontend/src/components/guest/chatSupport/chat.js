@@ -4,21 +4,20 @@ import pusher from "../../../services/pusher"; // Import Pusher
 import { Send, User, Bot } from "lucide-react";
 
 const ChatSupport = () => {
-  const [user, setUser] = useState(null); // Lưu thông tin user
-  const [conversations, setConversations] = useState([]); // Danh sách cuộc trò chuyện (cho admin)
-  const [selectedConversation, setSelectedConversation] = useState(null); // Cuộc trò chuyện đang chọn
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "support",
-      text: "Xin chào đến với hệ thống chat hỗ trợ DoctorCare. Bạn cần hỗ trợ gì không ạ?",
-      time: "09:01 AM",
-    },
-  ]);
-  const [newMessage, setNewMessage] = useState("");
-  const messagesEndRef = useRef(null);
+  const [user, setUser] = useState(null); // User info
+  const [conversations, setConversations] = useState([]); // List of conversations (for admin)
+  const [selectedConversation, setSelectedConversation] = useState(null); // Selected conversation
+  const [messages, setMessages] = useState([]); // Messages in the selected conversation
+  const [newMessage, setNewMessage] = useState(""); // Input for new message
+  const messagesEndRef = useRef(null); // Ref for auto-scrolling
 
-  // Lấy thông tin user và conversation khi mount
+  // Function to truncate text with ellipsis
+  const truncateText = (text, maxLength = 20) => {
+    if (!text) return "";
+    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+  };
+
+  // Fetch user info and conversations on mount
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -39,9 +38,11 @@ const ChatSupport = () => {
           const convResponse = await axios.get("http://localhost:8000/api/conversations", {
             headers: { Authorization: `Bearer ${token}` },
           });
-          setConversations(convResponse.data);
-          if (convResponse.data.length > 0) {
-            setSelectedConversation(convResponse.data[0]);
+          // Sort conversations by latest message timestamp before setting state
+          const sortedConversations = sortConversationsByLatestMessage(convResponse.data);
+          setConversations(sortedConversations);
+          if (sortedConversations.length > 0) {
+            setSelectedConversation(sortedConversations[0]);
           }
         }
       } catch (error) {
@@ -51,102 +52,91 @@ const ChatSupport = () => {
     fetchUser();
   }, []);
 
-  // Lấy tin nhắn khi chọn conversation
-  useEffect(() => {
-    if (selectedConversation) {
-      const fetchMessages = async () => {
-        try {
-          const token = localStorage.getItem("authToken");
-          const response = await axios.get(
-            `http://localhost:8000/api/conversations/${selectedConversation.id}/messages`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          const formattedMessages = response.data.map((msg) => ({
-            id: msg.id,
-            sender: msg.sender.role === "admin" ? "support" : "user",
-            text: msg.content,
-            time: new Date(msg.created_at).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            created_at: msg.created_at,
-          }));
-          setMessages(formattedMessages);
-
-          // Update sidebar conversation with latest message
-          setConversations((prevConvs) =>
-            prevConvs.map((conv) =>
-              conv.id === selectedConversation.id
-                ? { ...conv, messages: response.data }
-                : conv
-            )
-          );
-        } catch (error) {
-          console.error("Error fetching messages:", error);
+  // Fetch messages when a conversation is selected
+  const fetchMessages = async () => {
+    if (!selectedConversation) return;
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(
+        `http://localhost:8000/api/conversations/${selectedConversation.id}/messages`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
-      };
-      fetchMessages();
-    }
-  }, [selectedConversation]);
+      );
+      const formattedMessages = response.data.map((msg) => ({
+        id: msg.id,
+        sender: msg.sender.role === "admin" ? "support" : "user",
+        text: msg.content,
+        time: new Date(msg.created_at).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        created_at: msg.created_at,
+      }));
+      setMessages(formattedMessages);
 
-  // Đăng ký Pusher để nhận tin nhắn thời gian thực
-  useEffect(() => {
-    if (selectedConversation) {
-      const channel = pusher.subscribe(`conversation.${selectedConversation.id}`);
-      channel.bind("App\\Events\\MessageSent", (data) => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: data.id,
-            sender: data.sender_role === "admin" ? "support" : "user",
-            text: data.content,
-            time: new Date(data.created_at).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            created_at: data.created_at,
-          },
-        ]);
-        // Update sidebar conversation with latest message
-        setConversations((prevConvs) =>
-          prevConvs.map((conv) =>
-            conv.id === selectedConversation.id
-              ? {
-                  ...conv,
-                  messages: [
-                    {
-                      id: data.id,
-                      content: data.content,
-                      created_at: data.created_at,
-                    },
-                  ],
-                }
-              : conv
-          )
+      // Update sidebar conversation with latest message
+      setConversations((prevConvs) => {
+        const updatedConvs = prevConvs.map((conv) =>
+          conv.id === selectedConversation.id
+            ? { ...conv, messages: response.data }
+            : conv
         );
+        
+        // Sort conversations by latest message timestamp (newest first)
+        return sortConversationsByLatestMessage(updatedConvs);
       });
-
-      return () => {
-        channel.unbind_all();
-        channel.unsubscribe();
-      };
+    } catch (error) {
+      console.error("Error fetching messages:", error);
     }
+  };
+
+  // Helper function to sort conversations by latest message timestamp
+  const sortConversationsByLatestMessage = (conversations) => {
+    return [...conversations].sort((a, b) => {
+      const aLatestMessage = a.messages && a.messages.length > 0 ? 
+        new Date(a.messages[a.messages.length - 1].created_at).getTime() : 0;
+      const bLatestMessage = b.messages && b.messages.length > 0 ? 
+        new Date(b.messages[b.messages.length - 1].created_at).getTime() : 0;
+      
+      // Sort in descending order (newest first)
+      return bLatestMessage - aLatestMessage;
+    });
+  };
+
+  useEffect(() => {
+    fetchMessages();
   }, [selectedConversation]);
 
-  // Tự động scroll đến tin nhắn mới nhất
+  // Subscribe to Pusher for real-time messages
+  useEffect(() => {
+    if (!selectedConversation) return;
+
+    const channel = pusher.subscribe(`conversation.${selectedConversation.id}`);
+    channel.bind("App\\Events\\MessageSent", (data) => {
+      // Fetch messages from API to ensure consistency instead of appending directly
+      fetchMessages();
+    });
+
+    return () => {
+      channel.unbind_all();
+      channel.unsubscribe();
+    };
+  }, [selectedConversation]);
+
+  // Auto-scroll to the latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Handle sending a message
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation) return;
 
     const token = localStorage.getItem("authToken");
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8000/api/messages",
         {
           conversation_id: selectedConversation.id,
@@ -154,27 +144,69 @@ const ChatSupport = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Only add the message immediately if admin, else wait for Pusher
-      if (user?.role === "admin") {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: response.data.id,
-            sender: "support",
-            text: newMessage,
-            time: new Date(response.data.created_at).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-            created_at: response.data.created_at,
-          },
-        ]);
-      }
       setNewMessage("");
+      // Fetch messages immediately after sending to ensure UI consistency
+      await fetchMessages();
     } catch (error) {
       console.error("Error sending message:", error.response?.data || error.message);
       alert("Không thể gửi tin nhắn: " + (error.response?.data?.message || error.message));
     }
+  };
+
+  // Function to convert URLs in text to clickable links
+  const linkifyText = (text) => {
+    if (!text) return "";
+    
+    // Regular expression to match URLs
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    
+    // If no URLs in text, return the plain text
+    if (!text.match(urlRegex)) {
+      return text;
+    }
+    
+    // Split the text by URLs and create an array of elements
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    
+    // Use exec to iterate through all matches
+    while ((match = urlRegex.exec(text)) !== null) {
+      // Add text before the URL
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+      
+      // Add the URL as a link
+      const url = match[0];
+      parts.push(
+        <a 
+          key={match.index} 
+          href={url} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="text-blue-300 hover:underline"
+          onClick={(e) => {
+            // For internal links, prevent default and use router navigation
+            if (url.includes('localhost') || !url.startsWith('http')) {
+              e.preventDefault();
+              window.location.href = url;
+            }
+          }}
+        >
+          {url}
+        </a>
+      );
+      
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Add any remaining text after the last URL
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts;
   };
 
   return (
@@ -223,7 +255,7 @@ const ChatSupport = () => {
                   <div className="font-semibold text-gray-800">{conv.guest.name}</div>
                   <div className="text-sm text-gray-500 truncate">
                     {conv.messages && conv.messages.length > 0
-                      ? conv.messages[conv.messages.length - 1].content
+                      ? truncateText(conv.messages[conv.messages.length - 1].content)
                       : "Chưa có tin nhắn"}
                   </div>
                 </div>
@@ -255,7 +287,7 @@ const ChatSupport = () => {
               <div className="ml-3 flex-1">
                 <div className="font-semibold text-gray-800">Hỗ trợ khách hàng</div>
                 <div className="text-sm text-gray-500 truncate">
-                  Xin chào đến với h...
+                  {truncateText("Xin chào đến với hỗ trợ khách hàng")}
                 </div>
               </div>
               <div className="text-xs text-gray-400">09:01 AM</div>
@@ -310,7 +342,7 @@ const ChatSupport = () => {
                     : message.sender === "user"
                     ? "justify-end"
                     : "justify-start"
-                } space-x-2`}
+                } space FIELD-2 space-x-2`}
               >
                 {/* Avatar for left side (receiver) */}
                 {(user?.role === "admin" && message.sender === "user") ||
@@ -340,7 +372,7 @@ const ChatSupport = () => {
                       : "bg-white text-gray-800 rounded-bl-none"
                   } shadow-sm`}
                 >
-                  <p className="text-[15px] leading-relaxed">{message.text}</p>
+                  <p className="text-[15px] leading-relaxed">{linkifyText(message.text)}</p>
                   <span
                     className={`text-xs ${
                       user?.role === "admin"
@@ -349,7 +381,7 @@ const ChatSupport = () => {
                           : "text-gray-400"
                         : message.sender === "user"
                         ? "text-blue-200"
-                        : "text-gray-400"
+                          : "text-gray-400"
                     } block text-right mt-1`}
                   >
                     {message.time}
