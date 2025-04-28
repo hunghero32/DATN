@@ -75,17 +75,12 @@ const ClinicDetail = () => {
             <h3 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-1">
               {doctor.doctor_name}
             </h3>
-            <p className="text-gray-600 mb-2 line-clamp-1">Consultant Cardiologist</p>
-
             <div className="flex flex-wrap justify-center gap-2 mb-4">
               {doctor.specialty && (
                 <span className="px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-sm line-clamp-1">
                   {doctor.specialty.name}
                 </span>
               )}
-              <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
-                Electrophysiology
-              </span>
             </div>
           </div>
 

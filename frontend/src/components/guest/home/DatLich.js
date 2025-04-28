@@ -231,7 +231,11 @@ const DatLich = () => {
                   </Text>
                 )}
                 <Text className="block text-gray-600 mb-2">
-                  🕒 Thời gian khám: {bookingData?.date} | {bookingData?.time}
+                  🕒 Thời gian khám: {new Date(bookingData?.date).toLocaleDateString('vi-VN', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  })} | {bookingData?.time}
                 </Text>
               </div>
             </div>
@@ -251,7 +255,7 @@ const DatLich = () => {
       </Card>
 
       <Card className="p-6 mt-6">
-        <Form
+        <Form 
           form={form}
           layout="vertical"
           initialValues={{
@@ -264,7 +268,7 @@ const DatLich = () => {
             reason: ""
           }}
           onFinish={onFinish}
-          className="space-y-4"
+          className="space-y-4 p-4"
         >
           <Form.Item 
             name="guest_name" 
@@ -320,16 +324,12 @@ const DatLich = () => {
           <Form.Item name="address" label="🏠 Địa chỉ" rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}>
             <Input.TextArea rows={2} placeholder="Nhập địa chỉ chi tiết" className="rounded-lg" />
           </Form.Item>
-          <Divider />
-          <Text className="font-semibold text-green-700 text-base">
-            💳 Hình thức thanh toán: Thanh toán sau tại cơ sở y tế
-          </Text>
-          <Divider />
+        
 
           <Alert
-            message="Thông tin bạn nhập sẽ được sử dụng để đặt lịch. Vui lòng kiểm tra trước khi xác nhận."
+            message="Thông tin bạn nhập sẽ được sử dụng để đặt lịch. Vui lòng kiểm tra trước khi xác nhận !"
             type="info"
-            showIcon
+            // showIcon
           />
 
           <Form.Item>
@@ -339,7 +339,7 @@ const DatLich = () => {
               loading={loading}
               block
               size="large"
-              className="bg-blue-600 hover:bg-blue-700 border-none text-white rounded-lg font-semibold"
+              className="bg-blue-600 hover:bg-blue-700 border-none mt-4 text-white rounded-lg font-semibold"
             >
               ✅ Xác nhận đặt lịch
             </Button>

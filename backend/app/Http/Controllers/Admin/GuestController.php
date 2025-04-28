@@ -33,15 +33,15 @@ class GuestController extends Controller
         // Lọc theo tuổi
         if ($request->filled('age')) {
             $today = now();
-            $ageRanges = [
-                '18-25' => [$today->subYears(25), $today->subYears(18)],
-                '26-35' => [$today->subYears(35), $today->subYears(26)],
-                '36-50' => [$today->subYears(50), $today->subYears(36)],
-                '50+'   => [$today->subYears(100), $today->subYears(50)],
+            $age = [
+                '18-25' => [$today->copy()->subYears(25), $today->copy()->subYears(18)],
+                '26-35' => [$today->copy()->subYears(35), $today->copy()->subYears(26)],
+                '36-50' => [$today->copy()->subYears(50), $today->copy()->subYears(36)],
+                '50+'   => [$today->copy()->subYears(100), $today->copy()->subYears(50)],
             ];
 
-            if (isset($ageRanges[$request->age])) {
-                $query->whereBetween('birthday', $ageRanges[$request->age]);
+            if (isset($age[$request->age])) {
+                $query->whereBetween('birthday', $age[$request->age]);
             }
         }
 
@@ -110,7 +110,7 @@ class GuestController extends Controller
     /**
      * Update the specified resource in storage.
      */
-   
+
     /**
      * Remove the specified resource from storage.
      */
