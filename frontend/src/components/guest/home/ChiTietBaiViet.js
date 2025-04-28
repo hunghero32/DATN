@@ -55,7 +55,7 @@ const ChiTietBaiViet = () => {
     // Hiển thị bài viết
     return (
         <div className="container mx-auto p-6 mt-16 mb-8">
-            <article className="max-w-4xl mx-auto">
+            <article className="max-w-4xl mt-4 mb-4 mx-auto">
                 {/* Header Section */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -101,7 +101,7 @@ const ChiTietBaiViet = () => {
                 )}
 
                 {/* Author Info */}
-                <div className="bg-blue-50 rounded-lg p-6 mb-8">
+                <div className="bg-blue-50 rounded-lg mt-4 p-6 mb-8">
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
                             <div className="h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl font-bold">

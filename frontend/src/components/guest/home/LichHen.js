@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import ReCAPTCHA from "react-google-recaptcha";
 import "remixicon/fonts/remixicon.css";
 import api from "../../../ultils/api/axios";
 import { Modal } from "react-bootstrap";
@@ -17,7 +18,12 @@ const LichHen = () => {
   });
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const nav = useNavigate()
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const nav = useNavigate();
+  const [captchaValue, setCaptchaValue] = useState(null);
+  const [showCaptcha, setShowCaptcha] = useState(false);
+
   const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -29,12 +35,12 @@ const LichHen = () => {
         status: "pending",
         guest_id: selectedAppointment.guest_id
       });
-      
+
       if (response.data.status) {
         toast.success("Đánh giá đã được gửi thành công!");
         setShowFeedbackModal(false);
         setTimeout(() => {
-        nav('/danhgia')
+          nav('/danhgia');
         }, 2000);
       } else {
         toast.error(response.data.message || "Không thể gửi đánh giá");
@@ -45,13 +51,55 @@ const LichHen = () => {
     }
   };
 
+  const handleCancel = async () => {
+    if (!showCaptcha) {
+      setShowCaptcha(true);
+      return;
+    }
+  
+    if (!captchaValue) {
+      toast.error("Vui lòng xác nhận bạn không phải người máy!");
+      return;
+    }
+  
+    // Nếu đã xác nhận captcha -> tiến hành gửi hủy
+    try {
+      const response = await api.post(`/api/client/cancel-booking/${selectedAppointment.id}`, {
+        reason: cancelReason,
+        recaptcha: captchaValue
+      });
+      if (response.data.status) {
+        toast.success("Hủy lịch hẹn thành công!");
+        setShowCancelModal(false);
+        setCancelReason("");
+        setCaptchaValue(null);
+        setShowCaptcha(false);
+        // Làm mới danh sách lịch hẹn
+        api.get("/api/client/appointments")
+          .then((res) => {
+            if (res.data.status) {
+              setAppointments(res.data.data);
+            } else {
+              setError(res.data.message);
+            }
+          })
+          .catch(() => setError("Lỗi khi làm mới danh sách lịch hẹn."))
+          .finally(() => setLoading(false));
+      } else {
+        toast.error(response.data.message || "Không thể hủy lịch hẹn.");
+      }
+    } catch (error) {
+      console.error("Error canceling appointment:", error.response?.data);
+      toast.error(error.response?.data?.message || "Đã xảy ra lỗi khi hủy lịch hẹn.");
+    }
+  };
+  
+
   useEffect(() => {
-    api
-      .get("/api/client/appointments")
+    api.get("/api/client/appointments")
       .then((response) => {
         if (response.data.status) {
           setAppointments(response.data.data);
-          console.log("Appointments data:", response.data.data);
         } else {
           setError(response.data.message);
         }
@@ -89,7 +137,7 @@ const LichHen = () => {
               key={appointment.id}
               className="bg-white shadow-lg rounded-lg overflow-hidden w-full max-w-2xl p-5 mb-5 border border-gray-200"
             >
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-8">
                 <img
                   src={`http://localhost:8000/storage/${appointment.doctor_avatar}`}
                   alt={appointment.doctor_name}
@@ -100,7 +148,7 @@ const LichHen = () => {
                     {appointment.doctor_name}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {appointment.service_name}
+                    Dịch vụ khám: {appointment.service_name}
                   </p>
                 </div>
               </div>
@@ -108,12 +156,11 @@ const LichHen = () => {
               <div className="border-t border-gray-200 mt-3 pt-3">
                 <p>
                   <i className="ri-user-line text-blue-500"></i>
-                  <strong> Khách hàng:</strong> {appointment.guest_name} (
-                  {appointment.guest_phone})
+                  <strong> Khách hàng:</strong> {appointment.guest_name} ({appointment.guest_phone})
                 </p>
                 <p>
                   <i className="ri-calendar-line text-blue-500"></i>
-                  <strong> Ngày đặt:</strong> {appointment.booking_date}
+                  <strong> Ngày đặt:</strong> {new Date(appointment.booking_date).toLocaleDateString('vi-VN')}
                 </p>
                 <p>
                   <i className="ri-time-line text-blue-500"></i>
@@ -127,129 +174,142 @@ const LichHen = () => {
                   <i className="ri-checkbox-circle-line text-blue-500"></i>
                   <strong> Trạng thái:</strong>
                   <span
-                    className={`ml-2 px-2 py-1 rounded text-sm ${appointment.status === "completed"
-                      ? "bg-green-500 text-white"
-                      : appointment.status === "confirmed"
+                    className={`ml-2 px-2 py-1 rounded text-sm ${
+                      appointment.status === "completed"
+                        ? "bg-green-500 text-white"
+                        : appointment.status === "confirmed"
                         ? "bg-yellow-500 text-white"
-                        : "bg-gray-500 text-white"
-                      }`}
+                        : appointment.status === "pending"
+                        ? "bg-gray-500 text-white"
+                        : "bg-red-500 text-white"
+                    }`}
                   >
                     {appointment.status === "completed"
                       ? "Hoàn thành"
                       : appointment.status === "confirmed"
-                        ? "Đã xác nhận"
-                        : "Chờ xác nhận"}
+                      ? "Đã xác nhận"
+                      : appointment.status === "pending"
+                      ? "Chờ xác nhận"
+                      : "Đã hủy"}
                   </span>
                 </p>
 
-                {appointment.status === "completed" && (
-                  <div className="mt-4 flex gap-3">
-                    <Link
-                      to={`/hoadon/${appointment.id}`}
-                      className="inline-block px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
-                    >
-                      <i className="ri-file-text-line mr-2"></i> Xem Hóa Đơn
-                    </Link>
-
-                    <Link
-                      to={`/ketqua/${appointment.id}`}
-                      className="inline-block px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700 transition"
-                    >
-                      <i className="ri-clipboard-line mr-2"></i> Xem Kết Quả
-                    </Link>
-                    {!appointment.has_feedback && (
-                      <button
-                        onClick={() => {
-                          setSelectedAppointment({
-                            ...appointment,
-                            id: appointment.id,
-                            service_id: appointment.service_id,
-                            guest_id: appointment.guest_id  // Add guest_id
-                          });
-                          setFeedbackData({
-                            rating: 5,
-                            comments: "",
-                          });
-                          setShowFeedbackModal(true);
-                        }}
-                        className="inline-block px-4 py-2 bg-purple-600 text-white font-semibold rounded hover:bg-purple-700 transition"
+                <div className="mt-4 flex gap-3">
+                  {appointment.status === "completed" && (
+                    <>
+                      <Link
+                        to={`/hoadon/${appointment.id}`}
+                        className="inline-block px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
                       >
-                        <i className="ri-star-line mr-2"></i> Đánh giá
-                      </button>
-                    )}
-                  </div>
-                )}
+                        <i className="ri-file-text-line mr-2"></i> Xem Hóa Đơn
+                      </Link>
+
+                      <Link
+                        to={`/ketqua/${appointment.id}`}
+                        className="inline-block px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700 transition"
+                      >
+                        <i className="ri-clipboard-line mr-2"></i> Xem Kết Quả
+                      </Link>
+
+                      {!appointment.has_feedback && (
+                        <button
+                          onClick={() => {
+                            setSelectedAppointment({
+                              ...appointment,
+                              id: appointment.id,
+                              service_id: appointment.service_id,
+                              guest_id: appointment.guest_id
+                            });
+                            setFeedbackData({
+                              rating: 5,
+                              comments: "",
+                            });
+                            setShowFeedbackModal(true);
+                          }}
+                          className="inline-block px-4 py-2 bg-purple-600 text-white font-semibold rounded hover:bg-purple-700 transition"
+                        >
+                          <i className="ri-star-line mr-2"></i> Đánh giá
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {appointment.status === "pending" && (
+                    <button
+                      onClick={() => {
+                        setSelectedAppointment(appointment);
+                        setShowCancelModal(true);
+                      }}
+                      className="inline-block px-4 py-2 bg-red-600 text-white font-semibold rounded hover:bg-red-700 transition"
+                    >
+                      <i className="ri-close-circle-line mr-2"></i> Hủy Lịch Hẹn
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Modal đánh giá */}
-      {showFeedbackModal && (
-        <Modal
-          show={showFeedbackModal}
-          onHide={() => setShowFeedbackModal(false)}
-          centered
-        >
-          <Modal.Header closeButton className="border-0 pb-0">
-            <Modal.Title className="w-100 text-center">
-              <i className="ri-star-line text-4xl text-purple-600"></i>
-              <h4 className="mt-3 font-semibold">Đánh giá dịch vụ</h4>
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="px-4 py-4">
-            <div className="mb-3">
-              <p><strong>Bác sĩ:</strong> {selectedAppointment?.doctor_name}</p>
-              <p><strong>Dịch vụ:</strong> {selectedAppointment?.service_name}</p>
+      {/* Modal hủy lịch hẹn */}
+      <Modal 
+        show={showCancelModal} 
+        onHide={() => {
+          setShowCancelModal(false);
+          setCancelReason("");
+          setCaptchaValue(null);
+          setShowCaptcha(false);
+        }}
+        size="md"
+        style={{ marginTop: '20px' }}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Hủy Lịch Hẹn</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto', minHeight: '300px' }}>
+          <div className="mb-4 max-w-md mx-auto">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Lý do hủy:
+            </label>
+            <textarea
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              rows="5"
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Vui lòng nhập lý do hủy lịch hẹn..."
+            />
+          </div>
+          {showCaptcha && (
+            <div className="mb-4 mt-8">
+              <ReCAPTCHA
+                sitekey="6Lfa2SYrAAAAAE6mHb6ciIy5XGy2N3jm7o3_3TWY"
+                onChange={(value) => setCaptchaValue(value)}
+              />
             </div>
-            <div className="mb-3">
-              <label className="block mb-1">Đánh giá (số sao):</label>
-              <select
-                className="w-full border rounded p-2"
-                value={feedbackData.rating}
-                onChange={(e) =>
-                  setFeedbackData({
-                    ...feedbackData,
-                    rating: parseInt(e.target.value),
-                  })
-                }
-              >
-                {[5, 4, 3, 2, 1].map((rate) => (
-                  <option key={rate} value={rate}>
-                    {rate} sao
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="mb-3">
-              <label className="block mb-1">Nội dung đánh giá:</label>
-              <textarea
-                className="w-full border rounded p-2"
-                rows="3"
-                value={feedbackData.comments}
-                onChange={(e) =>
-                  setFeedbackData({ ...feedbackData, comments: e.target.value })
-                }
-              ></textarea>
-            </div>
-          </Modal.Body>
-          <Modal.Footer className="border-0 justify-center">
-            <button
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              onClick={() => setShowFeedbackModal(false)}
-            >
-              Hủy
-            </button>
-            <button
-              className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-              onClick={handleFeedbackSubmit}
-            >
-              Gửi đánh giá
-            </button>
-          </Modal.Footer>
-        </Modal>
-      )}
+          )}
+        </Modal.Body>
+        <Modal.Footer style={{ position: 'relative', zIndex: 1000 }}>
+          <button
+            className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+            onClick={() => {
+              setShowCancelModal(false);
+              setCancelReason("");
+              setCaptchaValue(null);
+              setShowCaptcha(false);
+            }}
+          >
+            Đóng
+          </button>
+          <button
+            className="bg-red-600 text-white px-4 py-2 rounded"
+            onClick={handleCancel}
+            disabled={showCaptcha && !captchaValue}
+          >
+            Xác nhận hủy
+          </button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
