@@ -51,7 +51,7 @@ class SpecialtyController extends Controller
 
     public function edit($id)
     {
-        $specialty = Specialty::where('id', $id)->where('isDeleted', 0)->firstOrFail();
+        $specialty = Specialty::where('id', $id)->firstOrFail();
         return view('admin.pages.specialties.edit', compact('specialty'));
     }
 
