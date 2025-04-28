@@ -1,8 +1,18 @@
 @extends('admin.index')
 
 @section('content')
-<div class="container mt-4">
-    <h2 class="mb-3">Danh sách hóa đơn</h2>
+{{-- <div class="container mt-4">
+    <h2 class="mb-3">Danh sách hóa đơn</h2> --}}
+    <div class="content-wrapper">
+        <div class="container-xxl flex-grow-1 container-p-y">
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"></span> Hóa đơn</h4>
+    
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Danh sách hóa đơn</h5>
+                </div>
+    
+                <div class="card-body">
 
     <!-- Form tìm kiếm -->
     <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
@@ -66,6 +76,9 @@
 </div>
 <div class="d-flex justify-content-center mt-3">
     {{ $invoices->links() }}
+</div>
+</div>
+</div>
 </div>
 
 @endsection
