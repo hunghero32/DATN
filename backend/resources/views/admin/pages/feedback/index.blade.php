@@ -1,8 +1,18 @@
 @extends('admin.index')
 
 @section('content')
-<div class="container mt-4">
-    <h2 class="mb-3">Danh Sách Đánh giá</h2>
+{{-- <div class="container mt-4">
+    <h2 class="mb-3">Danh Sách Đánh giá</h2> --}}
+    <div class="content-wrapper">
+        <div class="container-xxl flex-grow-1 container-p-y">
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light"></span> Đánh giá</h4>
+    
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Danh sách đánh giá</h5>
+                </div>
+    
+                <div class="card-body">
 
     <form action="{{ route('admin.feedback.index') }}" method="GET" class="mb-3">
         <div class="row d-flex align-items-center">
@@ -22,6 +32,13 @@
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary">Tìm kiếm</button>
             </div>
+            <div class="col-md-3 text-center">
+                <div class="bg-light border rounded p-2">
+                    <strong class="text-success">
+                        Tổng số lượt đánh giá: {{ $feedbacks->total() }}
+                    </strong>
+                </div>
+            </div>            
         </div>
     </form>
 
@@ -86,5 +103,7 @@
     {{ $averageRatings->appends(['avg_page' => request('avg_page')])->links() }}
     </div>
 </div>
-
+</div>
+</div>
+</div>
 @endsection
