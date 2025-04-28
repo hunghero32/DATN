@@ -20,12 +20,11 @@ class Doctor extends Model
         'isDeleted'
     ];
 
+  // In app/Models/Doctor.php
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
-
-
 
     // Quan hệ với bảng Specialty
     public function specialty()
@@ -45,4 +44,5 @@ class Doctor extends Model
     {
         return $this->hasMany(DoctorService::class, 'doctor_id', 'id');
     }
+
 }

@@ -1,6 +1,6 @@
 @props(['columns', 'data', 'actions' => [], 'route' => '', 'selects' => [], 'detailModal' => []])
 <x-flash-message />
-<div class="content-wrapper mt-3">
+<div class="content-wrapper mt-3 shadow-lg border-0 mb-4 rounded">
     <div class="container-xxl flex-grow-1 container-p-y mb-5">
         <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Danh sách /</span> {{ $title }}</h4>
         <form method="GET" action="{{ $route }}">
@@ -60,7 +60,7 @@
             </div>
         @endif
 
-        <table class="table">
+        <table class="table table-hover table-striped table-bordered align-middle text-center rounded mt-2">
             <thead>
                 <tr>
                     <th>STT</th>
@@ -118,18 +118,17 @@
                                     <img src="{{ Storage::url($row[$column['key']]) }}" alt="Image" class="img-thumbnail" width="100">
 
                                 {{-- Hiển thị dữ liệu khác --}}
+                                @elseif (is_numeric($row[$column['key']]))
+                                    {{ number_format($row[$column['key']], 0, ',', '.') }}
                                 @elseif (!empty($row[$column['key']]) && strtotime($row[$column['key']]) !== false)
                                     @if (preg_match('/^\d{2}:\d{2}:\d{2}$/', $row[$column['key']]))
                                         {{ $row[$column['key']] }}
                                     @else
                                         {{ \Carbon\Carbon::parse($row[$column['key']])->format('d/m/Y') }}
                                     @endif
-                                @elseif (is_numeric($row[$column['key']]))
-                                    {{ number_format($row[$column['key']], 0, ',', '.') }}
                                 @else
                                     {{ $row[$column['key']] ?? '' }}
                                 @endif
-                            </td>
                         @endforeach
 
                         {{-- Cột Actions với dropdown --}}
@@ -241,7 +240,9 @@
                                                     <!-- Giao diện textarea -->
                                                     <div class="mb-3 col-md-12">
                                                         <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
-                                                        <textarea class="form-control" id="{{ $field['name'] }}{{ $row['id'] }}" readonly>{{ $row[$field['name']] ?? 'Chưa cập nhật' }}</textarea>
+                                                        <div class="form-control textarea-content" style="min-height: 150px; overflow-y: auto;">
+                                                            {!! $row[$field['name']] ?? 'Chưa cập nhật' !!}
+                                                        </div>
                                                     </div>
                                                 @elseif ($field['type'] == 'custom' && isset($field['template']))
                                                     <!-- Giao diện tùy chỉnh với template -->
@@ -257,6 +258,8 @@
                                                         <label for="{{ $field['name'] }}" class="form-label">{{ $field['label'] }}</label>
                                                         @if ($field['type'] == 'select')
                                                             <input type="text" class="form-control" value="{{ $field['options'][$row[$field['name']]] ?? 'Chưa cập nhật' }}" readonly>
+                                                        @elseif ($field['type'] == 'number' || $field['name'] == 'price' || (is_numeric($row[$field['name']] ?? '') && $row[$field['name']] > 999))
+                                                            <input type="text" class="form-control" value="{{ number_format($row[$field['name']] ?? 0, 0, ',', '.') }}" readonly>
                                                         @else
                                                             <input type="text" class="form-control" value="{{ $row[$field['name']] ?? 'Chưa cập nhật' }}" readonly>
                                                         @endif
@@ -406,6 +409,20 @@
     margin: 0;
     padding: 0;
 }
+.textarea-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.textarea-content img {
+    max-width: 100%;
+    height: auto;
+}
+
 
 /* Status colors */
 .badge.bg-success { --status-color: #28a745; }
@@ -414,6 +431,7 @@
 .badge.bg-info { --status-color: #17a2b8; }
 .badge.bg-secondary { --status-color: #6c757d; }
 </style>
+
 
 
 

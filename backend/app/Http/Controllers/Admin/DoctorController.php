@@ -94,13 +94,9 @@ class DoctorController extends Controller
 
     public function create()
     {
-        $doctors = User::where('role', 'doctor')
-            ->where('isDeleted', 0)
-            ->get();
 
         return view('admin.pages.doctor.create', [
             'specialties' => Specialty::pluck('name', 'id')->toArray(),
-            'doctors' => $doctors
         ]);
     }
 
@@ -108,34 +104,27 @@ class DoctorController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
-            'doctor_name' => [
-                'required',
-                'string',
-                'max:255',
-                function ($attribute, $value, $fail) {
-                    $exists = Doctor::where('doctor_name', $value)
-                        ->where('isDeleted', 0)
-                        ->exists();
-                    if ($exists) {
-                        $fail('Tên bác sĩ đã tồn tại trong hệ thống.');
-                    }
-                }
-            ],
-            'doctor_avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'doctor_name' => 'required|string|max:255',
-            'doctor_bio' => 'nullable|string|max:1000',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'phone' => 'required|string|max:15',
+            'doctor_avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'doctor_bio' => 'nullable|string',
             'exp' => 'required|integer|min:0|max:50', // Giới hạn kinh nghiệm từ 0-50 năm
             'file' => 'required|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
             'specialty_id' => 'required|exists:specialties,id'
         ], [
-            'user_id.required' => 'Vui lòng chọn tài khoản bác sĩ',
-            'user_id.exists' => 'Tài khoản bác sĩ không tồn tại',
+            'doctor_name.required' => 'Tên bác sĩ là bắt buộc.',
+            'email.required' => 'Email là bắt buộc.',
+            'email.email' => 'Email không đúng định dạng.',
+            'email.unique' => 'Email đã tồn tại trong hệ thống.',
+            'password.required' => 'Mật khẩu là bắt buộc.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'phone.required' => 'Số điện thoại là bắt buộc.',
             'doctor_avatar.required' => 'Ảnh đại diện là bắt buộc.',
             'doctor_avatar.image' => 'Ảnh đại diện phải là định dạng ảnh hợp lệ.',
             'doctor_avatar.mimes' => 'Ảnh chỉ được chọn các định dạng: jpeg, png, jpg, gif, svg.',
             'doctor_avatar.max' => 'Kích thước ảnh tối đa là 2MB.',
-            'doctor_name.required' => 'Tên bác sĩ là bắt buộc.',
             'specialty_id.required' => 'Chuyên khoa là bắt buộc.',
             'specialty_id.exists' => 'Chuyên khoa không hợp lệ.',
             'exp.required' => 'Kinh nghiệm là bắt buộc.',
@@ -145,7 +134,6 @@ class DoctorController extends Controller
             'file.required' => 'Tệp tải lên là bắt buộc.',
             'file.mimes' => 'Chỉ chấp nhận các định dạng: PDF, DOC, DOCX, JPG, PNG.',
             'file.max' => 'Kích thước tệp tối đa là 5MB.',
-
         ]);
 
         // Check if validation fails
@@ -153,23 +141,21 @@ class DoctorController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Check if doctor profile already exists for this user
-        $existingDoctor = Doctor::where('user_id', $request->user_id)
-            ->where('isDeleted', 0)
-            ->first();
+        // Tạo user mới với role là doctor
+        $user = User::create([
+            'name' => $request->doctor_name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'phone' => $request->phone,
+            'role' => 'doctor',
+        ]);
 
-        if ($existingDoctor) {
-            return redirect()->back()
-                ->withErrors(['user_id' => 'Bác sĩ này đã có hồ sơ trong hệ thống'])
-                ->withInput();
-        }
-
-        // Proceed with storing the data
+        // Proceed with storing the doctor data
         $avatarPath = $request->file('doctor_avatar') ? $request->file('doctor_avatar')->store('avatars', 'public') : null;
         $filePath = $request->file('file') ? $request->file('file')->store('files', 'public') : null;
 
         Doctor::create([
-            'user_id' => $request->user_id,  // Updated to use selected user_id
+            'user_id' => $user->id,  // Sử dụng ID của user vừa tạo
             'doctor_avatar' => $avatarPath,
             'doctor_name' => $request->doctor_name,
             'doctor_bio' => $request->doctor_bio,
@@ -182,74 +168,74 @@ class DoctorController extends Controller
         return redirect()->route('admin.doctors.index')->with('success', 'Bác sĩ đã được tạo thành công!');
     }
 
+
+
     public function edit($id)
     {
-        $data = Doctor::findOrFail($id);
-        $doctors = User::where('role', 'doctor')
-            ->where('isDeleted', 0)
-            ->get();
+        // Get doctor data with user information using join instead of relationship
+        $data = Doctor::select('doctors.*', 'users.email', 'users.phone')
+            ->join('users', 'doctors.user_id', '=', 'users.id')
+            ->where('doctors.id', $id)
+            ->where('doctors.isDeleted', 0)
+            ->first();
 
+        if (!$data) {
+            return redirect()->route('admin.doctors.index')
+                ->with('error', 'Doctor not found or has been deleted.');
+        }
+
+        // Make user data directly accessible as properties of $data
+        $data->email = $data->email;
+        $data->phone = $data->phone;
         return view('admin.pages.doctor.edit', [
             'data' => $data,
             'specialties' => Specialty::pluck('name', 'id'),
-            'doctors' => $doctors
         ]);
     }
-
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
-            'doctor_name' => [
-                'required',
-                'string',
-                'max:255',
-                function ($attribute, $value, $fail) use ($id) {
-                    $exists = Doctor::where('doctor_name', $value)
-                        ->where('id', '!=', $id)
-                        ->where('isDeleted', 0)
-                        ->exists();
-                    if ($exists) {
-                        $fail('Tên bác sĩ đã tồn tại trong hệ thống.');
-                    }
-                }
-            ],
-            'doctor_avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        $doctor = Doctor::with('user')->findOrFail($id);
+
+        $rules = [
             'doctor_name' => 'required|string|max:255',
-            'doctor_bio' => 'nullable|string|max:1000',
-            'exp' => 'required|integer|min:0|max:50', // Giới hạn kinh nghiệm từ 0-50 năm
-            'file' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
-            'specialty_id' => 'required|exists:specialties,id'
-        ], [
-            'user_id.required' => 'Vui lòng chọn tài khoản bác sĩ',
-            'user_id.exists' => 'Tài khoản bác sĩ không tồn tại',
-            'doctor_avatar.required' => 'Ảnh đại diện là bắt buộc.',
+            'email' => 'required|email|unique:users,email,'.$doctor->user_id,
+            'phone' => 'required|string|max:15',
+            'doctor_avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'doctor_bio' => 'nullable|string',
+            'exp' => 'required|integer|min:0|max:50',
+            'file' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120',
+            'specialty_id' => 'required|exists:specialties,id',
+            'password' => 'nullable|min:6',
+        ];
+
+        $messages = [
+            'doctor_name.required' => 'Tên bác sĩ là bắt buộc.',
+            'email.required' => 'Email là bắt buộc.',
+            'email.email' => 'Email không đúng định dạng.',
+            'email.unique' => 'Email đã tồn tại trong hệ thống.',
+            'phone.required' => 'Số điện thoại là bắt buộc.',
             'doctor_avatar.image' => 'Ảnh đại diện phải là định dạng ảnh hợp lệ.',
             'doctor_avatar.mimes' => 'Ảnh chỉ được chọn các định dạng: jpeg, png, jpg, gif, svg.',
             'doctor_avatar.max' => 'Kích thước ảnh tối đa là 2MB.',
-            'doctor_name.required' => 'Tên bác sĩ là bắt buộc.',
             'specialty_id.required' => 'Chuyên khoa là bắt buộc.',
             'specialty_id.exists' => 'Chuyên khoa không hợp lệ.',
             'exp.required' => 'Kinh nghiệm là bắt buộc.',
             'exp.integer' => 'Kinh nghiệm phải là số nguyên.',
             'exp.min' => 'Kinh nghiệm không thể nhỏ hơn 0 năm.',
             'exp.max' => 'Kinh nghiệm không thể lớn hơn 50 năm.',
-            'file.required' => 'Tệp tải lên là bắt buộc.',
             'file.mimes' => 'Chỉ chấp nhận các định dạng: PDF, DOC, DOCX, JPG, PNG.',
-            'file.max' => 'Kích thước tệp tối đa là 5MB.'
-        ]);
+            'file.max' => 'Kích thước tệp tối đa là 5MB.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+        ];
 
-        // Nếu validate thất bại, quay lại với lỗi
+        $validator = Validator::make($request->all(), $rules, $messages);
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Tìm bác sĩ theo ID
-        $doctor = Doctor::findOrFail($id);
-
         // Xử lý ảnh đại diện nếu có upload mới
         if ($request->hasFile('doctor_avatar')) {
-            // Xóa ảnh cũ (nếu có)
             if ($doctor->doctor_avatar) {
                 Storage::disk('public')->delete($doctor->doctor_avatar);
             }
@@ -259,7 +245,6 @@ class DoctorController extends Controller
 
         // Xử lý file upload (CV, chứng chỉ)
         if ($request->hasFile('file')) {
-            // Xóa file cũ (nếu có)
             if ($doctor->file) {
                 Storage::disk('public')->delete($doctor->file);
             }
@@ -269,15 +254,31 @@ class DoctorController extends Controller
 
         // Cập nhật thông tin bác sĩ
         $doctor->update([
-            'user_id' => $request->user_id,
             'doctor_name' => $request->doctor_name,
             'doctor_bio' => $request->doctor_bio,
             'specialty_id' => $request->specialty_id,
             'exp' => $request->exp ?? 0,
-            'approve' => $request->has('approve'),
+            'approve' => $request->approve ?? 0,
         ]);
 
-        return redirect()->route('admin.doctors.index')->with('success', 'Chỉnh sửa bác sĩ thành công !');
+        // Cập nhật thông tin user
+        $user = User::find($doctor->user_id);
+        if ($user) {
+            $userData = [
+                'name' => $request->doctor_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+            ];
+
+            // Chỉ cập nhật mật khẩu nếu có nhập mật khẩu mới
+            if ($request->filled('password')) {
+                $userData['password'] = bcrypt($request->password);
+            }
+
+            $user->update($userData);
+        }
+
+        return redirect()->route('admin.doctors.index')->with('success', 'Chỉnh sửa bác sĩ thành công!');
     }
 
     public function destroy($id)

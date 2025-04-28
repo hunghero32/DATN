@@ -9,7 +9,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card mb-4">
-                        <h5 class="card-header">Profile Details</h5>
+                        <h5 class="card-header">Nhập thông tin</h5>
                         <hr class="my-0" />
                         <div class="card-body">
                             <form action="{{ $action }}" method="POST" enctype="multipart/form-data">
@@ -61,7 +61,8 @@
                                                             id="preview-{{ $field['name'] }}" />
                                                     </div>
                                                     <div class="upload-controls">
-                                                        <label for="{{ $field['name'] }}" class="btn btn-primary upload-btn">
+                                                        <label for="{{ $field['name'] }}"
+                                                            class="btn btn-primary upload-btn">
                                                             <i class="bx bx-upload"></i> Chọn ảnh
                                                             <input type="file" id="{{ $field['name'] }}"
                                                                 name="{{ $field['name'] }}" class="file-input"
@@ -105,35 +106,47 @@
                                                         <div class="custom-select">
                                                             <div class="custom-select__trigger">
                                                                 <span class="custom-select__display">
-                                                                    {{ old($field['name'], $data[$field['name']] ?? '') ? ($field['options'][old($field['name'], $data[$field['name']] ?? '')] ?? '-- Chọn một tùy chọn --') : '-- Chọn một tùy chọn --' }}
+                                                                    {{ old($field['name'], $data[$field['name']] ?? '') ? $field['options'][old($field['name'], $data[$field['name']] ?? '')] ?? '-- Chọn một tùy chọn --' : '-- Chọn một tùy chọn --' }}
                                                                 </span>
                                                                 <div class="arrow"></div>
                                                             </div>
                                                             <div class="custom-options">
-                                                                <input type="text" class="custom-select__search" placeholder="Tìm kiếm..."
-                                                                       oninput="filterOptions(this)">
+                                                                <input type="text" class="custom-select__search"
+                                                                    placeholder="Tìm kiếm..." oninput="filterOptions(this)">
                                                                 @if (empty($field['options']))
                                                                     @php
-                                                                        \Log::info('Options trống cho field: ' . $field['name']);
+                                                                        \Log::info(
+                                                                            'Options trống cho field: ' .
+                                                                                $field['name'],
+                                                                        );
                                                                     @endphp
-                                                                    <span class="custom-option" data-value="">Không có dữ liệu</span>
+                                                                    <span class="custom-option" data-value="">Không có dữ
+                                                                        liệu</span>
                                                                 @else
                                                                     @foreach ($field['options'] as $id => $name)
-                                                                        <span class="custom-option {{ old($field['name'], $data[$field['name']] ?? '') == $id ? 'selected' : '' }}"
-                                                                              data-value="{{ $id }}">{{ $name }}</span>
+                                                                        <span
+                                                                            class="custom-option {{ old($field['name'], $data[$field['name']] ?? '') == $id ? 'selected' : '' }}"
+                                                                            data-value="{{ $id }}">{{ $name }}</span>
                                                                     @endforeach
                                                                 @endif
                                                             </div>
                                                         </div>
                                                         <!-- Input ẩn để gửi giá trị -->
-                                                        <input type="hidden" id="{{ $field['name'] }}" name="{{ $field['name'] }}"
-                                                               value="{{ old($field['name'], $data[$field['name']] ?? '') }}">
+                                                        <input type="hidden" id="{{ $field['name'] }}"
+                                                            name="{{ $field['name'] }}"
+                                                            value="{{ old($field['name'], $data[$field['name']] ?? '') }}">
                                                     </div>
                                                 @else
-                                                    <input type="{{ $field['type'] }}" class="form-control"
+                                                    <input
+                                                        type="{{ $field['type'] == 'number' ? 'text' : $field['type'] }}"
+                                                        class="form-control {{ isset($field['is_price']) && $field['is_price'] ? 'price-input' : '' }}"
                                                         id="{{ $field['name'] }}" name="{{ $field['name'] }}"
-                                                        value="{{ old($field['name'], $data[$field['name']] ?? '') }}"
-                                                        placeholder="{{ $field['placeholder'] ?? '' }}">
+                                                        value="{{ old($field['name'], isset($data[$field['name']]) && is_numeric($data[$field['name']]) ? (isset($field['is_price']) && $field['is_price'] ? number_format($data[$field['name']], 0, ',', '.') : $data[$field['name']]) : $data[$field['name']] ?? '') }}"
+                                                        placeholder="{{ $field['placeholder'] ?? '' }}"
+                                                        @if (isset($field['is_price']) && $field['is_price']) data-type="price"
+                                                                                                                            data-original-value="{{ old($field['name'], $data[$field['name']] ?? '') }}"
+                                                                                                                            oninput="formatNumberWithCommas(this)"
+                                                                                                                            onfocus="restoreOriginalValue(this)" @endif>
                                                 @endif
                                                 @error($field['name'])
                                                     <div class="text-danger">{{ $message }}</div>
@@ -182,9 +195,9 @@
         // Hàm bỏ dấu tiếng Việt
         function removeDiacritics(str) {
             return str.normalize('NFD')
-                     .replace(/[\u0300-\u036f]/g, '')
-                     .replace(/đ/g, 'd')
-                     .replace(/Đ/g, 'D');
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/Đ/g, 'D');
         }
 
         // Hàm lọc tùy chọn trong dropdown
@@ -196,14 +209,97 @@
             options.forEach(option => {
                 const text = removeDiacritics(option.textContent.toLowerCase());
                 if (text.includes(filter)) {
-                    option.style.display = 'block';
+                    option.style.display = 'block'
+
+                    // Xử lý định dạng giá tiền
+                    const priceInputs = document.querySelectorAll('.price-input');
+                    priceInputs.forEach(input => {
+                        // Format khi trang tải
+                        if (input.value) {
+                            const numericValue = input.dataset.originalValue;
+                            input.value = formatPrice(numericValue);
+                        }
+
+                        // Xử lý khi nhập liệu
+                        input.addEventListener('input', function(e) {
+                            // Lấy giá trị chỉ chứa số
+                            const numericValue = e.target.value.replace(/\D/g, '');
+
+                            // Cập nhật giá trị hiển thị đã định dạng
+                            if (numericValue) {
+                                e.target.value = formatPrice(numericValue);
+                            } else {
+                                e.target.value = '';
+                            }
+
+                            // Lưu giá trị số để submit
+                            e.target.dataset.originalValue = numericValue;
+                        });
+
+                        // Xử lý trước khi submit form
+                        input.closest('form').addEventListener('submit', function() {
+                            // Đặt lại giá trị thành số trước khi gửi form
+                            input.value = input.dataset.originalValue;
+                        });
+                    });
+
+                    // Hàm định dạng giá tiền
+                    function formatPrice(value) {
+                        return new Intl.NumberFormat('vi-VN').format(value);
+                    };
                 } else {
                     option.style.display = 'none';
                 }
             });
         }
 
+        // Hàm định dạng số với dấu phân cách hàng nghìn
+        function formatNumberWithCommas(input) {
+            // Lấy giá trị và loại bỏ tất cả ký tự không phải số
+            let value = input.value.replace(/\D/g, '');
+
+            // Lưu giá trị gốc vào thuộc tính data để sử dụng khi submit form
+            input.setAttribute('data-original-value', value);
+
+            // Nếu có giá trị, định dạng với dấu chấm phân cách hàng nghìn
+            if (value) {
+                input.value = Number(value).toLocaleString('vi-VN').replace(/,/g, '.');
+            }
+        }
+
+        // Khôi phục giá trị gốc khi focus vào input
+        function restoreOriginalValue(input) {
+            if (input.getAttribute('data-original-value')) {
+                input.value = input.getAttribute('data-original-value');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Format all price inputs on page load
+            document.querySelectorAll('input[data-type="price"]').forEach(input => {
+                formatNumberWithCommas(input);
+            });
+
+            // Xử lý form submit để chuyển đổi giá trị định dạng về số nguyên
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    // Xử lý tất cả input giá
+                    const priceInputs = this.querySelectorAll('input[data-type="price"]');
+                    if (priceInputs.length > 0) {
+                        priceInputs.forEach(input => {
+                            // Sử dụng giá trị gốc đã lưu trong data-original-value
+                            if (input.getAttribute('data-original-value')) {
+                                input.value = input.getAttribute('data-original-value');
+                            } else {
+                                // Nếu không có data-original-value, loại bỏ tất cả dấu chấm
+                                input.value = input.value.replace(/\./g, '');
+                            }
+                        });
+                    }
+                });
+            });
+
             // Khởi tạo CKEditor cho tất cả textarea có type='textarea'
             @foreach ($fields as $field)
                 @if ($field['type'] === 'textarea')
@@ -222,7 +318,8 @@
                 const trigger = select.querySelector('.custom-select__trigger');
                 const options = select.querySelectorAll('.custom-option');
                 const display = select.querySelector('.custom-select__display');
-                const hiddenInput = select.closest('.custom-select-wrapper').querySelector('input[type="hidden"]');
+                const hiddenInput = select.closest('.custom-select-wrapper').querySelector(
+                    'input[type="hidden"]');
 
                 // Mở/đóng dropdown khi click vào trigger
                 trigger.addEventListener('click', () => {
@@ -297,7 +394,7 @@
             background-color: white;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: center;
             align-items: center;
