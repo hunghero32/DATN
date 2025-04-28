@@ -107,6 +107,7 @@ class ServiceController extends Controller
             'specialty_id.required'   => 'Chuyên khoa không được để trống.',
             'specialty_id.exists'     => 'Chuyên khoa không hợp lệ.',
             'image.image'             => 'File tải lên phải là hình ảnh.',
+            'image.required'             => 'Ảnh không được để trống.',
             'image.mimes'             => 'Ảnh phải có định dạng jpg, jpeg, png hoặc gif.',
             'image.max'               => 'Ảnh không được lớn hơn 2MB.',
         ]);
@@ -119,7 +120,7 @@ class ServiceController extends Controller
 
         // Lấy dữ liệu hợp lệ và thêm giá trị mặc định cho status
         $validatedData = $validator->validated();
-        $validatedData['status'] = $request->has('status'); // Gán giá trị mặc định
+        $validatedData['status'] = 1; // Gán giá trị mặc định
 
         if($request->has('image')){
             $image=$request->file('image')->store('services', 'public');
