@@ -376,6 +376,15 @@ export default function Header() {
     </li>
     <li>
       <Link
+        to="/baivietheader"
+        className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
+      >
+        Bài Viết
+      </Link>
+    </li>
+    <li>
+      <Link
+         target="_blank"
         to="/chat-support"
         className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
       >

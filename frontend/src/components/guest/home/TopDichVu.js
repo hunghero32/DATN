@@ -64,19 +64,30 @@ const TopBookedServices = () => {
             services.map((service) => (
               <SwiperSlide key={service.id}>
                 <div
-                  className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer p-6 h-[280px] flex flex-col"
+                  className="bg-white rounded-lg shadow-lg p-4 mb-4 mt-4 hover:shadow-xl transition-shadow duration-300 cursor-pointer p-6 h-[280px] flex flex-col"
                   onClick={() => handleServiceClick(service)}
                 >
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                      <i className="fas fa-stethoscope text-blue-600 text-2xl"></i>
-                    </div>
+                  <div className="flex items-center justify-center mb-8">
+                    {service.image ? (
+                      <img 
+                        src={service.image} 
+                        alt={service.services_name}
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i className="fas fa-stethoscope text-blue-600 text-2xl"></i>
+                      </div>
+                    )}
                   </div>
                   <div className="text-center flex-grow">
                     <h3 className="text-lg font-semibold text-gray-800 mb-3 truncate">{service.services_name}</h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3 h-[60px]">
-                      {service.description ? service.description : "Chưa có mô tả"}
-                    </p>
+                    <div 
+                      className="text-gray-600 text-sm mb-4 line-clamp-3 h-[60px]"
+                      dangerouslySetInnerHTML={{
+                        __html: service.description ? service.description : "Chưa có mô tả"
+                      }}
+                    />
                     <div className="flex justify-between items-center text-gray-600 mt-auto">
                       <span className="flex items-center">
                         <i className="fas fa-calendar-check mr-2"></i>

@@ -138,7 +138,7 @@ const ServiceDetail = () => {
       }
     } catch (error) {
       console.error("Lỗi API:", error.response?.data || error.message);
-      message.error(error.response?.data?.message || "Không thể đặt lịch. Vui lòng thử lại!");
+      // message.error(error.response?.data?.message || "Không thể đặt lịch. Vui lòng thử lại!");
     }
   };
 
