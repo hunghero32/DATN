@@ -22,7 +22,7 @@ class DoctorFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => User::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID người dùng
+            'user_id' => User::where('role', 'doctor')->inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID người dùng
             'doctor_avatar' => $this->faker->imageUrl(100, 100, 'people'), // Hình ảnh bác sĩ 
             'doctor_name' => $this->faker->name(), // Tên bác sĩ 
             'doctor_bio' => $this->faker->paragraph(), // Tiểu sử bác sĩ 

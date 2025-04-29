@@ -22,11 +22,18 @@ class BookingFactory extends Factory
 
     public function definition()
     {
+        // Lấy random doctor
+        $doctor = Doctor::inRandomOrder()->first();
+        // Lấy random service
+        $service = Services::inRandomOrder()->first();
         return [
-            'doctor_id' => Doctor::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID bác sĩ
-            'service_id' => Services::inRandomOrder()->first()->id ?? null, // Lấy ngẫu nhiên ID dịch vụ hoặc null
+            'doctor_id' => $doctor->id, // Lấy ngẫu nhiên ID bác sĩ
+            'service_id' => $service->id ?? null, // Lấy ngẫu nhiên ID dịch vụ hoặc null
             'guest_id' => Guest::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID khách
-            'booking_date' => $this->faker->date(), // Ngày đặt lịch
+            'doctor_name' => $doctor->doctor_name, // Lấy tên bác sĩ
+            'service_name' => $service->services_name, // Lấy dịch vụ
+            'service_price' => $service->price, // Lấy dịch vụ 
+            'booking_date' => now()->toDateString(), // Ngày đặt lịch
             'booking_time' => $this->faker->time(), // Giờ đặt lịch
             'notes' => $this->faker->optional()->sentence(), // Ghi chú (có thể null)
             'status' => $this->faker->randomElement(['pending', 'confirmed', 'completed', 'canceled']), // Trạng thái hợp lệ

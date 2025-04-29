@@ -13,6 +13,6 @@ class ResultSeeder extends Seeder
      */
     public function run(): void
     {
-        Result::factory(50)->create();
+        Result::factory(2000)->create();
     }
 }
