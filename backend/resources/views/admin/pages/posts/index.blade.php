@@ -39,14 +39,14 @@
                         <div class="col-md-1 d-grid">
                             <button type="submit" class="btn btn-primary">Lọc</button>
                         </div>
+                        <div class="col-md-2 text-end">
+                            <a href="{{ route('admin.posts.create') }}" class="btn btn-success">Thêm mới</a>
+                        </div>
                         @if (request('search') || request('category_id') || request('status') || request('published_at'))
                         <div class="col-md-1 d-grid">
                             <a href="{{ route('admin.posts.index') }}" class="btn btn-secondary">Quay lại</a>
                         </div>
                         @endif
-                        <div class="col-md-2 text-end">
-                            <a href="{{ route('admin.posts.create') }}" class="btn btn-success">Thêm mới</a>
-                        </div>
                     </div>
                 </form>
             </div>
@@ -61,25 +61,25 @@
                             <th>Tiêu đề</th>
                             <th>view</th>
                             <th>Ngày xuất bản </th>
-                            <th>Hành động</th>
+                            <th><i class='bx bx-menu'></i></th>
                         </tr>
                     </thead>
 
                     <tbody>
                         @foreach ($posts as $key => $post)
                         <tr>
-                            <td class="text-center"><strong>{{ $key + 1 }}</strong></td>
-                            <td class="text-center">
+                            <td ><strong>{{ $key + 1 }}</strong></td>
+                            <td >
                                 {{ $post->category ? $post->category->name : 'Không có danh mục' }}
                             </td>
-                            <td class="text-center">{{ $post->user ? $post->user->name : 'Không có tác giả' }}</td>
+                            <td >{{ $post->user ? $post->user->name : 'Không có tác giả' }}</td>
 
                             <td>{{ $post->title }}</td>
                             <td>{{ $post->views }}</td>
                             <td>{{ $post->published_at }}</td>
 
 
-                            <td class="text-center">
+                            <td >
                                 <div class="d-flex justify-content-center gap-2">
                                     <a class="btn btn-sm btn-icon btn-primary"
                                         href="{{ route('admin.posts.edit', $post->id) }}" title="Chỉnh sửa">
