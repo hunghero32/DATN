@@ -17,7 +17,7 @@ class ReportController extends Controller
                     ->orderBy('booking_day', 'desc')
                     ->pluck('booking_day');
 
-    $query = Booking::with(['guest', 'service', 'doctor', 'result'])
+    $query = Booking::with(['guest'])
                     ->where('isDeleted', 0);
 
     if ($request->filled('guest_phone')) {

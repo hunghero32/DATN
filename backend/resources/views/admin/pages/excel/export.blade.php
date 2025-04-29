@@ -69,7 +69,6 @@
                     <th>Ngày Đặt</th>
                     <th>Bác Sĩ</th>
                     <th>Dịch Vụ</th>
-                    <th>Kết Quả</th>
                 </tr>
             </thead>
             <tbody>
@@ -79,9 +78,8 @@
                         <td>{{ $booking->guest->guest_name ?? 'N/A' }}</td>
                         <td>{{ $booking->guest->guest_phone?? 'N/A' }}</td>
                         <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}</td>
-                        <td>{{ $booking->doctor->doctor_name ?? 'N/A' }}</td>
-                        <td>{{ $booking->service->services_name ?? 'N/A' }}</td>
-                        <td>{{ $booking->result->diagnosis ?? 'Chưa có' }}</td>
+                        <td>{{ $booking->doctor_name ?? 'N/A' }}</td>
+                        <td>{{ $booking->service_name ?? 'N/A' }}</td>
                     </tr>
                 @endforeach
             </tbody>

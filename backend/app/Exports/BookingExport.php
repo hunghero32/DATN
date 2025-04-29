@@ -25,7 +25,7 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping
 
 public function collection()
 {
-    $query = Booking::with(['guest', 'service', 'doctor', 'result'])
+    $query = Booking::with(['guest', 'invoiceDetails.invoice'])
                     ->where('isDeleted', 0)
                     ->whereBetween('booking_date', [$this->start_date, $this->end_date]);
 
@@ -49,19 +49,29 @@ public function collection()
             'Ngày Sinh',
             'Số Điện Thoại',
             'Email',
-            'Địa Chỉ',
+            // 'Địa Chỉ',
             'Tên Bác Sĩ',
             'Dịch Vụ',
             'Ngày Đặt',
             'Giờ Đặt',
-            'Chẩn Đoán',
-            'Đơn Thuốc',
-            'Ghi Chú',
+            'Giá gốc dịch vụ',
+            'Giảm Giá',
+            'Thuế',
+            'Tổng Tiền',
+            'Trạng Thái',
         ];
     }
 
     public function map($booking): array
     {
+        $invoice = optional($booking->invoiceDetails->first())->invoice;
+        $statusMap = [
+            'unpaid' => 'Chưa thanh toán',
+            'paid' => 'Đã thanh toán',
+            'pending' => 'Chờ xử lý',
+            'cancelled' => 'Đã hủy',
+        ];
+        $status = $statusMap[$invoice->status] ?? 'N/A';
         return [
             $booking->id,
             $booking->guest->guest_name ?? 'N/A',
@@ -69,14 +79,17 @@ public function collection()
             $booking->guest->birthday ?? 'N/A',
             $booking->guest->guest_phone ?? 'N/A',
             $booking->guest->guest_email ?? 'N/A',
-            json_encode($booking->guest->address, JSON_UNESCAPED_UNICODE),  // Đảm bảo dữ liệu address hợp lệ
-            $booking->doctor->doctor_name ?? 'N/A',
-            $booking->service->service_name ?? 'N/A',
+            // json_encode($booking->guest->address, JSON_UNESCAPED_UNICODE),  // Đảm bảo dữ liệu address hợp lệ
+            // $booking->guest->address ?? 'N/A',
+            $booking->doctor_name ?? 'N/A',
+            $booking->service_name ?? 'N/A',
             $booking->booking_date,
             $booking->booking_time,
-            $booking->result->diagnosis ?? 'Chưa cập nhật',
-            $booking->result->prescription ?? 'Chưa cập nhật',
-            $booking->notes ?? 'N/A',
+            $booking->service_price,
+            $invoice->discount ?? 'N/A',
+            $invoice->tax ?? 'N/A',
+            $invoice->total_amount ?? 'N/A',
+            $status ?? 'N/A',
         ];
     }
 }
