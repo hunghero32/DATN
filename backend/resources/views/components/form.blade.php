@@ -49,33 +49,55 @@
                                                 @enderror
                                             </div>
                                         @elseif(in_array($field['type'], ['file', 'image']))
-                                            <!-- 🔵 Giao diện hiển thị ảnh thường (chứng chỉ, tài liệu, ảnh lớn) -->
+                                            <!-- 🔵 Giao diện hiển thị file (chứng chỉ, tài liệu, ảnh lớn) -->
                                             <div class="mb-3 col-md-12">
                                                 <label for="{{ $field['name'] }}" class="form-label">
                                                     {!! str_replace('*', '<span style="color: red;">*</span>', $field['label']) !!}
                                                 </label>
-                                                <div class="image-upload-container">
-                                                    <div class="image-preview-wrapper">
-                                                        <img src="{{ isset($data[$field['name']]) && Storage::exists($data[$field['name']]) ? Storage::url($data[$field['name']]) : (file_exists(public_path('admin/assets/img/default-image.png')) ? asset('admin/assets/img/default-image.png') : asset('admin/assets/img/placeholder.png')) }}"
-                                                            alt="{{ $field['label'] }}" class="image-preview-large"
-                                                            id="preview-{{ $field['name'] }}" />
+                                                <div class="file-upload-container">
+                                                    <div class="file-preview-wrapper">
+                                                        @php
+                                                            $fileExists = isset($data[$field['name']]) && Storage::exists($data[$field['name']]);
+                                                            $fileUrl = $fileExists ? Storage::url($data[$field['name']]) : '';
+                                                            $fileName = $fileExists ? basename($data[$field['name']]) : '';
+                                                            $fileExtension = $fileExists ? pathinfo($fileName, PATHINFO_EXTENSION) : '';
+                                                            $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'svg']);
+                                                        @endphp
+
+                                                        @if($fileExists)
+                                                            @if($isImage)
+                                                                <img src="{{ $fileUrl }}" alt="{{ $field['label'] }}" class="file-preview-image" id="preview-{{ $field['name'] }}" />
+                                                            @else
+                                                                <div class="file-preview-document">
+                                                                    <i class="bx {{ $fileExtension == 'pdf' ? 'bxs-file-pdf' : 'bxs-file-doc' }} file-icon"></i>
+                                                                    <span class="file-name">{{ $fileName }}</span>
+                                                                    <a href="{{ $fileUrl }}" target="_blank" class="btn btn-sm btn-primary mt-2">
+                                                                        <i class="bx bx-download"></i> Xem file
+                                                                    </a>
+                                                                </div>
+                                                            @endif
+                                                        @else
+                                                            <div class="file-preview-placeholder">
+                                                                <i class="bx bx-upload file-placeholder-icon"></i>
+                                                                <span>Chưa có file nào được tải lên</span>
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                     <div class="upload-controls">
-                                                        <label for="{{ $field['name'] }}"
-                                                            class="btn btn-primary upload-btn">
-                                                            <i class="bx bx-upload"></i> Chọn ảnh
-                                                            <input type="file" id="{{ $field['name'] }}"
-                                                                name="{{ $field['name'] }}" class="file-input"
-                                                                onchange="previewImage(event, 'preview-{{ $field['name'] }}')" />
+                                                        <label for="{{ $field['name'] }}" class="btn btn-primary upload-btn">
+                                                            <i class="bx bx-upload"></i> Chọn file
+                                                            <input type="file" id="{{ $field['name'] }}" name="{{ $field['name'] }}" class="file-input"
+                                                                onchange="previewFile(this, 'preview-{{ $field['name'] }}')" />
                                                         </label>
+                                                        @if($fileExists)
                                                         <button type="button" class="btn btn-outline-secondary reset-btn"
-                                                            onclick="resetImage('preview-{{ $field['name'] }}', '{{ isset($data[$field['name']]) && Storage::exists($data[$field['name']]) ? Storage::url($data[$field['name']]) : (file_exists(public_path('admin/assets/img/default-image.png')) ? asset('admin/assets/img/default-image.png') : asset('admin/assets/img/placeholder.png')) }}')">
+                                                            onclick="resetFile('{{ $field['name'] }}', 'preview-{{ $field['name'] }}')">
                                                             <i class="bx bx-reset"></i> Reset
                                                         </button>
+                                                        @endif
                                                     </div>
                                                 </div>
-                                                <input type="hidden" name="{{ $field['name'] }}_current"
-                                                    value="{{ $data[$field['name']] ?? '' }}">
+                                                <input type="hidden" name="{{ $field['name'] }}_current" value="{{ $data[$field['name']] ?? '' }}">
                                                 @error($field['name'])
                                                     <div class="text-danger">{{ $message }}</div>
                                                 @enderror
@@ -158,7 +180,7 @@
 
                                 <div class="mt-2">
                                     <button type="submit" class="btn btn-primary me-2">Lưu thay đổi</button>
-                                    <button type="reset" class="btn btn-outline-secondary">Quay lại</button>
+                                    <a href="{{ $backRoute ?? url()->previous() }}" class="btn btn-outline-secondary">Quay lại</a>
                                 </div>
                             </form>
                         </div>
@@ -189,6 +211,81 @@
             const fileInput = document.querySelector(`#${targetId.replace('preview-', '')}`);
             if (fileInput) {
                 fileInput.value = '';
+            }
+        }
+
+        // Hàm preview file khi chọn
+        function previewFile(input, targetId) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const filePreviewWrapper = input.closest('.file-upload-container').querySelector('.file-preview-wrapper');
+            const fileName = file.name;
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+
+            // Xóa nội dung cũ
+            filePreviewWrapper.innerHTML = '';
+
+            // Nếu là ảnh
+            if (['jpg', 'jpeg', 'png', 'gif', 'svg'].includes(fileExtension)) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'file-preview-image';
+                    img.id = targetId;
+                    filePreviewWrapper.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+            // Nếu là PDF hoặc DOC
+            else {
+                const docPreview = document.createElement('div');
+                docPreview.className = 'file-preview-document';
+
+                const icon = document.createElement('i');
+                icon.className = `bx ${fileExtension === 'pdf' ? 'bxs-file-pdf' : 'bxs-file-doc'} file-icon`;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'file-name';
+                nameSpan.textContent = fileName;
+
+                docPreview.appendChild(icon);
+                docPreview.appendChild(nameSpan);
+                filePreviewWrapper.appendChild(docPreview);
+            }
+
+            // Thêm nút reset nếu chưa có
+            const uploadControls = input.closest('.file-upload-container').querySelector('.upload-controls');
+            if (!uploadControls.querySelector('.reset-btn')) {
+                const resetBtn = document.createElement('button');
+                resetBtn.type = 'button';
+                resetBtn.className = 'btn btn-outline-secondary reset-btn';
+                resetBtn.innerHTML = '<i class="bx bx-reset"></i> Reset';
+                resetBtn.onclick = function() { resetFile(input.name, targetId); };
+                uploadControls.appendChild(resetBtn);
+            }
+        }
+
+        // Hàm reset file
+        function resetFile(inputName, targetId) {
+            const fileInput = document.querySelector(`#${inputName}`);
+            if (fileInput) {
+                fileInput.value = '';
+            }
+
+            const filePreviewWrapper = document.querySelector(`#${targetId}`).closest('.file-preview-wrapper');
+            filePreviewWrapper.innerHTML = `
+                <div class="file-preview-placeholder">
+                    <i class="bx bx-upload file-placeholder-icon"></i>
+                    <span>Chưa có file nào được tải lên</span>
+                </div>
+            `;
+
+            // Xóa nút reset
+            const resetBtn = document.querySelector(`#${inputName}`).closest('.upload-controls').querySelector('.reset-btn');
+            if (resetBtn) {
+                resetBtn.remove();
             }
         }
 
@@ -370,6 +467,84 @@
             border-color: #007bff;
         }
 
+        .file-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            border: 2px dashed #e0e0e0;
+            padding: 30px;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-container:hover {
+            border-color: #696cff;
+            background-color: #f0f7ff;
+        }
+
+        .file-preview-wrapper {
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .file-preview-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .file-preview-document {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .file-icon {
+            font-size: 3rem;
+            color: #696cff;
+            margin-bottom: 10px;
+        }
+
+        .bxs-file-pdf {
+            color: #e74c3c;
+        }
+
+        .bxs-file-doc {
+            color: #3498db;
+        }
+
+        .file-name {
+            font-size: 1rem;
+            color: #333;
+            word-break: break-all;
+            max-width: 100%;
+        }
+
+        .file-preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+        }
+
+        .file-placeholder-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
         .image-upload-container {
             display: flex;
             flex-direction: column;

@@ -111,7 +111,7 @@ class DoctorController extends Controller
             'doctor_avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'doctor_bio' => 'nullable|string',
             'exp' => 'required|integer|min:0|max:50', // Giới hạn kinh nghiệm từ 0-50 năm
-            'file' => 'required|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
+            'file' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
             'specialty_id' => 'required|exists:specialties,id'
         ], [
             'doctor_name.required' => 'Tên bác sĩ là bắt buộc.',
@@ -131,7 +131,6 @@ class DoctorController extends Controller
             'exp.integer' => 'Kinh nghiệm phải là số nguyên.',
             'exp.min' => 'Kinh nghiệm không thể nhỏ hơn 0 năm.',
             'exp.max' => 'Kinh nghiệm không thể lớn hơn 50 năm.',
-            'file.required' => 'Tệp tải lên là bắt buộc.',
             'file.mimes' => 'Chỉ chấp nhận các định dạng: PDF, DOC, DOCX, JPG, PNG.',
             'file.max' => 'Kích thước tệp tối đa là 5MB.',
         ]);

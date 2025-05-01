@@ -1,6 +1,7 @@
 <x-form
     :action="route('admin.services.update', $data->id)"
     method="PUT"
+    :backRoute="route('admin.services.index')"
     :fields="[
         ['name' => 'specialty_id', 'label' => '* Chuyên khoa', 'type' => 'select', 'options' =>  $specialties],
         ['name' => 'services_name', 'label' => '* Tên dịch vụ', 'type' => 'text'],
