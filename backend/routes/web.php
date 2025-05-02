@@ -175,7 +175,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // Reports
     Route::get('report', [ReportController::class, 'index'])->name('admin.report.index');
-    Route::get('report/export', [ReportController::class, 'export'])->name('admin.report.export');
+    Route::post('report/export', [ReportController::class, 'export'])->name('admin.report.export');
 
     // Doctor Services & Specialties
     Route::get('doctor-service', [DoctorServiceController::class, 'index'])->name('admin.doctor_service.index');

@@ -40,7 +40,7 @@ class ReportController extends Controller
         $query->whereBetween('booking_date', [$request->start_date, $request->end_date]);
     }
 
-    $bookings = $query->get();
+    $bookings = $query->paginate(10)->withQueryString();
 
     return view('admin.pages.excel.export', compact('bookings', 'dates'));
 }
@@ -58,23 +58,27 @@ public function export(Request $request)
         'guest_phone' => 'nullable|string|max:255',
     ]);
 
+
+    $start_date = null;
+    $end_date = null;
+
     if ($request->year) {
         $start_date = "{$request->year}-01-01";
         $end_date = "{$request->year}-12-31";
     } elseif ($request->month) {
         $start_date = date('Y-m-01', strtotime($request->month));
         $end_date = date('Y-m-t', strtotime($request->month));
-    } elseif ($request->day) {
-        $start_date = $request->day;
-        $end_date = $request->day;
-    } elseif ($request->start_date && $request->end_date) {
+    }  elseif ($request->day) {
+        $start_date = $end_date = $request->day;
+    } elseif ($request->filled('start_date') && $request->filled('end_date')) {
         $start_date = $request->start_date;
         $end_date = $request->end_date;
-    } else {
-        return redirect()->route('admin.report.index')->withErrors(['error' => 'Bạn cần chọn ít nhất một tiêu chí để lọc']);
     }
 
-    return Excel::download(new BookingExport($start_date, $end_date, $request->guest_phone), 'danh-sach-kham-benh.xlsx');
+    return Excel::download(
+        new BookingExport($start_date, $end_date, $request->guest_phone),
+        'danh-sach-kham-benh.xlsx'
+    );
 }
 
 

@@ -7,8 +7,10 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class BookingExport implements FromCollection, WithHeadings, WithMapping
+class BookingExport implements FromCollection, WithHeadings, WithMapping, WithStyles
 {
     use Exportable;
 
@@ -26,9 +28,11 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping
 public function collection()
 {
     $query = Booking::with(['guest', 'invoiceDetails.invoice'])
-                    ->where('isDeleted', 0)
-                    ->whereBetween('booking_date', [$this->start_date, $this->end_date]);
-
+                    ->where('isDeleted', 0);
+                    // ->whereBetween('booking_date', [$this->start_date, $this->end_date]);
+    if ($this->start_date && $this->end_date) {
+        $query->whereBetween('booking_date', [$this->start_date, $this->end_date]);
+        }                
     if ($this->guest_phone) {
         $query->whereHas('guest', function ($q) {
             $q->where('guest_phone', 'like', '%' . $this->guest_phone . '%');
@@ -38,7 +42,12 @@ public function collection()
     return $query->get();
 }
 
-
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            1 => ['font' => ['bold' => true]], 
+        ];
+    }
 
     public function headings(): array
     {
@@ -49,7 +58,7 @@ public function collection()
             'Ngày Sinh',
             'Số Điện Thoại',
             'Email',
-            // 'Địa Chỉ',
+            'Địa Chỉ',
             'Tên Bác Sĩ',
             'Dịch Vụ',
             'Ngày Đặt',
@@ -71,7 +80,11 @@ public function collection()
             'pending' => 'Chờ xử lý',
             'cancelled' => 'Đã hủy',
         ];
+        if (!$invoice) {
+            $status = 'Chưa lên hóa đơn';
+        } else {
         $status = $statusMap[$invoice->status] ?? 'N/A';
+        }
         return [
             $booking->id,
             $booking->guest->guest_name ?? 'N/A',
@@ -79,7 +92,7 @@ public function collection()
             $booking->guest->birthday ?? 'N/A',
             $booking->guest->guest_phone ?? 'N/A',
             $booking->guest->guest_email ?? 'N/A',
-            // json_encode($booking->guest->address, JSON_UNESCAPED_UNICODE),  // Đảm bảo dữ liệu address hợp lệ
+            json_encode($booking->guest->address, JSON_UNESCAPED_UNICODE),  // addresss để array
             // $booking->guest->address ?? 'N/A',
             $booking->doctor_name ?? 'N/A',
             $booking->service_name ?? 'N/A',
