@@ -1,6 +1,7 @@
 <x-form
 :action="route('admin.doctor_service.update',$doctorService->id)"
 method="PUT"
+:backRoute="route('admin.doctor_service.index')"
 :fields="[
     ['name' => 'doctor_id',
      'label' => '* Bác sĩ',

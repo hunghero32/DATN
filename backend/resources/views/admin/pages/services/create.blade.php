@@ -1,6 +1,7 @@
 <x-form
     :action="route('admin.services.store')"
     method="POST"
+    :backRoute="route('admin.services.index')"
     :fields="[
         ['name' => 'specialty_id', 'label' => '* Chuyên khoa', 'type' => 'select', 'options' => ['' => 'Chọn chuyên khoa'] + $specialties],
         ['name' => 'services_name', 'label' => '* Tên dịch vụ', 'type' => 'text'],

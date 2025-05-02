@@ -42,7 +42,7 @@ Route::prefix('admin')->group(function () {
     Route::post('login', [AdminAuthController::class, 'login'])->name('admin.login.post');
 });
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+Route::prefix('admin')->group(function () {
     // Auth & Profile
     Route::post('logout', [AdminAuthController::class, 'destroy'])->name('admin.logout');
     Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');

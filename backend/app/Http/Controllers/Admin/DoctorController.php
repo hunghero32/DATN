@@ -12,10 +12,16 @@ use Illuminate\Support\Facades\Validator;
 use App\Traits\FilterTrait;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
+use App\Services\NotificationService;
 
 class DoctorController extends Controller
-
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     use FilterTrait;
     public function index()
     {
@@ -111,7 +117,7 @@ class DoctorController extends Controller
             'doctor_avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'doctor_bio' => 'nullable|string',
             'exp' => 'required|integer|min:0|max:50', // Giới hạn kinh nghiệm từ 0-50 năm
-            'file' => 'required|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
+            'file' => 'nullable|mimes:pdf,doc,docx,jpg,png|max:5120', // Hỗ trợ PDF, Word, hình ảnh, tối đa 5MB
             'specialty_id' => 'required|exists:specialties,id'
         ], [
             'doctor_name.required' => 'Tên bác sĩ là bắt buộc.',
@@ -131,7 +137,6 @@ class DoctorController extends Controller
             'exp.integer' => 'Kinh nghiệm phải là số nguyên.',
             'exp.min' => 'Kinh nghiệm không thể nhỏ hơn 0 năm.',
             'exp.max' => 'Kinh nghiệm không thể lớn hơn 50 năm.',
-            'file.required' => 'Tệp tải lên là bắt buộc.',
             'file.mimes' => 'Chỉ chấp nhận các định dạng: PDF, DOC, DOCX, JPG, PNG.',
             'file.max' => 'Kích thước tệp tối đa là 5MB.',
         ]);
@@ -154,7 +159,7 @@ class DoctorController extends Controller
         $avatarPath = $request->file('doctor_avatar') ? $request->file('doctor_avatar')->store('avatars', 'public') : null;
         $filePath = $request->file('file') ? $request->file('file')->store('files', 'public') : null;
 
-        Doctor::create([
+        $doctor = Doctor::create([
             'user_id' => $user->id,  // Sử dụng ID của user vừa tạo
             'doctor_avatar' => $avatarPath,
             'doctor_name' => $request->doctor_name,
@@ -164,6 +169,9 @@ class DoctorController extends Controller
             'file' => $filePath,
             'approve' => 0
         ]);
+
+        // Gửi email thông báo tài khoản đã được tạo
+        $doctor->sendAccountCreationNotification();
 
         return redirect()->route('admin.doctors.index')->with('success', 'Bác sĩ đã được tạo thành công!');
     }
