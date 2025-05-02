@@ -62,9 +62,9 @@
                 </div>
 
 
-                <div class="card-body bg-light">
+                <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover table-striped table-bordered align-middle text-center rounded">
+                        <table class="table">
                             <thead class="table-primary">
                                 <tr>
                                     <th>#</th>
@@ -77,7 +77,7 @@
                                 </tr>
                             </thead>
 
-                            <tbody class="table-light">
+                            <tbody>
                                 @foreach ($users as $user)
                                     <tr>
                                         <td class="fw-bold text-primary">

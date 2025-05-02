@@ -62,19 +62,16 @@ const LichHen = () => {
       return;
     }
   
-    // Nếu đã xác nhận captcha -> tiến hành gửi hủy
     try {
       const response = await api.post(`/api/client/cancel-booking/${selectedAppointment.id}`, {
-        reason: cancelReason,
         recaptcha: captchaValue
       });
       if (response.data.status) {
         toast.success("Hủy lịch hẹn thành công!");
         setShowCancelModal(false);
-        setCancelReason("");
         setCaptchaValue(null);
         setShowCaptcha(false);
-        // Làm mới danh sách lịch hẹn
+        // Refresh appointment list
         api.get("/api/client/appointments")
           .then((res) => {
             if (res.data.status) {
@@ -257,7 +254,6 @@ const LichHen = () => {
         show={showCancelModal} 
         onHide={() => {
           setShowCancelModal(false);
-          setCancelReason("");
           setCaptchaValue(null);
           setShowCaptcha(false);
         }}
@@ -265,48 +261,56 @@ const LichHen = () => {
         style={{ marginTop: '20px' }}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Hủy Lịch Hẹn</Modal.Title>
+          <Modal.Title>Xác nhận hủy lịch hẹn</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto', minHeight: '300px' }}>
-          <div className="mb-4 max-w-md mx-auto">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Lý do hủy:
-            </label>
-            <textarea
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              rows="5"
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-              placeholder="Vui lòng nhập lý do hủy lịch hẹn..."
-            />
-          </div>
-          {showCaptcha && (
-            <div className="mb-4 mt-8">
-              <ReCAPTCHA
-                sitekey="6Lfa2SYrAAAAAE6mHb6ciIy5XGy2N3jm7o3_3TWY"
-                onChange={(value) => setCaptchaValue(value)}
-              />
+        <Modal.Body style={{ maxHeight: 'calc(100vh - 150px)', overflowY: 'auto', minHeight: '200px' }}>
+          <div className="mb-4">
+            <div className="text-center">
+              <p className="text-lg font-semibold mb-4">Bạn có chắc chắn muốn hủy lịch hẹn này?</p>
             </div>
-          )}
+            
+            <div className="bg-gray-50 p-4 rounded-lg mb-4">
+              <div className="mb-2">
+                <span className="font-semibold">Dịch vụ:</span> {selectedAppointment?.service_name}
+              </div>
+              <div className="mb-2">
+                <span className="font-semibold">Ngày khám:</span> {selectedAppointment && new Date(selectedAppointment.booking_date).toLocaleDateString('vi-VN')}
+              </div>
+              <div className="mb-2">
+                <span className="font-semibold">Giờ khám:</span> {selectedAppointment?.booking_time}
+              </div>
+              <div className="mb-2">
+                <span className="font-semibold">Bác sĩ:</span> {selectedAppointment?.doctor_name}
+              </div>
+            </div>
+
+            {showCaptcha && (
+              <div className="mt-4 flex justify-center">
+                <ReCAPTCHA
+                  sitekey="6Lfa2SYrAAAAAE6mHb6ciIy5XGy2N3jm7o3_3TWY"
+                  onChange={(value) => setCaptchaValue(value)}
+                />
+              </div>
+            )}
+          </div>
         </Modal.Body>
         <Modal.Footer style={{ position: 'relative', zIndex: 1000 }}>
           <button
             className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
             onClick={() => {
               setShowCancelModal(false);
-              setCancelReason("");
               setCaptchaValue(null);
               setShowCaptcha(false);
             }}
           >
-            Đóng
+            Không
           </button>
           <button
             className="bg-red-600 text-white px-4 py-2 rounded"
             onClick={handleCancel}
             disabled={showCaptcha && !captchaValue}
           >
-            Xác nhận hủy
+            Có, hủy lịch hẹn
           </button>
         </Modal.Footer>
       </Modal>
