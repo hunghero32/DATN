@@ -43,7 +43,10 @@ class Booking extends Model
 {
     return $this->hasOne(Result::class, 'booking_id');
 }
-
+    public function invoiceDetails()
+    {
+        return $this->hasMany(\App\Models\InvoiceDetail::class, 'booking_id');
+    }
 
     // Scope tìm kiếm theo tên, email, số điện thoại của guest
     public function scopeSearchGuest($query, $search)
