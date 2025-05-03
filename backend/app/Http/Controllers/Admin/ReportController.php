@@ -40,7 +40,7 @@ class ReportController extends Controller
         $query->whereBetween('booking_date', [$request->start_date, $request->end_date]);
     }
 
-    $bookings = $query->paginate(10)->withQueryString();
+    $bookings = $query->paginate(10);
 
     return view('admin.pages.excel.export', compact('bookings', 'dates'));
 }

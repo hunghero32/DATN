@@ -97,7 +97,6 @@ const DatLich = () => {
     setLoading(true);
 
     try {
-      const addressArray = values.address ? values.address.split(',').map(item => item.trim()).filter(Boolean) : [];
 
       const requestData = {
         guest_name: values.guest_name.trim(),
@@ -105,7 +104,7 @@ const DatLich = () => {
         guest_email: values.guest_email.trim(),
         gender: values.gender,
         birthday: values.birthday,
-        address: addressArray,
+        address: values.address,
         doctor_id: parseInt(bookingData.doctor_id),
         service_id: parseInt(bookingData.service_id),
         schedule_id: parseInt(bookingData.schedule_id),
