@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: localhost:3306
--- Thời gian đã tạo: Th4 24, 2025 lúc 04:30 AM
+-- Thời gian đã tạo: Th5 03, 2025 lúc 07:39 AM
 -- Phiên bản máy phục vụ: 8.0.30
 -- Phiên bản PHP: 8.3.13
 
@@ -32,8 +32,8 @@ CREATE TABLE `bookings` (
   `doctor_id` bigint UNSIGNED DEFAULT NULL,
   `service_id` bigint UNSIGNED NOT NULL,
   `guest_id` bigint UNSIGNED NOT NULL,
-  `doctor_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `service_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `doctor_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `service_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `service_price` decimal(15,0) NOT NULL,
   `booking_date` date NOT NULL,
   `booking_time` time NOT NULL,
@@ -220,7 +220,10 @@ CREATE TABLE `conversations` (
 --
 
 INSERT INTO `conversations` (`id`, `guest_id`, `created_at`, `updated_at`) VALUES
-(1, 11, '2025-04-17 12:15:58', '2025-04-17 12:15:58');
+(1, 11, '2025-04-17 12:15:58', '2025-04-17 12:15:58'),
+(2, 12, '2025-05-03 02:45:02', '2025-05-03 02:45:02'),
+(3, 13, '2025-05-03 02:47:13', '2025-05-03 02:47:13'),
+(4, 14, '2025-05-03 03:00:42', '2025-05-03 03:00:42');
 
 -- --------------------------------------------------------
 
@@ -249,11 +252,11 @@ CREATE TABLE `doctors` (
 
 INSERT INTO `doctors` (`id`, `user_id`, `doctor_avatar`, `doctor_name`, `doctor_bio`, `specialty_id`, `exp`, `file`, `approve`, `isDeleted`, `created_at`, `updated_at`) VALUES
 (1, 3, 'avatars/knn9cEpWQ5WlKlKjkhJfDuh604pe5AF9Irh4jR9X.jpg', 'Bác sĩ Lê Minh', '<p>Chuyên gia nội tổng quát với hơn 10 năm kinh nghiệm.&nbsp;</p>', 4, 10, 'files/le_minh_cv.pdf', 1, 0, '2025-03-26 07:13:07', '2025-04-16 16:47:00'),
-(2, 4, 'avatars/ZDW5pXB3xRmnLRr3umIY8Quh5JOGGfjGMNIz4J4u.jpg', 'Bác sĩ Hoàng Dũng', '<p>Chuyên gia tim mạch, từng làm việc tại bệnh viện Bạch Mai.</p>', 19, 12, 'files/hoang_dung_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-04-11 14:13:02'),
-(3, 5, 'avatars/doctor_tran_hung.jpg', 'Bác sĩ Trần Văn Hùng', 'Chuyên gia nhi khoa, chuyên điều trị bệnh trẻ nhỏ.', 5, 8, 'files/tran_hung_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-03-23 07:13:07'),
-(4, 6, 'avatars/doctor_pham_anh.jpg', 'Bác sĩ Phạm Ngọc Anh', 'Chuyên gia da liễu, tư vấn điều trị các bệnh ngoài da.', 6, 15, 'files/pham_anh_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-03-23 07:13:07'),
+(2, 4, 'avatars/iBsr0GuGvtjYmsitndF3M1B1At8KMgYwAMNC6xMz.jpg', 'Bác sĩ Hoàng Dũng', '<p>Chuyên gia tim mạch, từng làm việc tại bệnh viện Bạch Mai.</p>', 19, 12, 'files/hoang_dung_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-05-03 04:14:14'),
+(3, 5, 'avatars/S5ywDXVqRwY0BXPaWssdmcILOTvegFGHYYI4aASP.png', 'Bác sĩ Trần Văn Hùng', '<p>Chuyên gia nhi khoa, chuyên điều trị bệnh trẻ nhỏ.</p>', 5, 8, 'files/tran_hung_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-05-03 04:14:30'),
+(4, 6, 'avatars/fg3jcujAweg0wm5PzC0dWCdj36lRSK7CtHYqNiSf.png', 'Bác sĩ Phạm Ngọc Anh', '<p>Chuyên gia da liễu, tư vấn điều trị các bệnh ngoài da.</p>', 6, 15, 'files/pham_anh_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-05-03 04:14:59'),
 (5, 7, 'avatars/ZWFonLhPfr9zCaBaU4VWfMWxgCuN7NKbIB70wcP6.jpg', 'Bác sĩ Nguyễn Thanh Tùng', '<p>Bác sĩ nội tổng quát với nhiều năm kinh nghiệm.</p>', 4, 9, 'files/nguyen_tung_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-04-19 06:56:43'),
-(6, 8, 'avatars/doctor_do_hoa.jpg', 'Bác sĩ Đỗ Thị Hòa', 'Chuyên gia tim mạch, có kinh nghiệm điều trị bệnh nhân cao tuổi.', 7, 11, 'files/do_hoa_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-03-23 07:13:07'),
+(6, 8, 'avatars/UBJU8r5m9JnDVJuXmw6ECt05HYmoslVkmaXziZLA.jpg', 'Bác sĩ Đỗ Thị Hòa', '<p>Chuyên gia tim mạch, có kinh nghiệm điều trị bệnh nhân cao tuổi.</p>', 7, 11, 'files/do_hoa_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-05-03 04:15:30'),
 (7, 9, 'avatars/doctor_vu_minh.jpg', 'Bác sĩ Vũ Đức Minh', 'Chuyên gia nhi khoa, tư vấn và điều trị trẻ sơ sinh.', 5, 7, 'files/vu_minh_cv.pdf', 0, 1, '2025-03-23 07:13:07', '2025-04-11 13:58:12'),
 (8, 10, 'avatars/Ws02e8VSKUahTvd7nhldnucmzINEb6X91dtCVkxo.jpg', 'Bác sĩ Lý Hoàng Nam', '<p>Chuyên gia nội tổng quát, tư vấn và điều trị bệnh mãn tính.</p>', 4, 13, 'files/ly_nam_cv.pdf', 1, 0, '2025-03-23 07:13:07', '2025-04-19 06:59:01');
 
@@ -431,7 +434,7 @@ CREATE TABLE `invoices` (
   `total_amount` decimal(15,0) NOT NULL,
   `discount` decimal(15,0) NOT NULL DEFAULT '0',
   `tax` decimal(15,0) NOT NULL DEFAULT '0',
-  `status` enum('unpaid','paid','pending','cancelled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unpaid',
+  `status` enum('unpaid','paid','pending','cancelled') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unpaid',
   `isDeleted` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -672,8 +675,8 @@ INSERT INTO `invoice_details` (`id`, `invoice_id`, `booking_id`, `isDeleted`, `c
 
 CREATE TABLE `jobs` (
   `id` bigint UNSIGNED NOT NULL,
-  `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `attempts` tinyint UNSIGNED NOT NULL,
   `reserved_at` int UNSIGNED DEFAULT NULL,
   `available_at` int UNSIGNED NOT NULL,
@@ -727,7 +730,6 @@ INSERT INTO `medical_records` (`id`, `guest_id`, `BHYT`, `medical_condition`, `m
 (19, 19, 'BHYT009', 'Đau bụng, rối loạn tiêu hóa', 'Men tiêu hóa', NULL, NULL, NULL, 'Ăn chín uống sôi', 0, '2025-04-09 08:30:00', '2025-04-09 09:00:00'),
 (20, 20, 'BHYT010', 'Tiểu buốt, viêm tiết niệu', 'Kháng sinh', NULL, NULL, NULL, 'Uống nhiều nước', 0, '2025-04-10 09:30:00', '2025-04-10 10:00:00');
 
-
 -- --------------------------------------------------------
 
 --
@@ -754,7 +756,23 @@ INSERT INTO `messages` (`id`, `conversation_id`, `sender_id`, `content`, `create
 (4, 1, 11, 'xin chào', '2025-04-23 14:27:59', '2025-04-23 14:27:59'),
 (5, 1, 1, 'chào bạn', '2025-04-23 14:28:29', '2025-04-23 14:28:29'),
 (6, 1, 11, 'Hi', '2025-04-23 15:54:26', '2025-04-23 15:54:26'),
-(7, 1, 1, 'Chào bạn', '2025-04-23 15:54:34', '2025-04-23 15:54:34');
+(7, 1, 1, 'Chào bạn', '2025-04-23 15:54:34', '2025-04-23 15:54:34'),
+(8, 2, 12, 'Em chào anh ạ em bị đau dạ dày', '2025-05-03 02:45:46', '2025-05-03 02:45:46'),
+(9, 2, 12, 'Em chào anh ạ em bị đau dạ dày', '2025-05-03 02:45:49', '2025-05-03 02:45:49'),
+(10, 2, 12, 'Anh ơi', '2025-05-03 02:45:58', '2025-05-03 02:45:58'),
+(11, 3, 13, 'Em chào admin ạ', '2025-05-03 02:47:29', '2025-05-03 02:47:29'),
+(12, 2, 1, 'Dạ triệu chứng của mình bị như nào vậy ạ', '2025-05-03 02:48:20', '2025-05-03 02:48:20'),
+(13, 3, 1, 'Dạ chị đang cần hỗ trợ gì vậy ạ', '2025-05-03 02:48:53', '2025-05-03 02:48:53'),
+(14, 2, 12, 'Em bị đầy hơi buồn nôn với ợ chua anh ạ', '2025-05-03 02:50:57', '2025-05-03 02:50:57'),
+(15, 1, 11, 'Bác sĩ đang nhắn với em đúng không ạ', '2025-05-03 02:51:27', '2025-05-03 02:51:27'),
+(16, 1, 1, 'Dạ không ạ em là nhân viên tư vấn thôi ạ', '2025-05-03 02:55:10', '2025-05-03 02:55:10'),
+(17, 3, 13, 'Lưng em bị đau mấy ngày hôm nay rồi ạ chân tay mềm nhũn thì nên khám ở khoa nào ạ', '2025-05-03 02:57:24', '2025-05-03 02:57:24'),
+(18, 3, 1, 'Vậy thì chị nên khám ở khoa xương khớp ạ', '2025-05-03 02:59:07', '2025-05-03 02:59:07'),
+(19, 3, 1, 'http://localhost:3000/detail-service/5', '2025-05-03 02:59:13', '2025-05-03 02:59:13'),
+(20, 3, 13, 'Dạ dạ em cảm ơn ạ', '2025-05-03 02:59:36', '2025-05-03 02:59:36'),
+(21, 4, 14, 'Em cần hỗ trợ với ạ', '2025-05-03 03:03:11', '2025-05-03 03:03:11'),
+(22, 4, 1, 'Dạ anh gặp phải vấn đề gì vậy ạ', '2025-05-03 03:38:00', '2025-05-03 03:38:00'),
+(23, 4, 14, 'Mấy hôm nay em bị tức ngực khó thở ạ', '2025-05-03 03:38:20', '2025-05-03 03:38:20');
 
 -- --------------------------------------------------------
 
@@ -1132,12 +1150,24 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (22, 'App\\Models\\User', 4, 'auth_token', 'a20bbb84332a8bdceb1b633755f0ceb5625e1283400cdbfc8404183c54a3d646', '[\"*\"]', '2025-04-11 07:44:49', NULL, '2025-04-11 07:42:06', '2025-04-11 07:44:49'),
 (23, 'App\\Models\\User', 4, 'auth_token', '7932a25a346a6762bc0da17a6717ba54ccdd8340fc7fe53eda3cfd7262b38586', '[\"*\"]', NULL, NULL, '2025-04-11 07:59:09', '2025-04-11 07:59:09'),
 (24, 'App\\Models\\User', 4, 'auth_token', '2b8df55efe0763ce34416f6353e2ac6c35a4833113ecc4ba4d3d5421ab3f4bbe', '[\"*\"]', '2025-04-11 17:01:57', NULL, '2025-04-11 07:59:10', '2025-04-11 17:01:57'),
-(25, 'App\\Models\\User', 11, 'auth_token', '049b58af2c0ee6a8aab16c263c050b4b4db562a11080797ed3c9a648c57ce4e9', '[\"*\"]', '2025-04-24 03:33:48', NULL, '2025-04-11 09:06:06', '2025-04-24 03:33:48'),
+(25, 'App\\Models\\User', 11, 'auth_token', '049b58af2c0ee6a8aab16c263c050b4b4db562a11080797ed3c9a648c57ce4e9', '[\"*\"]', '2025-05-03 07:38:58', NULL, '2025-04-11 09:06:06', '2025-05-03 07:38:58'),
 (26, 'App\\Models\\User', 4, 'auth_token', '8702a7730ba7f000eb8fb95d7a550e27f04e556ab3426eb520656a779ae8d248', '[\"*\"]', '2025-04-19 06:08:55', NULL, '2025-04-12 04:53:24', '2025-04-19 06:08:55'),
 (27, 'App\\Models\\User', 11, 'auth_token', 'b7af5c05d0385a7d34ad5d07127fb9a52e79093d5e953551d1fd0fc10b11ffff', '[\"*\"]', '2025-04-22 01:54:26', NULL, '2025-04-19 06:11:45', '2025-04-22 01:54:26'),
-(28, 'App\\Models\\User', 4, 'auth_token', '802d83fae9eb79ef5b5b94e5a087c7ae00c2f1167de7a18e07484c6eb1dec52d', '[\"*\"]', '2025-04-24 03:30:36', NULL, '2025-04-22 01:56:21', '2025-04-24 03:30:36'),
+(28, 'App\\Models\\User', 4, 'auth_token', '802d83fae9eb79ef5b5b94e5a087c7ae00c2f1167de7a18e07484c6eb1dec52d', '[\"*\"]', '2025-05-03 02:14:14', NULL, '2025-04-22 01:56:21', '2025-05-03 02:14:14'),
 (29, 'App\\Models\\User', 11, 'auth_token', 'f403ecc1fa95b193c3a3b237d48a98befd160bb726ac2ff2fbc096f5c0b38537', '[\"*\"]', '2025-04-23 13:15:35', NULL, '2025-04-22 16:55:36', '2025-04-23 13:15:35'),
-(30, 'App\\Models\\User', 1, 'auth_token', '81fafd9adfaa9f12a782597fe90d9b9b406a91f6a2ec2dd15ae3d6f413355a5a', '[\"*\"]', '2025-04-23 15:54:34', NULL, '2025-04-23 14:28:17', '2025-04-23 15:54:34');
+(30, 'App\\Models\\User', 1, 'auth_token', '81fafd9adfaa9f12a782597fe90d9b9b406a91f6a2ec2dd15ae3d6f413355a5a', '[\"*\"]', '2025-05-03 03:38:21', NULL, '2025-04-23 14:28:17', '2025-05-03 03:38:21'),
+(31, 'App\\Models\\User', 3, 'auth_token', 'd6b64f9196b8cb92cea4eaa348e33ed9b1998091ef687b99147ec4707355eda1', '[\"*\"]', '2025-05-03 02:16:19', NULL, '2025-05-03 02:14:37', '2025-05-03 02:16:19'),
+(32, 'App\\Models\\User', 4, 'auth_token', 'c40a0ff6cd98d0f211e318d539af6c02de8d039c441080a2c03b178290f7056d', '[\"*\"]', '2025-05-03 02:25:20', NULL, '2025-05-03 02:16:54', '2025-05-03 02:25:20'),
+(33, 'App\\Models\\User', 5, 'auth_token', '24232cec7ed24d1998bc9214642a26bd7207f887d742f6cae646eab411bf8019', '[\"*\"]', '2025-05-03 02:27:46', NULL, '2025-05-03 02:27:19', '2025-05-03 02:27:46'),
+(34, 'App\\Models\\User', 6, 'auth_token', '98d4c8aab4fb8a499737daedea24f342b67fad0f23f32cb2dda803c06c9e6493', '[\"*\"]', '2025-05-03 02:28:37', NULL, '2025-05-03 02:28:13', '2025-05-03 02:28:37'),
+(35, 'App\\Models\\User', 7, 'auth_token', 'a17072f7b2b5825fc0be5fd3cc26e9547ece25266d297960c4c437c25b75e0c1', '[\"*\"]', '2025-05-03 02:29:18', NULL, '2025-05-03 02:29:01', '2025-05-03 02:29:18'),
+(36, 'App\\Models\\User', 8, 'auth_token', '41a8930a3d99edac48d6543d130dddbe6a2ce8c111ecba642c736c10a602221f', '[\"*\"]', '2025-05-03 02:29:53', NULL, '2025-05-03 02:29:40', '2025-05-03 02:29:53'),
+(37, 'App\\Models\\User', 9, 'auth_token', 'e2971e3da98a7221036601b3b2fe1c0276438992baafe1dae3e01d6fc81b343e', '[\"*\"]', '2025-05-03 02:30:35', NULL, '2025-05-03 02:30:19', '2025-05-03 02:30:35'),
+(38, 'App\\Models\\User', 10, 'auth_token', '34258cf28753bede3103625970f490044944c3175f3e0176b4c42f8e57053ca1', '[\"*\"]', '2025-05-03 02:35:29', NULL, '2025-05-03 02:35:15', '2025-05-03 02:35:29'),
+(39, 'App\\Models\\User', 4, 'auth_token', '3cdf7203ad28b4aed7177ad039cc1ae8ee0b176ba8febff52d6b7e54bf018491', '[\"*\"]', '2025-05-03 02:35:51', NULL, '2025-05-03 02:35:48', '2025-05-03 02:35:51'),
+(40, 'App\\Models\\User', 12, 'auth_token', '60e54137b18438e3b85773d6e1078d6caf84dbea3245e418aa7a227550c33d11', '[\"*\"]', '2025-05-03 02:50:58', NULL, '2025-05-03 02:44:56', '2025-05-03 02:50:58'),
+(41, 'App\\Models\\User', 13, 'auth_token', '4f621715f0e482cd8409a7d22cb31759e7ab8f9b4348fb1895a76975c9c5117d', '[\"*\"]', '2025-05-03 02:59:38', NULL, '2025-05-03 02:47:05', '2025-05-03 02:59:38'),
+(42, 'App\\Models\\User', 14, 'auth_token', '0db1d22bcfe75490f76b40f98663422f07447a54ff4e795bd494cea5bb06c1b7', '[\"*\"]', '2025-05-03 03:38:21', NULL, '2025-05-03 03:00:29', '2025-05-03 03:38:21');
 
 -- --------------------------------------------------------
 
@@ -1167,27 +1197,27 @@ CREATE TABLE `posts` (
 --
 
 INSERT INTO `posts` (`id`, `category_id`, `user_id`, `slug`, `title`, `content`, `image`, `views`, `status`, `isDeleted`, `published_at`, `deleted_at`, `created_at`, `updated_at`) VALUES
-(1, 2, 3, 'tam-quan-trong-cua-suc-khoe-tim-mach', 'Tầm quan trọng của sức khỏe tim mạch', '<h3><strong>Vì sao sức khỏe tim mạch ngày càng đáng báo động?</strong></h3><p>Theo Tổ chức Y tế Thế giới (WHO), các bệnh lý tim mạch hiện là <strong>nguyên nhân gây tử vong hàng đầu trên toàn cầu</strong>, chiếm hơn 30% tổng số ca tử vong mỗi năm. Tại Việt Nam, tỷ lệ người mắc cao huyết áp, mỡ máu, xơ vữa động mạch, nhồi máu cơ tim ngày càng tăng nhanh, đặc biệt ở người trẻ tuổi do lối sống ít vận động, ăn uống không lành mạnh, stress kéo dài và thiếu quan tâm đến sức khỏe.</p><p>Điều nguy hiểm là <strong>nhiều bệnh tim mạch phát triển âm thầm</strong>, không biểu hiện triệu chứng rõ ràng cho đến khi xảy ra biến cố nghiêm trọng như đột quỵ hoặc nhồi máu cơ tim.</p><h3><strong>Tại sao bạn cần chăm sóc tim mạch ngay hôm nay?</strong></h3><p><strong>Phòng bệnh hơn chữa bệnh:</strong> Việc chủ động theo dõi sức khỏe tim mạch giúp bạn phát hiện sớm các nguy cơ và điều chỉnh kịp thời, thay vì chờ đến khi bệnh xảy ra rồi mới điều trị, tốn kém thời gian, tiền bạc và ảnh hưởng đến cuộc sống.</p><p><strong>Nâng cao chất lượng cuộc sống:</strong> Một trái tim khỏe giúp bạn làm việc hiệu quả, vận động dễ dàng, tận hưởng cuộc sống trọn vẹn và sống thọ hơn.</p><p><strong>Bảo vệ cả gia đình:</strong> Khi bạn khỏe mạnh, bạn mới có thể chăm sóc người thân tốt hơn. Đồng thời, khi bạn có kiến thức về tim mạch, bạn sẽ giúp cả gia đình hình thành lối sống lành mạnh và phòng ngừa bệnh tật hiệu quả.</p><h3><strong>Giải pháp toàn diện cho sức khỏe tim mạch</strong></h3><p>Chúng tôi hiểu rằng việc duy trì một trái tim khỏe không hề dễ dàng trong cuộc sống hiện đại. Vì vậy, chúng tôi mang đến các giải pháp hỗ trợ bạn chăm sóc tim mạch một cách khoa học và dễ dàng hơn:</p><p>🏥 <strong>Gói khám chuyên sâu tim mạch</strong> định kỳ – giúp tầm soát toàn diện, phát hiện sớm bệnh lý tiềm ẩn.</p><p>📲 <strong>Ứng dụng theo dõi huyết áp, nhịp tim, chỉ số sức khỏe</strong> – quản lý dễ dàng ngay trên điện thoại.</p><p>💡 <strong>Tư vấn y khoa cùng bác sĩ chuyên môn</strong> – giải đáp mọi lo lắng và hướng dẫn chăm sóc đúng cách.</p><p>⚙️ <strong>Thiết bị đo huyết áp, điện tim tại nhà</strong> – tiện lợi, chính xác, hỗ trợ theo dõi liên tục.</p><h3><strong>Đừng đợi đến khi trái tim lên tiếng!</strong></h3><p>Sức khỏe tim mạch là tài sản vô giá. Hãy bắt đầu bảo vệ trái tim của bạn ngay từ hôm nay – từ những thói quen nhỏ, từ sự quan tâm đúng lúc. Và nếu bạn cần người đồng hành, chúng tôi sẵn sàng cùng bạn trên hành trình đó.</p><blockquote><p>💖 <strong>Đầu tư cho tim mạch – đầu tư cho tương lai khỏe mạnh của bạn và gia đình!</strong></p></blockquote>', 'uploads/BsguxxHB446zBGjycmCgHV2Q59o3HRK4Zkrs9nbg.jpg', 124, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-04-19 06:47:57'),
-(2, 5, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>Chấn thương chỉnh hình có thể ảnh hưởng đến chất lượng cuộc sống nếu không được điều trị đúng cách. Hiện nay, có nhiều phương pháp tiên tiến giúp phục hồi chấn thương xương khớp nhanh chóng. Hãy cùng tìm hiểu về các phương pháp này trong bài viết sau.</p>', NULL, 89, 'published', 0, '2025-03-19 17:00:00', NULL, '2025-03-23 08:16:59', '2025-04-19 12:06:17'),
-(3, 1, 5, 'dinh-duong-cho-tre-em-va-me-bau', 'Dinh dưỡng cho trẻ em và mẹ bầu', 'Chế độ dinh dưỡng đóng vai trò quan trọng trong sự phát triển của trẻ nhỏ cũng như sức khỏe của mẹ bầu. Việc cung cấp đầy đủ các nhóm chất dinh dưỡng giúp tăng cường sức đề kháng và phát triển toàn diện. Hãy cùng khám phá chế độ ăn uống khoa học qua bài viết này.', NULL, 200, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-03-23 08:16:59'),
+(1, 2, 3, 'tam-quan-trong-cua-suc-khoe-tim-mach', 'Tầm quan trọng của sức khỏe tim mạch', '<h3><strong>Vì sao sức khỏe tim mạch ngày càng đáng báo động?</strong></h3><p>Theo Tổ chức Y tế Thế giới (WHO), các bệnh lý tim mạch hiện là <strong>nguyên nhân gây tử vong hàng đầu trên toàn cầu</strong>, chiếm hơn 30% tổng số ca tử vong mỗi năm. Tại Việt Nam, tỷ lệ người mắc cao huyết áp, mỡ máu, xơ vữa động mạch, nhồi máu cơ tim ngày càng tăng nhanh, đặc biệt ở người trẻ tuổi do lối sống ít vận động, ăn uống không lành mạnh, stress kéo dài và thiếu quan tâm đến sức khỏe.</p><p>Điều nguy hiểm là <strong>nhiều bệnh tim mạch phát triển âm thầm</strong>, không biểu hiện triệu chứng rõ ràng cho đến khi xảy ra biến cố nghiêm trọng như đột quỵ hoặc nhồi máu cơ tim.</p><h3><strong>Tại sao bạn cần chăm sóc tim mạch ngay hôm nay?</strong></h3><p><strong>Phòng bệnh hơn chữa bệnh:</strong> Việc chủ động theo dõi sức khỏe tim mạch giúp bạn phát hiện sớm các nguy cơ và điều chỉnh kịp thời, thay vì chờ đến khi bệnh xảy ra rồi mới điều trị, tốn kém thời gian, tiền bạc và ảnh hưởng đến cuộc sống.</p><p><strong>Nâng cao chất lượng cuộc sống:</strong> Một trái tim khỏe giúp bạn làm việc hiệu quả, vận động dễ dàng, tận hưởng cuộc sống trọn vẹn và sống thọ hơn.</p><p><strong>Bảo vệ cả gia đình:</strong> Khi bạn khỏe mạnh, bạn mới có thể chăm sóc người thân tốt hơn. Đồng thời, khi bạn có kiến thức về tim mạch, bạn sẽ giúp cả gia đình hình thành lối sống lành mạnh và phòng ngừa bệnh tật hiệu quả.</p><h3><strong>Giải pháp toàn diện cho sức khỏe tim mạch</strong></h3><p>Chúng tôi hiểu rằng việc duy trì một trái tim khỏe không hề dễ dàng trong cuộc sống hiện đại. Vì vậy, chúng tôi mang đến các giải pháp hỗ trợ bạn chăm sóc tim mạch một cách khoa học và dễ dàng hơn:</p><p>🏥 <strong>Gói khám chuyên sâu tim mạch</strong> định kỳ – giúp tầm soát toàn diện, phát hiện sớm bệnh lý tiềm ẩn.</p><p>📲 <strong>Ứng dụng theo dõi huyết áp, nhịp tim, chỉ số sức khỏe</strong> – quản lý dễ dàng ngay trên điện thoại.</p><p>💡 <strong>Tư vấn y khoa cùng bác sĩ chuyên môn</strong> – giải đáp mọi lo lắng và hướng dẫn chăm sóc đúng cách.</p><p>⚙️ <strong>Thiết bị đo huyết áp, điện tim tại nhà</strong> – tiện lợi, chính xác, hỗ trợ theo dõi liên tục.</p><h3><strong>Đừng đợi đến khi trái tim lên tiếng!</strong></h3><p>Sức khỏe tim mạch là tài sản vô giá. Hãy bắt đầu bảo vệ trái tim của bạn ngay từ hôm nay – từ những thói quen nhỏ, từ sự quan tâm đúng lúc. Và nếu bạn cần người đồng hành, chúng tôi sẵn sàng cùng bạn trên hành trình đó.</p><blockquote><p>💖 <strong>Đầu tư cho tim mạch – đầu tư cho tương lai khỏe mạnh của bạn và gia đình!</strong></p></blockquote>', 'uploads/BsguxxHB446zBGjycmCgHV2Q59o3HRK4Zkrs9nbg.jpg', 125, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-05-03 07:30:29'),
+(2, 5, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>Chấn thương chỉnh hình có thể ảnh hưởng đến chất lượng cuộc sống nếu không được điều trị đúng cách. Hiện nay, có nhiều phương pháp tiên tiến giúp phục hồi chấn thương xương khớp nhanh chóng. Hãy cùng tìm hiểu về các phương pháp này trong bài viết sau.</p>', 'uploads/WAqhNCaOAYwfP53dOZvr9LpD89O9eOSnq9G7Km6K.jpg', 89, 'published', 0, '2025-03-19 17:00:00', NULL, '2025-03-23 08:16:59', '2025-05-03 07:31:56'),
+(3, 1, 5, 'dinh-duong-cho-tre-em-va-me-bau', 'Dinh dưỡng cho trẻ em và mẹ bầu', '<p>Chế độ dinh dưỡng đóng vai trò quan trọng trong sự phát triển của trẻ nhỏ cũng như sức khỏe của mẹ bầu. Việc cung cấp đầy đủ các nhóm chất dinh dưỡng giúp tăng cường sức đề kháng và phát triển toàn diện. Hãy cùng khám phá chế độ ăn uống khoa học qua bài viết này.</p>', 'uploads/LVN801O10NkBOaYU327RHZN9sbqxcpa9c6jJmre5.png', 200, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-05-03 07:36:47'),
 (4, 3, 6, 'huong-dan-cham-soc-da-mua-he', 'Hướng dẫn chăm sóc da cho mùa hè', 'Vào mùa hè, làn da dễ bị tác động bởi ánh nắng mặt trời và các yếu tố môi trường. Để duy trì làn da khỏe mạnh, bạn cần biết cách bảo vệ da, sử dụng kem chống nắng đúng cách và cấp ẩm phù hợp. Hãy tham khảo ngay những bí quyết chăm sóc da hiệu quả nhất.', NULL, 50, 'draft', 0, NULL, NULL, '2025-03-23 08:16:59', '2025-03-23 08:16:59'),
-(5, 4, 7, 'phat-hien-som-benh-ung-thu', 'Cách phát hiện sớm bệnh ung thư', 'Phát hiện sớm ung thư giúp tăng khả năng điều trị thành công và kéo dài sự sống cho bệnh nhân. Bài viết này sẽ hướng dẫn bạn cách nhận biết các dấu hiệu của bệnh ung thư và những xét nghiệm quan trọng cần thực hiện định kỳ.', NULL, 170, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-03-23 08:16:59'),
-(6, 6, 8, 'cac-benh-phoi-pho-bien-va-cach-phong-tranh', 'Các bệnh phổi phổ biến và cách phòng tránh', 'Bệnh phổi là một trong những nguyên nhân gây tử vong hàng đầu trên thế giới. Những bệnh lý phổ biến như viêm phổi, hen suyễn, bệnh phổi tắc nghẽn mãn tính có thể phòng tránh bằng cách bảo vệ hệ hô hấp và duy trì lối sống lành mạnh.', NULL, 95, 'archived', 0, '2024-10-01 03:00:00', NULL, '2025-03-23 08:16:59', '2025-03-23 08:16:59'),
-(7, 8, 9, 'tam-quan-trong-cua-suc-khoe-phu-nu', 'Tầm quan trọng của sức khỏe phụ nữ', 'Sức khỏe phụ nữ không chỉ ảnh hưởng đến bản thân họ mà còn có tác động đến gia đình và xã hội. Chăm sóc sức khỏe sinh sản, dinh dưỡng hợp lý và kiểm tra định kỳ là những yếu tố quan trọng giúp phụ nữ có một cuộc sống khỏe mạnh.', NULL, 135, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-03-23 08:16:59'),
-(8, 10, 10, 'roi-loan-than-kinh-va-cach-dieu-tri', 'Rối loạn thần kinh và cách điều trị', 'Các rối loạn thần kinh như mất trí nhớ, Parkinson hay trầm cảm ảnh hưởng nghiêm trọng đến chất lượng cuộc sống. Việc phát hiện sớm và điều trị kịp thời giúp cải thiện đáng kể tình trạng bệnh. Hãy cùng tìm hiểu các phương pháp điều trị mới nhất trong bài viết này.', NULL, 210, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-03-23 08:16:59'),
-(9, 1, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-1', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>aaaa</p>', NULL, 0, 'draft', 0, NULL, NULL, '2025-04-05 18:03:59', '2025-04-05 18:06:10'),
-(10, 2, 3, 'tam-quan-trong-cua-suc-khoe-tim-mach-1', 'Tầm quan trọng của sức khỏe tim mạch', 'Bệnh tim mạch là một trong những nguyên nhân gây tử vong hàng đầu trên thế giới. Việc duy trì một lối sống lành mạnh, chế độ ăn uống hợp lý và thường xuyên kiểm tra sức khỏe tim mạch là vô cùng quan trọng. Bài viết này sẽ giúp bạn hiểu rõ hơn về cách bảo vệ trái tim của mình.', 'logos\\a', 120, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-03-23 01:16:59'),
-(11, 5, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-5', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>Chấn thương chỉnh hình có thể ảnh hưởng đến chất lượng cuộc sống nếu không được điều trị đúng cách. Hiện nay, có nhiều phương pháp tiên tiến giúp phục hồi chấn thương xương khớp nhanh chóng. Hãy cùng tìm hiểu về các phương pháp này trong bài viết sau.</p>', NULL, 88, 'published', 0, '2025-03-19 10:00:00', NULL, '2025-03-23 01:16:59', '2025-04-17 05:16:27'),
-(12, 1, 5, 'dinh-duong-cho-tre-em-va-me-bau-1', 'Dinh dưỡng cho trẻ em và mẹ bầu', 'Chế độ dinh dưỡng đóng vai trò quan trọng trong sự phát triển của trẻ nhỏ cũng như sức khỏe của mẹ bầu. Việc cung cấp đầy đủ các nhóm chất dinh dưỡng giúp tăng cường sức đề kháng và phát triển toàn diện. Hãy cùng khám phá chế độ ăn uống khoa học qua bài viết này.', NULL, 200, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-03-23 01:16:59'),
-(13, 3, 6, 'huong-dan-cham-soc-da-mua-he-1', 'Hướng dẫn chăm sóc da cho mùa hè', 'Vào mùa hè, làn da dễ bị tác động bởi ánh nắng mặt trời và các yếu tố môi trường. Để duy trì làn da khỏe mạnh, bạn cần biết cách bảo vệ da, sử dụng kem chống nắng đúng cách và cấp ẩm phù hợp. Hãy tham khảo ngay những bí quyết chăm sóc da hiệu quả nhất.', NULL, 50, 'draft', 0, NULL, NULL, '2025-03-23 01:16:59', '2025-03-23 01:16:59'),
-(14, 4, 7, 'phat-hien-som-benh-ung-thu-1', 'Cách phát hiện sớm bệnh ung thư', 'Phát hiện sớm ung thư giúp tăng khả năng điều trị thành công và kéo dài sự sống cho bệnh nhân. Bài viết này sẽ hướng dẫn bạn cách nhận biết các dấu hiệu của bệnh ung thư và những xét nghiệm quan trọng cần thực hiện định kỳ.', NULL, 170, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-03-23 01:16:59'),
-(15, 6, 8, 'cac-benh-phoi-pho-bien-va-cach-phong-tranh-1', 'Các bệnh phổi phổ biến và cách phòng tránh', 'Bệnh phổi là một trong những nguyên nhân gây tử vong hàng đầu trên thế giới. Những bệnh lý phổ biến như viêm phổi, hen suyễn, bệnh phổi tắc nghẽn mãn tính có thể phòng tránh bằng cách bảo vệ hệ hô hấp và duy trì lối sống lành mạnh.', NULL, 95, 'archived', 0, '2024-09-30 20:00:00', NULL, '2025-03-23 01:16:59', '2025-03-23 01:16:59'),
-(16, 8, 9, 'tam-quan-trong-cua-suc-khoe-phu-nu-1', 'Tầm quan trọng của sức khỏe phụ nữ', 'Sức khỏe phụ nữ không chỉ ảnh hưởng đến bản thân họ mà còn có tác động đến gia đình và xã hội. Chăm sóc sức khỏe sinh sản, dinh dưỡng hợp lý và kiểm tra định kỳ là những yếu tố quan trọng giúp phụ nữ có một cuộc sống khỏe mạnh.', NULL, 135, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-03-23 01:16:59'),
-(17, 10, 10, 'roi-loan-than-kinh-va-cach-dieu-tri-1', 'Rối loạn thần kinh và cách điều trị', 'Các rối loạn thần kinh như mất trí nhớ, Parkinson hay trầm cảm ảnh hưởng nghiêm trọng đến chất lượng cuộc sống. Việc phát hiện sớm và điều trị kịp thời giúp cải thiện đáng kể tình trạng bệnh. Hãy cùng tìm hiểu các phương pháp điều trị mới nhất trong bài viết này.', NULL, 210, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-03-23 01:16:59'),
-(18, 1, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-2', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>aaaa</p>', NULL, 0, 'draft', 0, NULL, NULL, '2025-04-05 11:03:59', '2025-04-05 11:06:10'),
-(19, 1, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-3', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>aaaa</p>', NULL, 0, 'draft', 0, NULL, NULL, '2025-04-05 11:03:59', '2025-04-05 11:06:10'),
-(20, 1, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-4', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>aaaa</p>', NULL, 0, 'draft', 0, NULL, NULL, '2025-04-05 11:03:59', '2025-04-05 11:06:10'),
-(21, 1, 1, 'chao-buoi-toi', 'Chao buoi toi', '<p>Chào tất cả mọi người&nbsp;</p>', 'uploads/VylenmVcJNX3FFyOYGFtLp27ZWgIhtPjaYfJlXXX.jpg', 2, 'published', 0, '2025-04-23 15:52:12', NULL, '2025-04-23 15:52:12', '2025-04-23 15:53:15');
+(5, 4, 7, 'phat-hien-som-benh-ung-thu', 'Cách phát hiện sớm bệnh ung thư', '<p>Phát hiện sớm ung thư giúp tăng khả năng điều trị thành công và kéo dài sự sống cho bệnh nhân. Bài viết này sẽ hướng dẫn bạn cách nhận biết các dấu hiệu của bệnh ung thư và những xét nghiệm quan trọng cần thực hiện định kỳ.</p>', 'uploads/y4y4EXR8yeguk4xLZOXY1i2AeIh49UgietrcSym7.jpg', 170, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-05-03 07:32:08'),
+(6, 6, 8, 'cac-benh-phoi-pho-bien-va-cach-phong-tranh', 'Các bệnh phổi phổ biến và cách phòng tránh', '<p>Bệnh phổi là một trong những nguyên nhân gây tử vong hàng đầu trên thế giới. Những bệnh lý phổ biến như viêm phổi, hen suyễn, bệnh phổi tắc nghẽn mãn tính có thể phòng tránh bằng cách bảo vệ hệ hô hấp và duy trì lối sống lành mạnh.</p>', 'uploads/b3MHbTwqUeTZwbj2bRFb5shTKtC2ANTS90zagvNC.jpg', 95, 'draft', 0, '2024-10-01 03:00:00', NULL, '2025-03-23 08:16:59', '2025-05-03 07:28:14'),
+(7, 8, 9, 'tam-quan-trong-cua-suc-khoe-phu-nu', 'Tầm quan trọng của sức khỏe phụ nữ', '<p>Sức khỏe phụ nữ không chỉ ảnh hưởng đến bản thân họ mà còn có tác động đến gia đình và xã hội. Chăm sóc sức khỏe sinh sản, dinh dưỡng hợp lý và kiểm tra định kỳ là những yếu tố quan trọng giúp phụ nữ có một cuộc sống khỏe mạnh.</p>', 'uploads/lWdxU6bBRVN2salAaKye93JATZt48R9HpKYyJwiz.jpg', 135, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-05-03 07:28:04'),
+(8, 10, 10, 'roi-loan-than-kinh-va-cach-dieu-tri', 'Rối loạn thần kinh và cách điều trị', '<p>Các rối loạn thần kinh như mất trí nhớ, Parkinson hay trầm cảm ảnh hưởng nghiêm trọng đến chất lượng cuộc sống. Việc phát hiện sớm và điều trị kịp thời giúp cải thiện đáng kể tình trạng bệnh. Hãy cùng tìm hiểu các phương pháp điều trị mới nhất trong bài viết này.</p>', 'uploads/TbkkfapS4WbvcmxSSIwS5y7EHhHCAOCavvJgfjwr.jpg', 210, 'published', 0, '2025-03-23 08:16:59', NULL, '2025-03-23 08:16:59', '2025-05-03 07:34:20'),
+(9, 1, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-1', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>aaaa</p>', NULL, 0, 'draft', 0, NULL, '2025-05-03 06:18:28', '2025-04-05 18:03:59', '2025-05-03 06:18:28'),
+(10, 2, 3, 'tam-quan-trong-cua-suc-khoe-tim-mach-1', 'Tầm quan trọng của sức khỏe tim mạch', '<p>Bệnh tim mạch là một trong những nguyên nhân gây tử vong hàng đầu trên thế giới. Việc duy trì một lối sống lành mạnh, chế độ ăn uống hợp lý và thường xuyên kiểm tra sức khỏe tim mạch là vô cùng quan trọng. Bài viết này sẽ giúp bạn hiểu rõ hơn về cách bảo vệ trái tim của mình.</p>', 'uploads/ql09ZLs1oYbKEjL8NtwDjS6Yg2gQupaV4oRCcgxo.jpg', 120, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-05-03 07:35:00'),
+(11, 5, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-5', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>Chấn thương chỉnh hình có thể ảnh hưởng đến chất lượng cuộc sống nếu không được điều trị đúng cách. Hiện nay, có nhiều phương pháp tiên tiến giúp phục hồi chấn thương xương khớp nhanh chóng. Hãy cùng tìm hiểu về các phương pháp này trong bài viết sau.</p>', 'uploads/JBkjeLreEOGWOQY5690R7Mn9NRoSzCUuASL7S6Zo.jpg', 88, 'published', 0, '2025-03-19 10:00:00', NULL, '2025-03-23 01:16:59', '2025-05-03 07:35:24'),
+(12, 1, 5, 'dinh-duong-cho-tre-em-va-me-bau-1', 'Dinh dưỡng cho trẻ em và mẹ bầu', '<p>Chế độ dinh dưỡng đóng vai trò quan trọng trong sự phát triển của trẻ nhỏ cũng như sức khỏe của mẹ bầu. Việc cung cấp đầy đủ các nhóm chất dinh dưỡng giúp tăng cường sức đề kháng và phát triển toàn diện. Hãy cùng khám phá chế độ ăn uống khoa học qua bài viết này.</p>', 'uploads/pgLFzxtlxMzMstSxPmGpLi9Vssxd3tbAycYH4Xyt.png', 200, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-05-03 07:36:05'),
+(13, 3, 6, 'huong-dan-cham-soc-da-mua-he-1', 'Hướng dẫn chăm sóc da cho mùa hè', '<p>Vào mùa hè, làn da dễ bị tác động bởi ánh nắng mặt trời và các yếu tố môi trường. Để duy trì làn da khỏe mạnh, bạn cần biết cách bảo vệ da, sử dụng kem chống nắng đúng cách và cấp ẩm phù hợp. Hãy tham khảo ngay những bí quyết chăm sóc da hiệu quả nhất.</p>', 'uploads/VPrqOOUrUtQyhPhYrjDe2RtsOEM8lyDW8iVwjbXn.jpg', 50, 'draft', 0, NULL, NULL, '2025-03-23 01:16:59', '2025-05-03 07:33:16'),
+(14, 4, 7, 'phat-hien-som-benh-ung-thu-1', 'Cách phát hiện sớm bệnh ung thư', '<p>Phát hiện sớm ung thư giúp tăng khả năng điều trị thành công và kéo dài sự sống cho bệnh nhân. Bài viết này sẽ hướng dẫn bạn cách nhận biết các dấu hiệu của bệnh ung thư và những xét nghiệm quan trọng cần thực hiện định kỳ.</p>', 'uploads/Y9GfbNVw1nLcomtKqPyp9YMMG9mI0YEUmGsgGqw3.jpg', 170, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-05-03 07:32:38'),
+(15, 6, 8, 'cac-benh-phoi-pho-bien-va-cach-phong-tranh-1', 'Các bệnh phổi phổ biến và cách phòng tránh', '<p>Bệnh phổi là một trong những nguyên nhân gây tử vong hàng đầu trên thế giới. Những bệnh lý phổ biến như viêm phổi, hen suyễn, bệnh phổi tắc nghẽn mãn tính có thể phòng tránh bằng cách bảo vệ hệ hô hấp và duy trì lối sống lành mạnh.</p>', 'uploads/j7bz0vVn2wIYS7KsiuGplDvx7Kk545LF1aaDiKCT.jpg', 95, 'draft', 0, '2024-09-30 20:00:00', NULL, '2025-03-23 01:16:59', '2025-05-03 06:57:02'),
+(16, 8, 9, 'tam-quan-trong-cua-suc-khoe-phu-nu-1', 'Tầm quan trọng của sức khỏe phụ nữ', '<p>Sức khỏe phụ nữ không chỉ ảnh hưởng đến bản thân họ mà còn có tác động đến gia đình và xã hội. Chăm sóc sức khỏe sinh sản, dinh dưỡng hợp lý và kiểm tra định kỳ là những yếu tố quan trọng giúp phụ nữ có một cuộc sống khỏe mạnh.</p>', 'uploads/WtIix4vEyh0hgsTZimYFzkbIVLCxbs19jPd9ES5f.jpg', 135, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-05-03 06:20:21'),
+(17, 10, 10, 'roi-loan-than-kinh-va-cach-dieu-tri-1', 'Rối loạn thần kinh và cách điều trị', '<p>Các rối loạn thần kinh như mất trí nhớ, Parkinson hay trầm cảm ảnh hưởng nghiêm trọng đến chất lượng cuộc sống. Việc phát hiện sớm và điều trị kịp thời giúp cải thiện đáng kể tình trạng bệnh. Hãy cùng tìm hiểu các phương pháp điều trị mới nhất trong bài viết này.</p>', 'uploads/Np5x3lcRppNHUTMG087ecJn53L4XdYD12MVHbE8K.png', 211, 'published', 0, '2025-03-23 01:16:59', NULL, '2025-03-23 01:16:59', '2025-05-03 07:30:19'),
+(18, 1, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-2', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>aaaa</p>', 'uploads/WN0oY2EbXKbX29FWo2jCoNu1A1TQO8EECDkbqIhK.jpg', 0, 'draft', 0, NULL, NULL, '2025-04-05 11:03:59', '2025-05-03 07:30:03'),
+(19, 1, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-3', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>aaaa</p>', 'uploads/XXbPKkHhcsgg7wRwJTmA1WO7ftx1U1fZYLBh8a8N.jpg', 0, 'draft', 0, NULL, NULL, '2025-04-05 11:03:59', '2025-05-03 07:29:55'),
+(20, 1, 4, 'cac-phuong-phap-dieu-tri-chan-thuong-chinh-hinh-4', 'Các phương pháp điều trị chấn thương chỉnh hình', '<p>aaaa</p>', 'uploads/9vk6zMk1ChhQp9PfeM13Ykp75GQSENLj1zQVo1BV.jpg', 0, 'draft', 0, NULL, NULL, '2025-04-05 11:03:59', '2025-05-03 07:29:46'),
+(21, 1, 1, 'chao-buoi-toi', 'Chao buoi toi', '<p>Chào tất cả mọi người&nbsp;</p>', 'uploads/VylenmVcJNX3FFyOYGFtLp27ZWgIhtPjaYfJlXXX.jpg', 2, 'published', 0, '2025-04-23 15:52:12', '2025-05-03 06:13:19', '2025-04-23 15:52:12', '2025-05-03 06:13:19');
 
 -- --------------------------------------------------------
 
@@ -1626,7 +1656,256 @@ INSERT INTO `schedules` (`id`, `doctor_id`, `time_start`, `time_end`, `working_d
 (322, 6, '08:00:00', '17:00:00', '2025-04-27', 10, 1, 0, '2025-03-28 00:16:02', '2025-03-28 00:16:02'),
 (323, 6, '08:00:00', '17:00:00', '2025-04-28', 10, 1, 0, '2025-03-28 00:16:02', '2025-03-28 00:16:02'),
 (324, 6, '08:00:00', '17:00:00', '2025-04-29', 10, 1, 0, '2025-03-28 00:16:02', '2025-03-28 00:16:02'),
-(325, 6, '08:00:00', '17:00:00', '2025-04-30', 10, 1, 0, '2025-03-28 00:16:02', '2025-03-28 00:16:02');
+(325, 6, '08:00:00', '17:00:00', '2025-04-30', 10, 1, 0, '2025-03-28 00:16:02', '2025-03-28 00:16:02'),
+(326, 1, '08:00:00', '17:00:00', '2025-05-01', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(327, 1, '08:00:00', '17:00:00', '2025-05-02', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(328, 1, '08:00:00', '17:00:00', '2025-05-03', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(329, 1, '08:00:00', '17:00:00', '2025-05-04', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(330, 1, '08:00:00', '17:00:00', '2025-05-05', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(331, 1, '08:00:00', '17:00:00', '2025-05-06', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(332, 1, '08:00:00', '17:00:00', '2025-05-07', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(333, 1, '08:00:00', '17:00:00', '2025-05-08', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(334, 1, '08:00:00', '17:00:00', '2025-05-09', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(335, 1, '08:00:00', '17:00:00', '2025-05-10', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(336, 1, '08:00:00', '17:00:00', '2025-05-11', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(337, 1, '08:00:00', '17:00:00', '2025-05-12', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(338, 1, '08:00:00', '17:00:00', '2025-05-13', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(339, 1, '08:00:00', '17:00:00', '2025-05-14', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(340, 1, '08:00:00', '17:00:00', '2025-05-15', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(341, 1, '08:00:00', '17:00:00', '2025-05-16', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(342, 1, '08:00:00', '17:00:00', '2025-05-17', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(343, 1, '08:00:00', '17:00:00', '2025-05-18', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(344, 1, '08:00:00', '17:00:00', '2025-05-19', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(345, 1, '08:00:00', '17:00:00', '2025-05-20', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(346, 1, '08:00:00', '17:00:00', '2025-05-21', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(347, 1, '08:00:00', '17:00:00', '2025-05-22', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(348, 1, '08:00:00', '17:00:00', '2025-05-23', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(349, 1, '08:00:00', '17:00:00', '2025-05-24', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(350, 1, '08:00:00', '17:00:00', '2025-05-25', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(351, 1, '08:00:00', '17:00:00', '2025-05-26', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(352, 1, '08:00:00', '17:00:00', '2025-05-27', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(353, 1, '08:00:00', '17:00:00', '2025-05-28', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(354, 1, '08:00:00', '17:00:00', '2025-05-29', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(355, 1, '08:00:00', '17:00:00', '2025-05-30', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(356, 1, '08:00:00', '17:00:00', '2025-05-31', 10, 1, 0, '2025-05-03 02:16:16', '2025-05-03 02:16:16'),
+(357, 2, '08:00:00', '17:00:00', '2025-05-01', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(358, 2, '08:00:00', '17:00:00', '2025-05-02', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(359, 2, '08:00:00', '17:00:00', '2025-05-03', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(360, 2, '08:00:00', '17:00:00', '2025-05-04', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(361, 2, '08:00:00', '17:00:00', '2025-05-05', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(362, 2, '08:00:00', '17:00:00', '2025-05-06', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(363, 2, '08:00:00', '17:00:00', '2025-05-07', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(364, 2, '08:00:00', '17:00:00', '2025-05-08', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(365, 2, '08:00:00', '17:00:00', '2025-05-09', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(366, 2, '08:00:00', '17:00:00', '2025-05-10', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(367, 2, '08:00:00', '17:00:00', '2025-05-11', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(368, 2, '08:00:00', '17:00:00', '2025-05-12', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(369, 2, '08:00:00', '17:00:00', '2025-05-13', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(370, 2, '08:00:00', '17:00:00', '2025-05-14', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(371, 2, '08:00:00', '17:00:00', '2025-05-15', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(372, 2, '08:00:00', '17:00:00', '2025-05-16', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(373, 2, '08:00:00', '17:00:00', '2025-05-17', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(374, 2, '08:00:00', '17:00:00', '2025-05-18', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(375, 2, '08:00:00', '17:00:00', '2025-05-19', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(376, 2, '08:00:00', '17:00:00', '2025-05-20', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(377, 2, '08:00:00', '17:00:00', '2025-05-21', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(378, 2, '08:00:00', '17:00:00', '2025-05-22', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(379, 2, '08:00:00', '17:00:00', '2025-05-23', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(380, 2, '08:00:00', '17:00:00', '2025-05-24', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(381, 2, '08:00:00', '17:00:00', '2025-05-25', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(382, 2, '08:00:00', '17:00:00', '2025-05-26', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(383, 2, '08:00:00', '17:00:00', '2025-05-27', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(384, 2, '08:00:00', '17:00:00', '2025-05-28', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(385, 2, '08:00:00', '17:00:00', '2025-05-29', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(386, 2, '08:00:00', '17:00:00', '2025-05-30', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(387, 2, '08:00:00', '17:00:00', '2025-05-31', 10, 1, 0, '2025-05-03 02:25:20', '2025-05-03 02:25:20'),
+(388, 3, '08:00:00', '17:00:00', '2025-05-01', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(389, 3, '08:00:00', '17:00:00', '2025-05-02', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(390, 3, '08:00:00', '17:00:00', '2025-05-03', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(391, 3, '08:00:00', '17:00:00', '2025-05-04', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(392, 3, '08:00:00', '17:00:00', '2025-05-05', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(393, 3, '08:00:00', '17:00:00', '2025-05-06', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(394, 3, '08:00:00', '17:00:00', '2025-05-07', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(395, 3, '08:00:00', '17:00:00', '2025-05-08', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(396, 3, '08:00:00', '17:00:00', '2025-05-09', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(397, 3, '08:00:00', '17:00:00', '2025-05-10', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(398, 3, '08:00:00', '17:00:00', '2025-05-11', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(399, 3, '08:00:00', '17:00:00', '2025-05-12', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(400, 3, '08:00:00', '17:00:00', '2025-05-13', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(401, 3, '08:00:00', '17:00:00', '2025-05-14', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(402, 3, '08:00:00', '17:00:00', '2025-05-15', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(403, 3, '08:00:00', '17:00:00', '2025-05-16', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(404, 3, '08:00:00', '17:00:00', '2025-05-17', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(405, 3, '08:00:00', '17:00:00', '2025-05-18', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(406, 3, '08:00:00', '17:00:00', '2025-05-19', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(407, 3, '08:00:00', '17:00:00', '2025-05-20', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(408, 3, '08:00:00', '17:00:00', '2025-05-21', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(409, 3, '08:00:00', '17:00:00', '2025-05-22', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(410, 3, '08:00:00', '17:00:00', '2025-05-23', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(411, 3, '08:00:00', '17:00:00', '2025-05-24', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(412, 3, '08:00:00', '17:00:00', '2025-05-25', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(413, 3, '08:00:00', '17:00:00', '2025-05-26', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(414, 3, '08:00:00', '17:00:00', '2025-05-27', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(415, 3, '08:00:00', '17:00:00', '2025-05-28', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(416, 3, '08:00:00', '17:00:00', '2025-05-29', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(417, 3, '08:00:00', '17:00:00', '2025-05-30', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(418, 3, '08:00:00', '17:00:00', '2025-05-31', 10, 1, 0, '2025-05-03 02:27:45', '2025-05-03 02:27:45'),
+(419, 4, '08:00:00', '17:00:00', '2025-05-01', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(420, 4, '08:00:00', '17:00:00', '2025-05-02', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(421, 4, '08:00:00', '17:00:00', '2025-05-03', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(422, 4, '08:00:00', '17:00:00', '2025-05-04', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(423, 4, '08:00:00', '17:00:00', '2025-05-05', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(424, 4, '08:00:00', '17:00:00', '2025-05-06', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(425, 4, '08:00:00', '17:00:00', '2025-05-07', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(426, 4, '08:00:00', '17:00:00', '2025-05-08', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(427, 4, '08:00:00', '17:00:00', '2025-05-09', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(428, 4, '08:00:00', '17:00:00', '2025-05-10', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(429, 4, '08:00:00', '17:00:00', '2025-05-11', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(430, 4, '08:00:00', '17:00:00', '2025-05-12', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(431, 4, '08:00:00', '17:00:00', '2025-05-13', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(432, 4, '08:00:00', '17:00:00', '2025-05-14', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(433, 4, '08:00:00', '17:00:00', '2025-05-15', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(434, 4, '08:00:00', '17:00:00', '2025-05-16', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(435, 4, '08:00:00', '17:00:00', '2025-05-17', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(436, 4, '08:00:00', '17:00:00', '2025-05-18', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(437, 4, '08:00:00', '17:00:00', '2025-05-19', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(438, 4, '08:00:00', '17:00:00', '2025-05-20', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(439, 4, '08:00:00', '17:00:00', '2025-05-21', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(440, 4, '08:00:00', '17:00:00', '2025-05-22', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(441, 4, '08:00:00', '17:00:00', '2025-05-23', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(442, 4, '08:00:00', '17:00:00', '2025-05-24', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(443, 4, '08:00:00', '17:00:00', '2025-05-25', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(444, 4, '08:00:00', '17:00:00', '2025-05-26', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(445, 4, '08:00:00', '17:00:00', '2025-05-27', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(446, 4, '08:00:00', '17:00:00', '2025-05-28', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(447, 4, '08:00:00', '17:00:00', '2025-05-29', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(448, 4, '08:00:00', '17:00:00', '2025-05-30', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(449, 4, '08:00:00', '17:00:00', '2025-05-31', 10, 1, 0, '2025-05-03 02:28:37', '2025-05-03 02:28:37'),
+(450, 5, '08:00:00', '17:00:00', '2025-05-01', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(451, 5, '08:00:00', '17:00:00', '2025-05-02', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(452, 5, '08:00:00', '17:00:00', '2025-05-03', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(453, 5, '08:00:00', '17:00:00', '2025-05-04', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(454, 5, '08:00:00', '17:00:00', '2025-05-05', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(455, 5, '08:00:00', '17:00:00', '2025-05-06', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(456, 5, '08:00:00', '17:00:00', '2025-05-07', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(457, 5, '08:00:00', '17:00:00', '2025-05-08', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(458, 5, '08:00:00', '17:00:00', '2025-05-09', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(459, 5, '08:00:00', '17:00:00', '2025-05-10', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(460, 5, '08:00:00', '17:00:00', '2025-05-11', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(461, 5, '08:00:00', '17:00:00', '2025-05-12', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(462, 5, '08:00:00', '17:00:00', '2025-05-13', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(463, 5, '08:00:00', '17:00:00', '2025-05-14', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(464, 5, '08:00:00', '17:00:00', '2025-05-15', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(465, 5, '08:00:00', '17:00:00', '2025-05-16', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(466, 5, '08:00:00', '17:00:00', '2025-05-17', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(467, 5, '08:00:00', '17:00:00', '2025-05-18', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(468, 5, '08:00:00', '17:00:00', '2025-05-19', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(469, 5, '08:00:00', '17:00:00', '2025-05-20', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(470, 5, '08:00:00', '17:00:00', '2025-05-21', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(471, 5, '08:00:00', '17:00:00', '2025-05-22', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(472, 5, '08:00:00', '17:00:00', '2025-05-23', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(473, 5, '08:00:00', '17:00:00', '2025-05-24', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(474, 5, '08:00:00', '17:00:00', '2025-05-25', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(475, 5, '08:00:00', '17:00:00', '2025-05-26', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(476, 5, '08:00:00', '17:00:00', '2025-05-27', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(477, 5, '08:00:00', '17:00:00', '2025-05-28', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(478, 5, '08:00:00', '17:00:00', '2025-05-29', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(479, 5, '08:00:00', '17:00:00', '2025-05-30', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(480, 5, '08:00:00', '17:00:00', '2025-05-31', 10, 1, 0, '2025-05-03 02:29:17', '2025-05-03 02:29:17'),
+(481, 6, '08:00:00', '17:00:00', '2025-05-01', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(482, 6, '08:00:00', '17:00:00', '2025-05-02', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(483, 6, '08:00:00', '17:00:00', '2025-05-03', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(484, 6, '08:00:00', '17:00:00', '2025-05-04', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(485, 6, '08:00:00', '17:00:00', '2025-05-05', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(486, 6, '08:00:00', '17:00:00', '2025-05-06', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(487, 6, '08:00:00', '17:00:00', '2025-05-07', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(488, 6, '08:00:00', '17:00:00', '2025-05-08', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(489, 6, '08:00:00', '17:00:00', '2025-05-09', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(490, 6, '08:00:00', '17:00:00', '2025-05-10', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(491, 6, '08:00:00', '17:00:00', '2025-05-11', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(492, 6, '08:00:00', '17:00:00', '2025-05-12', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(493, 6, '08:00:00', '17:00:00', '2025-05-13', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(494, 6, '08:00:00', '17:00:00', '2025-05-14', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(495, 6, '08:00:00', '17:00:00', '2025-05-15', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(496, 6, '08:00:00', '17:00:00', '2025-05-16', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(497, 6, '08:00:00', '17:00:00', '2025-05-17', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(498, 6, '08:00:00', '17:00:00', '2025-05-18', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(499, 6, '08:00:00', '17:00:00', '2025-05-19', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(500, 6, '08:00:00', '17:00:00', '2025-05-20', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(501, 6, '08:00:00', '17:00:00', '2025-05-21', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(502, 6, '08:00:00', '17:00:00', '2025-05-22', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(503, 6, '08:00:00', '17:00:00', '2025-05-23', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(504, 6, '08:00:00', '17:00:00', '2025-05-24', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(505, 6, '08:00:00', '17:00:00', '2025-05-25', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(506, 6, '08:00:00', '17:00:00', '2025-05-26', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(507, 6, '08:00:00', '17:00:00', '2025-05-27', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(508, 6, '08:00:00', '17:00:00', '2025-05-28', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(509, 6, '08:00:00', '17:00:00', '2025-05-29', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(510, 6, '08:00:00', '17:00:00', '2025-05-30', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(511, 6, '08:00:00', '17:00:00', '2025-05-31', 10, 1, 0, '2025-05-03 02:29:52', '2025-05-03 02:29:52'),
+(512, 7, '08:00:00', '17:00:00', '2025-05-01', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(513, 7, '08:00:00', '17:00:00', '2025-05-02', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(514, 7, '08:00:00', '17:00:00', '2025-05-03', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(515, 7, '08:00:00', '17:00:00', '2025-05-04', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(516, 7, '08:00:00', '17:00:00', '2025-05-05', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(517, 7, '08:00:00', '17:00:00', '2025-05-06', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(518, 7, '08:00:00', '17:00:00', '2025-05-07', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(519, 7, '08:00:00', '17:00:00', '2025-05-08', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(520, 7, '08:00:00', '17:00:00', '2025-05-09', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(521, 7, '08:00:00', '17:00:00', '2025-05-10', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(522, 7, '08:00:00', '17:00:00', '2025-05-11', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(523, 7, '08:00:00', '17:00:00', '2025-05-12', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(524, 7, '08:00:00', '17:00:00', '2025-05-13', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(525, 7, '08:00:00', '17:00:00', '2025-05-14', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(526, 7, '08:00:00', '17:00:00', '2025-05-15', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34');
+INSERT INTO `schedules` (`id`, `doctor_id`, `time_start`, `time_end`, `working_date`, `max_patients`, `status`, `isDeleted`, `created_at`, `updated_at`) VALUES
+(527, 7, '08:00:00', '17:00:00', '2025-05-16', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(528, 7, '08:00:00', '17:00:00', '2025-05-17', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(529, 7, '08:00:00', '17:00:00', '2025-05-18', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(530, 7, '08:00:00', '17:00:00', '2025-05-19', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(531, 7, '08:00:00', '17:00:00', '2025-05-20', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(532, 7, '08:00:00', '17:00:00', '2025-05-21', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(533, 7, '08:00:00', '17:00:00', '2025-05-22', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(534, 7, '08:00:00', '17:00:00', '2025-05-23', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(535, 7, '08:00:00', '17:00:00', '2025-05-24', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(536, 7, '08:00:00', '17:00:00', '2025-05-25', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(537, 7, '08:00:00', '17:00:00', '2025-05-26', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(538, 7, '08:00:00', '17:00:00', '2025-05-27', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(539, 7, '08:00:00', '17:00:00', '2025-05-28', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(540, 7, '08:00:00', '17:00:00', '2025-05-29', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(541, 7, '08:00:00', '17:00:00', '2025-05-30', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(542, 7, '08:00:00', '17:00:00', '2025-05-31', 10, 1, 0, '2025-05-03 02:30:34', '2025-05-03 02:30:34'),
+(543, 8, '08:00:00', '17:00:00', '2025-05-01', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(544, 8, '08:00:00', '17:00:00', '2025-05-02', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(545, 8, '08:00:00', '17:00:00', '2025-05-03', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(546, 8, '08:00:00', '17:00:00', '2025-05-04', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(547, 8, '08:00:00', '17:00:00', '2025-05-05', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(548, 8, '08:00:00', '17:00:00', '2025-05-06', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(549, 8, '08:00:00', '17:00:00', '2025-05-07', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(550, 8, '08:00:00', '17:00:00', '2025-05-08', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(551, 8, '08:00:00', '17:00:00', '2025-05-09', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(552, 8, '08:00:00', '17:00:00', '2025-05-10', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(553, 8, '08:00:00', '17:00:00', '2025-05-11', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(554, 8, '08:00:00', '17:00:00', '2025-05-12', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(555, 8, '08:00:00', '17:00:00', '2025-05-13', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(556, 8, '08:00:00', '17:00:00', '2025-05-14', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(557, 8, '08:00:00', '17:00:00', '2025-05-15', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(558, 8, '08:00:00', '17:00:00', '2025-05-16', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(559, 8, '08:00:00', '17:00:00', '2025-05-17', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(560, 8, '08:00:00', '17:00:00', '2025-05-18', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(561, 8, '08:00:00', '17:00:00', '2025-05-19', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(562, 8, '08:00:00', '17:00:00', '2025-05-20', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(563, 8, '08:00:00', '17:00:00', '2025-05-21', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(564, 8, '08:00:00', '17:00:00', '2025-05-22', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(565, 8, '08:00:00', '17:00:00', '2025-05-23', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(566, 8, '08:00:00', '17:00:00', '2025-05-24', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(567, 8, '08:00:00', '17:00:00', '2025-05-25', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(568, 8, '08:00:00', '17:00:00', '2025-05-26', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(569, 8, '08:00:00', '17:00:00', '2025-05-27', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(570, 8, '08:00:00', '17:00:00', '2025-05-28', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(571, 8, '08:00:00', '17:00:00', '2025-05-29', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(572, 8, '08:00:00', '17:00:00', '2025-05-30', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29'),
+(573, 8, '08:00:00', '17:00:00', '2025-05-31', 10, 1, 0, '2025-05-03 02:35:29', '2025-05-03 02:35:29');
 
 -- --------------------------------------------------------
 
@@ -1653,26 +1932,26 @@ CREATE TABLE `services` (
 --
 
 INSERT INTO `services` (`id`, `specialty_id`, `services_name`, `image`, `description`, `price`, `duration`, `status`, `isDeleted`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Khám tổng quát', NULL, 'Khám tổng quát là kiểm tra sức khỏe toàn diện.', 300000, 30, 1, 0, '2025-04-01 09:00:00', '2025-04-01 09:00:00'),
-(2, 4, 'Khám tim mạch', NULL, 'Khám chuyên khoa tim mạch.', 400000, 30, 1, 0, '2025-04-02 10:00:00', '2025-04-02 10:00:00'),
-(3, 2, 'Khám nhi', NULL, 'Khám chuyên khoa nhi.', 250000, 30, 1, 0, '2025-04-03 11:00:00', '2025-04-03 11:00:00'),
-(4, 3, 'Khám da liễu', NULL, 'Khám chuyên khoa da liễu.', 350000, 30, 1, 0, '2025-04-04 12:00:00', '2025-04-04 12:00:00'),
-(5, 5, 'Khám xương khớp', NULL, 'Khám chuyên khoa xương khớp.', 500000, 30, 1, 0, '2025-04-05 14:00:00', '2025-04-05 14:00:00'),
-(6, 4, 'Khám tim mạch', NULL, 'Khám chuyên khoa tim mạch.', 400000, 30, 1, 0, '2025-04-06 15:00:00', '2025-04-06 15:00:00'),
-(7, 2, 'Khám nhi', NULL, 'Khám chuyên khoa nhi.', 250000, 30, 1, 0, '2025-04-07 16:00:00', '2025-04-07 16:00:00'),
-(8, 1, 'Khám tổng quát', NULL, 'Khám tổng quát là kiểm tra sức khỏe toàn diện.', 300000, 30, 1, 0, '2025-04-08 17:00:00', '2025-04-08 17:00:00'),
-(9, 11, 'Khám tiêu hóa', NULL, 'Khám chuyên khoa tiêu hóa.', 350000, 30, 1, 0, '2025-04-09 09:00:00', '2025-04-09 09:00:00'),
-(10, 12, 'Khám tiết niệu', NULL, 'Khám chuyên khoa tiết niệu.', 400000, 30, 1, 0, '2025-04-10 10:00:00', '2025-04-10 10:00:00'),
-(11, 13, 'Khám hô hấp', NULL, 'Khám chuyên khoa hô hấp.', 320000, 30, 1, 0, '2025-04-11 11:00:00', '2025-04-11 11:00:00'),
-(12, 14, 'Khám nội tiết', NULL, 'Khám chuyên khoa nội tiết.', 370000, 30, 1, 0, '2025-04-12 12:00:00', '2025-04-12 12:00:00'),
-(13, 15, 'Khám y học cổ truyền', NULL, 'Khám chuyên khoa y học cổ truyền.', 280000, 30, 1, 0, '2025-04-13 13:00:00', '2025-04-13 13:00:00'),
-(14, 16, 'Khám ung bướu', NULL, 'Khám chuyên khoa ung bướu.', 600000, 30, 1, 0, '2025-04-14 14:00:00', '2025-04-14 14:00:00'),
-(15, 17, 'Khám huyết học', NULL, 'Khám chuyên khoa huyết học.', 450000, 30, 1, 0, '2025-04-15 15:00:00', '2025-04-15 15:00:00'),
-(16, 18, 'Khám dinh dưỡng', NULL, 'Khám chuyên khoa dinh dưỡng.', 200000, 30, 1, 0, '2025-04-16 16:00:00', '2025-04-16 16:00:00'),
-(17, 19, 'Khám vật lý trị liệu', NULL, 'Khám chuyên khoa vật lý trị liệu.', 500000, 30, 1, 0, '2025-04-17 08:30:00', '2025-04-17 08:30:00'),
-(18, 20, 'Khám tâm thần', NULL, 'Khám chuyên khoa tâm thần.', 550000, 30, 1, 0, '2025-04-18 09:30:00', '2025-04-18 09:30:00'),
-(19, 9, 'Khám mắt', NULL, 'Khám chuyên khoa mắt.', 300000, 30, 1, 0, '2025-04-19 10:30:00', '2025-04-19 10:30:00'),
-(20, 10, 'Khám thần kinh', NULL, 'Khám chuyên khoa thần kinh.', 400000, 30, 1, 0, '2025-04-20 11:30:00', '2025-04-20 11:30:00');
+(1, 1, 'Khám nội khoa', 'services/j8eKQsN4XU40pmujl8LPFXYOPGRRneoRaOdsHYyR.png', '<p>Khám tổng quát là kiểm tra sức khỏe toàn diện.</p>', 300000, 30, 1, 0, '2025-04-01 09:00:00', '2025-05-03 05:51:24'),
+(2, 4, 'Siêu âm tim qua thành ngực', 'services/GRIoRboRYtDEBFuoLwQJEKMP0RrQcgv0tPNwiXq7.png', '<p>Khám chuyên khoa tim mạch.</p>', 400000, 30, 1, 0, '2025-04-02 10:00:00', '2025-05-03 06:06:01'),
+(3, 2, 'Siêu âm Thai', 'services/qI5FryMEc8zd59n3PPJrYSaLNJUXY8mxMI7qrtQt.png', '<p>Khám chuyên khoa nhi.</p>', 250000, 30, 1, 0, '2025-04-03 11:00:00', '2025-05-03 06:09:37'),
+(4, 3, 'Khám da liễu', 'services/wHwBDpJMIVwwJx8FJVan5re9na91eQJAlnOdHmje.png', '<p>Khám chuyên khoa da liễu.</p>', 350000, 30, 1, 0, '2025-04-04 12:00:00', '2025-05-03 06:08:29'),
+(5, 5, 'Khám xương khớp', 'services/2sB5jaF5c1168o5iUjNJ3cobaGQtA6irf5xYDp6s.png', '<p>Khám chuyên khoa xương khớp.</p>', 500000, 30, 1, 0, '2025-04-05 14:00:00', '2025-05-03 06:07:54'),
+(6, 4, 'Khám tim mạch', 'services/LrGsNhxHFIszIY4NmNTojM5giM1lDiIXcmCGOFZm.png', '<p>Khám chuyên khoa tim mạch.</p>', 400000, 30, 1, 0, '2025-04-06 15:00:00', '2025-05-03 06:10:28'),
+(7, 2, 'Khám nhi', 'services/J5D2QqUnuuOkt3w8Grcgf1GP6bWYRSF7Bp04N6Kj.png', '<p>Khám chuyên khoa nhi.</p>', 250000, 30, 1, 0, '2025-04-07 16:00:00', '2025-05-03 06:10:00'),
+(8, 1, 'Khám tổng quát', 'services/osfGy4MfgCcyLGaQ0hP8VIY2p3tC99RDHtBT8ahr.png', '<p>Khám tổng quát là kiểm tra sức khỏe toàn diện.</p>', 300000, 30, 1, 0, '2025-04-08 17:00:00', '2025-05-03 06:11:38'),
+(9, 11, 'Khám tiêu hóa', 'services/tlcqX5hhVoOhJwNrBLg0YvHjteP052rkOPkMAdth.png', '<p>Khám chuyên khoa tiêu hóa.</p>', 350000, 30, 1, 0, '2025-04-09 09:00:00', '2025-05-03 05:45:59'),
+(10, 12, 'Khám tiết niệu', 'services/PJOJLUAb5CB6SJqVIMdpEyRkhuVzqBesyZ1Xt4B6.png', '<p>Khám chuyên khoa tiết niệu.</p>', 400000, 30, 1, 0, '2025-04-10 10:00:00', '2025-05-03 05:35:32'),
+(11, 13, 'Khám hô hấp', 'services/haKAXw1QXpedgk7rJAW4apgv18ZQjKWSKYQy4LES.png', '<p>Khám chuyên khoa hô hấp.</p>', 320000, 30, 1, 0, '2025-04-11 11:00:00', '2025-05-03 05:27:55'),
+(12, 14, 'Khám nội tiết', 'services/Yd2T2MNuhBO3fyXZVLnuqImDdg4c3j8Hz1TmoJc0.png', '<p>Khám chuyên khoa nội tiết.</p>', 370000, 30, 1, 0, '2025-04-12 12:00:00', '2025-05-03 05:29:32'),
+(13, 15, 'Khám y học cổ truyền', 'services/9WgWJzutwLaIp1hYcUTYM7n1iW70xeGeXUiHrtRe.png', '<p>Khám chuyên khoa y học cổ truyền.</p>', 280000, 30, 1, 0, '2025-04-13 13:00:00', '2025-05-03 05:31:03'),
+(14, 16, 'Khám ung bướu', 'services/v5pJvOrMuEtgXSyzgbAhYdwx8SpAC4OmHpPKoZyd.png', '<p>Khám chuyên khoa ung bướu.</p>', 600000, 30, 1, 0, '2025-04-14 14:00:00', '2025-05-03 05:31:26'),
+(15, 17, 'Khám huyết học', 'services/B60TVcxirtFJM3QVXH8h17kP31k2edRT2KKcQq6v.png', '<p>Khám chuyên khoa huyết học.</p>', 450000, 30, 1, 0, '2025-04-15 15:00:00', '2025-05-03 05:34:30'),
+(16, 18, 'Khám dinh dưỡng', 'services/IhENaaEl3xiKUfhsuKVGrUOV8cs51ERR8UBTbvBe.png', '<p>Khám chuyên khoa dinh dưỡng.</p>', 200000, 30, 1, 0, '2025-04-16 16:00:00', '2025-05-03 05:32:02'),
+(17, 19, 'Khám vật lý trị liệu', 'services/P6dcd3qHKLgrGG16aIPWHkF6CgOmkRi2CLlmr87f.png', '<p>Khám chuyên khoa vật lý trị liệu.</p>', 500000, 30, 1, 0, '2025-04-17 08:30:00', '2025-05-03 05:25:20'),
+(18, 20, 'Khám tâm thần', 'services/sbHAcJdT6OVryIYrqe4T5QHBO18gbLU5nwKkYhba.png', '<p>Khám chuyên khoa tâm thần.</p>', 550000, 30, 1, 0, '2025-04-18 09:30:00', '2025-05-03 05:24:39'),
+(19, 9, 'Khám mắt', 'services/4NYvFqd6oRqBtP3GeC16jntkDnvunChCLKweQsvt.png', '<p>Khám chuyên khoa mắt.</p>', 300000, 30, 1, 0, '2025-04-19 10:30:00', '2025-05-03 05:23:38'),
+(20, 10, 'Khám thần kinh', 'services/atCgzG9oTPuHd359KpRMQlCP0FmECSpRAi8vaVT3.png', '<p>Khám chuyên khoa thần kinh.</p>', 400000, 30, 1, 0, '2025-04-20 11:30:00', '2025-05-03 05:23:15');
 
 -- --------------------------------------------------------
 
@@ -1696,26 +1975,26 @@ CREATE TABLE `specialties` (
 --
 
 INSERT INTO `specialties` (`id`, `name`, `description`, `icon`, `image`, `isDeleted`, `created_at`, `updated_at`) VALUES
-(1, 'Nội tổng quát', 'Chuyên khoa điều trị các bệnh lý nội khoa không cần phẫu thuật.', 'general.png', 'general.jpg', 0, '2025-03-23 07:07:41', '2025-04-17 04:44:24'),
-(2, 'Nhi khoa', 'Chăm sóc sức khỏe cho trẻ em từ sơ sinh đến tuổi thiếu niên.', 'pediatrics.png', 'pediatrics.jpg', 0, '2025-03-23 07:07:41', '2025-04-19 03:31:14'),
-(3, 'Da liễu', 'Chẩn đoán và điều trị các bệnh về da, tóc, móng.', 'dermatology.png', 'dermatology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(4, 'Tim mạch', 'Chuyên điều trị bệnh lý về tim và hệ tuần hoàn.', 'cardiology.png', 'cardiology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(5, 'Chấn thương chỉnh hình', 'Điều trị các vấn đề về xương khớp, chấn thương.', 'orthopedics.png', 'orthopedics.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(6, 'Tai Mũi Họng', 'Chuyên khoa về bệnh lý của tai, mũi, họng.', 'ent.png', 'ent.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(7, 'Răng Hàm Mặt', 'Chẩn đoán và điều trị các vấn đề răng miệng.', 'dentistry.png', 'dentistry.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(8, 'Sản phụ khoa', 'Chăm sóc sức khỏe cho phụ nữ và thai kỳ.', 'gynecology.png', 'gynecology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(9, 'Mắt', 'Điều trị các bệnh lý về mắt và tật khúc xạ.', 'ophthalmology.png', 'ophthalmology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(10, 'Thần kinh', 'Chẩn đoán và điều trị bệnh lý hệ thần kinh.', 'neurology.png', 'neurology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(11, 'Tiêu hóa', 'Điều trị bệnh về đường tiêu hóa và gan mật.', 'gastroenterology.png', 'gastroenterology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(12, 'Tiết niệu', 'Chuyên khoa điều trị các bệnh về hệ tiết niệu.', 'urology.png', 'urology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(13, 'Hô hấp', 'Chuyên khoa về các bệnh lý đường hô hấp.', 'pulmonology.png', 'pulmonology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(14, 'Nội tiết', 'Điều trị các rối loạn nội tiết như tiểu đường, tuyến giáp.', 'endocrinology.png', 'endocrinology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(15, 'Y học cổ truyền', 'Chữa bệnh bằng phương pháp Đông y.', 'traditional_medicine.png', 'traditional_medicine.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(16, 'Ung bướu', 'Điều trị và phát hiện sớm các bệnh ung thư.', 'oncology.png', 'oncology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(17, 'Huyết học', 'Chuyên khoa về các bệnh lý huyết học.', 'hematology.png', 'hematology.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(18, 'Dinh dưỡng', 'Tư vấn và điều trị các vấn đề liên quan đến dinh dưỡng.', 'nutrition.png', 'nutrition.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(19, 'Vật lý trị liệu', 'Phục hồi chức năng sau chấn thương hoặc bệnh lý.', 'physiotherapy.png', 'physiotherapy.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41'),
-(20, 'Tâm thần', 'Chẩn đoán và điều trị các rối loạn tâm lý và thần kinh.', 'psychiatry.png', 'psychiatry.jpg', 0, '2025-03-23 07:07:41', '2025-03-23 07:07:41');
+(1, 'Nội tổng quát', '<p>Chuyên khoa điều trị các bệnh lý nội khoa không cần phẫu thuật.</p>', 'incons/1o1XK4wKiDNQaf1vlRRyJJrhCd4fXo9Nlt4dKwe7.png', 'images/w9K09py5XrGFZf86nswIoVyp2jNBEIsZ1U1SbvxQ.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:24:42'),
+(2, 'Nhi khoa', '<p>Chăm sóc sức khỏe cho trẻ em từ sơ sinh đến tuổi thiếu niên.</p>', 'incons/26lLeDUEjm9I8Jfglg4HNLMdel2vDKBADmwonm9J.png', 'images/gZBYOMhMoUafzAllvRdbb9kd95rx0G3Pljl5f9nI.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:25:47'),
+(3, 'Da liễu', '<p>Chẩn đoán và điều trị các bệnh về da, tóc, móng.</p>', 'incons/sqoLfe1k5g66RcxfhV7FUnPuvlbZxSBAOfJKkZsM.png', 'images/Xp3KPEpXmaSoym5MFwkqFjeOMxsYgCS6Og40gQdj.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:27:15'),
+(4, 'Tim mạch', '<p>Chuyên điều trị bệnh lý về tim và hệ tuần hoàn.</p>', 'incons/DZhs215zHUIyqKzeoBSHsYszVvGjZVNM5CT8H5lg.png', 'images/jW4KeXa8OInd1gkgORSJnk74NP7mEk5xng6gR039.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:29:06'),
+(5, 'Chấn thương chỉnh hình', '<p>Điều trị các vấn đề về xương khớp, chấn thương.</p>', 'incons/OEaYcWVA3OG7FCap1O7IlxhDwqFSDoFnljDQ0tAA.png', 'images/TeoBrq4dOxC97RiKPjppH6jc1ARMWbDQefYKan7v.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:29:54'),
+(6, 'Tai Mũi Họng', '<p>Chuyên khoa về bệnh lý của tai, mũi, họng.</p>', 'incons/S0zIrVlbSbSKqvfBVf8thrAQOYgRxZy52aTLpyUh.png', 'images/cY7xqxETRMnhrh6g3e0oAR5dccbaa3dhnyf8VSBh.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:32:57'),
+(7, 'Răng Hàm Mặt', '<p>Chẩn đoán và điều trị các vấn đề răng miệng.</p>', 'incons/aHBj3wc2l44zLY7ZRDfnnMoes2OiVt4o4FpHeg5w.png', 'images/xCBnwjJpGjkM8ZDD41mPaG7eRG1NHAxvDfNr4hd6.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:33:29'),
+(8, 'Sản phụ khoa', '<p>Chăm sóc sức khỏe cho phụ nữ và thai kỳ.</p>', 'incons/GnOqjnJ31eqikxum48USJhJy8LA91WayIe7hK4th.png', 'images/1FwkSwu1I3QmwVYLXHPiixSKc0HjwRdnXVW4UnQc.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:37:14'),
+(9, 'Mắt', '<p>Điều trị các bệnh lý về mắt và tật khúc xạ.</p>', 'incons/ZnWVTxk6dZNsECeWMtMu6Mz29uf5efmN4GXKNNWY.png', 'images/11jb3wmMMrwmYCqYaaN7BrvkybqV9N5zeDMGGnuJ.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:37:42'),
+(10, 'Thần kinh', '<p>Chẩn đoán và điều trị bệnh lý hệ thần kinh.</p>', 'incons/S3W1UIyjk7xc0ddS46LjeC9XHh6yjurAY0ni1Wal.png', 'images/Z8FjKT2pvztTLZB7XxR3zMohDOShNEAqVjAG78uC.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:43:43'),
+(11, 'Tiêu hóa', '<p>Điều trị bệnh về đường tiêu hóa và gan mật.</p>', 'incons/cdmtvkPjLblKk6vyNL7nDfrNcNbG90buVkfAbUm6.png', 'images/uUJPr3aFutVVPzcVWheKNA0V35QzwZIe5BxclQO7.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:38:53'),
+(12, 'Tiết niệu', '<p>Chuyên khoa điều trị các bệnh về hệ tiết niệu.</p>', 'incons/cwtn0kaPAo6PrcldBEjaqrcooGFxaEQSqfL2PKII.png', 'images/blNgr2keKdKfPXLrWxwq8Om12A51SaJhzAPHbTLT.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:39:30'),
+(13, 'Hô hấp', '<p>Chuyên khoa về các bệnh lý đường hô hấp.</p>', 'incons/Grx8BTezTIv3vXnb6eCt18EL8oaIa2RhDO9VBca4.png', 'images/4xI9UPnR2Me3cjs8AH2aOjQzKXlKRhoQMVHMEba8.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:40:12'),
+(14, 'Nội tiết', '<p>Điều trị các rối loạn nội tiết như tiểu đường, tuyến giáp.</p>', 'incons/bWxrSWxhsEB9tz1ohw5WNc2UVo8sVl9nViLNZ1Uz.png', 'images/gp7y9UXktwt08AOPwNzERJl1mU2aeQCFabPDa7YM.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:40:57'),
+(15, 'Y học cổ truyền', '<p>Chữa bệnh bằng phương pháp Đông y.</p>', 'incons/sQwSv2n6Q8NZsxDaEq9ccITU6Jy1qq5nrFMqnQpD.png', 'images/u4eAbC8gBg5FPbJWlGbjrb9T3JWZvBZVfqvJSlBR.png', 0, '2025-03-23 07:07:41', '2025-05-03 05:09:09'),
+(16, 'Ung bướu', '<p>Điều trị và phát hiện sớm các bệnh ung thư.</p>', 'incons/bmgghta3U24mJi832N7V4CNlM5xDJ4fK2Yf54jVl.png', 'images/eTba1r6o4YJNs8Ep2DDcQzfaxk1SNCnsEWiI18Qg.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:47:50'),
+(17, 'Huyết học', '<p>Chuyên khoa về các bệnh lý huyết học.</p>', 'incons/ymsIoDZnxM0iUX0EBeZIYUCjR3cFQ8TCtobrdyq5.png', 'images/b4PiLefz3pBaULTgUia8lMI9jvGkhEP1Z8NJZR6o.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:48:39'),
+(18, 'Dinh dưỡng', '<p>Tư vấn và điều trị các vấn đề liên quan đến dinh dưỡng.</p>', 'incons/l20msyOZRKRxmdeyE6HeQPA0Z2XkWvhixBTkl7FT.png', 'images/eP4X0ELYq4alkyOCUPxrpF0ANgBaJdtCJznFMIX0.png', 0, '2025-03-23 07:07:41', '2025-05-03 05:08:21'),
+(19, 'Vật lý trị liệu', '<p>Phục hồi chức năng sau chấn thương hoặc bệnh lý.</p>', 'incons/0a0hzhTQcCHxY3dlaVdvrcq13OwJRHCXtFvEMULN.png', 'images/GQHjsMOrb7ZZe4IBoF3cPcLh3LwPmo2sE0hafkqH.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:46:43'),
+(20, 'Tâm thần', '<p>Chẩn đoán và điều trị các rối loạn tâm lý và thần kinh.</p>', 'incons/uSERynLHOfax5U2W52BHql6QiMybLBvzxHJpQgV5.png', 'images/MwpAPERwoT2VOXv6PcVfLZwkiVA8VdOo4uywhpuK.png', 0, '2025-03-23 07:07:41', '2025-05-03 04:44:45');
 
 -- --------------------------------------------------------
 
@@ -1731,7 +2010,7 @@ CREATE TABLE `systems` (
   `site_logo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `site_favicon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `site_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `site_video` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `site_video` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `meta_tags` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `default_language` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'en',
   `timezone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'UTC',
@@ -1749,7 +2028,7 @@ CREATE TABLE `systems` (
 --
 
 INSERT INTO `systems` (`id`, `site_name`, `site_description`, `site_keywords`, `site_logo`, `site_favicon`, `site_url`, `site_video`, `meta_tags`, `default_language`, `timezone`, `tracking_code`, `address`, `hotline`, `banner`, `isDeleted`, `created_at`, `updated_at`) VALUES
-(1, 'Quick Care', 'Phòng khám Quick Care - Chăm sóc sức khỏe nhanh chóng và tiện lợi.', 'phòng khám, chăm sóc sức khỏe, khám bệnh nhanh, dịch vụ y tế', 'logos/mYxrGa8QxhUlwa1WhpqQ7purZtuogeZIvoqPgfDa.jpg', 'favicons/PboJ0TUDLyC6H22C6Y6jW80vflo1VwHhNn1l2O7V.jpg', 'https://quickcare.vn', 'https://quickcare.vn', 'quick care, khám bệnh, sức khỏe, y tế', 'vi', 'UTC+7', '2', '59 P. Trần Phú, Điện Biên, Ba Đình, TP. Hà Nội', '0363627444', '[{\"title\": \"Sức khỏe và hạnh phúc\", \"image_url\": \"banner_images/Rxr5KCZEd7P8S4BI7jg4xgfcM4Bo2R1VmKEFwGI0.jpg\"}]', 0, '2025-03-23 08:40:08', '2025-04-23 15:53:51');
+(1, 'Quick Care', 'Phòng khám Quick Care - Chăm sóc sức khỏe nhanh chóng và tiện lợi.', 'phòng khám, chăm sóc sức khỏe, khám bệnh nhanh, dịch vụ y tế', 'logos/mYxrGa8QxhUlwa1WhpqQ7purZtuogeZIvoqPgfDa.jpg', 'favicons/PboJ0TUDLyC6H22C6Y6jW80vflo1VwHhNn1l2O7V.jpg', 'https://quickcare.vn', 'https://youtu.be/COT2dguybbk?si=cj5wdpc8BUr1fLu7', 'quick care, khám bệnh, sức khỏe, y tế', 'vi', 'UTC+7', '2', '59 P. Trần Phú, Điện Biên, Ba Đình, TP. Hà Nội', '0363627444', '[{\"title\": \"Sức khỏe và hạnh phúc\", \"image_url\": \"banner_images/buevSn15H0PrRvVyCzExCHv7hE8D4s4V9n5huNhl.jpg\"}]', 0, '2025-03-23 08:40:08', '2025-05-03 06:16:59');
 
 -- --------------------------------------------------------
 
@@ -1767,7 +2046,7 @@ CREATE TABLE `users` (
   `social_provider` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` enum('admin','doctor','guest','cashier','consultant') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'guest',
+  `role` enum('admin','doctor','guest','cashier','consultant') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'guest',
   `isDeleted` tinyint(1) NOT NULL DEFAULT '0',
   `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -1790,9 +2069,9 @@ INSERT INTO `users` (`id`, `name`, `email`, `firebase_token`, `phone`, `social_i
 (9, 'Bác sĩ Vũ Đức Minh', 'minh.vu@example.com', NULL, '0978654322', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$zjD8Nqc4t6xHNGMlEUqgZe3y5o5b0LpASZBv7cMa0cCzN7UUJzbnu', 'doctor', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
 (10, 'Bác sĩ Lý Hoàng Nam', 'nam.ly@example.com', NULL, '0902233445', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$54qIFlVCE.qv6yb3mcWOOeUdzEzRRUhyM4X.V.4PefLCZAavkdhgS', 'doctor', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
 (11, 'Nguyễn Thị Mai', 'guest@example.com', NULL, '0967891234', '123456789', 'facebook', '2025-03-23 07:10:51', '$2y$10$Gg8.cU2oMDSP6C2iGhqlSueRr4LFEYM9WsNvjWJEhfg2BiAvKV3bi', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
-(12, 'Phạm Văn Hoàng', 'hoang.pham@example.com', NULL, '0934567890', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$abcdefghijk', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
-(13, 'Lê Thị Hạnh', 'hanh.le@example.com', NULL, '0925678901', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$abcdefghijk', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
-(14, 'Trần Quốc Toàn', 'toan.tran@example.com', NULL, '0916789012', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$abcdefghijk', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
+(12, 'Phạm Văn Hoàng', 'hoang.pham@example.com', NULL, '0934567890', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$HHkoqQfvnSoYDUyHQzo9jOxEZD5VDLVKbFZciN4Bpw1oDZWJJxW7i', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
+(13, 'Lê Thị Hạnh', 'hanh.le@example.com', NULL, '0925678901', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$FTrNw27dNGbZnbD4gfypnOIXpfK7Jj7ivu43kZEZNx2mjeeH1rJPO', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
+(14, 'Trần Quốc Toàn', 'toan.tran@example.com', NULL, '0916789012', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$POQ61QZSq/WJTvGqs11P8OE7akcQrOK74ILTGxUwWWpjlrwEfGtAy', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
 (15, 'Vũ Ngọc Bích', 'bich.vu@example.com', NULL, '0987890123', '234567890', 'google', '2025-03-23 07:10:51', '$2y$10$abcdefghijk', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
 (16, 'Đỗ Văn Hải', 'hai.do@example.com', NULL, '0978901234', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$abcdefghijk', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
 (17, 'Lý Minh Quang', 'quang.ly@example.com', NULL, '0901122334', NULL, NULL, '2025-03-23 07:10:51', '$2y$10$abcdefghijk', 'guest', 0, NULL, '2025-03-23 07:10:51', '2025-03-23 07:10:51'),
@@ -2016,13 +2295,13 @@ ALTER TABLE `bookings`
 -- AUTO_INCREMENT cho bảng `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT cho bảng `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT cho bảng `doctors`
@@ -2088,7 +2367,7 @@ ALTER TABLE `medical_records`
 -- AUTO_INCREMENT cho bảng `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT cho bảng `migrations`
@@ -2106,7 +2385,7 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT cho bảng `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT cho bảng `posts`
@@ -2124,7 +2403,7 @@ ALTER TABLE `results`
 -- AUTO_INCREMENT cho bảng `schedules`
 --
 ALTER TABLE `schedules`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=326;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=574;
 
 --
 -- AUTO_INCREMENT cho bảng `services`

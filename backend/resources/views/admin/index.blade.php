@@ -54,7 +54,7 @@
     <!-- Toast Container -->
 <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 9999">
   @if(session('success'))
-    <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+  <div id="success-toast" class="toast align-items-center text-bg-success border-0 show bg-success" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body">
           {{ session('success') }}
@@ -65,7 +65,7 @@
   @endif
 
   @if($errors->any())
-    <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+  <div id="error-toast" class="toast align-items-center text-bg-danger border-0 show bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body">
           <ul class="mb-0">
