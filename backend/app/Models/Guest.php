@@ -19,9 +19,6 @@ class Guest extends Model
         'file',
         'isDeleted',
     ];
-    protected $casts = [
-        'address' => 'array',
-    ];
     // Quan hệ với bảng User
     public function user()
     {

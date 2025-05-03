@@ -139,7 +139,7 @@ class BookingController extends Controller
             'birthday' => 'required|date',
             'guest_phone' => 'required|string|max:20',
             'guest_email' => 'nullable|email',
-            'address' => 'nullable|array',
+            'address' => 'nullable|max:255',
             'notes' => 'nullable|string'
         ]);
 
@@ -235,7 +235,7 @@ class BookingController extends Controller
             'birthday' => $request->birthday,
             'guest_phone' => $request->guest_phone,
             'guest_email' => $request->guest_email,
-            'address' => json_encode($request->address),
+            'address' => $request->address,
             'file' => $request->file ?? null
         ]);
 
