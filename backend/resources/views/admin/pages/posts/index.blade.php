@@ -57,7 +57,6 @@
                             <th>#</th>
                             <th>Danh mục</th>
                             <th>Tác giả</th>
-
                             <th>Tiêu đề</th>
                             <th>view</th>
                             <th>Ngày xuất bản </th>
@@ -68,18 +67,18 @@
                     <tbody>
                         @foreach ($posts as $key => $post)
                         <tr>
-                            <td ><strong>{{ $key + 1 }}</strong></td>
-                            <td >
+                            <td><strong>{{ $posts->firstItem() + $key }}</strong></td>
+                            <td>
                                 {{ $post->category ? $post->category->name : 'Không có danh mục' }}
                             </td>
-                            <td >{{ $post->user ? $post->user->name : 'Không có tác giả' }}</td>
+                            <td>{{ $post->user ? $post->user->name : 'Không có tác giả' }}</td>
 
                             <td>{{ $post->title }}</td>
                             <td>{{ $post->views }}</td>
                             <td>{{ $post->published_at }}</td>
 
 
-                            <td >
+                            <td>
                                 <div class="d-flex justify-content-center gap-2">
                                     <a class="btn btn-sm btn-icon btn-primary"
                                         href="{{ route('admin.posts.edit', $post->id) }}" title="Chỉnh sửa">

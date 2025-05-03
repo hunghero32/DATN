@@ -26,7 +26,7 @@
                                                 <input type="text" class="form-control @error('title') is-invalid @enderror"
                                                     id="title" name="title" value="{{ old('title', $post->title) }}">
                                                 @error('title')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
@@ -36,7 +36,7 @@
                                                 <input type="text" class="form-control @error('slug') is-invalid @enderror"
                                                     id="slug" name="slug" value="{{ old('slug', $post->slug) }}" readonly>
                                                 @error('slug')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
@@ -44,9 +44,9 @@
                                             <div class="mb-3">
                                                 <label for="content" class="form-label">Nội dung</label>
                                                 <textarea class="form-control @error('content') is-invalid @enderror" id="content"
-                                                    name="content" style="width: 100%; height: 300px;">{{ old('content', $post->content) }}</textarea>
+                                                    name="content" style="width: 100%; height: auto;">{{ old('content', $post->content) }}</textarea>
                                                 @error('content')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -64,14 +64,14 @@
                                                     id="category_id" name="category_id">
                                                     <option value="">Chọn danh mục</option>
                                                     @foreach ($categories as $category)
-                                                        <option value="{{ $category->id }}"
-                                                            {{ old('category_id', $post->category_id) == $category->id ? 'selected' : '' }}>
-                                                            {{ $category->name }}
-                                                        </option>
+                                                    <option value="{{ $category->id }}"
+                                                        {{ old('category_id', $post->category_id) == $category->id ? 'selected' : '' }}>
+                                                        {{ $category->name }}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                                 @error('category_id')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
@@ -82,14 +82,14 @@
                                                     id="user_id" name="user_id">
                                                     <option value="">Chọn tác giả</option>
                                                     @foreach ($users as $author)
-                                                        <option value="{{ $author->id }}"
-                                                            {{ old('user_id', $post->user_id) == $author->id ? 'selected' : '' }}>
-                                                            {{ $author->name }}
-                                                        </option>
+                                                    <option value="{{ $author->id }}"
+                                                        {{ old('user_id', $post->user_id) == $author->id ? 'selected' : '' }}>
+                                                        {{ $author->name }}
+                                                    </option>
                                                     @endforeach
                                                 </select>
                                                 @error('user_id')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
@@ -101,7 +101,7 @@
                                                     <option value="published" {{ old('status', $post->status) == 'published' ? 'selected' : '' }}>Đã xuất bản</option>
                                                 </select>
                                                 @error('status')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
 
@@ -111,23 +111,26 @@
                                                 <input type="file" class="form-control @error('image') is-invalid @enderror"
                                                     id="image" name="image">
                                                 @error('image')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                                 @if ($post->image)
-                                                    <div class="mt-2">
-                                                        <img src="{{ asset('storage/' . $post->image) }}" width="70px" alt="Ảnh bài viết">
-                                                    </div>
+                                                <div class="mt-2">
+                                                    <img src="{{ asset( $post->image) }}" width="100%" alt="Ảnh bài viết">
+                                                </div>
                                                 @endif
                                             </div>
-
+                                            <hr>
                                             <!-- Nút cập nhật + Xoá -->
                                             <div class="d-flex justify-content-end gap-2 mt-3">
+                                                <a href="{{ url()->previous() }}" class="btn btn-secondary">
+                                                    <i class="bx bx-arrow-back"></i>
+                                                </a>
                                                 <button type="submit" class="btn btn-primary">
                                                     <i class="bx bx-save"></i> Cập nhật
                                                 </button>
 
                                                 <button type="button" class="btn btn-danger" onclick="confirmDelete()">
-                                                    <i class="bx bx-trash"></i> Xoá
+                                                    <i class="bx bx-trash"></i>
                                                 </button>
                                             </div>
                                         </div>
