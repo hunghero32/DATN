@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import About from "./About";
 import ArticleList from "./BaiViet";
 import Categori from "./Categori";
@@ -10,6 +10,20 @@ import { MessageCircle } from "lucide-react";
 import Chatbot from "../chatbot/Chatbot";
 export default function HomeMain() {
   const [isChatOpen, setChatOpen] = useState(false);
+  const [videoUrl, setVideoUrl] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/system")
+      .then((response) => response.json())
+      .then((data) => {
+        const videoId = data.site_video.split('v=')[1]?.split('&')[0];
+        if (videoId) {
+          setVideoUrl(`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`);
+        }
+      })
+      .catch((error) => console.error("Error fetching video URL:", error));
+  }, []);
+
   return (
     <>
       <Banner />
@@ -22,8 +36,8 @@ export default function HomeMain() {
         <iframe 
           width="100%" 
           height="600" 
-          src="https://www.youtube.com/embed/7JHVlnoWx3Y?si=p8hIOOgA86ouRfZY" 
-          title="YouTube video player" 
+          src={videoUrl}
+          title="Clinic Video" 
           frameborder="0" 
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
           referrerpolicy="strict-origin-when-cross-origin" 

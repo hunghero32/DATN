@@ -195,7 +195,7 @@ const DatLich = () => {
         {/* Thông tin dịch vụ và bác sĩ */}
         <div className="bg-blue-50 p-4 rounded-lg mb-4">
           <Title level={4} className="text-blue-500 mb-2">{bookingData?.service_name}</Title>
-          <Text className="block mb-2">💰 Giá khám: {parseInt(bookingData?.price).toLocaleString()}đ</Text>
+          <Text className="block mb-2 ">💰 Giá khám: <strong className="text-red-700">{parseInt(bookingData?.price).toLocaleString()}đ</strong></Text>
           <Text className="block mb-2">⏱️ Thời gian khám: {bookingData?.duration} phút</Text>
           {bookingData?.specialty_name && (
             <Text className="block mb-2">🏥 Chuyên khoa: {bookingData.specialty_name}</Text>

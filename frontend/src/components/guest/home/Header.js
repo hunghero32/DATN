@@ -338,7 +338,7 @@ export default function Header() {
               {siteData && siteData.site_logo ? (
                 <img src={`http://localhost:8000/storage/${siteData.site_logo}`} alt="logo" className="h-10 w-40" />
               ) : (
-                <img src="img/header/logo-primary-dark.webp" alt="logo" className="h-10 w-40" />
+                <span className="text-sm  text-blue-300">Logo</span>
               )}
             </Link>
 
@@ -349,50 +349,50 @@ export default function Header() {
 
             {/* Desktop Navigation - Updated link colors */}
             <div className={`absolute  z-50  md:static top-16 left-0 w-full bg-white md:bg-transparent md:flex transition-all duration-300 ${menuOpen ? "block" : "hidden"} md:block`}>
-  <ul className="navbar-nav flex flex-col md:flex-row md:items-center md:gap-6 text-base md:text-lg font-sans md:font-semibold p-4 md:p-0">
-    <li>
-      <Link
-        to="/"
-        className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
-      >
-        Trang Chủ
-      </Link>
-    </li>
-    <li>
-      <Link
-        to="/aboutus"
-        className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
-      >
-        Thông Tin
-      </Link>
-    </li>
-    <li>
-      <Link
-        to="/contact"
-        className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
-      >
-        Liên Hệ
-      </Link>
-    </li>
-    <li>
-      <Link
-        to="/baivietheader"
-        className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
-      >
-        Bài Viết
-      </Link>
-    </li>
-    <li>
-      <Link
-         target="_blank"
-        to="/chat-support"
-        className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
-      >
-        Hỗ trợ viên
-      </Link>
-    </li>
-  </ul>
-</div>
+              <ul className="navbar-nav flex flex-col md:flex-row md:items-center md:gap-6 text-base md:text-lg font-sans md:font-semibold p-4 md:p-0">
+                <li>
+                  <Link
+                    to="/"
+                    className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
+                  >
+                    Trang Chủ
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/aboutus"
+                    className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
+                  >
+                    Thông Tin
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
+                  >
+                    Liên Hệ
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/baivietheader"
+                    className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
+                  >
+                    Bài Viết
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    target="_blank"
+                    to="/chat-support"
+                    className="block py-2 md:py-0 text-gray-700 hover:text-blue-600 hover:underline hover:scale-105 transition-all duration-200"
+                  >
+                    Hỗ trợ viên
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
 
 
@@ -459,7 +459,7 @@ export default function Header() {
                     >
                       <div className="py-1">
                         <Link
-                          className="flex bg-purple-200  items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                          className="flex bg-blue-200  items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                         >
                           <i className="ri-user-line text-lg min-w-[20px]"></i>
                           <span className=" font-medium">Xin chào, {user?.name || 'Thông tin cá nhân'}</span>
