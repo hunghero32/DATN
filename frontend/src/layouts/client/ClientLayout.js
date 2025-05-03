@@ -66,6 +66,22 @@ const ClientLayout = () => {
       link.href = href;
       document.head.appendChild(link);
     };
+    const style = document.createElement('style');
+    style.textContent = `
+      .fixed-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      .header-spacer {
+        height: 130px; /* Adjust this value to match your header height */
+      }
+    `;
+    document.head.appendChild(style);
 
     const cssFiles = [
       "/css/bootstrap.min.css",
@@ -101,7 +117,10 @@ const ClientLayout = () => {
 
   return (
     <>
-      <Header />
+      <div className="fixed-header">
+        <Header />
+      </div>
+      <div className="header-spacer"></div>
       <Routes>
         <Route path="/" element={<HomeMain />} />
         <Route path="/forgot-password" element={<ForgotPassword/>}/>

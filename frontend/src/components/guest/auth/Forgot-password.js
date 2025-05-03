@@ -40,7 +40,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -51,51 +51,65 @@ export default function ForgotPassword() {
         theme="colored"
       />
 
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6 text-blue-600">Quên Mật Khẩu</h1>
+      <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md mx-4 transform hover:scale-[1.02] transition-transform duration-300">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-1">Quên Mật Khẩu?</h1>
+          <p className="text-sm text-gray-600">Đừng lo, chúng tôi sẽ giúp bạn khôi phục mật khẩu</p>
+        </div>
 
         {emailSent ? (
-          <div className="text-center">
-            <p className="text-green-500">Hãy kiểm tra email của bạn để đặt lại mật khẩu.</p>
-            <Link to="/login" className="text-blue-500 hover:underline mt-4 block">
-              Quay lại đăng nhập
+          <div className="text-center space-y-3">
+            <div className="bg-green-50 p-3 rounded-lg">
+              <p className="text-sm text-green-600">Hãy kiểm tra email của bạn để đặt lại mật khẩu.</p>
+            </div>
+            <Link 
+              to="/login" 
+              className="inline-block text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors duration-300"
+            >
+              ← Quay lại đăng nhập
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Input */}
-            <div className="w-full">
-              <label className="block text-gray-700 font-medium mb-1">Email</label>
-              <input
-                type="email"
-                className="w-full p-3 border rounded-md focus:outline-none border-gray-300 focus:ring-2 focus:ring-blue-500"
-                placeholder="Nhập email của bạn"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+            <div className="space-y-1">
+              <label className="block text-sm text-gray-700 font-semibold">Email của bạn</label>
+              <div className="relative">
+                <input
+                  type="email"
+                  className="w-full p-3 text-sm border rounded-lg focus:outline-none border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                  placeholder="example@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
             </div>
 
-            {/* Nút gửi yêu cầu */}
             <button
               type="submit"
-              style={{
-                borderRadius: '30px',
-                padding: '12px 40px',
-              }}
-              className={`w-full text-lg font-semibold text-white transition-all duration-300 shadow-md hover:shadow-lg ${
+              className={`w-full py-3 text-sm rounded-lg text-white font-semibold transition-all duration-300 transform hover:-translate-y-1 ${
                 isPending
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-xl"
               }`}
               disabled={isPending}
             >
-              {isPending ? "Đang xử lý..." : "Gửi liên kết đặt lại mật khẩu"}
+              {isPending ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                  Đang xử lý...
+                </span>
+              ) : "Gửi liên kết đặt lại mật khẩu"}
             </button>
 
-            {/* Quay lại đăng nhập */}
-            <div className="text-center mt-4">
-              <Link to="/login" className="!text-blue-500 hover:underline">
-                Quay lại đăng nhập
+            <div className="text-center pt-3 border-t">
+              <Link 
+                to="/login" 
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors duration-300"
+              >
+                ← Quay lại đăng nhập
               </Link>
             </div>
           </form>

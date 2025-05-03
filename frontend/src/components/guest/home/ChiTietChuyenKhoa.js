@@ -21,6 +21,9 @@ const SpecialtyDetail = () => {
           return;
         }
 
+        // Log the specialty data to check the image path
+        console.log("Specialty data:", response.data.specialty);
+        
         setSpecialty(response.data.specialty);
         setServices(response.data.services || []);
       } catch (error) {
@@ -52,9 +55,12 @@ const SpecialtyDetail = () => {
       <div className="flex justify-center mb-8">
         <div className="w-48 h-48 rounded-full overflow-hidden">
           <img
-            src={specialty.image}
+            src={specialty.image || 'https://via.placeholder.com/150?text=No+Image'}
             alt={specialty.name}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+            }}
           />
         </div>
       </div>
@@ -79,9 +85,12 @@ const SpecialtyDetail = () => {
               {/* Circular Icon Container */}
               <div className="w-32 h-32 rounded-full bg-blue-100 flex items-center justify-center mb-4 overflow-hidden">
                 <img
-                  src={service.image || specialty.icon} // Use service image if available, fallback to specialty icon
+                  src={`http://localhost:8000/storage/${service.image}`}
                   alt={service.services_name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                  }}
                 />
               </div>
               {/* Service Name */}

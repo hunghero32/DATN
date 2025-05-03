@@ -101,7 +101,7 @@ const LichHen = () => {
           setError(response.data.message);
         }
       })
-      .catch(() => setError("Lỗi khi lấy danh sách lịch hẹn."))
+      .catch(() => setError("Bạn chưa có lịch hẹn !"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -118,8 +118,7 @@ const LichHen = () => {
           <span className="ml-2 text-gray-600 text-lg">Đang tải...</span>
         </div>
       ) : error ? (
-        <div className="text-center text-red-500 text-lg font-semibold">
-          <i className="ri-error-warning-line text-4xl"></i>
+        <div className="mt-4 text-center text-red-500 text-lg font-semibold">
           {error}
         </div>
       ) : appointments.length === 0 ? (

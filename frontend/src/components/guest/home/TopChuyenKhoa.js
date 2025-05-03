@@ -49,7 +49,7 @@ const SpecialtiesSection = () => {
     <div className="bg-white py-16 px-4 mb-4">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900">Phòng khám và Chuyên khoa</h2>
+          <h2 className="text-3xl mt-4 font-bold text-gray-900">Phòng khám và Chuyên khoa</h2>
           <p className="text-gray-600 mt-2">
           <div className="marquee-container">
       <div className="marquee-text">
