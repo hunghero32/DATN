@@ -47,10 +47,11 @@ class CheckoutController extends Controller
         $orderInfo = $request->order_info ?? "Thanh toán qua MoMo";
         $orderId = time() . "";
         $redirectUrl = $request->return_url ?? "http://localhost:3000/";
-        $ipnUrl = "https://12a8-2405-4802-1cde-e910-8066-240f-9a1a-d96b.ngrok-free.app/api/client/momo-callback";
+        $ipnUrl = "https://quickcare.asia/api/client/momo-callback";
         $extraData = "";
 
         $requestId = time() . "";
+        // $requestType = "captureWallet";
         $requestType = "payWithATM";
 
         // Before sign HMAC SHA256 signature
