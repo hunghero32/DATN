@@ -43,11 +43,17 @@
         <div class="mb-3">
             <label for="discount" class="form-label">Giảm giá</label>
             <input type="number" class="form-control" name="discount" value="{{ $invoice->discount }}">
+            @error('discount')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
         </div>
 
         <div class="mb-3">
             <label for="tax" class="form-label">Thuế (%)</label>
             <input type="number" class="form-control" name="tax" value="{{ $invoice->tax }}" min="0" max="100">
+            @error('tax')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @enderror
         </div>
 
         <button type="submit" class="btn btn-primary">Cập Nhật</button>

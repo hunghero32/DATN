@@ -9,6 +9,8 @@ use App\Models\Booking;
 use App\Models\Result;
 use App\Models\System;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreInvoiceDetailRequest;
+use App\Http\Requests\UpdateInvoiceDetailRequest;
 
 class InvoiceDetailController extends Controller
 {
@@ -39,13 +41,13 @@ public function create()
 
 
 
-public function store(Request $request)
+public function store(StoreInvoiceDetailRequest $request)
 {
-    $request->validate([
-        'booking_id' => 'required|exists:bookings,id',
-        'discount'   => 'nullable|numeric|min:0',
-        'tax'        => 'nullable|numeric|min:0',
-    ]);
+    // $request->validate([
+    //     'booking_id' => 'required|exists:bookings,id',
+    //     'discount'   => 'nullable|numeric|min:0',
+    //     'tax'        => 'nullable|numeric|min:0',
+    // ]);
 
     $booking = Booking::with('service')->findOrFail($request->booking_id);
 
@@ -91,14 +93,14 @@ public function edit($id)
 
     
 
-    public function update(Request $request, $id)
+    public function update(UpdateInvoiceDetailRequest $request, $id)
 {
-    $request->validate([
-        'invoice_id'   => 'required|exists:invoices,id',
-        'booking_id'   => 'required|exists:bookings,id',
-        'discount'     => 'nullable|numeric|min:0',
-        'tax'          => 'nullable|numeric|min:0',
-    ]);
+    // $request->validate([
+    //     'invoice_id'   => 'required|exists:invoices,id',
+    //     'booking_id'   => 'required|exists:bookings,id',
+    //     'discount'     => 'nullable|numeric|min:0',
+    //     'tax'          => 'nullable|numeric|min:0',
+    // ]);
 
     $invoiceDetail = InvoiceDetail::where('id', $id)->where('isDeleted', 0)->firstOrFail();
     $invoiceDetail->update([
