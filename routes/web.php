@@ -34,7 +34,9 @@ use App\Http\Controllers\Admin\{
 |--------------------------------------------------------------------------
 */
 Route::get('notification-read-redirect/{id}', [NotificationController::class, 'readAndRedirect'])->name('notification.read.redirect');
-Route::get('/', [AdminAuthController::class, 'create'])->name('admin.login');
+Route::get('/{any}', function () {
+    return file_get_contents(public_path('index.html'));
+})->where('any', '.*');
 Route::get('admin', [AdminAuthController::class, 'create'])->name('admin.login');
 Route::prefix('admin')->group(function () {
     Route::get('/', [AdminAuthController::class, 'create'])->name('admin.login');

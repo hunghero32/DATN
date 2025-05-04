@@ -46,7 +46,7 @@ class CheckoutController extends Controller
         $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
         $orderInfo = $request->order_info ?? "Thanh toán qua MoMo";
         $orderId = time() . "";
-        $redirectUrl = $request->return_url ?? "http://localhost:3000/";
+        $redirectUrl = $request->return_url ?? "https://quickcare.asia/";
         $ipnUrl = "https://quickcare.asia/api/client/momo-callback";
         $extraData = "";
 

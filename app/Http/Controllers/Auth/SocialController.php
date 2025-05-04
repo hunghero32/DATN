@@ -31,7 +31,7 @@ class SocialController extends Controller
         $token = $user->createToken('authToken')->plainTextToken;
     
         // Redirect to frontend with token and user info
-        return redirect("http://localhost:3000/auth/oauth-success?token={$token}&user=" . urlencode(json_encode($user)));
+        return redirect("https://quickcare.asia/auth/oauth-success?token={$token}&user=" . urlencode(json_encode($user)));
     }
     public function redirectToGitHub()
     {
@@ -58,9 +58,9 @@ class SocialController extends Controller
             $token = $user->createToken('authToken')->plainTextToken;
     
             // Redirect to frontend with token and user info
-            return redirect("http://localhost:3000/auth/oauth-success?token={$token}&user=" . urlencode(json_encode($user)));
+            return redirect("https://quickcare.asia/auth/oauth-success?token={$token}&user=" . urlencode(json_encode($user)));
         } catch (\Exception $e) {
-            return redirect("http://localhost:3000/login?error=Authentication failed");
+            return redirect("https://quickcare.asia/login?error=Authentication failed");
         }
     }
 
@@ -90,9 +90,9 @@ class SocialController extends Controller
             $token = $user->createToken('authToken')->plainTextToken;
     
             // Redirect to frontend with token and user info
-            return redirect("http://localhost:3000/auth/oauth-success?token={$token}&user=" . urlencode(json_encode($user)));
+            return redirect("https://quickcare.asia/auth/oauth-success?token={$token}&user=" . urlencode(json_encode($user)));
         } catch (\Exception $e) {
-            return redirect("http://localhost:3000/login?error=Authentication failed");
+            return redirect("https://quickcare.asia/login?error=Authentication failed");
         }
     }
     

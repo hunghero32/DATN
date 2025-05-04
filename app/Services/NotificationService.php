@@ -115,8 +115,8 @@ class NotificationService
         if ($user->email) {
             try {
                 $targetUrl = match ($user->role) {
-                    'doctor' => env('FRONTEND_DOCTOR_BOOKING_URL', 'http://localhost:3000/doctor/appointment'),
-                    'guest'  => env('FRONTEND_BOOKING_URL', 'http://localhost:3000/lichhen'),
+                    'doctor' => env('FRONTEND_DOCTOR_BOOKING_URL', 'https://quickcare.asia/doctor/appointment'),
+                    'guest'  => env('FRONTEND_BOOKING_URL', 'https://quickcare.asia/lichhen'),
                     default  => null,
                 };
                 if ($targetUrl) {

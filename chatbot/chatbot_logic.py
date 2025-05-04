@@ -16,7 +16,7 @@ sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 nltk.download('punkt', quiet=True)
 
 # URL API của Laravel
-API_URL = "http://localhost:8000/api/client/services/search"
+API_URL = "https://quickcare.asia/api/client/services/search"
 
 # File để lưu trữ các triệu chứng đã học
 LEARNING_FILE = 'learned_symptoms.json'
@@ -328,7 +328,7 @@ def chatbot_response(user_input):
                 'status': 'success',
                 'type': 'appointment',
                 'message': 'Bạn muốn đặt lịch khám? Vui lòng nhấn vào nút bên dưới để được hỗ trợ đặt lịch trực tuyến.',
-                'link': 'http://localhost:3000/chat-support'
+                'link': 'https://quickcare.asia/chat-support'
             })
 
         # Check for location-related queries first
@@ -390,7 +390,7 @@ def chatbot_response(user_input):
                 'status': 'success',
                 'type': 'no_specialty',
                 'message': 'Tôi không tìm thấy chuyên khoa nào phù hợp với triệu chứng của bạn. Bạn có thể nhấn vào nút bên dưới để được hỗ trợ trực tuyến.',
-                'link': 'http://localhost:3000/chat-support'
+                'link': 'https://quickcare.asia/chat-support'
             })
         return json.dumps(result)
 

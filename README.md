@@ -60,7 +60,7 @@ Khởi chạy Laravel:
 ```bash
 php artisan serve
 ```
-Mặc định backend chạy tại: `http://localhost:8000`
+Mặc định backend chạy tại: `https://quickcare.asia`
 
 Khởi chạy Cron Auto:
 ```bash
@@ -73,7 +73,7 @@ cd frontend
 npm install
 npm start
 ```
-Mặc định frontend chạy tại: `http://localhost:3000`
+Mặc định frontend chạy tại: `https://quickcare.asia`
 
 Nếu muốn build dự án:
 ```bash
