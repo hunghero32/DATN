@@ -24,8 +24,26 @@ class StoreSpecialtyRequest extends FormRequest
         return [
             'name' => 'required|string|max:255', // Tên chuyên khoa
             'description' => 'nullable|string', // Mô tả chuyên khoa (nếu có)
-            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Hình ảnh icon (nếu có)
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Hình ảnh chi tiết (nếu có)
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480', // Hình ảnh icon (nếu có)
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20480', // Hình ảnh chi tiết (nếu có)
         ];
     }
+    public function messages(): array
+{
+    return [
+        'name.required' => 'Vui lòng nhập tên chuyên khoa.',
+        'name.string' => 'Tên chuyên khoa phải là chuỗi ký tự.',
+        'name.max' => 'Tên chuyên khoa không được vượt quá 255 ký tự.',
+
+        'description.string' => 'Mô tả phải là chuỗi văn bản.',
+
+        'icon.image' => 'Biểu tượng phải là một tệp hình ảnh.',
+        'icon.mimes' => 'Biểu tượng phải có định dạng: jpeg, png, jpg, gif.',
+        'icon.max' => 'Biểu tượng không được vượt quá 20MB.',
+
+        'image.image' => 'Hình ảnh phải là một tệp hình ảnh.',
+        'image.mimes' => 'Hình ảnh phải có định dạng: jpeg, png, jpg, gif.',
+        'image.max' => 'Hình ảnh không được vượt quá 20MB.',
+    ];
+}
 }

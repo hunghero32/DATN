@@ -1,15 +1,25 @@
 @extends('admin.index')
 
 @section('content')
-<div class="container mt-4">
-    <h2>Cập nhật chuyên khoa</h2> 
+{{-- <div class="container mt-4"> --}}
+    <div class="content-wrapper">
+        <div class="container-xxl flex-grow-1 container-p-y">
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Chuyên khoa /</span> Cập nhật chuyên khoa</h4>
+    
+            <div class="card">
+                {{-- <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Danh sách chuyên khoa</h5>
+                </div> --}}
+    
+                <div class="card-body">
+    {{-- <h2>Cập nhật chuyên khoa</h2>  --}}
     
     <form action="{{ route('admin.specialties.update', $specialty->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
         <div class="mb-3">
-            <label for="name" class="form-label">Tên chuyên khoa</label>
+            <label for="name" class="form-label"><span class="text-danger">*</span> Tên chuyên khoa</label>
             <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name', $specialty->name) }}">
             @error('name')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -57,6 +67,9 @@
         <button type="submit" class="btn btn-primary">Cập nhật</button>
         <a href="{{ route('admin.specialties.index') }}" class="btn btn-secondary">Quay lại</a>
     </form>
+</div>
+</div>
+</div>
 </div>
 @endsection
 
