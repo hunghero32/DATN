@@ -224,19 +224,8 @@ const ListSchedule = () => {
 
     setSelectedDate(date);
 
-    const scheduleDetails = await fetchScheduleByDate(dateStr);
-    if (scheduleDetails) {
-      setScheduleData(scheduleDetails);
-    } else {
-      setScheduleData({
-        working_date: dateStr,
-        time_start: "08:00",
-        time_end: "17:00",
-        max_patients: 10,
-        status: 1,
-      });
-    }
-    setIsEditOpen(true);
+    // Lấy chi tiết đặt lịch và mở modal chi tiết
+    await fetchBookingsByDate(dateStr);
   };
 
   const handleCreateSchedule = async (e) => {
@@ -500,550 +489,46 @@ const ListSchedule = () => {
               &gt;
             </button>
           </div>
-          <button
-            style={{
-              borderRadius: "4px",
-              padding: "6px 12px",
-              fontSize: "0.875rem",
-              display: "flex",
-              alignItems: "center",
-              backgroundColor: "#212529",
-              color: "white",
-              border: "none",
-            }}
-            onClick={handleAddNew}
-          >
-            <span style={{ marginRight: "5px", fontWeight: "bold" }}>+</span> Thêm Lịch
-          </button>
         </div>
       </div>
-
-      {isOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1050,
-          }}
-        >
-          <div
+      {scheduleData && scheduleData.status !== 0 && (
+        <>
+          <button
+            type="button"
             style={{
-              backgroundColor: "white",
-              borderRadius: "8px",
-              width: "100%",
-              maxWidth: "500px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-              overflow: "hidden",
+              padding: "10px 20px",
+              borderRadius: "4px",
+              border: "none",
+              backgroundColor: "#dc3545",
+              color: "white",
+              fontSize: "1rem",
+              cursor: "pointer",
+              transition: "background-color 0.2s",
             }}
+            onClick={handleLeaveSchedule}
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#c82333")}
+            onMouseOut={(e) => (e.target.style.backgroundColor = "#dc3545")}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "15px 20px",
-                backgroundColor: "#f8f9fa",
-                borderBottom: "1px solid #dee2e6",
-              }}
-            >
-              <h5 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 500 }}>
-                Thêm Lịch Làm Việc
-              </h5>
-              <button
-                style={{
-                  border: "none",
-                  background: "none",
-                  fontSize: "1.5rem",
-                  color: "#6c757d",
-                  cursor: "pointer",
-                }}
-                onClick={toggleModal}
-              >
-                ×
-              </button>
-            </div>
-            <div style={{ padding: "20px" }}>
-              <form onSubmit={handleCreateSchedule}>
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    htmlFor="month"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      fontWeight: 500,
-                      color: "#333",
-                    }}
-                  >
-                    Tháng
-                  </label>
-                  <select
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      fontSize: "1rem",
-                      color: "#495057",
-                      outline: "none",
-                      transition: "border-color 0.2s",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-                    onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
-                    id="month"
-                    value={currentMonth.getMonth() + 1}
-                    disabled
-                  >
-                    {monthNames.map((month, index) => (
-                      <option key={index} value={index + 1}>
-                        {month}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    htmlFor="year"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      fontWeight: 500,
-                      color: "#333",
-                    }}
-                  >
-                    Năm
-                  </label>
-                  <input
-                    type="number"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      fontSize: "1rem",
-                      color: "#495057",
-                      outline: "none",
-                      transition: "border-color 0.2s",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-                    onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
-                    id="year"
-                    value={currentMonth.getFullYear()}
-                    disabled
-                  />
-                </div>
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    htmlFor="time_start"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      fontWeight: 500,
-                      color: "#333",
-                    }}
-                  >
-                    Thời gian bắt đầu
-                  </label>
-                  <input
-                    type="time"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      fontSize: "1rem",
-                      color: "#495057",
-                      outline: "none",
-                      transition: "border-color 0.2s",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-                    onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
-                    id="time_start"
-                    value={scheduleData?.time_start || "08:00"}
-                    onChange={(e) => setScheduleData({ ...scheduleData, time_start: e.target.value })}
-                    required
-                  />
-                </div>
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    htmlFor="time_end"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      fontWeight: 500,
-                      color: "#333",
-                    }}
-                  >
-                    Thời gian kết thúc
-                  </label>
-                  <input
-                    type="time"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      fontSize: "1rem",
-                      color: "#495057",
-                      outline: "none",
-                      transition: "border-color 0.2s",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-                    onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
-                    id="time_end"
-                    value={scheduleData?.time_end || "17:00"}
-                    onChange={(e) => setScheduleData({ ...scheduleData, time_end: e.target.value })}
-                    required
-                  />
-                </div>
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    htmlFor="max_patients"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      fontWeight: 500,
-                      color: "#333",
-                    }}
-                  >
-                    Số bệnh nhân tối đa
-                  </label>
-                  <input
-                    type="number"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      fontSize: "1rem",
-                      color: "#495057",
-                      outline: "none",
-                      transition: "border-color 0.2s",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-                    onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
-                    id="max_patients"
-                    value={scheduleData?.max_patients || 10}
-                    onChange={(e) => setScheduleData({ ...scheduleData, max_patients: e.target.value })}
-                    min="0"
-                    max="10"
-                    required
-                  />
-                </div>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                  <button
-                    type="button"
-                    style={{
-                      padding: "10px 20px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      backgroundColor: "#f8f9fa",
-                      color: "#6c757d",
-                      fontSize: "1rem",
-                      cursor: "pointer",
-                      transition: "background-color 0.2s",
-                    }}
-                    onClick={toggleModal}
-                    onMouseOver={(e) => (e.target.style.backgroundColor = "#e9ecef")}
-                    onMouseOut={(e) => (e.target.style.backgroundColor = "#f8f9fa")}
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    style={{
-                      padding: "10px 20px",
-                      borderRadius: "4px",
-                      border: "none",
-                      backgroundColor: "#007bff",
-                      color: "white",
-                      fontSize: "1rem",
-                      cursor: "pointer",
-                      transition: "background-color 0.2s",
-                    }}
-                    onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")}
-                    onMouseOut={(e) => (e.target.style.backgroundColor = "#007bff")}
-                  >
-                    Tạo Lịch
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isEditOpen && scheduleData && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1050,
-          }}
-        >
-          <div
+            Xin Nghỉ
+          </button>
+          <button
+            type="submit"
             style={{
-              backgroundColor: "white",
-              borderRadius: "8px",
-              width: "100%",
-              maxWidth: "500px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-              overflow: "hidden",
+              padding: "10px 20px",
+              borderRadius: "4px",
+              border: "none",
+              backgroundColor: "#007bff",
+              color: "white",
+              fontSize: "1rem",
+              cursor: "pointer",
+              transition: "background-color 0.2s",
             }}
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")}
+            onMouseOut={(e) => (e.target.style.backgroundColor = "#007bff")}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "15px 20px",
-                backgroundColor: "#f8f9fa",
-                borderBottom: "1px solid #dee2e6",
-              }}
-            >
-              <h5 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 500 }}>
-                Sửa Lịch Làm Việc - {selectedDayInfo}
-              </h5>
-              <button
-                style={{
-                  border: "none",
-                  background: "none",
-                  fontSize: "1.5rem",
-                  color: "#6c757d",
-                  cursor: "pointer",
-                }}
-                onClick={toggleEditModal}
-              >
-                ×
-              </button>
-            </div>
-            <div style={{ padding: "20px" }}>
-              <form onSubmit={handleUpdateSchedule}>
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    htmlFor="edit_shift"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      fontWeight: 500,
-                      color: "#333",
-                    }}
-                  >
-                    Ca làm việc
-                  </label>
-                  <input
-                    type="text"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      fontSize: "1rem",
-                      color: "#495057",
-                      outline: "none",
-                      transition: "border-color 0.2s",
-                      backgroundColor: "#f8f9fa",
-                    }}
-                    id="edit_shift"
-                    value={getShiftLabel(scheduleData.time_start)}
-                    disabled
-                  />
-                </div>
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    htmlFor="edit_time_start"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      fontWeight: 500,
-                      color: "#333",
-                    }}
-                  >
-                    Thời gian bắt đầu
-                  </label>
-                  <input
-                    type="time"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      fontSize: "1rem",
-                      color: "#495057",
-                      outline: "none",
-                      transition: "border-color 0.2s",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-                    onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
-                    id="edit_time_start"
-                    value={scheduleData.time_start}
-                    onChange={(e) => setScheduleData({ ...scheduleData, time_start: e.target.value })}
-                    required
-                    disabled={scheduleData.status === 0}
-                  />
-                </div>
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    htmlFor="edit_time_end"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      fontWeight: 500,
-                      color: "#333",
-                    }}
-                  >
-                    Thời gian kết thúc
-                  </label>
-                  <input
-                    type="time"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      fontSize: "1rem",
-                      color: "#495057",
-                      outline: "none",
-                      transition: "border-color 0.2s",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-                    onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
-                    id="edit_time_end"
-                    value={scheduleData.time_end}
-                    onChange={(e) => setScheduleData({ ...scheduleData, time_end: e.target.value })}
-                    required
-                    disabled={scheduleData.status === 0}
-                  />
-                </div>
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <label
-                    htmlFor="edit_max_patients"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      fontWeight: 500,
-                      color: "#333",
-                    }}
-                  >
-                    Số bệnh nhân tối đa
-                  </label>
-                  <input
-                    type="number"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      fontSize: "1rem",
-                      color: "#495057",
-                      outline: "none",
-                      transition: "border-color 0.2s",
-                    }}
-                    onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-                    onBlur={(e) => (e.target.style.borderColor = "#ced4da")}
-                    id="edit_max_patients"
-                    value={scheduleData.max_patients}
-                    onChange={(e) => setScheduleData({ ...scheduleData, max_patients: e.target.value })}
-                    min="0"
-                    max="10"
-                    required
-                    disabled={scheduleData.status === 0}
-                  />
-                </div>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-                  <button
-                    type="button"
-                    style={{
-                      padding: "10px 20px",
-                      borderRadius: "4px",
-                      border: "1px solid #ced4da",
-                      backgroundColor: "#f8f9fa",
-                      color: "#6c757d",
-                      fontSize: "1rem",
-                      cursor: "pointer",
-                      transition: "background-color 0.2s",
-                    }}
-                    onClick={toggleEditModal}
-                    onMouseOver={(e) => (e.target.style.backgroundColor = "#e9ecef")}
-                    onMouseOut={(e) => (e.target.style.backgroundColor = "#f8f9fa")}
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="button"
-                    style={{
-                      padding: "10px 20px",
-                      borderRadius: "4px",
-                      border: "none",
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      fontSize: "1rem",
-                      cursor: "pointer",
-                      transition: "background-color 0.2s",
-                    }}
-                    onClick={() => fetchBookingsByDate(scheduleData.working_date)}
-                    onMouseOver={(e) => (e.target.style.backgroundColor = "#218838")}
-                    onMouseOut={(e) => (e.target.style.backgroundColor = "#28a745")}
-                  >
-                    Xem Chi Tiết
-                  </button>
-                  {scheduleData.status !== 0 && (
-                    <>
-                      <button
-                        type="button"
-                        style={{
-                          padding: "10px 20px",
-                          borderRadius: "4px",
-                          border: "none",
-                          backgroundColor: "#dc3545",
-                          color: "white",
-                          fontSize: "1rem",
-                          cursor: "pointer",
-                          transition: "background-color 0.2s",
-                        }}
-                        onClick={handleLeaveSchedule}
-                        onMouseOver={(e) => (e.target.style.backgroundColor = "#c82333")}
-                        onMouseOut={(e) => (e.target.style.backgroundColor = "#dc3545")}
-                      >
-                        Xin Nghỉ
-                      </button>
-                      <button
-                        type="submit"
-                        style={{
-                          padding: "10px 20px",
-                          borderRadius: "4px",
-                          border: "none",
-                          backgroundColor: "#007bff",
-                          color: "white",
-                          fontSize: "1rem",
-                          cursor: "pointer",
-                          transition: "background-color 0.2s",
-                        }}
-                        onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")}
-                        onMouseOut={(e) => (e.target.style.backgroundColor = "#007bff")}
-                      >
-                        Cập Nhật
-                      </button>
-                    </>
-                  )}
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+            Cập Nhật
+          </button>
+        </>
       )}
 
 {isDetailsOpen && bookingsData && (
@@ -1108,10 +593,6 @@ const ListSchedule = () => {
                 <strong>Thời gian:</strong>{" "}
                 {bookingsData.schedule[0].time_start.slice(0, 5)} -{" "}
                 {bookingsData.schedule[0].time_end.slice(0, 5)}
-              </p>
-              <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
-                <strong>Số bệnh nhân tối đa:</strong>{" "}
-                {bookingsData.schedule[0].max_patients}
               </p>
               <p style={{ margin: "5px 0", fontSize: "0.9rem" }}>
                 <strong>Trạng thái:</strong>{" "}

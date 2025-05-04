@@ -57,7 +57,7 @@
             <div class="card shadow-lg border-1 rounded">
                 <div class="d-flex justify-content-end mt-2 mb-1">
                     <a href="{{ route('admin.users.create') }}" class="btn btn-success shadow-sm px-4 py-2 fw-bold">
-                        <i class="bi bi-plus-circle"></i> <span class="ms-1">Thêm Mới</span>
+                        <i class="bi bi-plus-circle"></i> <span class="ms-1">Thêm Admin</span>
                     </a>
                 </div>
 

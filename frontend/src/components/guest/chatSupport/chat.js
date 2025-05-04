@@ -185,7 +185,7 @@ const ChatSupport = () => {
           href={url} 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="text-blue-300 hover:underline"
+          className="text-blue-300 hover:underline text-white"
           onClick={(e) => {
             // For internal links, prevent default and use router navigation
             if (url.includes('localhost') || !url.startsWith('http')) {
@@ -256,7 +256,7 @@ const ChatSupport = () => {
                   <div className="text-sm text-gray-500 truncate">
                     {conv.messages && conv.messages.length > 0
                       ? truncateText(conv.messages[conv.messages.length - 1].content)
-                      : "Chưa có tin nhắn"}
+                      : "Xem tất cả tin nhắn"}
                   </div>
                 </div>
                 <div className="text-xs text-gray-400">
@@ -265,7 +265,7 @@ const ChatSupport = () => {
                         hour: "2-digit",
                         minute: "2-digit",
                       })
-                    : "N/A"}
+                    : ""}
                 </div>
               </div>
             ))

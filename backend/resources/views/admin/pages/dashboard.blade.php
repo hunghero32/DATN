@@ -198,20 +198,7 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">Doanh Thu Bác Sĩ</h6>
-                        <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                aria-labelledby="dropdownMenuLink">
-                                <div class="dropdown-header">Tùy Chọn Xuất:</div>
-                                <a class="dropdown-item" href="#"><i
-                                        class="fas fa-file-csv fa-sm fa-fw mr-2 text-gray-400"></i>CSV</a>
-                                <a class="dropdown-item" href="#"><i
-                                        class="fas fa-file-pdf fa-sm fa-fw mr-2 text-gray-400"></i>PDF</a>
-                            </div>
-                        </div>
+
                     </div>
                     <div class="card-body">
                         @if (isset($topRevenueDoctors) && $topRevenueDoctors->isNotEmpty())
@@ -236,20 +223,7 @@
                 <div class="card shadow mb-4 flex-fill">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">Lịch Hẹn</h6>
-                        <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                aria-labelledby="dropdownMenuLink">
-                                <div class="dropdown-header">Tùy Chọn Xuất:</div>
-                                <a class="dropdown-item" href="#"><i
-                                        class="fas fa-file-csv fa-sm fa-fw mr-2 text-gray-400"></i>CSV</a>
-                                <a class="dropdown-item" href="#"><i
-                                        class="fas fa-file-pdf fa-sm fa-fw mr-2 text-gray-400"></i>PDF</a>
-                            </div>
-                        </div>
+
                     </div>
                     <div class="card-body">
                         <div class="chart-area h-100">
@@ -264,20 +238,7 @@
                 <div class="card shadow mb-4 flex-fill">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">Lịch Hẹn Theo Trạng Thái</h6>
-                        <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                aria-labelledby="dropdownMenuLink">
-                                <div class="dropdown-header">Tùy Chọn Xuất:</div>
-                                <a class="dropdown-item" href="#"><i
-                                        class="fas fa-file-csv fa-sm fa-fw mr-2 text-gray-400"></i>CSV</a>
-                                <a class="dropdown-item" href="#"><i
-                                        class="fas fa-file-pdf fa-sm fa-fw mr-2 text-gray-400"></i>PDF</a>
-                            </div>
-                        </div>
+
                     </div>
                     <div class="card-body">
                         <div class="chart-pie pt-4 pb-2">
@@ -294,20 +255,7 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">Lịch Hẹn Theo Chuyên Khoa</h6>
-                        <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                aria-labelledby="dropdownMenuLink">
-                                <div class="dropdown-header">Tùy Chọn Xuất:</div>
-                                <a class="dropdown-item" href="#"><i
-                                        class="fas fa-file-csv fa-sm fa-fw mr-2 text-gray-400"></i>CSV</a>
-                                <a class="dropdown-item" href="#"><i
-                                        class="fas fa-file-pdf fa-sm fa-fw mr-2 text-gray-400"></i>PDF</a>
-                            </div>
-                        </div>
+
                     </div>
                     <div class="card-body">
                         <div class="chart-container" style="position: relative; height:400px;">
@@ -322,7 +270,7 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Lịch Hẹn Gần Đây</h6>
-                <a href="#" class="btn btn-sm btn-primary shadow-sm">
+                <a href="{{ route('admin.bookings.index') }}" class="btn btn-sm btn-primary shadow-sm">
                     <i class="fas fa-eye fa-sm text-white-50"></i> Xem Tất Cả
                 </a>
             </div>
@@ -337,7 +285,6 @@
                                 <th>Ngày</th>
                                 <th>Giờ</th>
                                 <th>Trạng Thái</th>
-                                <th>Thao Tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -365,16 +312,6 @@
                                             @default
                                                 <span>{{ $appointment->status }}</span>
                                         @endswitch
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <a href="#" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="#" class="btn btn-sm btn-info">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
