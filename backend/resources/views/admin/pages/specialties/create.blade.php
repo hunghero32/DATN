@@ -1,8 +1,18 @@
 @extends('admin.index')
 
 @section('content')
-<div class="container mt-4">
-    <h2>Thêm chuyên khoa</h2>
+{{-- <div class="container mt-4"> --}}
+    <div class="content-wrapper">
+        <div class="container-xxl flex-grow-1 container-p-y">
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Chuyên khoa /</span> Thêm chuyên khoa</h4>
+    
+            <div class="card">
+                {{-- <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Danh sách chuyên khoa</h5>
+                </div> --}}
+    
+                <div class="card-body">
+    {{-- <h2>Thêm chuyên khoa</h2> --}}
 
     {{-- @if ($errors->any())
         <div class="alert alert-danger">
@@ -17,7 +27,7 @@
         @csrf
 
         <div class="mb-3">
-            <label for="name" class="form-label">Tên chuyên khoa</label>
+            <label for="name" class="form-label"><span class="text-danger">*</span> Tên chuyên khoa</label>
             <input type="text" class="form-control" name="name" value="{{ old('name') }}">
             @error('name')
                 <div class="text-danger mt-1">{{ $message }}</div>
@@ -58,6 +68,10 @@
         <a href="{{ route('admin.specialties.index') }}" class="btn btn-secondary">Quay lại</a>
     </form>
 </div>
+</div>
+</div>
+</div>
+
 @endsection
 
 @push('scripts')
