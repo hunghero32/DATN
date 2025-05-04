@@ -61,31 +61,30 @@ export default function Header() {
         api.get(`/api/client/search?query=${encodeURIComponent(searchText)}`)
           .then((res) => {
             setResults(res.data);
-            const modalElement = document.getElementById('searchModal');
-            const modalInstance = new window.bootstrap.Modal(modalElement);
-            modalInstance.show();
           })
           .catch((err) => console.error("Lỗi tìm kiếm:", err));
+      } else {
+        setResults(null);
       }
     }, 300);
     return () => clearTimeout(delayDebounce);
   }, [searchText]);
 
+  // Remove these functions as they're no longer needed
   const showModal = () => {
     window.searchModalInstance?.show();
   };
 
   const hideModal = () => {
     window.searchModalInstance?.hide();
-
-    // 👇 Fix triệt để lỗi bị mờ + không scroll
     document.body.classList.remove("modal-open");
     document.body.style.overflow = "auto";
     document.body.style.paddingRight = "";
-
     const backdrop = document.querySelector(".modal-backdrop");
     if (backdrop) backdrop.remove();
   };
+
+  // Remove the entire Modal Bootstrap section at the bottom of the return statement
   const thoatTrang = () => {
     logout();
     setToken(null);
@@ -396,9 +395,9 @@ export default function Header() {
 
 
 
-            {/* Right Section */}
+            {/* Right Section with Search */}
             <div className="flex items-center gap-4 relative">
-              <div className="relative hidden md:block">
+            <div className="relative hidden md:block">
                 <div className="flex items-center bg-white rounded-[24px] shadow-sm border border-gray-100">
                   <div className="relative">
                     <i className="ri-search-2-line text-gray-400 text-lg absolute left-1 top-1/2 -translate-y-1/2"></i>
@@ -411,7 +410,109 @@ export default function Header() {
                     />
                   </div>
                 </div>
+
+                {/* Rest of the search results dropdown code */}
+                {searchText && results && (
+                  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-6">
+                    <div className="bg-white rounded-2xl shadow-2xl w-[900px] max-h-[80vh] overflow-hidden relative animate-fadeIn">
+                      {/* Header */}
+                      <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4 flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <i className="ri-search-line text-xl text-white/90"></i>
+                          <h5 className="text-lg font-medium text-white">Kết quả tìm kiếm</h5>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setSearchText('');
+                            setResults(null);
+                          }}
+                          className="text-white/80 hover:text-white hover:scale-110 transition-all"
+                        >
+                          <i className="ri-close-line text-xl"></i>
+                        </button>
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="p-6">
+                        {Object.values(results).every(arr => arr.length === 0) ? (
+                          <div className="py-12 text-center">
+                            <i className="ri-emotion-sad-line text-5xl text-gray-200 mb-3 block"></i>
+                            <p className="text-gray-500">Không tìm thấy kết quả phù hợp</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-6">
+                            {results?.services?.length > 0 && (
+                              <div>
+                                <h6 className="text-lg font-semibold mb-4 text-blue-600 flex items-center">
+                                  <i className="ri-briefcase-4-line mr-2"></i>Dịch vụ
+                                </h6>
+                                <div className="grid grid-cols-2 gap-4">
+                                  {results.services.map(item => (
+                                    <div
+                                      key={item.id}
+                                      onClick={() => {
+                                        handleServiceClick(item);
+                                        setSearchText('');
+                                        setResults(null);
+                                      }}
+                                      className="group hover:-translate-y-1 transition-all duration-300"
+                                    >
+                                      <div className="bg-blue-50 rounded-lg p-4 hover:bg-blue-100 cursor-pointer border border-transparent hover:border-blue-200">
+                                        <div className="flex items-center gap-3">
+                                          <div className="bg-white p-3 rounded-full shadow-sm group-hover:shadow group-hover:scale-105 transition-all">
+                                            <i className="ri-stethoscope-line text-lg text-blue-600"></i>
+                                          </div>
+                                          <p className="text-sm font-medium text-gray-700 group-hover:text-blue-700">
+                                            {item.services_name}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Similar updates for specialties section */}
+                            {results?.specialties?.length > 0 && (
+                              <div>
+                                <h6 className="text-lg font-semibold mb-4 text-green-600 flex items-center">
+                                  <i className="ri-microscope-line mr-2"></i>Chuyên khoa
+                                </h6>
+                                <div className="grid grid-cols-2 gap-4">
+                                  {results.specialties.map(item => (
+                                    <div
+                                      key={item.id}
+                                      onClick={() => {
+                                        handleSpecialtyClick(item.id);
+                                        setSearchText('');
+                                        setResults(null);
+                                      }}
+                                      className="group hover:-translate-y-1 transition-all duration-300"
+                                    >
+                                      <div className="bg-green-50 rounded-lg p-4 hover:bg-green-100 cursor-pointer border border-transparent hover:border-green-200">
+                                        <div className="flex items-center gap-3">
+                                          <div className="bg-white p-3 rounded-full shadow-sm group-hover:shadow group-hover:scale-105 transition-all">
+                                            <i className="ri-hospital-line text-lg text-green-600"></i>
+                                          </div>
+                                          <p className="text-sm font-medium text-gray-700 group-hover:text-green-700">
+                                            {item.name}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
+
               {token && user && user.role !== 'doctor' && user.role !== 'admin' && (
                 <div ref={clientNotificationIconRef} className="relative">
                   <button
@@ -600,5 +701,4 @@ export default function Header() {
       </div>
 
     </header>
-  );
-} // Add this closing bracket for the Header component
+  );}
