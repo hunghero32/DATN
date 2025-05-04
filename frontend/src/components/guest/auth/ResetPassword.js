@@ -8,7 +8,7 @@ export default function ResetPassword() {
   const { token } = useParams(); // Lấy token từ URL
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email"); // Lấy email từ query string
- const navigate  = useNavigate()
+  const navigate = useNavigate()
   const [APIMESSAGE, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -34,53 +34,59 @@ export default function ResetPassword() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       {contextHolder}
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Reset Password</h1>
-
+        <h1 className="text-2xl font-bold text-center mb-6">Đặt lại mật khẩu</h1>
+        <hr></hr>
         <Form
           form={form}
           layout="vertical"
           onFinish={onFinish}
           name="reset_password_form"
+          className="space-y-6"
         >
           <Form.Item
-            label="New Password"
+            label={<span className="text-base font-semibold text-gray-800">🔐 Mật khẩu mới</span>}
             name="password"
-            rules={[{ required: true, message: "Please enter your new password!" }]}
+            rules={[{ required: true, message: "Vui lòng nhập mật khẩu mới!" }]}
           >
-            <Input.Password placeholder="Enter new password" />
+            <Input.Password
+              placeholder="Nhập mật khẩu mới"
+              className="h-11 rounded-md"
+            />
           </Form.Item>
 
           <Form.Item
-            label="Confirm Password"
+            label={<span className="text-base font-semibold text-gray-800">🔁 Xác nhận mật khẩu</span>}
             name="confirmPassword"
             dependencies={["password"]}
             rules={[
-              { required: true, message: "Please confirm your password!" },
+              { required: true, message: "Vui lòng xác nhận lại mật khẩu!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("Passwords do not match!"));
+                  return Promise.reject(new Error("Mật khẩu không trùng khớp!"));
                 },
               }),
             ]}
           >
-            <Input.Password placeholder="Confirm new password" />
+            <Input.Password
+              placeholder="Xác nhận mật khẩu mới"
+              className="h-11 rounded-md"
+            />
           </Form.Item>
 
-          <Form.Item>
-          <button
-            type="submit"
-            style={{
-              borderRadius: '30px',
-              padding: '12px 40px',
-            }}
-            className="w-full bg-blue-600 text-white text-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-            disabled={loading}
-          >
-            {loading ? "Đang xử lý..." : "Đổi Mật Khẩu"}
-          </button>
+          <Form.Item className="text-center">
+            <button
+              type="submit"
+              className={`w-48 py-2 px-4 text-white font-medium rounded-md shadow transition duration-300 ${loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 hover:shadow-md"
+                }`}
+              disabled={loading}
+            >
+              {loading ? "Đang xử lý..." : "Đổi Mật Khẩu"}
+            </button>
           </Form.Item>
         </Form>
       </div>

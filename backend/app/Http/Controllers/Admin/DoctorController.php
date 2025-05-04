@@ -167,7 +167,7 @@ class DoctorController extends Controller
             'specialty_id' => $request->specialty_id,
             'exp' => $request->exp ?? 0,
             'file' => $filePath,
-            'approve' => 0
+            'approve' => 1
         ]);
 
         // Gửi email thông báo tài khoản đã được tạo

@@ -14,33 +14,47 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
 {
     use Exportable;
 
-    protected $start_date;
-    protected $end_date;
-    protected $guest_phone;
+    protected $year, $month, $day, $start_date, $end_date, $guest_phone;
 
-    public function __construct($start_date, $end_date, $guest_phone = null)
-{
-    $this->start_date = $start_date;
-    $this->end_date = $end_date;
-    $this->guest_phone = $guest_phone;
-}
-
-public function collection()
-{
-    $query = Booking::with(['guest', 'invoiceDetails.invoice'])
-                    ->where('isDeleted', 0);
-                    // ->whereBetween('booking_date', [$this->start_date, $this->end_date]);
-    if ($this->start_date && $this->end_date) {
-        $query->whereBetween('booking_date', [$this->start_date, $this->end_date]);
-        }                
-    if ($this->guest_phone) {
-        $query->whereHas('guest', function ($q) {
-            $q->where('guest_phone', 'like', '%' . $this->guest_phone . '%');
-        });
+    public function __construct($year = null, $month = null, $day = null, $start_date = null, $end_date = null, $guest_phone = null)
+    {
+        $this->year = $year;
+        $this->month = $month;
+        $this->day = $day;
+        $this->start_date = $start_date;
+        $this->end_date = $end_date;
+        $this->guest_phone = $guest_phone;
     }
 
-    return $query->get();
-}
+    public function collection()
+    {
+        $query = Booking::with('guest')->where('isDeleted', 0);
+    
+        if ($this->year) {
+            $query->whereYear('booking_date', $this->year);
+        }
+    
+        if ($this->month) {
+            $query->whereYear('booking_date', date('Y', strtotime($this->month)))
+                  ->whereMonth('booking_date', date('m', strtotime($this->month)));
+        }
+    
+        if ($this->day) {
+            $query->whereDate('booking_date', $this->day);
+        }
+    
+        if ($this->start_date && $this->end_date) {
+            $query->whereBetween('booking_date', [$this->start_date, $this->end_date]);
+        }
+    
+        if ($this->guest_phone) {
+            $query->whereHas('guest', function ($q) {
+                $q->where('guest_phone', 'like', '%' . $this->guest_phone . '%');
+            });
+        }
+    
+        return $query->get();
+    }
 
     public function styles(Worksheet $sheet)
     {

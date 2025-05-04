@@ -145,35 +145,23 @@ const InvoicePage = () => {
               <div className="border-4 border-red-500 m-4 p-6 rounded-sm">
                 {/* Company Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start mb-8 pb-6 border-b border-gray-200">
-                  <div className="flex items-center mb-4 md:mb-0">
-                    <div className="mr-4">
-                      <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                        VP
-                      </div>
-                    </div>
+                  <div className="flex items-center mb-4 ">
                     <div>
-                      <h2 className="text-xl font-bold text-gray-800 uppercase">
-                        Phòng khám nha khoa
+                      <h2 className="text-xl font-bold text-gray-800 ">
+                        Phòng khám QuickCare
                       </h2>
                       <p className="text-sm text-gray-600">
-                        Mã số thuế: 0106830643-195
+                        Địa chỉ: 59 P. Trần Phú, Điện Biên, Ba Đình, TP. Hà Nội
                       </p>
                       <p className="text-sm text-gray-600">
-                        Địa chỉ: 285 Đội Cấn, Ba Đình, Hà Nội
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Điện thoại: 0979499653
+                        Điện thoại: 0363627444
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="inline-block border border-gray-200 rounded px-3 py-1 mb-2">
-                      <p className="text-sm text-gray-600">Mẫu số: 01GTKT0002</p>
+                      <p className="text-sm text-gray-600">Hóa đơn số: #{invoice.id.toString().padStart(7, "0")}</p>
                     </div>
-                    <p className="text-sm text-gray-600">Ký hiệu: AB20E</p>
-                    <p className="text-sm text-gray-600">
-                      Số: {invoice.id.toString().padStart(7, "0")}
-                    </p>
                   </div>
                 </div>
 
@@ -197,12 +185,8 @@ const InvoicePage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm">
-                        <span className="font-medium">Họ tên người mua hàng: </span>
+                        <span className="font-medium">Họ tên người đặt lịch: </span>
                         {invoice.details[0]?.guest?.guest_name || ""}
-                      </p>
-                      <p className="text-sm">
-                        <span className="font-medium">Tên đơn vị: </span>
-                        Khách hàng cá nhân
                       </p>
                       <p className="text-sm">
                         <span className="font-medium">Địa chỉ: </span>
@@ -227,8 +211,8 @@ const InvoicePage = () => {
                           <span className="text-sm font-medium text-gray-700">
                             Tổng tiền thanh toán:
                           </span>
-                          <span className="text-sm font-bold text-blue-600">
-                            {invoice.total_amount.toLocaleString()} VNĐ
+                          <span className="text-sm font-bold text-red-600">
+                            {invoice.total_amount ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(invoice.total_amount) : ""}
                           </span>
                         </div>
                         <div className="flex justify-between items-center mt-2">
@@ -265,15 +249,6 @@ const InvoicePage = () => {
                               ? "Đã hủy"
                               : "Chưa thanh toán"}
                           </span>
-                        </div>
-                      </div>
-                      <div className="flex justify-end">
-                        <div className="w-24 h-24 border border-gray-300 flex items-center justify-center">
-                          <img
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=invoice-id-${invoice.id}`}
-                            alt="QR Code"
-                            className="w-20 h-20"
-                          />
                         </div>
                       </div>
                     </div>
@@ -321,16 +296,10 @@ const InvoicePage = () => {
                             1
                           </td>
                           <td className="border border-gray-300 px-4 py-2 text-sm">
-                            {detail.price
-                              ? detail.price.toLocaleString("vi-VN")
-                              : "0"}{" "}
-                            VNĐ
+                            {detail.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.price) : ""}
                           </td>
                           <td className="border border-gray-300 px-4 py-2 text-sm">
-                            {detail.price
-                              ? detail.price.toLocaleString("vi-VN")
-                              : "0"}{" "}
-                            VNĐ
+                            {detail.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(detail.price) : ""}
                           </td>
                         </tr>
                       ))}
@@ -353,7 +322,7 @@ const InvoicePage = () => {
                           Giảm giá:
                         </td>
                         <td className="border border-gray-300 px-4 py-2 text-sm font-medium">
-                          {invoice.discount.toLocaleString("vi-VN")} VNĐ
+                          {invoice.discount ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(invoice.discount) : ""}
                         </td>
                       </tr>
                       <tr>
@@ -364,7 +333,7 @@ const InvoicePage = () => {
                           Tổng tiền thanh toán:
                         </td>
                         <td className="border border-gray-300 px-4 py-2 text-sm font-medium">
-                          {invoice.total_amount.toLocaleString("vi-VN")} VNĐ
+                        {invoice.total_amount ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(invoice.total_amount) : ""}
                         </td>
                       </tr>
                     </tbody>
@@ -379,40 +348,6 @@ const InvoicePage = () => {
                       {numberToVietnameseWords(invoice.total_amount)}
                     </span>
                   </p>
-                </div>
-
-                {/* Signatures */}
-                <div className="mb-4">
-                  <div className="flex justify-between">
-                    <div className="text-center">
-                      <p className="font-medium text-sm">Người mua hàng</p>
-                      <p className="text-xs text-gray-500">
-                        (Ký, ghi rõ họ, tên)
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-medium text-sm">Người bán hàng</p>
-                      <p className="text-xs text-gray-500">
-                        (Ký, ghi rõ họ, tên)
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="h-32 relative">
-                    <div className="absolute right-0 bottom-0">
-                      <div className="border border-green-500 rounded p-2 inline-block">
-                        <p className="text-xs text-green-600 font-medium">
-                          Signature Valid
-                        </p>
-                        <p className="text-xs text-green-600">
-                          Ký bởi: PHÒNG KHÁM NHA KHOA
-                        </p>
-                        <p className="text-xs text-green-600">
-                          Ký ngày: {new Date().toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -471,8 +406,8 @@ const InvoicePage = () => {
                     </p>
                     <p className="text-gray-600">
                       Tổng tiền thanh toán:{" "}
-                      <span className="font-bold text-blue-600">
-                        {invoice.total_amount.toLocaleString()} VNĐ
+                      <span className="font-bold text-red-600">
+                      {invoice.total_amount ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(invoice.total_amount) : ""}
                       </span>
                     </p>
                   </div>

@@ -229,6 +229,16 @@ const LichHen = () => {
                       )}
                     </>
                   )}
+                  {appointment.status === "confirmed" && (
+                    <>
+                      <Link
+                        to={`/hoadon/${appointment.id}`}
+                        className="inline-block px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
+                      >
+                        <i className="ri-file-text-line mr-2"></i> Xem Hóa Đơn
+                      </Link>
+                    </>
+                  )}
 
                   {appointment.status === "pending" && (
                     <button
@@ -247,7 +257,62 @@ const LichHen = () => {
           ))}
         </div>
       )}
-
+      {/* Modal đánh giá */}
+      <Modal
+      show={showFeedbackModal}
+      onHide={() => setShowFeedbackModal(false)}
+      size="md"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>Đánh giá dịch vụ</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <form onSubmit={handleFeedbackSubmit}>
+          <div className="mb-3">
+            <label className="font-semibold">Mức độ hài lòng:</label>
+            <select
+              value={feedbackData.rating}
+              onChange={(e) => setFeedbackData({ ...feedbackData, rating: parseInt(e.target.value) })}
+              className="w-full mt-1 border rounded px-3 py-2"
+            >
+              <option value={5}>Rất hài lòng (5 sao)</option>
+              <option value={4}>Hài lòng (4 sao)</option>
+              <option value={3}>Bình thường (3 sao)</option>
+              <option value={2}>Không hài lòng (2 sao)</option>
+              <option value={1}>Rất không hài lòng (1 sao)</option>
+            </select>
+          </div>
+    
+          <div className="mb-3">
+            <label className="font-semibold">Nhận xét:</label>
+            <textarea
+              value={feedbackData.comments}
+              onChange={(e) => setFeedbackData({ ...feedbackData, comments: e.target.value })}
+              className="w-full mt-1 border rounded px-3 py-2"
+              rows={4}
+              placeholder="Viết nhận xét của bạn..."
+            ></textarea>
+          </div>
+    
+          <div className="text-right">
+            <button
+              type="button"
+              className="px-4 py-2 mr-2 rounded bg-gray-500 text-white"
+              onClick={() => setShowFeedbackModal(false)}
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+            >
+              Gửi đánh giá
+            </button>
+          </div>
+        </form>
+      </Modal.Body>
+    </Modal>
       {/* Modal hủy lịch hẹn */}
       <Modal 
         show={showCancelModal} 

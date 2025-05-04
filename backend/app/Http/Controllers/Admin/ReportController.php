@@ -48,7 +48,6 @@ class ReportController extends Controller
 
 public function export(Request $request)
 {
-    
     $request->validate([
         'year' => 'nullable|integer|min:2000|max:' . date('Y'),
         'month' => 'nullable|date_format:Y-m',
@@ -58,29 +57,28 @@ public function export(Request $request)
         'guest_phone' => 'nullable|string|max:255',
     ]);
 
+    // Gán biến lọc
+    $year = $request->year;
+    $month = $request->month;
+    $day = $request->day;
+    $start_date = $request->start_date;
+    $end_date = $request->end_date;
+    $guest_phone = $request->guest_phone;
 
-    $start_date = null;
-    $end_date = null;
+    // Tạo tên file tùy biến
+    $filename = 'danh-sach-kham-benh';
 
-    if ($request->year) {
-        $start_date = "{$request->year}-01-01";
-        $end_date = "{$request->year}-12-31";
-    } elseif ($request->month) {
-        $start_date = date('Y-m-01', strtotime($request->month));
-        $end_date = date('Y-m-t', strtotime($request->month));
-    }  elseif ($request->day) {
-        $start_date = $end_date = $request->day;
-    } elseif ($request->filled('start_date') && $request->filled('end_date')) {
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
-    }
+    if ($year) $filename .= "-nam-$year";
+    if ($month) $filename .= "-thang-" . date('m-Y', strtotime($month));
+    if ($day) $filename .= "-ngay-" . date('d-m-Y', strtotime($day));
+    if ($start_date && $end_date) $filename .= "-tu-" . date('d-m-Y', strtotime($start_date)) . "-den-" . date('d-m-Y', strtotime($end_date));
+    if ($guest_phone) $filename .= "-sdt-" . preg_replace('/\D/', '', $guest_phone); // bỏ ký tự đặc biệt
+
+    $filename .= '.xlsx';
 
     return Excel::download(
-        new BookingExport($start_date, $end_date, $request->guest_phone),
-        'danh-sach-kham-benh.xlsx'
+        new BookingExport($year, $month, $day, $start_date, $end_date, $guest_phone),
+        $filename
     );
 }
-
-
-
 }

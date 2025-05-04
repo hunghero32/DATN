@@ -53,7 +53,19 @@ symptom_mapping = {
 
 # Specialty mapping
 specialty_mapping = {
-    'cơ xương khớp': [
+    'nội tổng quát': [
+        'sốt', 'ho', 'khó thở', 'mệt mỏi', 'chán ăn', 'sụt cân', 
+        'đau bụng', 'đầy hơi', 'tiêu chảy', 'táo bón', 'đau đầu', 
+        'chóng mặt', 'ngất xỉu', 'đau ngực', 'tức ngực', 'huyết áp cao',
+        'huyết áp thấp', 'đái tháo đường', 'rối loạn mỡ máu', 'viêm gan',
+        'gan nhiễm mỡ', 'viêm dạ dày', 'trào ngược dạ dày', 'loét dạ dày',
+        'viêm đại tràng', 'thiếu máu', 'suy tim', 'suy thận', 'viêm phổi',
+        'hen suyễn', 'viêm họng', 'viêm amidan', 'viêm xoang', 'viêm phế quản',
+        'viêm bàng quang', 'nhiễm trùng tiểu', 'nổi mẩn ngứa', 'phù nề',
+        'rối loạn nội tiết', 'sốt siêu vi', 'cảm cúm', 'viêm tụy', 
+        'rối loạn tiêu hóa', 'bệnh tuyến giáp', 'tiểu đêm', 'nấc cụt kéo dài'
+    ],
+    'vật lý trị liệu': [
         'đau lưng', 'đau khớp', 'đau cổ', 'đau vai', 'thoái hóa', 'viêm khớp', 
         'đau xương', 'đau cột sống', 'đau tay', 'đau chân', 'đau khớp gối',
         'gãy xương', 'viêm cột sống', 'loãng xương', 'teo cơ', 'đau thần kinh tọa',
@@ -159,7 +171,7 @@ specialty_mapping = {
         'mộng du', 'ám ảnh cưỡng chế', 'rối loạn lưỡng cực', 'tự làm hại bản thân',
         'mất kiểm soát cảm xúc', 'rối loạn tâm thần sau sinh', 'nghiện game', 'sợ xã hội'
     ],
-    'nha khoa': [
+    'răng hàm mặt': [
         'đau răng', 'sâu răng', 'ê buốt răng', 'chảy máu chân răng', 'hôi miệng',
         'viêm nướu', 'viêm lợi', 'răng lung lay', 'mất răng', 'răng mẻ', 'răng xỉn màu',
         'răng lệch lạc', 'sưng lợi', 'áp xe răng', 'viêm tủy răng', 'đau hàm',
@@ -325,7 +337,7 @@ def chatbot_response(user_input):
             return json.dumps({
                 'status': 'success',
                 'type': 'location',
-                'message': 'Các cơ sở y tế của chúng tôi đều tọa lạc tại : Thanh Xuân, Hà Nội. '
+                'message': 'Các cơ sở y tế của chúng tôi đều tọa lạc tại : 59 P. Trần Phú, Điện Biên, Ba Đình, TP. Hà Nội. '
             })
         
         stop_words = ['tôi', 'bị', 'là', 'có', 'và', 'rất', 'cảm', 'thấy', 'đang', 'quá', 'căng', 'dịch', 'vụ']
