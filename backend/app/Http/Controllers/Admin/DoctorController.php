@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
+use Illuminate\Support\Facades\Password;
 use App\Models\Doctor;
 use App\Models\Specialty;
 use App\Models\Schedule;
@@ -171,7 +171,7 @@ class DoctorController extends Controller
         ]);
 
         // Gửi email thông báo tài khoản đã được tạo
-        $doctor->sendAccountCreationNotification();
+        Password::sendResetLink(['email' => $request->email]);
 
         return redirect()->route('admin.doctors.index')->with('success', 'Bác sĩ đã được tạo thành công!');
     }
