@@ -57,9 +57,10 @@ class AutoUpdateBookings extends Command
     private function groupBookings($bookings)
     {
         return $bookings->groupBy(function ($booking) {
-            return $booking->service_id . '_' . $booking->booking_date . '_' . $booking->booking_time;
+            return $booking->doctor_id . '_' . $booking->booking_date . '_' . $booking->booking_time;
         });
     }
+    
 
     private function processBookingGroup($group)
     {
