@@ -50,32 +50,65 @@ class AutoUpdateBookings extends Command
     {
         return Booking::where('status', 'pending')
             ->where('created_at', '<=', Carbon::now()->subMinutes(1))
+            ->with('service')
             ->orderBy('created_at', 'asc')
             ->get();
     }
 
     private function groupBookings($bookings)
     {
-        return $bookings->groupBy(function ($booking) {
-            return $booking->doctor_id . '_' . $booking->booking_date . '_' . $booking->booking_time;
-        });
-    }
+        $grouped = collect();
+
+        foreach ($bookings as $booking) {
+            // Lấy duration từ bảng services
+            $duration = $booking->service->duration;
+            $startTime = Carbon::parse($booking->booking_time);
+            $endTime = $startTime->copy()->addMinutes($duration);
     
+            // Tạo key để nhóm booking
+            $key = $booking->doctor_id . '_' . $booking->booking_date . '_' . $startTime->format('H:i') . '_' . $endTime->format('H:i');
+    
+            // Thêm booking vào nhóm
+            if (!isset($grouped[$key])) {
+                $grouped[$key] = collect();
+            }
+            $grouped[$key]->push($booking);
+        }
+        return $grouped;
+    }
+
 
     private function processBookingGroup($group)
     {
         $confirmedCount = 0;
         $canceledCount = 0;
-
-        $firstBooking = $group->first();
+    
+        // Sắp xếp booking theo thời gian tạo (created_at) để ưu tiên booking sớm hơn
+        $sortedGroup = $group->sortBy('created_at');
+    
+        $firstBooking = $sortedGroup->first();
         $this->confirmBooking($firstBooking); // Xác nhận booking đầu tiên
         $confirmedCount++;
-
-        foreach ($group->skip(1) as $booking) {
-            $this->cancelBooking($booking); // Hủy booking tiếp theo
-            $canceledCount++;
+    
+        // Kiểm tra các booking còn lại trong nhóm
+        $firstEndTime = Carbon::parse($firstBooking->booking_time)
+            ->addMinutes($firstBooking->service->duration);
+    
+        foreach ($sortedGroup->skip(1) as $booking) {
+            $bookingStartTime = Carbon::parse($booking->booking_time);
+            $bookingEndTime = $bookingStartTime->copy()->addMinutes($booking->service->duration);
+    
+            // Hủy nếu booking chồng lấn với booking đã xác nhận
+            if ($bookingStartTime->lt($firstEndTime)) {
+                $this->cancelBooking($booking);
+                $canceledCount++;
+            } else {
+                // Nếu không chồng lấn, có thể xác nhận booking này
+                $this->confirmBooking($booking);
+                $confirmedCount++;
+                $firstEndTime = $bookingEndTime; // Cập nhật thời gian kết thúc
+            }
         }
-
         return [$confirmedCount, $canceledCount];
     }
 
