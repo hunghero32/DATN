@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { Modal, Form, Button, Spinner, Row, Col } from "react-bootstrap";
-import { FaFileMedical, FaPrescriptionBottle, FaStickyNote, FaFileUpload, FaEdit, FaTimes, FaDownload } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import { Modal, Form, Button, Spinner, Row, Col, Table } from "react-bootstrap";
+import { FaFileMedical, FaPrescriptionBottle, FaStickyNote, FaFileUpload, FaEdit, FaTimes, FaDownload, FaBold, FaItalic, FaUnderline } from 'react-icons/fa';
 
 const ExamResultModal = ({
   showView,
@@ -15,22 +15,97 @@ const ExamResultModal = ({
   setNotes,
   prescription,
   setPrescription,
-  file,
-  setFile,
+  file: initialFile,
+  setFile: setInitialFile,
   handleUpdateExamResult,
   loading,
   error
 }) => {
-  // Reset form khi đóng modal
+  const [prescriptionList, setPrescriptionList] = useState([{ medicine: '', quantity: '', note: '', styles: {} }]);
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+  const [localFile, setLocalFile] = useState(null); // Local state to handle file input
+
   useEffect(() => {
     if (!showEdit) {
-      // Reset form về giá trị ban đầu khi đóng modal edit
       setDiagnosis(diagnosis || "");
       setNotes(notes || "");
       setPrescription(prescription || "");
-      setFile(file || null);
+      setLocalFile(initialFile || null); // Set initial file for view mode
+      try {
+        const parsedPrescription = typeof prescription === 'string' && prescription.trim() ? JSON.parse(prescription) : null;
+        setPrescriptionList(Array.isArray(parsedPrescription) ? parsedPrescription : [{ medicine: '', quantity: '', note: '', styles: {} }]);
+      } catch (e) {
+        setPrescriptionList([{ medicine: '', quantity: '', note: prescription || 'Không cần thuốc', styles: {} }]);
+      }
+    } else {
+      setDiagnosis(diagnosis || "");
+      setNotes(notes || "");
+      setPrescription(prescription || "");
+      setLocalFile(initialFile || null); // Set initial file for edit mode
+      try {
+        const parsedPrescription = typeof prescription === 'string' && prescription.trim() ? JSON.parse(prescription) : null;
+        setPrescriptionList(Array.isArray(parsedPrescription) ? parsedPrescription : [{ medicine: '', quantity: '', note: '', styles: {} }]);
+      } catch (e) {
+        setPrescriptionList([{ medicine: '', quantity: '', note: prescription || 'Không cần thuốc', styles: {} }]);
+      }
     }
-  }, [showEdit, diagnosis, notes, prescription, file, setDiagnosis, setNotes, setPrescription, setFile]);
+  }, [showEdit, diagnosis, notes, prescription, initialFile, setDiagnosis, setNotes, setPrescription, setInitialFile]);
+
+  const handlePrescriptionChange = (index, field, value) => {
+    const updatedPrescription = [...prescriptionList];
+    updatedPrescription[index] = { ...updatedPrescription[index], [field]: value };
+    setPrescriptionList(updatedPrescription);
+    setPrescription(JSON.stringify(updatedPrescription));
+  };
+
+  const addPrescriptionRow = () => {
+    setPrescriptionList(prev => [...prev, { medicine: '', quantity: '', note: '', styles: {} }]);
+  };
+
+  const removePrescriptionRow = (index) => {
+    if (prescriptionList.length > 1) {
+      const updatedPrescription = prescriptionList.filter((_, i) => i !== index);
+      setPrescriptionList(updatedPrescription);
+      setPrescription(JSON.stringify(updatedPrescription));
+    }
+  };
+
+  const handleRowSelect = (index) => {
+    setSelectedRowIndex(index);
+  };
+
+  const applyStyleToRow = (styleKey, styleValue) => {
+    if (selectedRowIndex === null) return;
+
+    const updatedPrescription = [...prescriptionList];
+    const currentStyles = updatedPrescription[selectedRowIndex].styles || {};
+    updatedPrescription[selectedRowIndex].styles = {
+      ...currentStyles,
+      [styleKey]: styleValue
+    };
+    setPrescriptionList(updatedPrescription);
+    setPrescription(JSON.stringify(updatedPrescription));
+  };
+
+  // Handle file input change
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setLocalFile(file); // Store the File object for upload
+    }
+  };
+
+  // Update file when saving
+  const handleSave = async () => {
+    if (localFile instanceof File) {
+      const formData = new FormData();
+      formData.append('file', localFile);
+      // Assuming handleUpdateExamResult accepts formData for file upload
+      await handleUpdateExamResult(formData); // Pass formData to the update function
+    } else {
+      await handleUpdateExamResult(); // Call without formData if no new file
+    }
+  };
 
   return (
     <>
@@ -170,6 +245,35 @@ const ExamResultModal = ({
             align-items: center;
             border-radius: 15px;
           }
+
+          .editor-toolbar {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            padding: 5px;
+            background-color: #f1f5f9;
+            border-radius: 5px;
+            border: 1px solid #e2e8f0;
+          }
+
+          .editor-toolbar button {
+            background: none;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            color: #0f172a;
+            font-size: 1rem;
+          }
+
+          .editor-toolbar button:hover {
+            background-color: #e2e8f0;
+            border-radius: 5px;
+          }
+
+          .editor-toolbar button:disabled {
+            color: #a0aec0;
+            cursor: not-allowed;
+          }
         `}
       </style>
 
@@ -199,7 +303,30 @@ const ExamResultModal = ({
 
               <div className="medical-info-card">
                 <h5><FaPrescriptionBottle /> Đơn Thuốc</h5>
-                <p className="mb-0">{prescription || "Chưa có đơn thuốc"}</p>
+                {prescriptionList.length > 0 && prescriptionList[0].note && !prescriptionList[0].medicine ? (
+                  <p className="mb-0">{prescriptionList[0].note}</p>
+                ) : prescriptionList.length > 0 ? (
+                  <Table bordered>
+                    <thead>
+                      <tr>
+                        <th>Tên Thuốc</th>
+                        <th>Số lượng</th>
+                        <th>Ghi chú</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {prescriptionList.map((item, index) => (
+                        <tr key={index}>
+                          <td style={item.styles}>{item.medicine || "N/A"}</td>
+                          <td style={item.styles}>{item.quantity || "N/A"}</td>
+                          <td style={item.styles}>{item.note || "N/A"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                ) : (
+                  <p className="mb-0">Chưa có đơn thuốc</p>
+                )}
               </div>
 
               <div className="medical-info-card">
@@ -207,19 +334,23 @@ const ExamResultModal = ({
                 <p className="mb-0">{notes || "Chưa có ghi chú"}</p>
               </div>
 
-              {file && typeof file === "string" && (
-                <div className="medical-info-card">
-                  <h5><FaFileUpload /> Tệp Đính Kèm</h5>
+              <div className="medical-info-card">
+                <h5><FaFileUpload /> Tệp Đính Kèm</h5>
+                {localFile && typeof localFile === 'string' ? (
                   <a
-                    href={`http://127.0.0.1:8000/storage/${file}`}
+                    href={`http://127.0.0.1:8000/storage/${localFile}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="file-link"
                   >
                     <FaFileUpload /> Xem tệp đính kèm
                   </a>
-                </div>
-              )}
+                ) : localFile instanceof File ? (
+                  <p>Tệp đã chọn: {localFile.name}</p>
+                ) : (
+                  <p>Chưa có tệp đính kèm</p>
+                )}
+              </div>
             </div>
           )}
         </Modal.Body>
@@ -277,13 +408,89 @@ const ExamResultModal = ({
                   <FaPrescriptionBottle className="me-2" />
                   Đơn Thuốc
                 </Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={prescription || ""}
-                  onChange={(e) => setPrescription(e.target.value)}
-                  placeholder="Nhập đơn thuốc chi tiết..."
-                />
+                <div className="editor-toolbar">
+                  <Button
+                    onClick={() => applyStyleToRow('fontWeight', 'bold')}
+                    disabled={selectedRowIndex === null}
+                    title="Bold"
+                  >
+                    <FaBold />
+                  </Button>
+                  <Button
+                    onClick={() => applyStyleToRow('fontStyle', 'italic')}
+                    disabled={selectedRowIndex === null}
+                    title="Italic"
+                  >
+                    <FaItalic />
+                  </Button>
+                  <Button
+                    onClick={() => applyStyleToRow('textDecoration', 'underline')}
+                    disabled={selectedRowIndex === null}
+                    title="Underline"
+                  >
+                    <FaUnderline />
+                  </Button>
+                </div>
+                <Table bordered style={{ marginBottom: "10px" }}>
+                  <thead>
+                    <tr>
+                      <th>Tên Thuốc</th>
+                      <th>Số lượng</th>
+                      <th>Ghi chú</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {prescriptionList.map((item, index) => (
+                      <tr
+                        key={index}
+                        onClick={() => handleRowSelect(index)}
+                        style={{ backgroundColor: selectedRowIndex === index ? '#e6f7ff' : 'transparent' }}
+                      >
+                        <td>
+                          <Form.Control
+                            type="text"
+                            value={item.medicine}
+                            onChange={(e) => handlePrescriptionChange(index, 'medicine', e.target.value)}
+                            placeholder="Nhập tên thuốc..."
+                            style={{ border: "none", padding: "8px", ...item.styles }}
+                          />
+                        </td>
+                        <td>
+                          <Form.Control
+                            type="text"
+                            value={item.quantity}
+                            onChange={(e) => handlePrescriptionChange(index, 'quantity', e.target.value)}
+                            placeholder="Nhập số lượng..."
+                            style={{ border: "none", padding: "8px", ...item.styles }}
+                          />
+                        </td>
+                        <td>
+                          <Form.Control
+                            type="text"
+                            value={item.note}
+                            onChange={(e) => handlePrescriptionChange(index, 'note', e.target.value)}
+                            placeholder="Nhập ghi chú..."
+                            style={{ border: "none", padding: "8px", ...item.styles }}
+                          />
+                        </td>
+                        <td>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => removePrescriptionRow(index)}
+                            disabled={prescriptionList.length === 1}
+                          >
+                            X
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+                <Button variant="outline-primary" onClick={addPrescriptionRow}>
+                  Thêm Thuốc
+                </Button>
               </Form.Group>
 
               <Form.Group className="mb-4">
@@ -307,14 +514,14 @@ const ExamResultModal = ({
                 </Form.Label>
                 <Form.Control
                   type="file"
-                  onChange={(e) => setFile(e.target.files[0])}
+                  onChange={handleFileChange}
                   className="mb-3"
                 />
-                {file && typeof file === "string" && (
+                {localFile && typeof localFile === 'string' ? (
                   <div className="file-preview">
                     <span className="me-2">Tệp hiện tại:</span>
                     <a
-                      href={`http://127.0.0.1:8000/storage/${file}`}
+                      href={`http://127.0.0.1:8000/storage/${localFile}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="file-link"
@@ -322,6 +529,13 @@ const ExamResultModal = ({
                       <FaFileUpload /> Xem tệp
                     </a>
                   </div>
+                ) : localFile instanceof File ? (
+                  <div className="file-preview">
+                    <span className="me-2">Tệp đã chọn:</span>
+                    <span>{localFile.name}</span>
+                  </div>
+                ) : (
+                  <p>Chưa có tệp đính kèm</p>
                 )}
               </Form.Group>
             </div>
@@ -334,7 +548,7 @@ const ExamResultModal = ({
           </Button>
           <Button
             variant="primary"
-            onClick={handleUpdateExamResult}
+            onClick={handleSave}
             disabled={loading}
           >
             {loading ? (
