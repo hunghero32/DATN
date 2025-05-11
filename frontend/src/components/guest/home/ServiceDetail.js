@@ -5,6 +5,8 @@ import api from "../../../ultils/api/axios";
 import { StarFilled } from '@ant-design/icons';
 
 const ServiceDetail = () => {
+  // Add this new state at the top with other states
+  const [expandedBios, setExpandedBios] = useState({});
   const navigate = useNavigate();
   const { id } = useParams();
   const [service, setService] = useState(null);
@@ -25,6 +27,9 @@ const ServiceDetail = () => {
     return dates[0] || "";
   };
 
+  // Add this new state
+  const [doctorRatings, setDoctorRatings] = useState({});
+
   useEffect(() => {
     const fetchServiceDetail = async () => {
       try {
@@ -33,6 +38,19 @@ const ServiceDetail = () => {
         if (data?.services_name) {
           setService(data);
           setDoctors(data.doctors || []);
+
+          // Fetch doctor ratings after setting doctors
+          const ratingPromises = data.doctors.map(doctor => 
+            api.get(`/api/client/feedbacks/doctor/${doctor.id}`)
+          );
+          const responses = await Promise.all(ratingPromises);
+          const ratings = {};
+          responses.forEach((response, index) => {
+            if (response.data?.average_rating !== undefined) {
+              ratings[data.doctors[index].id] = response.data.average_rating;
+            }
+          });
+          setDoctorRatings(ratings);
 
           const defaultDates = {};
           (data.doctors || []).forEach((doctor) => {
@@ -184,7 +202,7 @@ const ServiceDetail = () => {
 
         return (
           <div key={doctor.id} className="flex flex-col lg:flex-row gap-4 sm:gap-6 bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
-            <div className="w-full lg:w-1/2 flex flex-col sm:flex-row items-center gap-4">
+            <div className="w-full lg:w-1/2 flex flex-col sm:flex-row items-start gap-4">
               <div className="flex items-center gap-4">
                 <img
                   src={doctor.doctor_avatar ?
@@ -197,16 +215,32 @@ const ServiceDetail = () => {
                   className="w-24 h-24 rounded-full object-cover flex-shrink-0"
                 />
               </div>
-              <div className="text-center sm:text-left">
+              <div className="text-left w-full">
                 <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#45c3d2' }}>
                   {doctor.doctor_name}
                 </h2>
-                <div
-                  className="text-sm sm:text-base text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: doctor.doctor_bio }}
-                />
+                <div className="text-sm sm:text-base text-gray-700">
+                  <div dangerouslySetInnerHTML={{ 
+                    __html: expandedBios[doctor.id] 
+                      ? doctor.doctor_bio 
+                      : doctor.doctor_bio?.substring(0, 150) + '...' 
+                  }} />
+                  {doctor.doctor_bio?.length > 150 && (
+                    <button
+                      onClick={() => setExpandedBios(prev => ({
+                        ...prev,
+                        [doctor.id]: !prev[doctor.id]
+                      }))}
+                      className="text-blue-500 hover:text-blue-700 font-medium"
+                    >
+                      {expandedBios[doctor.id] ? 'Ẩn bớt' : 'Xem thêm'}
+                    </button>
+                  )}
+                </div>
+                {/* Update the service rating display */}
                 {averageRating !== null && (
                   <div className="flex items-center gap-2 mt-2">
+                    <span className="text-sm text-gray-600">Đánh giá dịch vụ:</span>
                     <div className="flex">
                       {[...Array(5)].map((_, index) => (
                         <StarFilled
@@ -224,11 +258,32 @@ const ServiceDetail = () => {
                     </span>
                   </div>
                 )}
+                {/* Update the doctor rating display */}
+                {doctorRatings[doctor.id] !== undefined && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-sm text-gray-600">Đánh giá bác sĩ:</span>
+                    <div className="flex">
+                      {[...Array(5)].map((_, index) => (
+                        <StarFilled
+                          key={index}
+                          style={{
+                            color: index < doctorRatings[doctor.id] ? '#fadb14' : '#e8e8e8',
+                            fontSize: '16px',
+                            marginRight: '2px'
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-gray-600">
+                      ({doctorRatings[doctor.id].toFixed(1)})
+                    </span>
+                  </div>
+                )}
                 <Link
                   to={`/chitietbacsi/${doctor.id}`}
-                  className="mt-2 sm:mt-4 inline-block !text-blue-500 hover:underline"
+                  className="mt-4 inline-block px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200"
                 >
-                  Xem thêm
+                  Xem chi tiết thông tin bác sĩ
                 </Link>
               </div>
             </div>
