@@ -35,6 +35,7 @@ const DatLich = () => {
   const [formData, setFormData] = useState(null);  // Store form data to pass to the modal
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showFullBio, setShowFullBio] = useState(false); // Add this line
 
   // Fetch system info
   useEffect(() => {
@@ -97,7 +98,6 @@ const DatLich = () => {
     setLoading(true);
 
     try {
-
       const requestData = {
         guest_name: values.guest_name.trim(),
         guest_phone: values.guest_phone.replace(/\s+/g, ""),
@@ -115,44 +115,23 @@ const DatLich = () => {
       };
 
       const response = await api.post("/api/client/confirm-booking", requestData);
-      console.log('Booking response:', response.data); // Log để debug
 
       if (response.data.status === true) {
-        // Gửi thông báo ngay sau khi đặt lịch thành công
-        // const notificationData = {
-        //   type: 'new_appointment',
-        //   title: 'Lịch hẹn mới',
-        //   message: `Bạn có lịch hẹn mới từ ${values.guest_name}`,
-        //   data: {
-        //     bookingId: response.data.data.booking.id, // Lấy ID từ response
-        //     guestName: values.guest_name,
-        //     guestPhone: values.guest_phone,
-        //     bookingDate: bookingData.date,
-        //     bookingTime: bookingData.time,
-        //     serviceName: bookingData.service_name
-        //   },
-        //   timestamp: Date.now(),
-        //   read: false
-        // };
-        
-        // console.log('Sending notification:', notificationData); // Log để debug
-        
-        // try {
-        //   await NotificationService.sendNotification(
-        //     bookingData.doctor_id,
-        //     notificationData
-        //   );
-        //   console.log('Notification sent successfully');
-        // } catch (notificationError) {
-        //   console.error('Notification error:', notificationError);
-        // }
-        
+        toast.success("Đặt lịch thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.", {
+          position: "top-right",
+          autoClose: 3000
+        });
         localStorage.removeItem("bookingData");
         navigate("/thongbao");
+      } else {
+        toast.error(response.data.message || "Có lỗi xảy ra khi đặt lịch!");
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error(error.response?.data?.message || "Không thể đặt lịch, thử lại sau!");
+      toast.error(error.response?.data?.message || "Không thể đặt lịch, thử lại sau!", {
+        position: "top-right",
+        autoClose: 3000
+      });
     } finally {
       setLoading(false);
       handleCloseModal();
@@ -188,6 +167,19 @@ const DatLich = () => {
 
   return (
     <div className="appointment-container p-6 max-w-4xl mx-auto bg-white shadow-md rounded-lg mt-2">
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      
       <Card className="p-4">
         <Title level={3} className="text-blue-600 font-bold mb-2">📅 Đặt lịch khám</Title>
 
@@ -221,7 +213,21 @@ const DatLich = () => {
                 </Title>
                 {bookingData?.doctor_bio && (
                   <Text className="block text-gray-600 mb-2">
-                    <div dangerouslySetInnerHTML={{ __html: bookingData.doctor_bio }} />
+                    <div 
+                      dangerouslySetInnerHTML={{ 
+                        __html: showFullBio 
+                          ? bookingData.doctor_bio 
+                          : bookingData.doctor_bio.substring(0, 150) + '...' 
+                      }} 
+                    />
+                    {bookingData.doctor_bio.length > 150 && (
+                      <button
+                        onClick={() => setShowFullBio(!showFullBio)}
+                        className="text-blue-500 hover:text-blue-700 font-medium mt-1"
+                      >
+                        {showFullBio ? 'Ẩn bớt' : 'Xem thêm'}
+                      </button>
+                    )}
                   </Text>
                 )}
                 {bookingData?.doctor_exp && (
