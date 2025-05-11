@@ -100,6 +100,143 @@ export default function Header() {
     console.log("Chuyên khoa được chọn:", id);
     navigate(`/detail-specialty/${id}`);
   };
+
+  // Add handleDoctorClick inside the component
+  const handleDoctorClick = (doctor) => {
+    if (!doctor || !doctor.id) return;
+    navigate(`/detail-doctor/${doctor.id}`);
+    setSearchText('');
+    setResults(null);
+  };
+
+  {/* Inside the search results modal content, after specialties section */}
+  <div className="space-y-6">
+    {results?.services?.length > 0 && (
+      <div>
+        <h6 className="text-lg font-semibold mb-4 text-blue-600 flex items-center">
+          <i className="ri-briefcase-4-line mr-2"></i>Dịch vụ
+        </h6>
+        <div className="grid grid-cols-2 gap-4">
+          {results.services.map(item => (
+            <div
+              key={item.id}
+              onClick={() => {
+                handleServiceClick(item);
+                setSearchText('');
+                setResults(null);
+              }}
+              className="group hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="bg-blue-50 rounded-lg p-4 hover:bg-blue-100 cursor-pointer border border-transparent hover:border-blue-200">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white p-3 rounded-full shadow-sm group-hover:shadow group-hover:scale-105 transition-all">
+                    {item.avatar ? (
+                      <img 
+                        src={`http://localhost:8000/storage/${item.avatar}`} 
+                        alt={item.name}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <i className="ri-user-star-line text-lg text-purple-600"></i>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 group-hover:text-purple-700">
+                      {item.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {item.specialty?.name || 'Chuyên khoa'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+    
+    {results?.specialties?.length > 0 && (
+      <div>
+        <h6 className="text-success fw-bold mb-3">
+          <i className="ri-microscope-line me-2"></i>Chuyên khoa
+        </h6>
+        <div className="grid grid-cols-2 gap-4">
+          {results.specialties.map(item => (
+            <div
+              key={item.id}
+              onClick={() => {
+                handleSpecialtyClick(item.id);
+                setSearchText('');
+                setResults(null);
+              }}
+              className="group hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="bg-green-50 rounded-lg p-4 hover:bg-green-100 cursor-pointer border border-transparent hover:border-green-200">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white p-3 rounded-full shadow-sm group-hover:shadow group-hover:scale-105 transition-all">
+                    <i className="ri-hospital-line text-lg text-green-600"></i>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 group-hover:text-green-700">
+                      {item.name}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+    
+    {/* Add doctors section here */}
+    {results?.doctors?.length > 0 && (
+      <div>
+        <h6 className="text-lg font-semibold mb-4 text-purple-600 flex items-center">
+          <i className="ri-user-star-line mr-2"></i>Bác sĩ
+        </h6>
+        <div className="grid grid-cols-2 gap-4">
+          {results.doctors.map(doctor => (
+            <div
+              key={doctor.id}
+              onClick={() => {
+                handleDoctorClick(doctor);
+                setSearchText('');
+                setResults(null);
+              }}
+              className="group hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="bg-purple-50 rounded-lg p-4 hover:bg-purple-100 cursor-pointer border border-transparent hover:border-purple-200">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white p-3 rounded-full shadow-sm group-hover:shadow group-hover:scale-105 transition-all">
+                    {doctor.doctor_image ? (
+                      <img 
+                        src={`http://localhost:8000/storage/${doctor.doctor_image}`} 
+                        alt={doctor.doctor_name}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <i className="ri-user-star-line text-lg text-purple-600"></i>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 group-hover:text-purple-700">
+                      {doctor.doctor_name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {doctor.specialty_name || 'Chuyên khoa'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+
   // --- Setup Firebase Listener cho Client Notifications ---
   useEffect(() => {
     let listener = null;
@@ -404,7 +541,7 @@ export default function Header() {
                     <input
                       type="search"
                       className="pl-10 min-w-[300px] w-[650px] max-w-[800px] px-4 py-3 bg-transparent border-0 focus:ring-0 text-base outline-none"
-                      placeholder="Tìm kiếm dịch vụ ..."
+                      placeholder="Tìm kiếm dịch vụ, bác sĩ, chuyên khoa ..."
                       value={searchText}
                       onChange={(e) => setSearchText(e.target.value)}
                     />
