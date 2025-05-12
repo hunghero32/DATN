@@ -11,7 +11,7 @@ import MedicalRecordModal from "./MedicalRecordModal";
 import ExamResultModal from "./ExamResultModal";
 import { Form } from "react-bootstrap";
 import { FaSearch } from "react-icons/fa";
-import NotificationService from '../../../../services/NotificationService';
+import NotificationService from "../../../../services/NotificationService";
 
 const getAuthToken = () => localStorage.getItem("authToken");
 
@@ -38,7 +38,7 @@ const Appointment = () => {
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
   const [prescription, setPrescription] = useState("");
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState(null); // File state and setter
   const [medicalForm, setMedicalForm] = useState({
     BHYT: "",
     medical_condition: "",
@@ -61,8 +61,8 @@ const Appointment = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const searchParam = params.get('search') || '';
-    const bookingIdParam = params.get('bookingId');
+    const searchParam = params.get("search") || "";
+    const bookingIdParam = params.get("bookingId");
     const newHighlightId = bookingIdParam ? parseInt(bookingIdParam, 10) : null;
 
     if (searchParam !== searchQuery) {
@@ -78,7 +78,7 @@ const Appointment = () => {
 
   useEffect(() => {
     if (highlightedBookingId !== null && appointments.length > 0) {
-      const appointmentToHighlight = appointments.find(app => app.id === highlightedBookingId);
+      const appointmentToHighlight = appointments.find((app) => app.id === highlightedBookingId);
       if (appointmentToHighlight && appointmentToHighlight.status !== statusFilter) {
         console.log(`[Effect 3] Switching tab based on notification highlight to: ${appointmentToHighlight.status}`);
         setStatusFilter(appointmentToHighlight.status);
@@ -91,12 +91,16 @@ const Appointment = () => {
     if (appointments.length > 0) {
       if (searchQuery) {
         const lowerSearchQuery = searchQuery.toLowerCase();
-        const matchingAppointments = appointments.filter(app =>
+        const matchingAppointments = appointments.filter((app) =>
           app.guest?.guest_name?.toLowerCase().includes(lowerSearchQuery)
         );
-        const matchingIds = new Set(matchingAppointments.map(app => app.id));
+        const matchingIds = new Set(matchingAppointments.map((app) => app.id));
 
-        if (!searchMatchIds || ![...matchingIds].every(id => searchMatchIds.has(id)) || matchingIds.size !== searchMatchIds.size) {
+        if (
+          !searchMatchIds ||
+          ![...matchingIds].every((id) => searchMatchIds.has(id)) ||
+          matchingIds.size !== searchMatchIds.size
+        ) {
           console.log("[Effect 4] Updating searchMatchIds:", matchingIds);
           setSearchMatchIds(matchingIds);
 
@@ -141,9 +145,9 @@ const Appointment = () => {
       const appointmentsData = Array.isArray(response.data) ? response.data : response.data.data || [];
       setAppointments(appointmentsData);
     } catch (error) {
-       console.error("Error fetching appointments:", error);
-       const errorMessage = error.response?.data?.message || "Lỗi khi tải dữ liệu cuộc hẹn.";
-       setError(errorMessage);
+      console.error("Error fetching appointments:", error);
+      const errorMessage = error.response?.data?.message || "Lỗi khi tải dữ liệu cuộc hẹn.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -189,10 +193,10 @@ const Appointment = () => {
       });
 
       await NotificationService.sendNotification(doctorInfo.id, {
-        type: 'booking_accepted',
-        title: 'Lịch hẹn được chấp nhận',
+        type: "booking_accepted",
+        title: "Lịch hẹn được chấp nhận",
         message: `Lịch hẹn với bệnh nhân ${selectedAppointment.guest?.guest_name} đã được chấp nhận`,
-        bookingId: selectedAppointment.id
+        bookingId: selectedAppointment.id,
       });
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi cập nhật trạng thái.";
@@ -490,7 +494,7 @@ const Appointment = () => {
       });
 
       setShowMedicalRecordFormModal(false);
-      
+
       handleShowMedicalRecord(selectedAppointment);
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi lưu hồ sơ bệnh án.";
@@ -503,7 +507,7 @@ const Appointment = () => {
 
   const handleShowExamResult = async (appointment) => {
     if (!appointment) return;
-    
+
     setSelectedAppointment(appointment);
     setShowResultViewModal(true);
     setLoading(true);
@@ -522,8 +526,8 @@ const Appointment = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Accept': 'application/json',
-            "Cache-Control": "no-cache"
+            Accept: "application/json",
+            "Cache-Control": "no-cache",
           },
         }
       );
@@ -550,8 +554,8 @@ const Appointment = () => {
     }
   };
 
-  const handleUpdateExamResult = async () => {
-    if (!selectedAppointment) {
+  const handleUpdateExamResult = async (formData) => {
+    if (!selectedAppointment || !selectedAppointment.id) {
       toast.error("Không tìm thấy thông tin cuộc hẹn.");
       return;
     }
@@ -567,76 +571,61 @@ const Appointment = () => {
     setError(null);
 
     try {
-      const data = {
-        diagnosis: diagnosis.trim(),
-        prescription: prescription.trim(),
-        note: notes.trim(),
-        booking_id: selectedAppointment.id
-      };
-
-      console.log("Sending data:", data);
+      console.log("Sending data:", Object.fromEntries(formData));
 
       const updateResponse = await axios({
-        method: 'put',
+        method: "post", // Use POST with _method: PUT
         url: `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
-        data: data,
+        data: formData,
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json",
+        },
       });
 
       console.log("Update response:", updateResponse.data);
 
-      setShowEditResultModal(false);
+      if (updateResponse.status === 200 && updateResponse.data) {
+        const newData = updateResponse.data.data || updateResponse.data; // Adjust based on response structure
+        setDiagnosis(newData.diagnosis || "");
+        setNotes(newData.note || "");
+        setPrescription(newData.prescription || "");
+        setFile(newData.file || null); // Use setFile instead of setInitialFile
 
-      if (updateResponse.data && updateResponse.data.data) {
-        const newData = updateResponse.data.data;
-        setDiagnosis(newData.diagnosis || '');
-        setNotes(newData.note || '');
-        setPrescription(newData.prescription || '');
-        setFile(newData.file || null);
-        
         toast.success("Cập nhật kết quả khám thành công!", {
           position: "top-right",
           autoClose: 3000,
         });
-
-        setTimeout(() => {
-          setShowResultViewModal(true);
-        }, 100);
       } else {
         const getResponse = await axios.get(
           `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              'Accept': 'application/json'
-            }
+              Accept: "application/json",
+            },
           }
         );
 
         if (getResponse.data) {
           console.log("Fetched updated data:", getResponse.data);
-          setDiagnosis(getResponse.data.diagnosis || '');
-          setNotes(getResponse.data.note || '');
-          setPrescription(getResponse.data.prescription || '');
-          setFile(getResponse.data.file || null);
-          
+          const newData = getResponse.data;
+          setDiagnosis(newData.diagnosis || "");
+          setNotes(newData.note || "");
+          setPrescription(newData.prescription || "");
+          setFile(newData.file || null); // Use setFile instead of setInitialFile
+
           toast.success("Cập nhật kết quả khám thành công!", {
             position: "top-right",
             autoClose: 3000,
           });
-
-          setTimeout(() => {
-            setShowResultViewModal(true);
-          }, 100);
         }
       }
     } catch (error) {
       console.error("Error updating exam result:", error.response || error);
-      const errorMessage = error.response?.data?.message || "Lỗi khi cập nhật kết quả khám.";
+      const errorMessage =
+        error.response?.data?.message || error.message || "Lỗi khi cập nhật kết quả khám.";
       setError(errorMessage);
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
     } finally {
@@ -646,21 +635,30 @@ const Appointment = () => {
 
   const filterAppointmentsByDate = (app) => {
     if (!date) return true;
-    
+
     const appointmentDate = new Date(app.booking_date);
     appointmentDate.setHours(0, 0, 0, 0);
-    
+
     const filterDate = new Date(date);
     filterDate.setHours(0, 0, 0, 0);
-    
+
     return appointmentDate.getTime() === filterDate.getTime();
   };
 
   const getFilteredAppointments = () => {
-    console.log("[Filter] Starting. Full list count:", appointments.length, "Current Tab:", statusFilter, "Search:", searchQuery, "Date:", date);
+    console.log(
+      "[Filter] Starting. Full list count:",
+      appointments.length,
+      "Current Tab:",
+      statusFilter,
+      "Search:",
+      searchQuery,
+      "Date:",
+      date
+    );
     let filtered = [...appointments];
 
-    filtered = filtered.filter(app => app.status === statusFilter);
+    filtered = filtered.filter((app) => app.status === statusFilter);
     console.log(`[Filter] Count after status filter ('${statusFilter}'): ${filtered.length}`);
 
     if (date) {
@@ -669,7 +667,10 @@ const Appointment = () => {
       console.log(`[Filter] Count after date filter: ${filtered.length}`);
     }
 
-    console.log("[Filter] Final appointmentsToDisplay (only filtered by status & date):", filtered.map(a => ({id: a.id, name: a.guest?.guest_name})) );
+    console.log(
+      "[Filter] Final appointmentsToDisplay (only filtered by status & date):",
+      filtered.map((a) => ({ id: a.id, name: a.guest?.guest_name }))
+    );
     return filtered;
   };
 
@@ -737,7 +738,7 @@ const Appointment = () => {
           }
 
           .custom-input-group .form-control {
-            width: 100% !important;
+            width: 100 !important;
             padding-left: 40px !important;
             height: 45px !important;
             border: 1px solid #e0e4e8 !important;

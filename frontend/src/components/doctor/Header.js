@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../guest/auth/AuthContext";
 import axios from "axios";
-import { Badge, notification, List, Avatar, Spin, Empty, Button, Popconfirm } from 'antd';
+import { Badge, notification, List, Avatar, Spin, Empty, Button } from 'antd';
 import { BellOutlined, CheckCircleOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ref, onValue, update, off, remove } from 'firebase/database';
 import { database } from '../../config/firebase';
@@ -21,6 +21,17 @@ const Header = () => {
   const notificationIconRef = useRef(null);
   const popoverRef = useRef(null);
   const [headerSearchTerm, setHeaderSearchTerm] = useState("");
+
+  // Utility to escape HTML characters
+  const escapeHtml = (unsafe) => {
+    if (typeof unsafe !== 'string') return unsafe || '';
+    return unsafe
+      .replace(/&/g, "&")
+      .replace(/</g, "<")
+      .replace(/>/g, ">")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "'");
+  };
 
   // --- Fetch Doctor Info ---
   useEffect(() => {
@@ -85,35 +96,6 @@ const Header = () => {
             setUnreadCount(newUnreadCount);
             console.log('Updated notifications state:', notificationsArray);
             console.log('Updated unread count:', newUnreadCount);
-
-            // --- Hiển thị popup cho thông báo MỚI NHẤT và CHƯA ĐỌC ---
-            const latestNotification = notificationsArray[0];
-
-            /* // <<<<< BẮT ĐẦU CHÚ THÍCH KHỐI notification.info >>>>>
-            if (latestNotification && !latestNotification.read) {
-               const timeSinceNotification = Date.now() - latestNotification.timestamp;
-               if (timeSinceNotification < 60000 * 1) {
-
-                 notification.info({
-                    key: `new-${latestNotification.id}`,
-                    message: `🗓️ ${latestNotification.title || 'Thông báo mới'}`,
-                    description: latestNotification.message || 'Bạn có một thông báo mới.',
-                    placement: 'top',
-                    duration: 10,
-                    onClick: () => {
-                      setPopoverVisible(true);
-                      handleNotificationClick(latestNotification);
-                    },
-                    style: {
-                       border: '1px solid #91d5ff',
-                       backgroundColor: '#e6f7ff',
-                    },
-                  });
-                 console.log('🔔 Displaying toast notification for:', latestNotification.id);
-               }
-            }
-            */ // <<<<< KẾT THÚC CHÚ THÍCH KHỐI notification.info >>>>>
-
           } else {
             setNotifications([]);
             setUnreadCount(0);
@@ -153,16 +135,13 @@ const Header = () => {
     
     console.log('🔔 Notification clicked:', notif.id);
     
-    // Đóng popover ngay lập tức
     setPopoverVisible(false);
     console.log('🔔 Popover closed immediately on click');
     
-    // Xử lý đánh dấu đã đọc và điều hướng
     const processNotification = async () => {
       if (!notif.read && doctorInfo?.doctor_id) {
         try {
           const updates = {};
-          // Đánh dấu đã đọc trên Firebase
           updates[`notifications/${doctorInfo.doctor_id}/${notif.id}/read`] = true;
           await update(ref(database), updates);
           console.log('Marked as read:', notif.id);
@@ -171,25 +150,20 @@ const Header = () => {
         }
       }
       
-      // Điều hướng nếu có bookingId
       if (notif.bookingId) {
         console.log(`Navigating to appointment with bookingId: ${notif.bookingId}`);
-        // Sử dụng replace: true để không thêm vào lịch sử trình duyệt nếu người dùng chỉ click thông báo liên tục
         navigate(`/doctor/appointment?bookingId=${notif.bookingId}`, { replace: true });
       } else {
         console.log('Notification does not have bookingId, not navigating.');
-        // Có thể điều hướng đến trang chung nếu cần
-        // navigate('/doctor/appointment');
       }
     };
 
-    // Thêm một delay nhỏ trước khi xử lý để popover kịp đóng hoàn toàn
     setTimeout(processNotification, 100);
   }, [doctorInfo?.doctor_id, navigate]);
 
   // --- Xử lý xóa thông báo ---
   const handleDeleteNotification = useCallback(async (notificationId, e) => {
-    if (e) e.stopPropagation(); // Ngăn chặn sự kiện click lan ra list item
+    if (e) e.stopPropagation();
     console.log('🗑️ [Doctor] Attempting to delete notification:', notificationId);
     if (!doctorInfo?.doctor_id) {
         console.error("🗑️ [Doctor] Doctor ID is missing, cannot delete notification.");
@@ -200,7 +174,6 @@ const Header = () => {
         console.log("🗑️ [Doctor] Notification ref path:", notificationRef.toString());
         await remove(notificationRef);
         console.log('🗑️ [Doctor] Notification deleted successfully:', notificationId);
-        // Không cần làm gì thêm sau khi xóa thành công
     } catch (error) {
         console.error('🗑️ [Doctor] Error deleting notification:', error);
         notification.error({
@@ -222,19 +195,15 @@ const Header = () => {
     if (popoverVisible) {
       setPopoverVisible(false);
     } else {
-      // Tính toán vị trí khi mở
       if (notificationIconRef.current) {
         const rect = notificationIconRef.current.getBoundingClientRect();
         const popoverWidth = 380;
         const horizontalGap = 15;
-        const verticalGap = 15; // Khoảng cách dọc
+        const verticalGap = 15;
 
-        // !!!!! QUAY LẠI TÍNH TOÁN LEFT ĐỂ ĐẶT BÊN TRÁI !!!!!
         let left = rect.left - popoverWidth - horizontalGap;
-        // !!!!! TÍNH TOÁN TOP DỰA VÀO BOTTOM CỦA ICON !!!!!
         let top = rect.bottom + verticalGap + window.scrollY;
 
-        // Kiểm tra tràn lề trái
         if (left < 10) {
           left = 10;
         }
@@ -242,7 +211,7 @@ const Header = () => {
         setPopoverStyle({
           position: 'absolute',
           top: `${top}px`,
-          left: `${left}px`, // Sử dụng left đã tính để đặt bên trái
+          left: `${left}px`,
           width: `${popoverWidth}px`,
           zIndex: 1050,
         });
@@ -271,7 +240,7 @@ const Header = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [popoverVisible]); // Chỉ chạy khi popoverVisible thay đổi
+  }, [popoverVisible]);
 
   // --- JSX cho nội dung bên trong popover ---
   const notificationContentJSX = (
@@ -284,40 +253,43 @@ const Header = () => {
       <div className="custom-popover-header" style={{ padding: '10px 16px' }}>
         <span style={{ fontWeight: 600 }}>Thông báo ({unreadCount} chưa đọc)</span>
         <Button
-            type="text" icon={<CloseOutlined />} size="small"
-            onClick={closePopover}
-            style={{ color: '#888', border: 'none', background: 'none', padding: '0 4px' }}
-            aria-label="Đóng thông báo"
-         />
+          type="text"
+          icon={<CloseOutlined />}
+          size="small"
+          onClick={closePopover}
+          style={{ color: '#888', border: 'none', background: 'none', padding: '0 4px' }}
+          aria-label="Đóng thông báo"
+        />
       </div>
 
       {/* Body - List */}
       {loadingNotifications ? (
-         <div className="custom-popover-body loading"><Spin tip="Đang tải..." /></div>
+        <div className="custom-popover-body loading"><Spin tip="Đang tải..." /></div>
       ) : notifications.length === 0 ? (
-         <div className="custom-popover-body empty"><Empty description="Không có thông báo" image={Empty.PRESENTED_IMAGE_SIMPLE} /></div>
+        <div className="custom-popover-body empty"><Empty description="Không có thông báo" image={Empty.PRESENTED_IMAGE_SIMPLE} /></div>
       ) : (
         <div className="custom-popover-body">
           <List
             itemLayout="horizontal"
             dataSource={notifications}
-            renderItem={item => (
-              <List.Item
-                className={`notification-list-item ${!item.read ? 'unread' : ''}`}
-                style={{ padding: 0, borderBottom: '1px solid #f0f0f0', backgroundColor: item.read ? '#fff' : '#e6f7ff' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNotificationClick(item, e);
-                }}
-              >
-                <div className="notification-item-content" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', width: '100%', position: 'relative' }}>
+            renderItem={(item, index) => (
+              <div key={item.id}>
+                <List.Item
+                  className={`notification-list-item ${!item.read ? 'unread' : ''}`}
+                  style={{ padding: 0, backgroundColor: item.read ? '#fff' : '#e6f7ff' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNotificationClick(item, e);
+                  }}
+                >
+                  <div className="notification-item-content" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', width: '100%', position: 'relative' }}>
                     <List.Item.Meta
                       avatar={
                         <Avatar
                           icon={item.read ? <CheckCircleOutlined style={{ color: '#8c8c8c' }}/> : <BellOutlined style={{ color: '#fff' }}/>}
                           style={{
-                              backgroundColor: item.read ? '#f0f0f0' : '#1890ff',
-                              boxShadow: !item.read ? '0 0 5px rgba(24, 144, 255, 0.5)' : 'none'
+                            backgroundColor: item.read ? '#f0f0f0' : '#1890ff',
+                            boxShadow: !item.read ? '0 0 5px rgba(24, 144, 255, 0.5)' : 'none'
                           }}
                         />
                       }
@@ -327,12 +299,12 @@ const Header = () => {
                           color: '#333',
                           fontSize: '14px'
                         }}>
-                          {item.title || 'Thông báo'}
+                          {escapeHtml(item.title) || 'Thông báo'}
                         </span>
                       }
                       description={
                         <span style={{ color: '#555', fontSize: '13px' }}>
-                          {item.message || ''}
+                          {escapeHtml(item.message) || ''}
                         </span>
                       }
                       style={{ flexGrow: 1, margin: 0, marginRight: '10px', overflow: 'hidden' }}
@@ -340,18 +312,19 @@ const Header = () => {
                     <div className="notification-timestamp" style={{ fontSize: '11px', color: '#8c8c8c', textAlign: 'right', flexShrink: 0, whiteSpace: 'nowrap', marginRight: '8px' }}>
                       {item.timestamp ? formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi }) : ''}
                     </div>
-                    {/* Nút Xóa Thông Báo - Xóa trực tiếp */}
                     <Button
                       icon={<DeleteOutlined />}
                       type="text"
                       size="small"
                       danger
-                      onClick={(e) => handleDeleteNotification(item.id, e)} // Gọi thẳng hàm xóa
+                      onClick={(e) => handleDeleteNotification(item.id, e)}
                       style={{ color: '#ff4d4f', border: 'none', background: 'none', padding: '0 4px', flexShrink: 0 }}
                       aria-label="Xóa thông báo"
                     />
-                </div>
-              </List.Item>
+                  </div>
+                </List.Item>
+                {index < notifications.length - 1 && <hr style={{ margin: '0', border: 'none', borderTop: '1px solid #f0f0f0' }} />}
+              </div>
             )}
             style={{ maxHeight: 400, overflowY: 'auto', margin: 0 }}
           />
@@ -388,11 +361,9 @@ const Header = () => {
     navigate("/doctor/schedule");
   };
 
-  // --- Xử lý tìm kiếm từ Header ---
   const handleHeaderSearch = (e) => {
     if (e.key === 'Enter') {
       const term = headerSearchTerm.trim();
-      // Chuyển hướng đến trang lịch hẹn với query param
       navigate(`/doctor/appointment?search=${encodeURIComponent(term)}`);
     }
   };
@@ -401,13 +372,10 @@ const Header = () => {
     <div className="doctor-header-wrapper">
       <style>
         {`
-          /* --- Header Container --- */
           .doctor-header-container {
             display: flex; align-items: center; justify-content: space-between;
             width: 100%; height: 100%; padding: 0 24px; box-sizing: border-box;
           }
-
-          /* --- Search --- */
           .doctor-search-container {
             flex-shrink: 1; max-width: 450px;
           }
@@ -415,48 +383,41 @@ const Header = () => {
           .doctor-search-input input.form-control { height: 40px; padding-left: 40px; width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; background-color: #f9fafb; }
           .doctor-search-input .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 16px; }
           .doctor-search-input input.form-control:focus { border-color: #3b82f6; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); outline: none; }
-
-          /* --- User Section --- */
           .doctor-user-section {
             display: flex; align-items: center; gap: 24px;
           }
-
-          /* --- Notification Icon --- */
           .doctor-notification-trigger {
             position: relative;
           }
           .doctor-notification-icon {
-             cursor: pointer; display: flex; align-items: center;
-             padding: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-             transition: background-color 0.2s ease;
+            background-color: #f0f0f0;
+            transition: background-color 0.2s ease;
           }
           .doctor-notification-icon:hover {
-             background-color: #f0f0f0;
+            background-color: #e0e0e0;
           }
           .doctor-notification-icon .ant-badge .ant-badge-count { background-color: #ff4d4f !important; box-shadow: 0 0 0 1px #ff4d4f inset !important; color: white !important; }
           .doctor-notification-icon .anticon-bell { font-size: 22px; color: #4b5563; }
-
-          /* --- Greeting --- */
           .doctor-greeting { text-align: right; line-height: 1.4; }
           .doctor-greeting-text { color: #6b7280; font-size: 13px; margin: 0; }
           .doctor-greeting-name { color: #1f2937; font-size: 15px; font-weight: 600; margin: 0; }
-
-          /* --- Avatar --- */
           .doctor-avatar-dropdown .dropdown-toggle::after { display: none; }
           .doctor-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s ease; }
           .doctor-avatar:hover { border-color: #d1d5db; }
-          /* ... style dropdown menu/item nếu cần ... */
-
-          /* === Styling cho Popover TÙY CHỈNH === */
           .custom-notification-popover {
             background-color: #fff;
-            border-radius: 8px;
+            border-radius: 16px;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
             border: 1px solid #f0f0f0;
-            overflow: hidden; /* Để border-radius hoạt động */
-            /* Style vị trí được đặt bằng inline style 'popoverStyle' */
-            z-index: 1100; /* << Tăng z-index lên cao hơn */
+            overflow: hidden;
+            z-index: 1100;
           }
           .custom-popover-header {
             display: flex;
@@ -471,43 +432,41 @@ const Header = () => {
             overflow-y: auto;
           }
           .custom-popover-body .ant-list-item {
-             padding: 0 !important; /* Ghi đè padding của Ant List Item */
+            padding: 0 !important;
             cursor: pointer;
-             transition: background-color 0.2s ease;
+            transition: background-color 0.2s ease;
           }
-           .custom-popover-body .ant-list-item:hover {
-             background-color: #f0f5ff !important;
+          .custom-popover-body .ant-list-item:hover {
+            background-color: #f0f5ff !important;
           }
-          .custom-popover-body .notification-item-content { /* Class bọc nội dung item */
-             padding: 12px 16px;
+          .custom-popover-body .notification-item-content {
+            padding: 12px 16px;
             display: flex;
             align-items: center;
-             width: 100%;
-             position: relative; /* Để định vị nút xóa nếu cần */
+            width: 100%;
+            position: relative;
           }
-           /* ... các style khác cho list item, timestamp ... */
-           .notification-timestamp {
-             font-size: 11px;
-             color: #8c8c8c;
-             margin-left: 12px;
-             flex-shrink: 0;
-             white-space: nowrap;
+          .notification-timestamp {
+            font-size: 11px;
+            color: #8c8c8c;
+            margin-left: 12px;
+            flex-shrink: 0;
+            white-space: nowrap;
           }
-          /* Style cho nút xóa */
           .ant-list-item .ant-btn-text[aria-label="Xóa thông báo"] {
-              opacity: 0.6; /* Mặc định hơi mờ */
-              transition: opacity 0.2s ease;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
           }
           .ant-list-item:hover .ant-btn-text[aria-label="Xóa thông báo"] {
-              opacity: 1; /* Hiện rõ khi hover vào list item */
+            opacity: 1;
           }
           .ant-list-item .ant-btn-text[aria-label="Xóa thông báo"]:hover {
-             background-color: rgba(255, 77, 79, 0.1) !important; /* Thêm highlight nhẹ khi hover nút */
+            background-color: rgba(255, 77, 79, 0.1) !important;
           }
           .custom-popover-body.loading,
           .custom-popover-body.empty {
-             padding: 40px 20px;
-             text-align: center;
+            padding: 40px 20px;
+            text-align: center;
           }
         `}
       </style>
