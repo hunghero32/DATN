@@ -21,7 +21,7 @@
     "antd": "^4.24.16",
     "apexcharts": "^4.5.0",
     "axios": "^1.8.4",
-    "bootstrap": "^5.3.3",
+    "bootstrap": "^5.3.5",
     "chart.js": "^4.4.8",
     "cra-template": "1.2.0",
     "date-fns": "^4.1.0",

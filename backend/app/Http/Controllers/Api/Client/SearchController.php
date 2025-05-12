@@ -17,11 +17,7 @@ class SearchController extends Controller
 
     public function search(Request $request)
     {
-        $query = $request->query('query');
-
-        if (!$query) {
-            return response()->json(['message' => 'Missing search query'], 400);
-        }
+        $query = $request->query('query', '');
 
         $results = $this->searchService->searchAll($query);
 

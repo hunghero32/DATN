@@ -9,6 +9,7 @@ const SpecialtyDetail = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showFullDesc, setShowFullDesc] = useState(false);
 
   useEffect(() => {
     const fetchSpecialtyDetail = async () => {
@@ -42,6 +43,14 @@ const SpecialtyDetail = () => {
     navigate(`/detail-service/${serviceId}`);
   };
 
+  // Add truncate text function
+  const truncateText = (text, maxLength) => {
+    if (!text) return '';
+    const strippedText = text.replace(/<[^>]+>/g, '');
+    if (strippedText.length <= maxLength) return text;
+    return strippedText.substring(0, maxLength) + '...';
+  };
+
   if (loading) return <p className="text-center text-gray-500">Đang tải chi tiết chuyên khoa...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
   if (!specialty) return <p className="text-center text-gray-500">Không có thông tin chuyên khoa.</p>;
@@ -65,12 +74,25 @@ const SpecialtyDetail = () => {
         </div>
       </div>
 
-      {/* Specialty Description */}
+      {/* Modified Specialty Description */}
       <div className="max-w-3xl mx-auto mb-12">
         <div
-          className="text-center text-gray-600 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: specialty.description || "<p>No description available</p>" }}
-        ></div>
+          className="text-left text-gray-600 leading-relaxed"
+          dangerouslySetInnerHTML={{
+            __html: showFullDesc ? 
+              (specialty.description || "<p>No description available</p>") :
+              truncateText(specialty.description || "<p>No description available</p>", 100)
+          }}
+        />
+        {specialty.description && 
+         specialty.description.replace(/<[^>]+>/g, '').length > 100 && (
+          <button
+            onClick={() => setShowFullDesc(!showFullDesc)}
+            className="text-blue-600 mb-4 hover:text-blue-800"
+          >
+            {showFullDesc ? 'Ẩn Bớt' : 'Xem Hết'}
+          </button>
+        )}
       </div>
 
       {/* Services Grid */}

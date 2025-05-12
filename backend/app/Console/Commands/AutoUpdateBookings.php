@@ -27,17 +27,16 @@ class AutoUpdateBookings extends Command
 
     public function handle()
     {
-        $bookings = $this->getPendingBookings(); //Lấy danh sách booking đang chờ xác nhận
+        $bookings = $this->getPendingBookings(); // Lấy danh sách các booking đang chờ xác nhận
 
         $updatedCount = 0;
         $canceledCount = 0;
 
-        $groupedBookings = $this->groupBookings($bookings); // Nhóm booking theo dịch vụ, ngày và giờ
+        $groupedByDoctor = $bookings->groupBy('doctor_id'); // Nhóm các booking theo doctor_id
 
-        foreach ($groupedBookings as $group) {
-            if ($group->isEmpty()) continue; // Nếu nhóm booking rỗng thì bỏ qua
-
-            [$confirmed, $canceled] = $this->processBookingGroup($group); // Xử lý nhóm booking
+        foreach ($groupedByDoctor as $doctorId => $bookingsForDoctor) {
+            // Xử lý kiểm tra chồng lấn thời gian và cập nhật trạng thái
+            [$confirmed, $canceled] = $this->processBookingsWithOverlap($bookingsForDoctor);
             $updatedCount += $confirmed;
             $canceledCount += $canceled;
         }
@@ -46,83 +45,58 @@ class AutoUpdateBookings extends Command
         $this->info("Đã hủy: $canceledCount booking -> canceled");
     }
 
-    private function getPendingBookings()
+    private function getPendingBookings() // Lấy danh sách các booking
     {
         return Booking::where('status', 'pending')
             ->where('created_at', '<=', Carbon::now()->subMinutes(1))
-            ->with('service')
+            ->with('service') // eager load
             ->orderBy('created_at', 'asc')
             ->get();
     }
 
-    private function groupBookings($bookings)
+    private function processBookingsWithOverlap($bookings)
     {
-        $grouped = collect();
+        $confirmed = 0;
+        $canceled = 0;
+        $schedule = []; // Danh sách thời gian đã được xác nhận
 
-        foreach ($bookings as $booking) {
-            // Lấy duration từ bảng services
-            $duration = $booking->service->duration;
-            $startTime = Carbon::parse($booking->booking_time);
-            $endTime = $startTime->copy()->addMinutes($duration);
-    
-            // Tạo key để nhóm booking
-            $key = $booking->doctor_id . '_' . $booking->booking_date . '_' . $startTime->format('H:i') . '_' . $endTime->format('H:i');
-    
-            // Thêm booking vào nhóm
-            if (!isset($grouped[$key])) {
-                $grouped[$key] = collect();
+        $sorted = $bookings->sortBy('created_at'); // Ưu tiên xử lý booking được tạo sớm hơn
+        
+        // Duyệt qua từng booking
+        foreach ($sorted as $booking) {
+            $start = Carbon::parse("{$booking->booking_date} {$booking->booking_time}");
+            $duration = $booking->service->duration ?? 0;
+            $end = $start->copy()->addMinutes($duration);
+
+            $isOverlap = false; // Kiểm tra xem booking có chồng lịch không
+
+            // Kiểm tra thời gian có chồng lấn
+            foreach ($schedule as [$s, $e]) {
+                if ($start->lt($e) && $end->gt($s)) {
+                    $isOverlap = true;
+                    break;
+                }
             }
-            $grouped[$key]->push($booking);
-        }
-        return $grouped;
-    }
 
-
-    private function processBookingGroup($group)
-    {
-        $confirmedCount = 0;
-        $canceledCount = 0;
-    
-        // Sắp xếp booking theo thời gian tạo (created_at) để ưu tiên booking sớm hơn
-        $sortedGroup = $group->sortBy('created_at');
-    
-        $firstBooking = $sortedGroup->first();
-        $this->confirmBooking($firstBooking); // Xác nhận booking đầu tiên
-        $confirmedCount++;
-    
-        // Kiểm tra các booking còn lại trong nhóm
-        $firstEndTime = Carbon::parse($firstBooking->booking_time)
-            ->addMinutes($firstBooking->service->duration);
-    
-        foreach ($sortedGroup->skip(1) as $booking) {
-            $bookingStartTime = Carbon::parse($booking->booking_time);
-            $bookingEndTime = $bookingStartTime->copy()->addMinutes($booking->service->duration);
-    
-            // Hủy nếu booking chồng lấn với booking đã xác nhận
-            if ($bookingStartTime->lt($firstEndTime)) {
-                $this->cancelBooking($booking);
-                $canceledCount++;
-            } else {
-                // Nếu không chồng lấn, có thể xác nhận booking này
+            if (!$isOverlap) {
                 $this->confirmBooking($booking);
-                $confirmedCount++;
-                $firstEndTime = $bookingEndTime; // Cập nhật thời gian kết thúc
+                $schedule[] = [$start, $end];
+                $confirmed++;
+            } else {
+                $this->cancelBooking($booking);
+                $canceled++;
             }
         }
-        return [$confirmedCount, $canceledCount];
+
+        return [$confirmed, $canceled];
     }
 
     private function confirmBooking($booking)
     {
         $booking->update(['status' => 'confirmed']);
 
-        // Tạo hồ sơ bệnh án
         $this->createMedicalRecordForBooking($booking);
-
-        // Tạo hóa đơn
         $this->createInvoiceForBooking($booking);
-
-        // Gửi thông báo
         $this->sendConfirmationNotifications($booking);
     }
 
@@ -144,6 +118,7 @@ class AutoUpdateBookings extends Command
             );
         }
     }
+
     private function createInvoiceForBooking($booking)
     {
         $price = $booking->service->price ?? 0;
@@ -167,15 +142,15 @@ class AutoUpdateBookings extends Command
 
         return $invoice;
     }
+
     private function createMedicalRecordForBooking($booking)
     {
-        // Kiểm tra đã có hồ sơ bệnh án chưa (1 booking chỉ tạo 1 lần)
         $exists = MedicalRecord::where('guest_id', $booking->guest_id)->exists();
         if ($exists) return;
 
         MedicalRecord::create([
             'guest_id' => $booking->guest_id,
-            'BHYT' => null, // Có thể cập nhật sau nếu muốn
+            'BHYT' => null,
             'medical_condition' => null,
             'medications' => null,
             'allergies' => null,
@@ -184,6 +159,7 @@ class AutoUpdateBookings extends Command
             'note' => 'Lần khám đầu #' . $booking->id
         ]);
     }
+
     private function sendConfirmationNotifications($booking)
     {
         $doctor = optional(Doctor::find($booking->doctor_id));

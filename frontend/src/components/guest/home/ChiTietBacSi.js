@@ -10,6 +10,10 @@ const ChiTietBacSi = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [averageRating, setAverageRating] = useState(null);
+  // Add these new state declarations
+  const [showFullBio, setShowFullBio] = useState(false);
+  const [showFullDesc, setShowFullDesc] = useState(false);
+  const [expandedServices, setExpandedServices] = useState({});
   // Hàm định dạng tiền Việt Nam
   const formatPrice = (price) => {
     return price.toLocaleString("vi-VN") + " ₫";
@@ -29,27 +33,27 @@ const ChiTietBacSi = () => {
       }
     };
 
-    fetchDoctor();
-  }, [id]);
-  const fetchAverageRating = async () => {
-    try {
-      const { data } = await api.get(`/api/client/feedbacks/doctor/${id}`);
-      if (data?.average_rating !== undefined) {
-        setAverageRating(data.average_rating);
+    const fetchAverageRating = async () => {
+      try {
+        const { data } = await api.get(`/api/client/feedbacks/doctor/${id}`);
+        if (data?.average_rating !== undefined) {
+          setAverageRating(data.average_rating);
+        }
+      } catch (error) {
+        console.error("Không thể lấy đánh giá:", error);
       }
-    } catch (error) {
-      console.error("Không thể lấy đánh giá:", error);
-    }
-  };
-  if (id) {
-    fetchAverageRating();
-  }
-  useEffect(() => {
+    };
+
     if (id) {
+      fetchDoctor();
       fetchAverageRating();
     }
   }, [id]);
 
+  // Remove these duplicate calls
+  // const fetchAverageRating = async () => { ... };
+  // if (id) { fetchAverageRating(); }
+  // useEffect(() => { ... }, [id]);
   if (loading) return <div className="text-center mt-10">Đang tải thông tin...</div>;
   if (error) return <div className="text-center text-red-500 mt-10">{error}</div>;
   if (!doctor) return null;
@@ -59,10 +63,19 @@ const ChiTietBacSi = () => {
     navigate(`/detail-service/${service.id}`);
   };
 
+  // Add this function to truncate text
+  const truncateText = (text, maxLength) => {
+    if (!text) return '';
+    const strippedText = text.replace(/<[^>]+>/g, '');
+    if (strippedText.length <= maxLength) return text;
+    return strippedText.substring(0, maxLength) + '...';
+  };
+
   return (
     <div className="container mx-auto p-8 mt-4 mb-4 max-w-6xl">
       <div className="bg-white shadow-xl rounded-lg p-6 md:flex p-4 gap-8 border-2 border-gray-200">
-        <div className="flex-shrink-0 w-full sm:w-48 md:w-1/3 text-center md:text-left">
+        <div className="flex-shrink-0 w-full sm:w-48 md:w-1/3 text-left">
+          {/* Image and basic info section */}
           <img
             src={doctor.doctor_avatar ? 
               (doctor.doctor_avatar.startsWith('http') ? 
@@ -82,39 +95,59 @@ const ChiTietBacSi = () => {
           <p className="inline-block bg-indigo-100 text-indigo-700 text-sm px-3 py-1 rounded-full shadow-sm">
             {doctor.specialty?.name || "Chưa có chuyên khoa"}
           </p>
-          <div 
-            className="text-gray-600 text-sm mt-2"
-            dangerouslySetInnerHTML={{ __html: doctor.doctor_bio }}
-          />
+          <div className="text-gray-600 text-sm mt-2">
+            <div dangerouslySetInnerHTML={{ 
+              __html: showFullBio ? doctor.doctor_bio : truncateText(doctor.doctor_bio, 100) 
+            }} />
+            {doctor.doctor_bio && doctor.doctor_bio.replace(/<[^>]+>/g, '').length > 100 && (
+              <button
+                onClick={() => setShowFullBio(!showFullBio)}
+                className="text-blue-600 hover:text-blue-800 mt-2"
+              >
+                {showFullBio ? 'Ẩn Bớt' : 'Xem Hết'}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-6 md:mt-0 md:flex-1">
           <h3 className="text-xl font-semibold mb-2 text-gray-800">Giới thiệu về bác sĩ</h3>
-          <div
-            className="text-gray-600 leading-relaxed mb-4"
-            dangerouslySetInnerHTML={{
-              __html: doctor.specialty?.description || "<p>Chưa có mô tả về chuyên khoa.</p>",
-            }}
-          ></div>
-            {averageRating !== null && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="flex">
-                      {[...Array(5)].map((_, index) => (
-                        <StarFilled
-                          key={index}
-                          style={{
-                            color: index < averageRating ? '#fadb14' : '#e8e8e8',
-                            fontSize: '16px',
-                            marginRight: '2px'
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600">
-                      ({averageRating.toFixed(1)})
-                    </span>
-                  </div>
-                )}
+          <div className="text-gray-600 leading-relaxed mb-4">
+            <div dangerouslySetInnerHTML={{
+              __html: showFullDesc ? 
+                (doctor.specialty?.description || "<p>Chưa có mô tả về chuyên khoa.</p>") :
+                truncateText(doctor.specialty?.description || "<p>Chưa có mô tả về chuyên khoa.</p>", 100)
+            }} />
+            {doctor.specialty?.description && 
+             doctor.specialty.description.replace(/<[^>]+>/g, '').length > 100 && (
+              <button
+                onClick={() => setShowFullDesc(!showFullDesc)}
+                className="text-blue-600 hover:text-blue-800 mt-2"
+              >
+                {showFullDesc ? 'Ẩn Bớt' : 'Xem Hết'}
+              </button>
+            )}
+          </div>
+
+          {averageRating !== null && (
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex">
+                {[...Array(5)].map((_, index) => (
+                  <StarFilled
+                    key={index}
+                    style={{
+                      color: index < averageRating ? '#fadb14' : '#e8e8e8',
+                      fontSize: '16px',
+                      marginRight: '2px'
+                    }}
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-gray-600">
+                ({averageRating.toFixed(1)})
+              </span>
+            </div>
+          )}
 
           <div className="mt-4">
             <h4 className="text-lg font-semibold mb-2 text-gray-800">📄 Kinh nghiệm và CV</h4>
@@ -131,7 +164,6 @@ const ChiTietBacSi = () => {
             )}
           </div>
 
-          {/* Dịch vụ bác sĩ cung cấp */}
           {doctor.services && doctor.services.length > 0 && (
             <div className="mt-6">
               <h4 className="text-lg font-semibold mb-2 text-gray-800">Dịch vụ của bác sĩ</h4>
@@ -145,11 +177,26 @@ const ChiTietBacSi = () => {
                       <h5
                         className="text-xl font-semibold text-indigo-600"
                         dangerouslySetInnerHTML={{ __html: service.services_name }}
-                      ></h5>
-                      <div
-                        className="text-gray-700 mt-2"
-                        dangerouslySetInnerHTML={{ __html: service.description }}
-                      ></div>
+                      />
+                      <div className="text-gray-700 mt-2">
+                        <div dangerouslySetInnerHTML={{
+                          __html: expandedServices[service.id] ? 
+                            service.description : 
+                            truncateText(service.description, 100)
+                        }} />
+                        {service.description && 
+                         service.description.replace(/<[^>]+>/g, '').length > 100 && (
+                          <button
+                            onClick={() => setExpandedServices(prev => ({
+                              ...prev,
+                              [service.id]: !prev[service.id]
+                            }))}
+                            className="text-blue-600 hover:text-blue-800 mt-2"
+                          >
+                            {expandedServices[service.id] ? 'Ẩn Bớt' : 'Xem Hết'}
+                          </button>
+                        )}
+                      </div>
                       <p className="text-gray-500 mt-2">Thời gian: {service.duration} phút</p>
                       <p className="text-red-600 font-semibold mt-2">Giá: {formatPrice(service.price)}</p>
                     </div>

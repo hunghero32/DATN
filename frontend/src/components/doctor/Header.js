@@ -26,11 +26,11 @@ const Header = () => {
   const escapeHtml = (unsafe) => {
     if (typeof unsafe !== 'string') return unsafe || '';
     return unsafe
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
+      .replace(/&/g, "&")
+      .replace(/</g, "<")
+      .replace(/>/g, ">")
       .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+      .replace(/'/g, "'");
   };
 
   // --- Fetch Doctor Info ---
@@ -55,8 +55,8 @@ const Header = () => {
         if (isMounted) {
           console.error('Error fetching doctor info:', error);
           if (error.response && error.response.status === 401) {
-            logout();
-            navigate('/login');
+             logout();
+             navigate('/login');
           }
         }
       }
@@ -132,12 +132,12 @@ const Header = () => {
   // --- Xử lý click thông báo ---
   const handleNotificationClick = useCallback(async (notif, e) => {
     if (e) e.stopPropagation();
-
+    
     console.log('🔔 Notification clicked:', notif.id);
-
+    
     setPopoverVisible(false);
     console.log('🔔 Popover closed immediately on click');
-
+    
     const processNotification = async () => {
       if (!notif.read && doctorInfo?.doctor_id) {
         try {
@@ -149,7 +149,7 @@ const Header = () => {
           console.error('Error marking notification as read:', error);
         }
       }
-
+      
       if (notif.bookingId) {
         console.log(`Navigating to appointment with bookingId: ${notif.bookingId}`);
         navigate(`/doctor/appointment?bookingId=${notif.bookingId}`, { replace: true });
@@ -166,21 +166,21 @@ const Header = () => {
     if (e) e.stopPropagation();
     console.log('🗑️ [Doctor] Attempting to delete notification:', notificationId);
     if (!doctorInfo?.doctor_id) {
-      console.error("🗑️ [Doctor] Doctor ID is missing, cannot delete notification.");
-      return;
+        console.error("🗑️ [Doctor] Doctor ID is missing, cannot delete notification.");
+        return;
     }
     try {
-      const notificationRef = ref(database, `notifications/${doctorInfo.doctor_id}/${notificationId}`);
-      console.log("🗑️ [Doctor] Notification ref path:", notificationRef.toString());
-      await remove(notificationRef);
-      console.log('🗑️ [Doctor] Notification deleted successfully:', notificationId);
+        const notificationRef = ref(database, `notifications/${doctorInfo.doctor_id}/${notificationId}`);
+        console.log("🗑️ [Doctor] Notification ref path:", notificationRef.toString());
+        await remove(notificationRef);
+        console.log('🗑️ [Doctor] Notification deleted successfully:', notificationId);
     } catch (error) {
-      console.error('🗑️ [Doctor] Error deleting notification:', error);
-      notification.error({
-        message: 'Lỗi xóa thông báo',
-        description: 'Không thể xóa thông báo. Vui lòng thử lại.',
-        placement: 'topRight',
-      });
+        console.error('🗑️ [Doctor] Error deleting notification:', error);
+        notification.error({
+            message: 'Lỗi xóa thông báo',
+            description: 'Không thể xóa thông báo. Vui lòng thử lại.',
+            placement: 'topRight',
+        });
     }
   }, [doctorInfo?.doctor_id]);
 
@@ -227,10 +227,10 @@ const Header = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (popoverVisible &&
-        popoverRef.current &&
-        !popoverRef.current.contains(event.target) &&
-        notificationIconRef.current &&
-        !notificationIconRef.current.contains(event.target)) {
+          popoverRef.current &&
+          !popoverRef.current.contains(event.target) &&
+          notificationIconRef.current &&
+          !notificationIconRef.current.contains(event.target)) {
         setPopoverVisible(false);
         console.log('🔔 Clicked outside, closing popover');
       }
@@ -272,58 +272,59 @@ const Header = () => {
           <List
             itemLayout="horizontal"
             dataSource={notifications}
-            renderItem={item => (
-              <List.Item
-                className={`notification-list-item ${!item.read ? 'unread' : ''}`}
-                style={{ padding: 0, borderBottom: '1px solid #f0f0f0', backgroundColor: item.read ? '#fff' : '#e6f7ff' }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNotificationClick(item, e);
-                }}
-              >
-                <div className="notification-item-content" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', width: '100%', position: 'relative' }}>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        icon={
-                          item.read ? (
-                            <CheckCircleOutlined style={{ color: '#8c8c8c' }} />
-                          ) : (
-                            <BellOutlined style={{ color: '#fff' }} />
-                          )
-                        }
-                        style={{
-                          backgroundColor: item.read ? '#f0f0f0' : '#1890ff',
-                          boxShadow: !item.read ? '0 0 5px rgba(24, 144, 255, 0.5)' : 'none',
-                        }}
-                      />
-                    }
-                    title={
-                      <span style={{ fontWeight: item.read ? 400 : 600, color: '#333', fontSize: '14px' }}>
-                        {escapeHtml(item.title) || 'Thông báo'}
-                      </span>
-                    }
-                    description={
-                      <span style={{ color: '#555', fontSize: '13px' }}>
-                        {escapeHtml(item.message) || ''}
-                      </span>
-                    }
-                    style={{ flexGrow: 1, margin: 0, marginRight: '10px', overflow: 'hidden' }}
-                  />
-                  <div className="notification-timestamp" style={{ fontSize: '11px', color: '#8c8c8c', textAlign: 'right', flexShrink: 0, whiteSpace: 'nowrap', marginRight: '8px' }}>
-                    {item.timestamp ? formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi }) : ''}
+            renderItem={(item, index) => (
+              <div key={item.id}>
+                <List.Item
+                  className={`notification-list-item ${!item.read ? 'unread' : ''}`}
+                  style={{ padding: 0, backgroundColor: item.read ? '#fff' : '#e6f7ff' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNotificationClick(item, e);
+                  }}
+                >
+                  <div className="notification-item-content" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', width: '100%', position: 'relative' }}>
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar
+                          icon={item.read ? <CheckCircleOutlined style={{ color: '#8c8c8c' }}/> : <BellOutlined style={{ color: '#fff' }}/>}
+                          style={{
+                            backgroundColor: item.read ? '#f0f0f0' : '#1890ff',
+                            boxShadow: !item.read ? '0 0 5px rgba(24, 144, 255, 0.5)' : 'none'
+                          }}
+                        />
+                      }
+                      title={
+                        <span style={{
+                          fontWeight: item.read ? 400 : 600,
+                          color: '#333',
+                          fontSize: '14px'
+                        }}>
+                          {escapeHtml(item.title) || 'Thông báo'}
+                        </span>
+                      }
+                      description={
+                        <span style={{ color: '#555', fontSize: '13px' }}>
+                          {escapeHtml(item.message) || ''}
+                        </span>
+                      }
+                      style={{ flexGrow: 1, margin: 0, marginRight: '10px', overflow: 'hidden' }}
+                    />
+                    <div className="notification-timestamp" style={{ fontSize: '11px', color: '#8c8c8c', textAlign: 'right', flexShrink: 0, whiteSpace: 'nowrap', marginRight: '8px' }}>
+                      {item.timestamp ? formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi }) : ''}
+                    </div>
+                    <Button
+                      icon={<DeleteOutlined />}
+                      type="text"
+                      size="small"
+                      danger
+                      onClick={(e) => handleDeleteNotification(item.id, e)}
+                      style={{ color: '#ff4d4f', border: 'none', background: 'none', padding: '0 4px', flexShrink: 0 }}
+                      aria-label="Xóa thông báo"
+                    />
                   </div>
-                  <Button
-                    icon={<DeleteOutlined />}
-                    type="text"
-                    size="small"
-                    danger
-                    onClick={(e) => handleDeleteNotification(item.id, e)}
-                    style={{ color: '#ff4d4f', border: 'none', background: 'none', padding: '0 4px', flexShrink: 0 }}
-                    aria-label="Xóa thông báo"
-                  />
-                </div>
-              </List.Item>
+                </List.Item>
+                {index < notifications.length - 1 && <hr style={{ margin: '0', border: 'none', borderTop: '1px solid #f0f0f0' }} />}
+              </div>
             )}
             style={{ maxHeight: 400, overflowY: 'auto', margin: 0 }}
           />
@@ -389,21 +390,19 @@ const Header = () => {
             position: relative;
           }
           .doctor-notification-icon {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 50%;
-  background-color: #f0f0f0;
-  border: 1px solid #d1d5db; /* Add a subtle border */
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.doctor-notification-icon:hover {
-  background-color: #e5e7eb;
-  border-color: #9ca3af; /* Darker border on hover */
-}
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            transition: background-color 0.2s ease;
+          }
+          .doctor-notification-icon:hover {
+            background-color: #e0e0e0;
+          }
           .doctor-notification-icon .ant-badge .ant-badge-count { background-color: #ff4d4f !important; box-shadow: 0 0 0 1px #ff4d4f inset !important; color: white !important; }
           .doctor-notification-icon .anticon-bell { font-size: 22px; color: #4b5563; }
           .doctor-greeting { text-align: right; line-height: 1.4; }
@@ -414,7 +413,7 @@ const Header = () => {
           .doctor-avatar:hover { border-color: #d1d5db; }
           .custom-notification-popover {
             background-color: #fff;
-            border-radius: 8px;
+            border-radius: 16px;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
             border: 1px solid #f0f0f0;
             overflow: hidden;

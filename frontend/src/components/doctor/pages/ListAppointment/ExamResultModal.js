@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Button, Spinner, Row, Col, Table } from "react-bootstrap";
 import { FaFileMedical, FaPrescriptionBottle, FaStickyNote, FaFileUpload, FaEdit, FaTimes, FaDownload, FaBold, FaItalic, FaUnderline } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const ExamResultModal = ({
   showView,
@@ -8,6 +9,7 @@ const ExamResultModal = ({
   onHideView,
   onHideEdit,
   setShowEditResultModal,
+  setShowResultViewModal, // Ensure this prop is destructured
   selectedAppointment,
   diagnosis,
   setDiagnosis,
@@ -15,22 +17,22 @@ const ExamResultModal = ({
   setNotes,
   prescription,
   setPrescription,
-  file: initialFile,
-  setFile: setInitialFile,
+  file,
+  setFile,
   handleUpdateExamResult,
   loading,
-  error
+  error,
 }) => {
   const [prescriptionList, setPrescriptionList] = useState([{ medicine: '', quantity: '', note: '', styles: {} }]);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-  const [localFile, setLocalFile] = useState(null); // Local state to handle file input
+  const [localFile, setLocalFile] = useState(null);
 
   useEffect(() => {
     if (!showEdit) {
       setDiagnosis(diagnosis || "");
       setNotes(notes || "");
       setPrescription(prescription || "");
-      setLocalFile(initialFile || null); // Set initial file for view mode
+      setLocalFile(file || null);
       try {
         const parsedPrescription = typeof prescription === 'string' && prescription.trim() ? JSON.parse(prescription) : null;
         setPrescriptionList(Array.isArray(parsedPrescription) ? parsedPrescription : [{ medicine: '', quantity: '', note: '', styles: {} }]);
@@ -41,7 +43,7 @@ const ExamResultModal = ({
       setDiagnosis(diagnosis || "");
       setNotes(notes || "");
       setPrescription(prescription || "");
-      setLocalFile(initialFile || null); // Set initial file for edit mode
+      setLocalFile(file || null);
       try {
         const parsedPrescription = typeof prescription === 'string' && prescription.trim() ? JSON.parse(prescription) : null;
         setPrescriptionList(Array.isArray(parsedPrescription) ? parsedPrescription : [{ medicine: '', quantity: '', note: '', styles: {} }]);
@@ -49,7 +51,7 @@ const ExamResultModal = ({
         setPrescriptionList([{ medicine: '', quantity: '', note: prescription || 'Không cần thuốc', styles: {} }]);
       }
     }
-  }, [showEdit, diagnosis, notes, prescription, initialFile, setDiagnosis, setNotes, setPrescription, setInitialFile]);
+  }, [showEdit, diagnosis, notes, prescription, file, setDiagnosis, setNotes, setPrescription, setFile]);
 
   const handlePrescriptionChange = (index, field, value) => {
     const updatedPrescription = [...prescriptionList];
@@ -81,29 +83,47 @@ const ExamResultModal = ({
     const currentStyles = updatedPrescription[selectedRowIndex].styles || {};
     updatedPrescription[selectedRowIndex].styles = {
       ...currentStyles,
-      [styleKey]: styleValue
+      [styleKey]: styleValue,
     };
     setPrescriptionList(updatedPrescription);
     setPrescription(JSON.stringify(updatedPrescription));
   };
 
-  // Handle file input change
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setLocalFile(file); // Store the File object for upload
-    }
+    setLocalFile(file || null);
+    console.log("Selected file:", file);
   };
 
-  // Update file when saving
   const handleSave = async () => {
+    const data = new FormData();
+    data.append('diagnosis', diagnosis.trim());
+    data.append('note', notes.trim());
+    data.append('prescription', prescription || '');
+    data.append('booking_id', selectedAppointment.id);
+    data.append('_method', 'PUT');
+
     if (localFile instanceof File) {
-      const formData = new FormData();
-      formData.append('file', localFile);
-      // Assuming handleUpdateExamResult accepts formData for file upload
-      await handleUpdateExamResult(formData); // Pass formData to the update function
+      data.append('file', localFile);
+      console.log("File appended:", localFile.name);
+    } else if (localFile === null || localFile === undefined) {
+      console.log("No valid file selected, skipping file field.");
     } else {
-      await handleUpdateExamResult(); // Call without formData if no new file
+      toast.error("Vui lòng chọn một tệp hợp lệ.");
+      return;
+    }
+
+    console.log("Sending data:", Object.fromEntries(data));
+
+    try {
+      await handleUpdateExamResult(data);
+      onHideEdit(); // Close the edit modal
+      if (setShowResultViewModal && typeof setShowResultViewModal === 'function') {
+        setShowResultViewModal(true); // Open the view modal only if it's a function
+      }
+    } catch (error) {
+      console.error("Error during save:", error);
+      toast.error(error.message || "Lỗi khi cập nhật kết quả khám.");
     }
   };
 
@@ -277,7 +297,6 @@ const ExamResultModal = ({
         `}
       </style>
 
-      {/* Modal Xem Kết Quả */}
       <Modal show={showView} onHide={onHideView} size="lg" className="medical-modal">
         <Modal.Header closeButton>
           <Modal.Title>
@@ -336,17 +355,17 @@ const ExamResultModal = ({
 
               <div className="medical-info-card">
                 <h5><FaFileUpload /> Tệp Đính Kèm</h5>
-                {localFile && typeof localFile === 'string' ? (
+                {file && typeof file === 'string' ? (
                   <a
-                    href={`http://127.0.0.1:8000/storage/${localFile}`}
+                    href={`http://127.0.0.1:8000/storage/${file}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="file-link"
                   >
                     <FaFileUpload /> Xem tệp đính kèm
                   </a>
-                ) : localFile instanceof File ? (
-                  <p>Tệp đã chọn: {localFile.name}</p>
+                ) : file instanceof File ? (
+                  <p>Tệp đã chọn: {file.name}</p>
                 ) : (
                   <p>Chưa có tệp đính kèm</p>
                 )}
@@ -372,7 +391,6 @@ const ExamResultModal = ({
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Sửa Kết Quả */}
       <Modal show={showEdit} onHide={onHideEdit} size="lg" className="medical-modal">
         <Modal.Header closeButton>
           <Modal.Title>
@@ -517,11 +535,11 @@ const ExamResultModal = ({
                   onChange={handleFileChange}
                   className="mb-3"
                 />
-                {localFile && typeof localFile === 'string' ? (
+                {file && typeof file === 'string' ? (
                   <div className="file-preview">
                     <span className="me-2">Tệp hiện tại:</span>
                     <a
-                      href={`http://127.0.0.1:8000/storage/${localFile}`}
+                      href={`http://127.0.0.1:8000/storage/${file}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="file-link"
@@ -529,10 +547,10 @@ const ExamResultModal = ({
                       <FaFileUpload /> Xem tệp
                     </a>
                   </div>
-                ) : localFile instanceof File ? (
+                ) : file instanceof File ? (
                   <div className="file-preview">
                     <span className="me-2">Tệp đã chọn:</span>
-                    <span>{localFile.name}</span>
+                    <span>{file.name}</span>
                   </div>
                 ) : (
                   <p>Chưa có tệp đính kèm</p>
