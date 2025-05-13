@@ -157,7 +157,7 @@ class BookingController extends Controller
             ->whereBetween('updated_at', [$today, now()])
             ->count();
 
-        if ($cancelledBookingsToday >= 2) {
+        if ($cancelledBookingsToday >= 3) {
             return response()->json([
                 'status' => false,
                 'message' => 'Bạn đã hủy lịch 2 lần trong ngày hôm nay. Vui lòng đợi 24 giờ để đặt lịch lại.'
@@ -175,7 +175,7 @@ class BookingController extends Controller
             ->where('status', '!=', 'cancelled')
             ->count();
 
-        if ($weeklyBookingsCount >= 5) {
+        if ($weeklyBookingsCount >= 20) {
             return response()->json([
                 'status' => false,
                 'message' => 'Bạn đã đạt giới hạn đặt lịch trong tuần này (tối đa 5 lần/tuần)'
