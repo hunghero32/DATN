@@ -4,85 +4,91 @@
 
 @section('content')
 
-<div class="content-wrapper">
+    <div class="content-wrapper">
+        <div class="container-xxl flex-grow-1 container-p-y">
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Hồ sơ bệnh án /</span> Danh sách</h4>
 
-    <div class="container-xxl flex-grow-1 container-p-y">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <h5 class="mb-0">Danh sách hồ sơ bệnh án</h5>
+                    <a href="{{ route('admin.medical_records.create') }}" class="btn btn-success">Thêm mới</a>
+                </div>
 
-        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Hồ sơ bệnh án /</span> Danh sách</h4>
+                <div class="card-body">
+                    <form method="GET" action="{{ route('admin.medical_records.index') }}" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" name="search" class="form-control" placeholder="Tìm theo Tên hoặc SĐT"
+                                value="{{ request('search') }}">
+                        </div>
 
-        <div class="card">
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                        </div>
 
-            <div class="card-header d-flex justify-content-between">
-                <h5 class="mb-0">Danh sách hồ sơ bệnh án</h5>
-                <a href="{{ route('admin.medical_records.create') }}" class="btn btn-success">Thêm mới</a>
-            </div>
+                        @if (request('search'))
+                            <div class="col-md-2">
+                                <a href="{{ route('admin.medical_records.index') }}" class="btn btn-secondary">Quay lại</a>
+                            </div>
+                        @endif
+                    </form>
+                </div>
 
-            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Tên Khách</th>
+                                <th>BHYT</th>
+                                <th>Ghi chú</th>
+                                <th class="text-end"><i class='bx bx-menu'></i></th>
+                            </tr>
+                        </thead>
 
-                <form method="GET" action="{{ route('admin.medical_records.index') }}" class="row g-3">
-                    <div class="col-md-4">
-                        <input type="text" name="search" class="form-control"
-                            placeholder="Tìm theo Tên hoặc SĐT" value="{{ request('search') }}">
-                    </div>
+                        <tbody>
+                            @foreach ($data as $record)
+                                <tr>
+                                    <td>{{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}</td>
+                                    <td>{{ $record->guest ? $record->guest->guest_name : 'N/A' }}</td>
+                                    <td>{{ strip_tags($record->BHYT) }}</td>
+                                    <td>{{ strip_tags($record->note) }}</td>
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-icon btn-outline-secondary dropdown-toggle"
+                                                type="button" id="dropdownMenu{{ $record->id }}"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bx bx-dots-vertical-rounded"></i>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu{{ $record->id }}">
+                                              
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('admin.medical_records.edit', $record->id) }}">
+                                                        <i class="fa-solid fa-pen me-2"></i> Sửa
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('admin.medical_records.show', $record->id) }}">
+                                                        <i class="fa-solid fa-pen me-2"></i> xem chi tiết
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
 
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-                    </div>
 
-                    @if (request('search'))
-                    <div class="col-md-2">
-                        <a href="{{ route('admin.medical_records.index') }}" class="btn btn-secondary">Quay lại</a>
-                    </div>
-                    @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
 
-                </form>
-
-            </div>
-
-            <div class="table-responsive">
-
-                <table class="table">
-
-                    <thead>
-
-                        <tr>
-                            <th>#</th>
-                            <th>Tên Khách</th>
-                            <th>BHYT</th>
-                            <th>Ghi chú</th>
-                            <th><i class='bx bx-menu'></i></th>
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-                        @foreach ($data as $record)
-                        <tr>
-                            <td>{{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}</td>
-                            <td>{{ $record->guest ? $record->guest->guest_name : 'N/A' }}</td>
-                            <td>{{ strip_tags($record->BHYT) }}</td>
-                            <td>{{ strip_tags($record->note) }}</td>
-                            <td>
-                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#recordDetailModal{{ $record->id }}">
-                                <i class="fa-solid fa-eye"></i>
-                                </button>
-                                @include('admin.pages.medical_records.show', ['record' => $record])
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <div class="card-footer">
-                {{ $data->appends(request()->query())->links() }}
+                <div class="card-footer">
+                    {{ $data->appends(request()->query())->links() }}
+                </div>
             </div>
         </div>
-
     </div>
-
-</div>
 
 @endsection

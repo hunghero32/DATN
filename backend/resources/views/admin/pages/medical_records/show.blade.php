@@ -1,45 +1,55 @@
-<!-- Modal hiển thị chi tiết hồ sơ bệnh án -->
-<div class="modal fade" id="recordDetailModal{{ $record->id }}" tabindex="-1" aria-labelledby="recordDetailLabel{{ $record->id }}" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="recordDetailLabel{{ $record->id }}">Chi tiết hồ sơ bệnh án #{{ $record->id }}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-      </div>
-      <div class="modal-body row">
-        <div class="col-md-6 mb-2">
-            <strong>Tên khách:</strong> {{ $record->guest->guest_name ?? 'N/A' }}
+@extends('admin.index')
+@section('title', 'Chi tiết hồ sơ bệnh án')
+@section('content')
+    <div class="content-wrapper">
+        <div class="container-xxl flex-grow-1 container-p-y">
+
+            <h4 class="fw-bold py-3 mb-4">
+                <span class="text-muted fw-light">Hồ sơ bệnh án /</span> Chi tiết
+            </h4>
+            <div class="card shadow-sm rounded-3">
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Bệnh nhân</label>
+                            <div class="form-control bg-light border">{{ $record->guest->guest_name }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Bảo hiểm y tế</label>
+                            <div class="form-control bg-light border">{!! $record->BHYT ?? 'Không có thông tin' !!}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tình trạng bệnh</label>
+                            <div class="form-control bg-light border">{!! $record->medical_condition ?? 'Không có thông tin' !!}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Thuốc đang sử dụng</label>
+                            <div class="form-control bg-light border">{!! $record->medications ?? 'Không có thông tin' !!}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Dị ứng</label>
+                            <div class="form-control bg-light border">{!! $record->allergies ?? 'Không có thông tin' !!}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tiền sử gia đình</label>
+                            <div class="form-control bg-light border">{!! $record->family_history ?? 'Không có thông tin' !!}</div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Phác đồ điều trị</label>
+                            <div class="form-control bg-light border">{!! $record->treatment ?? 'Không có thông tin' !!}</div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Ghi chú</label>
+                            <div class="form-control bg-light border">{!! $record->note ?? 'Không có ghi chú' !!}</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-end">
+                        <a href="{{ route('admin.medical_records.index') }}" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Quay lại danh sách
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-6 mb-2">
-            <strong>Mã khách:</strong>#{{ $record->guest_id }}
-        </div>
-        <div class="col-md-6 mb-2">
-            <strong>Số BHYT:</strong> {{ $record->BHYT ?? 'Không có' }}
-        </div>
-        <div class="col-md-6 mb-2">
-            <strong>Tình trạng bệnh:</strong> {{ $record->medical_condition ?? 'Chưa cập nhật' }}
-        </div>
-        <div class="col-md-6 mb-2">
-            <strong>Thuốc đang sử dụng:</strong> {{ $record->medications ?? 'Không rõ' }}
-        </div>
-        <div class="col-md-6 mb-2">
-            <strong>Dị ứng:</strong> {{ $record->allergies ?? 'Không có' }}
-        </div>
-        <div class="col-md-6 mb-2">
-            <strong>Tiền sử gia đình:</strong> {{ $record->family_history ?? 'Không có thông tin' }}
-        </div>
-        <div class="col-md-6 mb-2">
-            <strong>Phác đồ điều trị:</strong> {{ $record->treatment ?? 'Chưa cập nhật' }}
-        </div>
-        <div class="col-12 mt-3">
-            <strong>Ghi chú thêm:</strong><br>
-            {{ $record->note ?? 'Không có ghi chú' }}
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="{{ route('admin.medical_records.edit', $record->id) }}" class="btn btn-warning">Sửa</a>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-      </div>
     </div>
-  </div>
-</div>
+@endsection
