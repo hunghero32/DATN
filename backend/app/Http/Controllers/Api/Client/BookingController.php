@@ -157,7 +157,7 @@ class BookingController extends Controller
             ->whereBetween('updated_at', [$today, now()])
             ->count();
 
-        if ($cancelledBookingsToday >= 2) {
+        if ($cancelledBookingsToday >= 3) {
             return response()->json([
                 'status' => false,
                 'message' => 'Bạn đã hủy lịch 2 lần trong ngày hôm nay. Vui lòng đợi 24 giờ để đặt lịch lại.'
@@ -175,7 +175,7 @@ class BookingController extends Controller
             ->where('status', '!=', 'cancelled')
             ->count();
 
-        if ($weeklyBookingsCount >= 5) {
+        if ($weeklyBookingsCount >= 20) {
             return response()->json([
                 'status' => false,
                 'message' => 'Bạn đã đạt giới hạn đặt lịch trong tuần này (tối đa 5 lần/tuần)'
@@ -187,6 +187,20 @@ class BookingController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Không tìm thấy thông tin đặt lịch tạm thời'
+            ], 422);
+        }
+
+        // Kiểm tra xem có lịch hẹn nào cùng bác sĩ, cùng ngày và cùng giờ không
+        $existingDoctorBooking = Booking::where('doctor_id', $tempBooking['doctor_id'])
+            ->where('booking_date', $tempBooking['date'])
+            ->where('booking_time', $tempBooking['time'])
+            ->where('status', '!=', 'canceled')
+            ->first();
+
+        if ($existingDoctorBooking) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bác sĩ này đã có lịch hẹn vào thời gian này. Vui lòng chọn thời gian khác.'
             ], 422);
         }
 

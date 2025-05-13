@@ -3,7 +3,7 @@
 @section('content')
     <?php
     // Change this line
-    $doctor = $data->pluck('doctor_name', 'doctor_id')->toArray();
+    $doctor = App\Models\Doctor::pluck('doctor_name', 'id')->toArray();
 
     // Add status configuration
     $statusConfig = [
