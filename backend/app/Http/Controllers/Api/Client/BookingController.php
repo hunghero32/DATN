@@ -190,6 +190,20 @@ class BookingController extends Controller
             ], 422);
         }
 
+        // Kiểm tra xem có lịch hẹn nào cùng bác sĩ, cùng ngày và cùng giờ không
+        $existingDoctorBooking = Booking::where('doctor_id', $tempBooking['doctor_id'])
+            ->where('booking_date', $tempBooking['date'])
+            ->where('booking_time', $tempBooking['time'])
+            ->where('status', '!=', 'canceled')
+            ->first();
+
+        if ($existingDoctorBooking) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bác sĩ này đã có lịch hẹn vào thời gian này. Vui lòng chọn thời gian khác.'
+            ], 422);
+        }
+
         // Check for existing booking with same service, date and time
         $existingTimeBooking = Booking::where('service_id', $tempBooking['service_id'])
             ->where('booking_date', $tempBooking['date'])
