@@ -39,6 +39,19 @@ const DoctorLayout = () => {
   
   return (
     <div className="app-container">
+      <style>
+        {`
+          .main-content {
+            padding-top: 60px; /* Matches the header height to prevent overlap */
+            min-height: calc(100vh - 60px); /* Ensure content takes up remaining height */
+          }
+          .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Full viewport height */
+          }
+        `}
+      </style>
       <ToastContainer position="top-right" autoClose={3000} />
       <SideBar />
       <Header />
