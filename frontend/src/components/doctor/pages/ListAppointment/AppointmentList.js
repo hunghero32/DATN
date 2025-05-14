@@ -124,6 +124,12 @@ const AppointmentList = ({
                           >
                             Hoàn thành
                           </button>
+                          <button
+                            className="action-button medical-record"
+                            onClick={() => handleShowMedicalRecord(app)}
+                          >
+                            Xem hồ sơ bệnh án
+                          </button>
                         </>
                       )}
                       {status === "completed" && (

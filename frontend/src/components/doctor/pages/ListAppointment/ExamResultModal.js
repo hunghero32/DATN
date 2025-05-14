@@ -26,7 +26,7 @@ const ExamResultModal = ({
   const [prescriptionList, setPrescriptionList] = useState([{ medicine: '', quantity: '', note: '', styles: {} }]);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [localFile, setLocalFile] = useState(null);
-  const [isImage, setIsImage] = useState(false);
+  const [fileType, setFileType] = useState(null); // To store file type: 'image', 'video', 'audio', 'pdf', or 'other'
 
   useEffect(() => {
     // Reset state when modal mode changes
@@ -54,14 +54,24 @@ const ExamResultModal = ({
       }
     }
 
-    // Check if the file is an image
-    if (file && typeof file === 'string') {
+    // Determine file type for preview
+    const determineFileType = (file) => {
+      if (!file || typeof file !== 'string') return null;
+
       const extension = file.split('.').pop().toLowerCase();
       const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp'];
-      setIsImage(imageExtensions.includes(extension));
-    } else {
-      setIsImage(false);
-    }
+      const videoExtensions = ['mp4', 'webm', 'ogg'];
+      const audioExtensions = ['mp3', 'wav', 'ogg'];
+      const pdfExtensions = ['pdf'];
+
+      if (imageExtensions.includes(extension)) return 'image';
+      if (videoExtensions.includes(extension)) return 'video';
+      if (audioExtensions.includes(extension)) return 'audio';
+      if (pdfExtensions.includes(extension)) return 'pdf';
+      return 'other';
+    };
+
+    setFileType(determineFileType(file));
   }, [showEdit, diagnosis, notes, prescription, file, setDiagnosis, setNotes, setPrescription, setFile]);
 
   const handlePrescriptionChange = (index, field, value) => {
@@ -140,6 +150,105 @@ const ExamResultModal = ({
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const renderFilePreview = (file, fileType) => {
+    const fileUrl = `http://127.0.0.1:8000/storage/${file}`;
+
+    switch (fileType) {
+      case 'image':
+        return (
+          <>
+            <img
+              src={fileUrl}
+              alt="Tệp đính kèm"
+              className="medical-image"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
+            />
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="file-link"
+              style={{ display: 'none' }}
+            >
+              <FaFileUpload /> Xem tệp đính kèm
+            </a>
+            <span className="image-caption">Hình ảnh đính kèm</span>
+          </>
+        );
+      case 'video':
+        return (
+          <>
+            <video
+              controls
+              className="medical-image"
+              style={{ maxHeight: '300px' }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
+            >
+              <source src={fileUrl} type={`video/${file.split('.').pop().toLowerCase()}`} />
+              Trình duyệt của bạn không hỗ trợ thẻ video.
+            </video>
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="file-link"
+              style={{ display: 'none' }}
+            >
+              <FaFileUpload /> Xem tệp đính kèm
+            </a>
+            <span className="image-caption">Video đính kèm</span>
+          </>
+        );
+      case 'audio':
+        return (
+          <>
+            <audio
+              controls
+              className="medical-image"
+              style={{ width: '100%', maxWidth: '400px' }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
+            >
+              <source src={fileUrl} type={`audio/${file.split('.').pop().toLowerCase()}`} />
+              Trình duyệt của bạn không hỗ trợ thẻ audio.
+            </audio>
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="file-link"
+              style={{ display: 'none' }}
+            >
+              <FaFileUpload /> Xem tệp đính kèm
+            </a>
+            <span className="image-caption">Âm thanh đính kèm</span>
+          </>
+        );
+      case 'pdf':
+      case 'other':
+        return (
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="file-link"
+          >
+            <FaFileUpload /> Xem tệp đính kèm
+          </a>
+        );
+      default:
+        return <p>Chưa có tệp đính kèm</p>;
+    }
   };
 
   return (
@@ -467,6 +576,9 @@ const ExamResultModal = ({
             .alert-danger {
               display: none;
             }
+            video, audio {
+              display: none;
+            }
           }
         `}
       </style>
@@ -538,38 +650,7 @@ const ExamResultModal = ({
               <div className="medical-info-card">
                 <h5><FaFileUpload /> Tệp Đính Kèm</h5>
                 {file && typeof file === 'string' ? (
-                  isImage ? (
-                    <>
-                      <img
-                        src={`http://127.0.0.1:8000/storage/${file}`}
-                        alt="Tệp đính kèm"
-                        className="medical-image"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'block';
-                        }}
-                      />
-                      <a
-                        href={`http://127.0.0.1:8000/storage/${file}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="file-link"
-                        style={{ display: 'none' }}
-                      >
-                        <FaFileUpload /> Xem tệp đính kèm
-                      </a>
-                      <span className="image-caption">Hình ảnh đính kèm</span>
-                    </>
-                  ) : (
-                    <a
-                      href={`http://127.0.0.1:8000/storage/${file}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="file-link"
-                    >
-                      <FaFileUpload /> Xem tệp đính kèm
-                    </a>
-                  )
+                  renderFilePreview(file, fileType)
                 ) : file instanceof File ? (
                   <p>Tệp đã chọn: {file.name}</p>
                 ) : (
@@ -748,14 +829,7 @@ const ExamResultModal = ({
                 {file && typeof file === 'string' ? (
                   <div className="file-preview">
                     <span className="me-2">Tệp hiện tại:</span>
-                    <a
-                      href={`http://127.0.0.1:8000/storage/${file}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="file-link"
-                    >
-                      <FaFileUpload /> Xem tệp
-                    </a>
+                    {renderFilePreview(file, fileType)}
                   </div>
                 ) : file instanceof File ? (
                   <div className="file-preview">

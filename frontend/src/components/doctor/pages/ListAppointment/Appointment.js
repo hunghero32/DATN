@@ -869,6 +869,7 @@ const Appointment = () => {
         handleDeleteAppointment={handleDeleteAppointment}
         handleTransferAppointment={handleTransferAppointment}
         handleCompleteAppointment={handleCompleteAppointment}
+        handleStartExam={handleStartExam}
       />
       <ConfirmModal
         show={showConfirmModal}
