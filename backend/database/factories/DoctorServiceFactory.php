@@ -21,6 +21,7 @@ class DoctorServiceFactory extends Factory
         return [
             'doctor_id' => Doctor::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID bác sĩ
             'service_id' => Services::inRandomOrder()->first()->id, // Lấy ngẫu nhiên ID dịch vụ
+            'doctor_fee' =>  $this->faker->randomFloat(0, 100000, 1000000), // Random lợi nhuận bác sĩ (từ 100,000 đến 1,000,000)
         ];
     }
 }
