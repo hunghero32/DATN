@@ -40,6 +40,9 @@ class BookingController extends Controller
             ->when(auth()->user()->role === 'doctor' && $request->status === 'confirmed', function ($query) {
                 return $query->filterDoctorConfirmed(); // lọc theo trạng thái xác nhận
             })
+            ->when(auth()->user()->role === 'doctor' && $request->status === 'examining', function ($query) {
+                return $query->scopeFilterDoctorExamining(); // lọc theo trạng thái đang khám
+            })
             ->when(auth()->user()->role === 'doctor' && $request->status === 'completed', function ($query) {
                 return $query->filterDoctorCompleted(); // lọc theo trạng thái hoàn thành
             })
@@ -98,23 +101,31 @@ class BookingController extends Controller
         }
         // Validate trạng thái
         $validate = $request->validate([
-            'status' => 'required|in:pending,confirmed,completed,cancelled'
+            'status' => 'required|in:pending,confirmed,examining,completed,cancelled'
         ]);
-        if ($booking->status === 'completed') {
-            return response()->json([
-                'message' => 'Lịch hẹn đã hoàn thành và kết quả đã được tạo trước đó.'
-            ], 400);
+        if ($booking->status === 'cancelled') {
+            return response()->json(['message' => 'Không thể cập nhật lịch hẹn đã huỷ.'], 400);
+        }
+        if (in_array($booking->status, ['examining', 'completed'])) {
+            return response()->json(['message' => 'Lịch hẹn đã hoàn tất hoặc đang được khám.'], 400);
         }
         // Kiểm tra logic cập nhật status
-        if ($validate['status'] === 'completed' && $booking->status !== 'confirmed') {
-            return response()->json(['message' => 'Lịch hẹn phải được xác nhận trước khi hoàn thành.'], 400);
+        if ($validate['status'] === 'examining' && $booking->status !== 'confirmed') {
+            return response()->json(['message' => 'Lịch hẹn phải được xác nhận trước khi khám bệnh.'], 400);
         }
-        // Nếu chuyển sang confirmed → tạo hồ sơ bệnh án nếu chưa có
+        if ($validate['status'] === 'completed' && $booking->status !== 'examining') {
+            return response()->json(['message' => 'Bác sĩ phải khám bênh trước khi hoàn thành.'], 400);
+        }
+        // Nếu chuyển sang confirmed → tạo hóa đơn
         if ($validate['status'] === 'confirmed') {
-            $this->createMedicalRecord($booking);
             $this->createInvoiceForBooking($booking);
         }
-        // Nếu trạng thái là completed, tạo kết quả
+        // Nếu chuyển sang confirmed → tạo kết quả khám nếu chưa có
+        if ($validate['status'] === 'examining') {
+            $this->createResultForBooking($booking);
+            
+        }
+        // Nếu trạng thái là completed, tạo hồ sơ bệnh án
         if ($validate['status'] === 'completed') {
             // Gộp ngày và giờ thành 1 đối tượng Carbon để so sánh
             $bookingDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->booking_time);
@@ -122,7 +133,7 @@ class BookingController extends Controller
             if (now()->lt($bookingDateTime)) {
                 return response()->json(['message' => 'Bạn chỉ có thể hoàn thành lịch hẹn sau thời gian đã đặt.'], 400);
             }
-            $this->createResultForBooking($booking);
+            $this->createMedicalRecord($booking);
         }
         // Cập nhật trạng thái
         $booking->update(['status' => $validate['status']]);
@@ -199,6 +210,7 @@ class BookingController extends Controller
         $statusMap = [
             'pending' => 'Chờ xác nhận',
             'confirmed' => 'Đã xác nhận',
+            'examining' => 'Đang khám',
             'completed' => 'Đã hoàn thành',
             'cancelled' => 'Đã hủy',
         ];
@@ -227,8 +239,8 @@ class BookingController extends Controller
         if ($status === 'completed' && $guestId) {
             $this->notificationService->sendNotification(
                 $guestId,
-                "Kết quả khám sắp có",
-                "Kết quả khám của bạn về {$booking->service->services_name} vào lúc {$bookingTime} ngày {$bookingDate} sắp có, chờ xíu nhé!",
+                "Đã hoan thành lịch khám",
+                "Kết quả khám của bạn về {$booking->service->services_name} vào lúc {$bookingTime} ngày {$bookingDate} đã có mời bạn kiểm tra!",
                 "result",
                 $booking->id
             );

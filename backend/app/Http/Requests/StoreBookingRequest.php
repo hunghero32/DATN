@@ -30,7 +30,7 @@ class StoreBookingRequest extends FormRequest
                 fn($attr, $val, $fail) => Carbon::parse(request('booking_date') . ' ' . $val)
                     ->lt(Carbon::now()->addHours(2)) ? $fail('Thời gian đặt lịch phải cách hiện tại ít nhất 2 giờ.') : null],
             'note' => 'nullable|string|max:255',
-            'status' => 'required|in:pending,confirmed,cancelled,completed'
+            'status' => 'required|in:pending,confirmed,examining,cancelled,completed'
         ];
     }
 
