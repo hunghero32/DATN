@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Line, Pie } from "react-chartjs-2";
+import { Line, Pie, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -8,14 +8,17 @@ import {
   PointElement,
   LineElement,
   ArcElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
-import { Container, Row, Col, Card } from 'react-bootstrap';
-import { FaUserMd, FaCalendarCheck, FaClipboardList, FaChartLine } from 'react-icons/fa';
-import { format } from 'date-fns';
+import { Container, Row, Col, Card, Table, Badge } from 'react-bootstrap';
+import { FaUserMd, FaCalendarCheck, FaClipboardList, FaChartLine, FaDollarSign, FaCalendarAlt } from 'react-icons/fa';
+import { format, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Register Chart.js components
 ChartJS.register(
@@ -24,6 +27,7 @@ ChartJS.register(
   PointElement,
   LineElement,
   ArcElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
@@ -36,7 +40,9 @@ const Dashboard = () => {
     monthly_patients: 0,
     total_appointments: 0,
     completed_appointments: 0,
+    pending_appointments: 0,
     confirmed_appointments: 0,
+    total_pending_and_confirmed: 0,
     days_off: 0,
     available_slots: 0,
     appointments_by_status: {},
@@ -46,9 +52,8 @@ const Dashboard = () => {
     today_appointments_count: 0,
     upcoming_appointments: [],
     completed_appointments_list: [],
-    totalAppointments: 0,
-    pendingAppointments: 0,
-    totalPatients: 0
+    monthly_earnings: 0,
+    total_earnings: 0,
   });
 
   const [systemInfo, setSystemInfo] = useState({
@@ -60,6 +65,7 @@ const Dashboard = () => {
 
   const [doctorInfo, setDoctorInfo] = useState(null);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [loading, setLoading] = useState(true);
 
   const getAuthToken = () => localStorage.getItem("authToken");
 
@@ -71,6 +77,36 @@ const Dashboard = () => {
     return "Chào buổi tối";
   };
 
+  // Format currency for Vietnamese Dong (VND)
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(amount);
+  };
+
+  // Format date and time
+  const formatDateTime = (date) => {
+    return format(date, "EEEE, 'ngày' dd 'tháng' MM 'năm' yyyy, HH:mm", { locale: vi });
+  };
+
+  const formatDate = (dateString) => {
+    try {
+      return format(parseISO(dateString), 'dd/MM/yyyy', { locale: vi });
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
+  const formatTime = (timeString) => {
+    if (!timeString) return 'N/A';
+    try {
+      return format(parseISO(`2025-01-01T${timeString}`), 'HH:mm', { locale: vi });
+    } catch (error) {
+      return timeString;
+    }
+  };
+
   // Fetch data when the component mounts
   useEffect(() => {
     const fetchSystemInfo = async () => {
@@ -79,6 +115,7 @@ const Dashboard = () => {
         setSystemInfo(response.data);
       } catch (error) {
         console.error("Lỗi khi tải thông tin hệ thống:", error);
+        toast.error("Không thể tải thông tin hệ thống.", { toastId: "system-info-error" });
       }
     };
 
@@ -86,37 +123,47 @@ const Dashboard = () => {
       try {
         const token = getAuthToken();
         if (!token) {
-          console.error('Chưa đăng nhập');
+          toast.error("Vui lòng đăng nhập để tiếp tục.", { toastId: "auth-error" });
           return;
         }
         const response = await axios.get('http://127.0.0.1:8000/api/doctor/profile', {
           headers: {
             Authorization: `Bearer ${token}`,
-            Accept: 'application/json'
-          }
+            Accept: 'application/json',
+          },
         });
         setDoctorInfo(response.data);
       } catch (error) {
         console.error('Lỗi khi lấy thông tin bác sĩ:', error);
+        toast.error("Không thể tải thông tin bác sĩ.", { toastId: "doctor-info-error" });
       }
     };
 
     const fetchDashboardData = async () => {
+      setLoading(true);
       try {
         const token = getAuthToken();
         if (!token) {
-          console.error('Chưa đăng nhập');
+          toast.error("Vui lòng đăng nhập để tiếp tục.", { toastId: "auth-error" });
           return;
         }
         const response = await axios.get("http://127.0.0.1:8000/api/doctor/dashboard", {
           headers: {
             Authorization: `Bearer ${token}`,
-            Accept: 'application/json'
-          }
+            Accept: 'application/json',
+          },
         });
-        setDashboardData(response.data);
+
+        if (response.data.success) {
+          setDashboardData(response.data.data);
+        } else {
+          throw new Error(response.data.message || "Không thể tải dữ liệu dashboard.");
+        }
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu bảng điều khiển:", error);
+        toast.error(error.message || "Không thể tải dữ liệu dashboard.", { toastId: "dashboard-error" });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -132,25 +179,11 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const formatDateTime = (date) => {
-    return format(date, "EEEE, 'ngày' dd 'tháng' MM 'năm' yyyy, HH:mm", { locale: vi });
-  };
-
   // Prepare data for the Patients by Month chart (Line chart)
   const patientsByMonthData = {
     labels: [
-      "Tháng 1",
-      "Tháng 2",
-      "Tháng 3",
-      "Tháng 4",
-      "Tháng 5",
-      "Tháng 6",
-      "Tháng 7",
-      "Tháng 8",
-      "Tháng 9",
-      "Tháng 10",
-      "Tháng 11",
-      "Tháng 12",
+      "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+      "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12",
     ],
     datasets: [
       {
@@ -168,25 +201,41 @@ const Dashboard = () => {
 
   // Prepare data for the Appointments by Status chart (Pie chart)
   const appointmentsByStatusData = {
-    labels: ["Đã hoàn thành", "Đã xác nhận", "Đã hủy"],
+    labels: ["Đã hoàn thành", "Đã xác nhận", "Đang chờ xử lý"],
     datasets: [
       {
         label: "Trạng thái lịch hẹn",
         data: [
           dashboardData.appointments_by_status?.completed || 0,
           dashboardData.appointments_by_status?.confirmed || 0,
-          dashboardData.appointments_by_status?.canceled || 0,
+          dashboardData.appointments_by_status?.pending || 0,
         ],
         backgroundColor: [
-          "rgba(255, 182, 193, 0.6)",
-          "rgba(135, 206, 250, 0.6)",
-          "rgba(255, 215, 0, 0.6)",
+          "rgba(16, 185, 129, 0.6)",  // Green for completed
+          "rgba(59, 130, 246, 0.6)",  // Blue for confirmed
+          "rgba(245, 158, 11, 0.6)",  // Amber for pending
         ],
         borderColor: [
-          "rgba(255, 182, 193, 1)",
-          "rgba(135, 206, 250, 1)",
-          "rgba(255, 215, 0, 1)",
+          "rgba(16, 185, 129, 1)",
+          "rgba(59, 130, 246, 1)",
+          "rgba(245, 158, 11, 1)",
         ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Prepare data for Appointments by Day in Current Month (Bar chart)
+  const appointmentsByDayData = {
+    labels: Object.keys(dashboardData.appointments_by_day).map(date =>
+      format(parseISO(date), 'dd/MM', { locale: vi })
+    ),
+    datasets: [
+      {
+        label: "Số lịch hẹn mỗi ngày",
+        data: Object.values(dashboardData.appointments_by_day).map(day => day.total || 0),
+        backgroundColor: "rgba(59, 130, 246, 0.6)",
+        borderColor: "rgba(59, 130, 246, 1)",
         borderWidth: 1,
       },
     ],
@@ -194,12 +243,14 @@ const Dashboard = () => {
 
   return (
     <Container fluid className="dashboard-container">
+      <ToastContainer position="top-right" autoClose={3000} />
       <style>
         {`
           .dashboard-container {
             padding: 2rem;
             margin-top: 70px;
             background-color: #f8fafc;
+            min-height: 100vh;
           }
 
           .dashboard-card {
@@ -244,6 +295,16 @@ const Dashboard = () => {
 
           .card-icon.patients {
             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+          }
+
+          .card-icon.earnings {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+          }
+
+          .card-icon.days-off {
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
             color: white;
           }
 
@@ -322,6 +383,37 @@ const Dashboard = () => {
             color: #1f2937;
             margin-bottom: 1rem;
           }
+
+          .table-responsive {
+            max-height: 300px;
+            overflow-y: auto;
+          }
+
+          .table th, .table td {
+            vertical-align: middle;
+            font-size: 14px;
+          }
+
+          .badge {
+            padding: 0.5em 1em;
+            font-size: 12px;
+            border-radius: 12px;
+          }
+
+          .badge.bg-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+          }
+
+          .badge.bg-confirmed {
+            background-color: #d1fae5;
+            color: #059669;
+          }
+
+          .badge.bg-examining {
+            background-color: #fee2e2;
+            color: #ef4444;
+          }
         `}
       </style>
 
@@ -337,128 +429,157 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <Row className="g-4 stats-row">
-        <Col lg={3} sm={6}>
-          <Card className="dashboard-card h-100">
-            <Card.Body>
-              <div className="card-icon appointments">
-                <FaCalendarCheck />
-              </div>
-              <div className="stat-title">Tổng Số Cuộc Hẹn</div>
-              <div className="stat-value">{dashboardData.total_appointments}</div>
-              <div className="stat-description">Tổng số cuộc hẹn đã đặt</div>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col lg={3} sm={6}>
-          <Card className="dashboard-card h-100">
-            <Card.Body>
-              <div className="card-icon completed">
-                <FaClipboardList />
-              </div>
-              <div className="stat-title">Đã Hoàn Thành</div>
-              <div className="stat-value">{dashboardData.completed_appointments}</div>
-              <div className="stat-description">Số cuộc hẹn đã hoàn thành</div>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col lg={3} sm={6}>
-          <Card className="dashboard-card h-100">
-            <Card.Body>
-              <div className="card-icon pending">
-                <FaChartLine />
-              </div>
-              <div className="stat-title">Đang Chờ</div>
-              <div className="stat-value">{dashboardData.confirmed_appointments}</div>
-              <div className="stat-description">Số cuộc hẹn đang chờ xử lý</div>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col lg={3} sm={6}>
-          <Card className="dashboard-card h-100">
-            <Card.Body>
-              <div className="card-icon patients">
-                <FaUserMd />
-              </div>
-              <div className="stat-title">Tổng Số Bệnh Nhân</div>
-              <div className="stat-value">{dashboardData.total_patients}</div>
-              <div className="stat-description">Số bệnh nhân đã khám</div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      <div className="content-inner container-fluid pb-0" id="page_layout" style={{ backgroundColor: "#f0f4f8", padding: "20px" }}>
-        <div>
-          {/* Thống kê phụ */}
-          <div className="row">
-            <div className="col-md-4 mb-4">
-              <div className="card shadow-sm hover-shadow" style={{ borderRadius: "10px", transition: "all 0.3s" }}>
-                <div className="card-body text-center">
-                  <h6 className="text-uppercase text-muted mb-2">Ngày nghỉ trong tháng</h6>
-                  <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.days_off}</h3>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-4 mb-4">
-              <div className="card shadow-sm hover-shadow" style={{ borderRadius: "10px", transition: "all 0.3s" }}>
-                <div className="card-body text-center">
-                  <h6 className="text-uppercase text-muted mb-2">Số khung giờ trống</h6>
-                  <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.available_slots}</h3>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-4 mb-4">
-              <div className="card shadow-sm hover-shadow" style={{ borderRadius: "10px", transition: "all 0.3s" }}>
-                <div className="card-body text-center">
-                  <h6 className="text-uppercase text-muted mb-2">Lịch hẹn hôm nay</h6>
-                  <h3 className="mb-0" style={{ color: "#3498db" }}>{dashboardData.today_appointments_count}</h3>
-                </div>
-              </div>
-            </div>
+      {loading ? (
+        <div className="text-center my-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Đang tải...</span>
           </div>
+        </div>
+      ) : (
+        <>
+          {/* Statistics Cards */}
+          <Row className="g-4 stats-row">
+            <Col lg={3} sm={6}>
+              <Card className="dashboard-card h-100">
+                <Card.Body>
+                  <div className="card-icon appointments">
+                    <FaCalendarCheck />
+                  </div>
+                  <div className="stat-title">Tổng Số Cuộc Hẹn</div>
+                  <div className="stat-value">{dashboardData.total_appointments}</div>
+                  <div className="stat-description">Tổng số cuộc hẹn đã đặt</div>
+                </Card.Body>
+              </Card>
+            </Col>
 
-          {/* Biểu đồ trạng thái lịch hẹn và Bệnh nhân hôm nay */}
-          <div className="row">
-            <div className="col-md-4 mb-4">
-              <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
-                <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
-                  <h4 className="card-title" style={{ color: "#2c3e50" }}>Trạng thái lịch hẹn</h4>
-                </div>
-                <div className="card-body" style={{ height: "250px" }}>
-                  <Pie
-                    data={appointmentsByStatusData}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: "top",
-                          labels: {
-                            font: { size: 12 },
-                            color: "#2c3e50",
+            <Col lg={3} sm={6}>
+              <Card className="dashboard-card h-100">
+                <Card.Body>
+                  <div className="card-icon completed">
+                    <FaClipboardList />
+                  </div>
+                  <div className="stat-title">Đã Hoàn Thành</div>
+                  <div className="stat-value">{dashboardData.completed_appointments}</div>
+                  <div className="stat-description">Số cuộc hẹn đã hoàn thành</div>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            <Col lg={3} sm={6}>
+              <Card className="dashboard-card h-100">
+                <Card.Body>
+                  <div className="card-icon pending">
+                    <FaChartLine />
+                  </div>
+                  <div className="stat-title">Đang Chờ</div>
+                  <div className="stat-value">{dashboardData.total_pending_and_confirmed}</div>
+                  <div className="stat-description">Số cuộc hẹn đang chờ xử lý</div>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            <Col lg={3} sm={6}>
+              <Card className="dashboard-card h-100">
+                <Card.Body>
+                  <div className="card-icon patients">
+                    <FaUserMd />
+                  </div>
+                  <div className="stat-title">Tổng Số Bệnh Nhân</div>
+                  <div className="stat-value">{dashboardData.total_patients}</div>
+                  <div className="stat-description">Số bệnh nhân đã khám</div>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            <Col lg={3} sm={6}>
+              <Card className="dashboard-card h-100">
+                <Card.Body>
+                  <div className="card-icon earnings">
+                    <FaDollarSign />
+                  </div>
+                  <div className="stat-title">Doanh Thu Tháng</div>
+                  <div className="stat-value">{formatCurrency(dashboardData.monthly_earnings)}</div>
+                  <div className="stat-description">Tổng doanh thu tháng này</div>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            <Col lg={3} sm={6}>
+              <Card className="dashboard-card h-100">
+                <Card.Body>
+                  <div className="card-icon earnings">
+                    <FaDollarSign />
+                  </div>
+                  <div className="stat-title">Tổng Doanh Thu</div>
+                  <div className="stat-value">{formatCurrency(dashboardData.total_earnings)}</div>
+                  <div className="stat-description">Tổng doanh thu từ trước đến nay</div>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            <Col lg={3} sm={6}>
+              <Card className="dashboard-card h-100">
+                <Card.Body>
+                  <div className="card-icon days-off">
+                    <FaCalendarAlt />
+                  </div>
+                  <div className="stat-title">Ngày Nghỉ</div>
+                  <div className="stat-value">{dashboardData.days_off}</div>
+                  <div className="stat-description">Số ngày nghỉ trong tháng này</div>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            <Col lg={3} sm={6}>
+              <Card className="dashboard-card h-100">
+                <Card.Body>
+                  <div className="card-icon appointments">
+                    <FaCalendarCheck />
+                  </div>
+                  <div className="stat-title">Khung Giờ Trống</div>
+                  <div className="stat-value">{dashboardData.available_slots}</div>
+                  <div className="stat-description">Số khung giờ trống trong tháng</div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Charts and Tables */}
+          <div className="content-inner container-fluid pb-0" style={{ padding: "20px" }}>
+            {/* Appointments by Status and Patients Today */}
+            <Row className="g-4">
+              <Col lg={4}>
+                <div className="chart-card">
+                  <h4 className="chart-title">Trạng thái lịch hẹn</h4>
+                  <div style={{ height: "250px" }}>
+                    <Pie
+                      data={appointmentsByStatusData}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: "top",
+                            labels: {
+                              font: { size: 12 },
+                              color: "#2c3e50",
+                            },
+                          },
+                          title: {
+                            display: false,
                           },
                         },
-                        title: {
-                          display: false,
-                        },
-                      },
-                    }}
-                  />
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="col-md-8 mb-4">
-              <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
-                <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
-                  <h4 className="card-title" style={{ color: "#2c3e50" }}>Bệnh nhân hôm nay</h4>
-                </div>
-                <div className="card-body">
-                  <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                    <table className="table table-striped table-hover">
+              </Col>
+
+              <Col lg={8}>
+                <div className="chart-card">
+                  <h4 className="chart-title">Bệnh nhân hôm nay</h4>
+                  <div className="table-responsive">
+                    <Table striped hover>
                       <thead>
                         <tr>
                           <th>Họ tên</th>
@@ -485,69 +606,102 @@ const Dashboard = () => {
                           </tr>
                         )}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </Col>
+            </Row>
 
-          {/* Biểu đồ bệnh nhân theo tháng */}
-          <div className="row">
-            <div className="col-12 mb-4">
-              <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
-                <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
-                  <h4 className="card-title" style={{ color: "#2c3e50" }}>Bệnh nhân theo tháng</h4>
-                </div>
-                <div className="card-body">
-                  <Line
-                    data={patientsByMonthData}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: "top",
-                          labels: {
-                            font: { size: 14 },
-                            color: "#2c3e50",
+            {/* Patients by Month and Appointments by Day */}
+            <Row className="g-4">
+              <Col lg={6}>
+                <div className="chart-card">
+                  <h4 className="chart-title">Bệnh nhân theo tháng</h4>
+                  <div style={{ height: "300px" }}>
+                    <Line
+                      data={patientsByMonthData}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: "top",
+                            labels: {
+                              font: { size: 14 },
+                              color: "#2c3e50",
+                            },
+                          },
+                          title: {
+                            display: false,
                           },
                         },
-                        title: {
-                          display: false,
+                        scales: {
+                          x: {
+                            ticks: { color: "#2c3e50" },
+                            grid: { display: false },
+                          },
+                          y: {
+                            ticks: { color: "#2c3e50" },
+                            grid: { color: "rgba(0, 0, 0, 0.05)" },
+                            beginAtZero: true,
+                          },
                         },
-                      },
-                      scales: {
-                        x: {
-                          ticks: { color: "#2c3e50" },
-                          grid: { display: false },
-                        },
-                        y: {
-                          ticks: { color: "#2c3e50" },
-                          grid: { color: "rgba(0, 0, 0, 0.05)" },
-                        },
-                      },
-                    }}
-                    style={{ height: "300px" }}
-                  />
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </Col>
 
-          {/* Lịch hẹn sắp tới và Lịch hẹn đã hoàn thành */}
-          <div className="row">
-            <div className="col-lg-6 mb-4">
-              <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
-                <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
-                  <h4 className="card-title" style={{ color: "#2c3e50" }}>Lịch hẹn sắp tới</h4>
+              <Col lg={6}>
+                <div className="chart-card">
+                  <h4 className="chart-title">Lịch hẹn theo ngày (Tháng này)</h4>
+                  <div style={{ height: "300px" }}>
+                    <Bar
+                      data={appointmentsByDayData}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: "top",
+                            labels: {
+                              font: { size: 14 },
+                              color: "#2c3e50",
+                            },
+                          },
+                          title: {
+                            display: false,
+                          },
+                        },
+                        scales: {
+                          x: {
+                            ticks: { color: "#2c3e50" },
+                            grid: { display: false },
+                          },
+                          y: {
+                            ticks: { color: "#2c3e50" },
+                            grid: { color: "rgba(0, 0, 0, 0.05)" },
+                            beginAtZero: true,
+                          },
+                        },
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="card-body">
-                  <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                    <table className="table table-striped table-hover">
+              </Col>
+            </Row>
+
+            {/* Upcoming and Completed Appointments */}
+            <Row className="g-4">
+              <Col lg={6}>
+                <div className="chart-card">
+                  <h4 className="chart-title">Lịch hẹn sắp tới</h4>
+                  <div className="table-responsive">
+                    <Table striped hover>
                       <thead>
                         <tr>
                           <th>Ngày</th>
+                          <th>Thời gian</th>
                           <th>Họ tên</th>
                           <th>Số điện thoại</th>
                           <th>Dịch vụ</th>
@@ -558,51 +712,44 @@ const Dashboard = () => {
                         {dashboardData.upcoming_appointments.length > 0 ? (
                           dashboardData.upcoming_appointments.map((appointment, index) => (
                             <tr key={index}>
-                              <td>{appointment.booking_date}</td>
+                              <td>{formatDate(appointment.booking_date)}</td>
+                              <td>{formatTime(appointment.booking_time)}</td>
                               <td>{appointment.guest?.guest_name || "Chưa xác định"}</td>
                               <td>{appointment.guest?.guest_phone || "N/A"}</td>
                               <td>{appointment.service?.services_name || "N/A"}</td>
                               <td>
-                                <span
-                                  className={`badge ${
-                                    appointment.status === "confirmed"
-                                      ? "bg-success"
-                                      : appointment.status === "canceled"
-                                      ? "bg-danger"
-                                      : "bg-warning"
-                                  }`}
+                                <Badge
+                                  className={`bg-${appointment.status}`}
                                 >
-                                  {appointment.status === "confirmed" ? "Đã xác nhận" : 
-                                   appointment.status === "canceled" ? "Đã hủy" : "Chờ xác nhận"}
-                                </span>
+                                  {appointment.status === "confirmed" ? "Đã xác nhận" :
+                                   appointment.status === "pending" ? "Đang chờ xử lý" :
+                                   appointment.status === "examining" ? "Đang khám" : "N/A"}
+                                </Badge>
                               </td>
                             </tr>
                           ))
                         ) : (
                           <tr>
-                            <td colSpan="5" className="text-center">
+                            <td colSpan="6" className="text-center">
                               Không có lịch hẹn sắp tới
                             </td>
                           </tr>
                         )}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 </div>
-              </div>
-            </div>
+              </Col>
 
-            <div className="col-lg-6 mb-4">
-              <div className="card shadow-sm" style={{ borderRadius: "10px" }}>
-                <div className="card-header" style={{ backgroundColor: "#fff", borderBottom: "none" }}>
-                  <h4 className="card-title" style={{ color: "#2c3e50" }}>Lịch hẹn đã hoàn thành</h4>
-                </div>
-                <div className="card-body">
-                  <div style={{ maxHeight: "300px", overflowY: "auto" }}>
-                    <table className="table table-striped table-hover">
+              <Col lg={6}>
+                <div className="chart-card">
+                  <h4 className="chart-title">Lịch hẹn đã hoàn thành</h4>
+                  <div className="table-responsive">
+                    <Table striped hover>
                       <thead>
                         <tr>
                           <th>Ngày</th>
+                          <th>Thời gian</th>
                           <th>Họ tên</th>
                           <th>Số điện thoại</th>
                           <th>Dịch vụ</th>
@@ -612,7 +759,8 @@ const Dashboard = () => {
                         {dashboardData.completed_appointments_list.length > 0 ? (
                           dashboardData.completed_appointments_list.map((appointment, index) => (
                             <tr key={index}>
-                              <td>{appointment.booking_date}</td>
+                              <td>{formatDate(appointment.booking_date)}</td>
+                              <td>{formatTime(appointment.booking_time)}</td>
                               <td>{appointment.guest?.guest_name || "Chưa xác định"}</td>
                               <td>{appointment.guest?.guest_phone || "N/A"}</td>
                               <td>{appointment.service?.services_name || "N/A"}</td>
@@ -620,20 +768,20 @@ const Dashboard = () => {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan="4" className="text-center">
+                            <td colSpan="5" className="text-center">
                               Không có lịch hẹn đã hoàn thành
                             </td>
                           </tr>
                         )}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
                 </div>
-              </div>
-            </div>
+              </Col>
+            </Row>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </Container>
   );
 };

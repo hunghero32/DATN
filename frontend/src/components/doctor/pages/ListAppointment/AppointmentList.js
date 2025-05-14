@@ -5,7 +5,6 @@ const AppointmentList = ({
   appointmentsToDisplay,
   statusFilter,
   loading,
-  error,
   handleShowDetail,
   handleCompleteAppointment,
   handleShowMedicalRecord,
@@ -13,121 +12,156 @@ const AppointmentList = ({
   handleTransferAppointment,
   highlightedBookingId,
   searchMatchIds,
+  handleStartExam,
 }) => {
-
-  // Log props nhận được khi component render
-  console.log("[AppointmentList] Props received:", { 
-    count: appointmentsToDisplay?.length, 
-    statusFilter, 
+  console.log("[AppointmentList] Props received:", {
+    count: appointmentsToDisplay?.length,
+    statusFilter,
     highlightedBookingId,
-    searchMatchIds
+    searchMatchIds,
   });
 
-  const renderTable = (appointments, title, status) => (
-    <div className="card-container">
-      <h5>{title}</h5>
-      {loading ? (
-        <Spinner animation="border" />
-      ) : error ? (
-        <p className="text-danger">{error}</p>
-      ) : appointments.length === 0 ? (
-        <p className="text-muted">
-          Không có cuộc hẹn nào{" "}
-          {statusFilter === "pending" ? "đang chờ xác nhận" : statusFilter === "confirmed" ? "đã nhận" : "đã khám xong"}.
-        </p>
-      ) : (
-        <table className="appointment-table">
-          <thead>
-            <tr>
-              <th>Thời gian</th>
-              <th>Ngày</th>
-              <th>Nguồn đặt</th>
-              <th>Trạng thái</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {appointments.map((app, index) => {
-              // Log ID và highlight ID cho mỗi hàng
-              console.log(`[AppointmentList] Rendering row ${index}: app.id=${app.id} (${typeof app.id}), highlightedBookingId=${highlightedBookingId} (${typeof highlightedBookingId}), shouldHighlight=${app.id === highlightedBookingId}`);
-              return (
-                <tr
-                  key={index}
-                  className={
-                    (highlightedBookingId !== null && app.id === highlightedBookingId) ||
-                    (searchMatchIds !== null && searchMatchIds.has(app.id))
-                      ? "highlighted-row"
-                      : ""
-                  }
-                >
-                  <td>{app.booking_time}</td>
-                  <td>{app.booking_date}</td>
-                  <td>{app.guest?.guest_name || "Không có tên"}</td>
-                  <td>
-                    <span className={`status-badge ${status}`}>
-                      {status === "pending" ? "Chờ xử lý" : status === "confirmed" ? "Đã xác nhận" : "Hoàn thành"}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="action-button detail"
-                      onClick={() => handleShowDetail(app)}
-                    >
-                      Chi tiết
-                    </button>
-                    {status === "confirmed" && (
-                      <>
-                        <button
-                          className="action-button medical-record"
-                          onClick={() => handleShowMedicalRecord(app)}
-                        >
-                          Hồ sơ bệnh án
-                        </button>
-                        <button
-                          className="action-button complete"
-                          onClick={() => handleCompleteAppointment(app)}
-                        >
-                          Hoàn thành
-                        </button>
-                      </>
-                    )}
-                    {status === "completed" && (
-                      <>
-                        <button
-                          className="action-button medical-record"
-                          onClick={() => handleShowMedicalRecord(app)}
-                        >
-                          Hồ sơ bệnh án
-                        </button>
-                        <button
-                          className="action-button exam-result"
-                          onClick={() => handleShowExamResult(app)}
-                        >
-                          Kết quả khám
-                        </button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
-    </div>
-  );
+  const renderTable = (appointments, title, status) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const filteredAppointments = appointments.filter((app) => {
+      const bookingDate = new Date(app.booking_date);
+      if (isNaN(bookingDate)) {
+        console.warn(`Invalid booking_date for appointment ${app.id}: ${app.booking_date}`);
+        return false;
+      }
+      return bookingDate >= today;
+    });
+
+    return (
+      <div className="card-container">
+        <h5>{title}</h5>
+        {loading ? (
+          <Spinner animation="border" />
+        ) : filteredAppointments.length === 0 ? (
+          <p className="text-muted">
+            Không có cuộc hẹn nào{" "}
+            {statusFilter === "pending"
+              ? "đang chờ xác nhận"
+              : statusFilter === "confirmed"
+              ? "đã nhận"
+              : statusFilter === "examining"
+              ? "đang khám"
+              : "đã khám xong"}
+            .
+          </p>
+        ) : (
+          <table className="appointment-table">
+            <thead>
+              <tr>
+                <th>Thời gian</th>
+                <th>Ngày</th>
+                <th>Nguồn đặt</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAppointments.map((app, index) => {
+                console.log(
+                  `[AppointmentList] Rendering row ${index}: app.id=${app.id} (${typeof app.id}), highlightedBookingId=${highlightedBookingId} (${typeof highlightedBookingId}), shouldHighlight=${
+                    app.id === highlightedBookingId
+                  }`
+                );
+                return (
+                  <tr
+                    key={index}
+                    className={
+                      (highlightedBookingId !== null && app.id === highlightedBookingId) ||
+                      (searchMatchIds !== null && searchMatchIds.has(app.id))
+                        ? "highlighted-row"
+                        : ""
+                    }
+                  >
+                    <td>{app.booking_time}</td>
+                    <td>{app.booking_date}</td>
+                    <td>{app.guest?.guest_name || "Không có tên"}</td>
+                    <td>
+                      <span className={`status-badge ${status}`}>
+                        {status === "pending"
+                          ? "Chờ xử lý"
+                          : status === "confirmed"
+                          ? "Đã xác nhận"
+                          : status === "examining"
+                          ? "Đang khám"
+                          : "Hoàn thành"}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="action-button detail"
+                        onClick={() => handleShowDetail(app)}
+                      >
+                        Chi tiết
+                      </button>
+                      {status === "confirmed" && (
+                        <>
+                          <button
+                            className="action-button start-exam"
+                            onClick={() => handleStartExam(app)}
+                          >
+                            Bắt đầu khám
+                          </button>
+                        </>
+                      )}
+                      {status === "examining" && (
+                        <>
+                          <button
+                            className="action-button exam-result"
+                            onClick={() => handleShowExamResult(app)}
+                          >
+                            Kết quả khám
+                          </button>
+                          <button
+                            className="action-button complete"
+                            onClick={() => handleCompleteAppointment(app)}
+                          >
+                            Hoàn thành
+                          </button>
+                        </>
+                      )}
+                      {status === "completed" && (
+                        <>
+                          <button
+                            className="action-button medical-record"
+                            onClick={() => handleShowMedicalRecord(app)}
+                          >
+                            Hồ sơ bệnh án
+                          </button>
+                          <button
+                            className="action-button exam-result"
+                            onClick={() => handleShowExamResult(app)}
+                          >
+                            Kết quả khám
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
       <style>
         {`
-          /* Highlighted Row Style */
           .highlighted-row td {
             background-color: #e6f7ff !important;
             transition: background-color 0.5s ease-in-out;
           }
 
-          /* Card Container for Table */
           .card-container {
             background-color: #fff;
             border-radius: 15px;
@@ -145,7 +179,6 @@ const AppointmentList = ({
             padding-left: 1rem;
           }
 
-          /* Table Styling */
           .appointment-table {
             width: 100%;
             border-collapse: collapse;
@@ -178,7 +211,6 @@ const AppointmentList = ({
             transition: background-color 0.3s ease;
           }
 
-          /* Status Badge */
           .status-badge {
             padding: 0.5rem 1rem;
             border-radius: 20px;
@@ -197,12 +229,16 @@ const AppointmentList = ({
             color: #059669;
           }
 
+          .status-badge.examining {
+            background-color: #fee2e2;
+            color: #ef4444;
+          }
+
           .status-badge.completed {
             background-color: #e0e7ff;
             color: #4f46e5;
           }
 
-          /* Button Styling */
           .action-button {
             padding: 0.5rem 1.2rem;
             border-radius: 8px;
@@ -215,6 +251,11 @@ const AppointmentList = ({
 
           .action-button.detail {
             background-color: #3b82f6;
+            color: #fff;
+          }
+
+          .action-button.start-exam {
+            background-color: #f59e0b;
             color: #fff;
           }
 
@@ -238,6 +279,11 @@ const AppointmentList = ({
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           }
 
+          .action-button.start-exam:hover {
+            background-color: #d97706;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          }
+
           .action-button.medical-record:hover {
             background-color: #7c3aed;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -254,13 +300,17 @@ const AppointmentList = ({
           }
         `}
       </style>
-      {renderTable(appointmentsToDisplay, 
-        statusFilter === "pending" 
-          ? "Danh sách chờ duyệt" 
-          : statusFilter === "confirmed" 
-          ? "Danh sách đã nhận" 
-          : "Danh sách đã khám xong", 
-        statusFilter)}
+      {renderTable(
+        appointmentsToDisplay,
+        statusFilter === "pending"
+          ? "Danh sách chờ duyệt"
+          : statusFilter === "confirmed"
+          ? "Danh sách đã nhận"
+          : statusFilter === "examining"
+          ? "Danh sách đang khám"
+          : "Danh sách đã khám xong",
+        statusFilter
+      )}
     </>
   );
 };

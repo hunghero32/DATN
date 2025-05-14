@@ -110,6 +110,9 @@
 .modal-content {
   border-radius: 8px;
   border: none;
+  max-width: 800px; /* Tăng chiều rộng tối đa */
+  width: 90%; /* Đảm bảo modal chiếm khoảng 90% màn hình */
+  margin: 1.75rem auto; /* Canh giữa và điều chỉnh vị trí */
 }
 
 .modal-header {
@@ -124,7 +127,10 @@
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 1rem; /* Giảm padding để ngắn hơn */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Khoảng cách giữa các Form.Group */
 }
 
 .form-label {
@@ -141,6 +147,10 @@
 .form-control:focus, .form-select:focus {
   border-color: #3498db;
   box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.form-group {
+  flex: 1; /* Phân bố không gian đều */
 }
 
 .modal-footer {
@@ -162,4 +172,4 @@
 .Toastify__toast--error {
   background-color: #ffebee;
   color: #c62828;
-} 
+}
