@@ -13,8 +13,8 @@ const AppointmentList = ({
   handleTransferAppointment,
   highlightedBookingId,
   searchMatchIds,
+  handleStartExam,
 }) => {
-  // Log props nhận được khi component render
   console.log("[AppointmentList] Props received:", {
     count: appointmentsToDisplay?.length,
     statusFilter,
@@ -23,16 +23,14 @@ const AppointmentList = ({
   });
 
   const renderTable = (appointments, title, status) => {
-    // Lấy ngày hiện tại (May 14, 2025)
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Đặt thời gian về 00:00:00 để so sánh chính xác ngày
+    today.setHours(0, 0, 0, 0);
 
-    // Lọc các cuộc hẹn từ hiện tại đến tương lai cho tất cả trạng thái
     const filteredAppointments = appointments.filter((app) => {
       const bookingDate = new Date(app.booking_date);
       if (isNaN(bookingDate)) {
         console.warn(`Invalid booking_date for appointment ${app.id}: ${app.booking_date}`);
-        return false; // Bỏ qua nếu ngày không hợp lệ
+        return false;
       }
       return bookingDate >= today;
     });
@@ -51,6 +49,8 @@ const AppointmentList = ({
               ? "đang chờ xác nhận"
               : statusFilter === "confirmed"
               ? "đã nhận"
+              : statusFilter === "examining"
+              ? "đang khám"
               : "đã khám xong"}
             .
           </p>
@@ -67,7 +67,6 @@ const AppointmentList = ({
             </thead>
             <tbody>
               {filteredAppointments.map((app, index) => {
-                // Log ID và highlight ID cho mỗi hàng
                 console.log(
                   `[AppointmentList] Rendering row ${index}: app.id=${app.id} (${typeof app.id}), highlightedBookingId=${highlightedBookingId} (${typeof highlightedBookingId}), shouldHighlight=${
                     app.id === highlightedBookingId
@@ -77,8 +76,7 @@ const AppointmentList = ({
                   <tr
                     key={index}
                     className={
-                      (highlightedBookingId !== null &&
-                        app.id === highlightedBookingId) ||
+                      (highlightedBookingId !== null && app.id === highlightedBookingId) ||
                       (searchMatchIds !== null && searchMatchIds.has(app.id))
                         ? "highlighted-row"
                         : ""
@@ -93,6 +91,8 @@ const AppointmentList = ({
                           ? "Chờ xử lý"
                           : status === "confirmed"
                           ? "Đã xác nhận"
+                          : status === "examining"
+                          ? "Đang khám"
                           : "Hoàn thành"}
                       </span>
                     </td>
@@ -106,10 +106,20 @@ const AppointmentList = ({
                       {status === "confirmed" && (
                         <>
                           <button
-                            className="action-button medical-record"
-                            onClick={() => handleShowMedicalRecord(app)}
+                            className="action-button start-exam"
+                            onClick={() => handleStartExam(app)}
                           >
-                            Hồ sơ bệnh án
+                            Bắt đầu khám
+                          </button>
+                        </>
+                      )}
+                      {status === "examining" && (
+                        <>
+                          <button
+                            className="action-button exam-result"
+                            onClick={() => handleShowExamResult(app)}
+                          >
+                            Kết quả khám
                           </button>
                           <button
                             className="action-button complete"
@@ -150,13 +160,11 @@ const AppointmentList = ({
     <>
       <style>
         {`
-          /* Highlighted Row Style */
           .highlighted-row td {
             background-color: #e6f7ff !important;
             transition: background-color 0.5s ease-in-out;
           }
 
-          /* Card Container for Table */
           .card-container {
             background-color: #fff;
             border-radius: 15px;
@@ -174,7 +182,6 @@ const AppointmentList = ({
             padding-left: 1rem;
           }
 
-          /* Table Styling */
           .appointment-table {
             width: 100%;
             border-collapse: collapse;
@@ -207,7 +214,6 @@ const AppointmentList = ({
             transition: background-color 0.3s ease;
           }
 
-          /* Status Badge */
           .status-badge {
             padding: 0.5rem 1rem;
             border-radius: 20px;
@@ -226,12 +232,16 @@ const AppointmentList = ({
             color: #059669;
           }
 
+          .status-badge.examining {
+            background-color: #fee2e2;
+            color: #ef4444;
+          }
+
           .status-badge.completed {
             background-color: #e0e7ff;
             color: #4f46e5;
           }
 
-          /* Button Styling */
           .action-button {
             padding: 0.5rem 1.2rem;
             border-radius: 8px;
@@ -244,6 +254,11 @@ const AppointmentList = ({
 
           .action-button.detail {
             background-color: #3b82f6;
+            color: #fff;
+          }
+
+          .action-button.start-exam {
+            background-color: #f59e0b;
             color: #fff;
           }
 
@@ -264,6 +279,11 @@ const AppointmentList = ({
 
           .action-button.detail:hover {
             background-color: #2563eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          }
+
+          .action-button.start-exam:hover {
+            background-color: #d97706;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           }
 
@@ -289,6 +309,8 @@ const AppointmentList = ({
           ? "Danh sách chờ duyệt"
           : statusFilter === "confirmed"
           ? "Danh sách đã nhận"
+          : statusFilter === "examining"
+          ? "Danh sách đang khám"
           : "Danh sách đã khám xong",
         statusFilter
       )}

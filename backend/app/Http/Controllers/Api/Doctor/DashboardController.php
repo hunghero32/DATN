@@ -15,9 +15,9 @@ class DashboardController extends Controller
     public function index()
     {
         $doctorId = Doctor::where('user_id', auth()->id())->value('id');
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
-        $today = Carbon::now()->toDateString();
+        $currentMonth = Carbon::now()->month; // Current month (e.g., 5 for May)
+        $currentYear = Carbon::now()->year;   // Current year (e.g., 2025)
+        $today = Carbon::now()->toDateString(); // Current date (e.g., 2025-05-14)
 
         // Tổng số khách đã khám (đã hoàn thành)
         $totalPatients = Booking::where('doctor_id', $doctorId)
@@ -36,11 +36,12 @@ class DashboardController extends Controller
 
         // Tổng số lịch đã hoàn thành
         $completedAppointments = Booking::where('doctor_id', $doctorId)
-            ->whereIn('status', ['completed'])
+            ->where('status', 'completed')
             ->count();
+
         // Tổng số lịch đã đang chờ
         $confirmedAppointments = Booking::where('doctor_id', $doctorId)
-            ->whereIn('status', ['confirmed'])
+            ->where('status', 'confirmed')
             ->count();
 
         // Tổng số ngày nghỉ trong tháng này (lịch làm việc có status = 'off')
@@ -116,6 +117,13 @@ class DashboardController extends Controller
             ->orderBy('booking_date', 'desc')
             ->get();
 
+        // Tính doanh thu tháng này (tổng service_price của các lịch đã hoàn thành trong tháng hiện tại)
+        $monthlyEarnings = Booking::where('doctor_id', $doctorId)
+            ->where('status', 'completed')
+            ->whereMonth('booking_date', $currentMonth)
+            ->whereYear('booking_date', $currentYear)
+            ->sum('service_price');
+
         return response()->json([
             'total_patients' => $totalPatients, // Tổng số khách đã khám
             'monthly_patients' => $monthlyPatients, // Số khách đã khám trong tháng này
@@ -131,6 +139,7 @@ class DashboardController extends Controller
             'patients_today' => $patientsToday, // Lấy danh sách khách đã khám hôm nay
             'upcoming_appointments' => $upcomingAppointments, // Lấy danh sách lịch hẹn sắp tới (chưa hoàn thành)
             'completed_appointments_list' => $completedAppointmentsList, // Lấy danh sách lịch đã hoàn thành
+            'monthly_earnings' => $monthlyEarnings, // Tổng doanh thu tháng này
         ]);
     }
 }

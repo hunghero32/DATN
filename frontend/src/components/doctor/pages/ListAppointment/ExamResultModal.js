@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Button, Spinner, Row, Col, Table } from "react-bootstrap";
-import { FaFileMedical, FaPrescriptionBottle, FaStickyNote, FaFileUpload, FaEdit, FaTimes, FaDownload, FaBold, FaItalic, FaUnderline } from 'react-icons/fa';
+import { Modal, Form, Button, Spinner, Table } from "react-bootstrap";
+import { FaFileMedical, FaPrescriptionBottle, FaStickyNote, FaFileUpload, FaEdit, FaTimes, FaDownload, FaBold, FaItalic, FaUnderline, FaPrint } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const ExamResultModal = ({
@@ -9,7 +9,7 @@ const ExamResultModal = ({
   onHideView,
   onHideEdit,
   setShowEditResultModal,
-  setShowResultViewModal, // Ensure this prop is destructured
+  setShowResultViewModal,
   selectedAppointment,
   diagnosis,
   setDiagnosis,
@@ -26,8 +26,10 @@ const ExamResultModal = ({
   const [prescriptionList, setPrescriptionList] = useState([{ medicine: '', quantity: '', note: '', styles: {} }]);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [localFile, setLocalFile] = useState(null);
+  const [isImage, setIsImage] = useState(false);
 
   useEffect(() => {
+    // Reset state when modal mode changes
     if (!showEdit) {
       setDiagnosis(diagnosis || "");
       setNotes(notes || "");
@@ -50,6 +52,15 @@ const ExamResultModal = ({
       } catch (e) {
         setPrescriptionList([{ medicine: '', quantity: '', note: prescription || 'Không cần thuốc', styles: {} }]);
       }
+    }
+
+    // Check if the file is an image
+    if (file && typeof file === 'string') {
+      const extension = file.split('.').pop().toLowerCase();
+      const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp'];
+      setIsImage(imageExtensions.includes(extension));
+    } else {
+      setIsImage(false);
     }
   }, [showEdit, diagnosis, notes, prescription, file, setDiagnosis, setNotes, setPrescription, setFile]);
 
@@ -117,14 +128,18 @@ const ExamResultModal = ({
 
     try {
       await handleUpdateExamResult(data);
-      onHideEdit(); // Close the edit modal
+      onHideEdit();
       if (setShowResultViewModal && typeof setShowResultViewModal === 'function') {
-        setShowResultViewModal(true); // Open the view modal only if it's a function
+        setShowResultViewModal(true);
       }
     } catch (error) {
       console.error("Error during save:", error);
       toast.error(error.message || "Lỗi khi cập nhật kết quả khám.");
     }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
@@ -200,6 +215,20 @@ const ExamResultModal = ({
             box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
           }
 
+          .medical-modal .btn-success {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+          }
+
+          .medical-modal .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+          }
+
           .medical-modal .btn-secondary {
             background: #f1f5f9;
             color: #475569;
@@ -253,6 +282,15 @@ const ExamResultModal = ({
             gap: 8px;
           }
 
+          .medical-image {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-top: 10px;
+          }
+
           .spinner-overlay {
             position: absolute;
             top: 0;
@@ -294,6 +332,142 @@ const ExamResultModal = ({
             color: #a0aec0;
             cursor: not-allowed;
           }
+
+          @media print {
+            @page {
+              size: A4;
+              margin: 20mm;
+            }
+            body * {
+              visibility: hidden;
+            }
+            .medical-modal .modal-body,
+            .medical-modal .modal-body * {
+              visibility: visible;
+            }
+            .medical-modal .modal-body {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              padding: 20px;
+              background-color: white;
+              box-shadow: none !important;
+              border: none !important;
+              font-family: Arial, sans-serif;
+            }
+            .medical-modal .modal-body::before {
+              content: "PHÒNG KHÁM ĐA KHOA XYZ\\A KẾT QUẢ KHÁM BỆNH";
+              white-space: pre-wrap;
+              display: block;
+              text-align: center;
+              font-size: 20px;
+              font-weight: bold;
+              margin-bottom: 20px;
+              color: #000;
+              border-bottom: 2px solid #000;
+              padding-bottom: 10px;
+            }
+            .medical-modal .modal-body::after {
+              content: "Địa chỉ: 123 Đường Sức Khỏe, Quận 1, TP. HCM \\A Hotline: 0123 456 789 \\A Ngày in: 01:38 PM, 14/05/2025";
+              white-space: pre-wrap;
+              display: block;
+              text-align: center;
+              font-size: 12px;
+              color: #555;
+              margin-top: 30px;
+              border-top: 1px solid #ddd;
+              padding-top: 10px;
+            }
+            .patient-info {
+              display: flex !important;
+              flex-wrap: wrap;
+              margin-bottom: 20px;
+              padding: 10px;
+              border: 1px solid #ddd;
+              border-radius: 5px;
+            }
+            .patient-info p {
+              margin: 5px 20px 5px 0;
+              font-size: 14px;
+              color: #000;
+              flex: 1 1 45%;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+            }
+            .medical-info-card {
+              box-shadow: none;
+              margin-bottom: 20px;
+              padding: 15px;
+              border: 1px solid #ddd;
+              border-radius: 5px;
+              page-break-inside: avoid;
+            }
+            .medical-info-card h5 {
+              font-size: 16px;
+              margin-bottom: 10px;
+              color: #000;
+              border-bottom: 1px solid #ddd;
+              padding-bottom: 5px;
+            }
+            .medical-info-card p {
+              font-size: 14px;
+              color: #000;
+              margin-bottom: 5px;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+              white-space: pre-wrap;
+            }
+            .table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 15px;
+              page-break-inside: avoid;
+            }
+            .table th,
+            .table td {
+              border: 1px solid #000;
+              padding: 8px;
+              font-size: 14px;
+              color: #000;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+              text-align: left;
+            }
+            .table th {
+              background-color: #f0f0f0;
+              font-weight: bold;
+              width: 33.33%;
+            }
+            .table td {
+              width: 33.33%;
+            }
+            .file-link {
+              color: #000;
+              text-decoration: underline;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
+            }
+            .medical-image {
+              max-width: 400px;
+              max-height: 300px;
+              object-fit: contain;
+              border: 1px solid #000;
+              margin-top: 10px;
+              page-break-inside: avoid;
+            }
+            .image-caption {
+              display: block;
+              font-size: 12px;
+              color: #555;
+              text-align: center;
+              margin-top: 5px;
+            }
+            .spinner-overlay,
+            .alert-danger {
+              display: none;
+            }
+          }
         `}
       </style>
 
@@ -315,6 +489,14 @@ const ExamResultModal = ({
             </div>
           ) : (
             <div>
+              {/* Patient and Doctor Info (Hidden on Screen, Visible on Print) */}
+              <div className="patient-info" style={{ display: 'none' }}>
+                <p><strong>Tên bệnh nhân:</strong> {selectedAppointment?.guest?.guest_name || "Không có tên"}</p>
+                <p><strong>Bác sĩ khám:</strong> {selectedAppointment?.doctor?.doctor_name || "Không có thông tin"}</p>
+                <p><strong>Ngày khám:</strong> {selectedAppointment?.booking_date || "N/A"} {selectedAppointment?.booking_time || "N/A"}</p>
+                <p><strong>Mã đặt lịch:</strong> {selectedAppointment?.id || "N/A"}</p>
+              </div>
+
               <div className="medical-info-card">
                 <h5><FaFileMedical /> Chẩn Đoán</h5>
                 <p className="mb-0">{diagnosis || "Chưa có chẩn đoán"}</p>
@@ -356,14 +538,38 @@ const ExamResultModal = ({
               <div className="medical-info-card">
                 <h5><FaFileUpload /> Tệp Đính Kèm</h5>
                 {file && typeof file === 'string' ? (
-                  <a
-                    href={`http://127.0.0.1:8000/storage/${file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="file-link"
-                  >
-                    <FaFileUpload /> Xem tệp đính kèm
-                  </a>
+                  isImage ? (
+                    <>
+                      <img
+                        src={`http://127.0.0.1:8000/storage/${file}`}
+                        alt="Tệp đính kèm"
+                        className="medical-image"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'block';
+                        }}
+                      />
+                      <a
+                        href={`http://127.0.0.1:8000/storage/${file}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="file-link"
+                        style={{ display: 'none' }}
+                      >
+                        <FaFileUpload /> Xem tệp đính kèm
+                      </a>
+                      <span className="image-caption">Hình ảnh đính kèm</span>
+                    </>
+                  ) : (
+                    <a
+                      href={`http://127.0.0.1:8000/storage/${file}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="file-link"
+                    >
+                      <FaFileUpload /> Xem tệp đính kèm
+                    </a>
+                  )
                 ) : file instanceof File ? (
                   <p>Tệp đã chọn: {file.name}</p>
                 ) : (
@@ -387,6 +593,10 @@ const ExamResultModal = ({
           >
             <FaEdit className="me-2" />
             Sửa Kết Quả
+          </Button>
+          <Button variant="success" onClick={handlePrint} disabled={loading}>
+            <FaPrint className="me-2" />
+            In
           </Button>
         </Modal.Footer>
       </Modal>

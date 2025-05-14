@@ -106,6 +106,12 @@ class Booking extends Model
         return $query->where('doctor_id', auth()->id())
             ->where('status', 'confirmed');
     }
+    // Lọc danh sách bệnh nhân đang "examining" của bác sĩ đang đăng nhập
+    public function scopeFilterDoctorExamining($query)
+    {
+        return $query->where('doctor_id', auth()->id())
+            ->where('status', 'examining');
+    }
 
     // Lọc danh sách bệnh nhân đã "completed" của bác sĩ đang đăng nhập
     public function scopeFilterDoctorCompleted($query)

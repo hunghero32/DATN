@@ -13,7 +13,7 @@ import {
   Legend,
 } from "chart.js";
 import { Container, Row, Col, Card } from 'react-bootstrap';
-import { FaUserMd, FaCalendarCheck, FaClipboardList, FaChartLine } from 'react-icons/fa';
+import { FaUserMd, FaCalendarCheck, FaClipboardList, FaChartLine, FaDollarSign } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 
@@ -48,7 +48,8 @@ const Dashboard = () => {
     completed_appointments_list: [],
     totalAppointments: 0,
     pendingAppointments: 0,
-    totalPatients: 0
+    totalPatients: 0,
+    monthly_earnings: 0 // Added for monthly earnings
   });
 
   const [systemInfo, setSystemInfo] = useState({
@@ -69,6 +70,14 @@ const Dashboard = () => {
     if (hour >= 11 && hour < 13) return "Chào buổi trưa";
     if (hour >= 13 && hour < 18) return "Chào buổi chiều";
     return "Chào buổi tối";
+  };
+
+  // Format currency for Vietnamese Dong (VND)
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
   };
 
   // Fetch data when the component mounts
@@ -247,6 +256,11 @@ const Dashboard = () => {
             color: white;
           }
 
+          .card-icon.earnings {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+          }
+
           .stat-title {
             color: #6b7280;
             font-size: 0.875rem;
@@ -386,6 +400,19 @@ const Dashboard = () => {
               <div className="stat-title">Tổng Số Bệnh Nhân</div>
               <div className="stat-value">{dashboardData.total_patients}</div>
               <div className="stat-description">Số bệnh nhân đã khám</div>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col lg={3} sm={6}>
+          <Card className="dashboard-card h-100">
+            <Card.Body>
+              <div className="card-icon earnings">
+                <FaDollarSign />
+              </div>
+              <div className="stat-title">Doanh Thu Tháng</div>
+              <div className="stat-value">{formatCurrency(dashboardData.monthly_earnings)}</div>
+              <div className="stat-description">Tổng doanh thu tháng này</div>
             </Card.Body>
           </Card>
         </Col>
