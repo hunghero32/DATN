@@ -160,9 +160,16 @@ const AppointmentDetailModal = ({
               <Form.Label>Giới tính:</Form.Label>
               <Form.Control
                 type="text"
-                value={selectedAppointment.guest?.gender || "Không có dữ liệu"}
+                value={
+                  selectedAppointment.guest?.gender === "male"
+                    ? "Nam"
+                    : selectedAppointment.guest?.gender === "female"
+                      ? "Nữ"
+                      : "Không có dữ liệu"
+                }
                 readOnly
               />
+
             </Form.Group>
 
             <Form.Group>
@@ -227,8 +234,8 @@ const AppointmentDetailModal = ({
                   selectedAppointment.status === "pending"
                     ? "Chờ xử lý"
                     : selectedAppointment.status === "confirmed"
-                    ? "Đã xác nhận"
-                    : "Hoàn thành"
+                      ? "Đã xác nhận"
+                      : "Hoàn thành"
                 }
                 readOnly
                 className={`status-${selectedAppointment.status}`}
@@ -269,8 +276,8 @@ const AppointmentDetailModal = ({
         )}
 
         {isCompleted && (
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             onClick={onHide}
             style={{
               backgroundColor: '#6b7280',

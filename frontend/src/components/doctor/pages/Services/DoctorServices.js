@@ -198,8 +198,8 @@ const DoctorServices = () => {
                 <Form.Label>Mô Tả Dịch Vụ</Form.Label>
                 <Form.Control 
                   as="textarea" 
-                  rows={3} 
-                  value={selectedService.description || 'Không có mô tả'} 
+                  rows={2} 
+                  value={selectedService.description?.replace(/<\/?p>/g, '') || 'Không có mô tả'} 
                   readOnly 
                 />
               </Form.Group>
