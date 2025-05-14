@@ -56,7 +56,7 @@ class ResultController extends Controller
         $doctorId = Doctor::where('user_id', auth()->id())->value('id');
 
         if (!isset($data['booking_id'])) {
-            return response()->json(['message' => 'Booking ID is required to create a result.'], 400);
+            return response()->json(['message' => 'Cần có mã lịch hẹn để tạo kết quả.'], 400);
         }
 
         // Check if the booking exists and belongs to the doctor
@@ -172,36 +172,27 @@ class ResultController extends Controller
             // Get validated data
             $data = $request->validated();
 
-            // Handle file upload
+            // Xử lý upload file
             if ($request->hasFile('file')) {
-                // Delete old file if it exists
+                // Xóa file cũ nếu tồn tại
                 if ($result->file) {
                     Storage::disk('public')->delete($result->file);
                 }
-                // Store the new file
+                // Lưu file mới
                 $data['file'] = $request->file('file')->store('results', 'public');
             } else {
-                // If no new file is uploaded, keep the existing file path unless explicitly cleared
-                // (UpdateResultRequest should handle if null is allowed)
-                // Ensure 'file' key exists in $data if it's being kept or nulled
-                if ($request->filled('file')) { // Check if 'file' field was sent (even if empty)
-                    $data['file'] = $result->file; // Keep existing if not explicitly cleared
-                } else if (!$request->exists('file')) { // If 'file' key wasn't sent at all
-                    // This means no change was intended for the file, keep existing
+                if ($request->filled('file')) { // Kiểm tra xem trường 'file' có được gửi không (kể cả rỗng)
+                    $data['file'] = $result->file; // Giữ file hiện tại nếu không bị xóa rõ ràng
+                } else if (!$request->exists('file')) { // Nếu key 'file' không được gửi
                     $data['file'] = $result->file;
                 }
-                // If $request->hasFile('file') is false but $request->filled('file') is true with an empty value,
-                // it implies the user wants to remove the file - $data['file'] would be null via validation.
             }
 
-
-            // Update the result using fill() which respects $fillable or use forceFill() if needed
-            // Using fill() is generally safer if $fillable is defined correctly in Result model
             $result->fill([
                 'diagnosis' => $data['diagnosis'] ?? $result->diagnosis,
                 'prescription' => $data['prescription'] ?? $result->prescription,
                 'note' => $data['note'] ?? $result->note,
-                'file' => $data['file'] ?? $result->file, // Assign the potentially updated file path
+                'file' => $data['file'] ?? $result->file, 
             ]);
 
             // Save the changes
@@ -229,7 +220,7 @@ class ResultController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             return response()->json([
-                'message' => 'Lỗi xác thực dữ liệu.',
+                'message' => 'Dữ liệu không hợp lệ.',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
@@ -240,7 +231,7 @@ class ResultController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Lỗi máy chủ khi cập nhật kết quả: ' . $e->getMessage()
+                'message' => 'Đã xảy ra lỗi khi cập nhật kết quả: ' . $e->getMessage()
             ], 500);
         }
     }

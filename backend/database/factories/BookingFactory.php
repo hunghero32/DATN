@@ -36,7 +36,7 @@ class BookingFactory extends Factory
             'booking_date' => now()->toDateString(), // Ngày đặt lịch
             'booking_time' => $this->faker->time(), // Giờ đặt lịch
             'notes' => $this->faker->optional()->sentence(), // Ghi chú (có thể null)
-            'status' => $this->faker->randomElement(['pending', 'confirmed', 'completed', 'canceled']), // Trạng thái hợp lệ
+            'status' => $this->faker->randomElement(['pending', 'examining', 'confirmed', 'completed', 'canceled']), // Trạng thái hợp lệ
         ];
     }
 }

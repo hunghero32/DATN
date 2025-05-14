@@ -32,7 +32,7 @@ class UpdateBookingRequest extends FormRequest
                     if (Carbon::parse(request('booking_date', $this->route('booking')->booking_date) . ' ' . $value)
                         ->lt(Carbon::now()->addHours(2))) {$fail('Thời gian đặt lịch phải cách hiện tại ít nhất 2 giờ.');}}],
             'note' => 'nullable|string|max:255',
-            'status' => 'sometimes|in:pending,confirmed,cancelled,completed'
+            'status' => 'sometimes|in:pending,confirmed,examining,cancelled,completed'
         ];
     }
 
