@@ -5,7 +5,6 @@ const AppointmentList = ({
   appointmentsToDisplay,
   statusFilter,
   loading,
-  error,
   handleShowDetail,
   handleCompleteAppointment,
   handleShowMedicalRecord,
@@ -40,8 +39,6 @@ const AppointmentList = ({
         <h5>{title}</h5>
         {loading ? (
           <Spinner animation="border" />
-        ) : error ? (
-          <p className="text-danger">{error}</p>
         ) : filteredAppointments.length === 0 ? (
           <p className="text-muted">
             Không có cuộc hẹn nào{" "}
