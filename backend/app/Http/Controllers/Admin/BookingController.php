@@ -153,7 +153,7 @@ class BookingController extends Controller
             ->pluck('guest_name', 'id')
             ->toArray();
 
-        $statuses = config('app.statuses');
+        $statuses = config('app.order_statuses');
 
         return view('admin.pages.booking.create', compact('doctors', 'services', 'guests', 'statuses'));
     }
@@ -234,14 +234,13 @@ class BookingController extends Controller
                 }
             }
 
-            // Validate dữ liệu đặt lịch
+            // Validate dữ liệu đặt lịch (loại bỏ status khỏi validation)
             $bookingValidator = Validator::make($request->all(), [
                 'doctor_id' => 'required|exists:doctors,id',
                 'service_id' => 'required|exists:services,id',
                 'booking_date' => 'required|date|after_or_equal:today',
                 'booking_time' => 'required',
-                'status' => 'required|in:pending,confirmed,completed,cancelled',
-                'note' => 'nullable|string|max:500',
+                'notes' => 'nullable|string|max:500',
             ]);
 
             if ($bookingValidator->fails()) {
@@ -264,15 +263,22 @@ class BookingController extends Controller
                     ->withInput();
             }
 
+            // Lấy thông tin bác sĩ và dịch vụ để lưu vào booking
+            $doctor = Doctor::findOrFail($request->doctor_id);
+            $service = Services::findOrFail($request->service_id);
+
             // Tạo booking mới
             $booking = new Booking();
             $booking->guest_id = $guestId;
             $booking->doctor_id = $request->doctor_id;
+            $booking->doctor_name = $doctor->doctor_name;
             $booking->service_id = $request->service_id;
+            $booking->service_name = $service->services_name;
+            $booking->service_price = $service->price;
             $booking->booking_date = $request->booking_date;
             $booking->booking_time = $request->booking_time;
-            $booking->status = $request->status;
-            $booking->note = $request->note;
+            $booking->status = 'pending';
+            $booking->notes = $request->notes;
             $booking->isDeleted = 0;
             $booking->save();
 
@@ -377,46 +383,46 @@ class BookingController extends Controller
     }
 
     public function getAvailableTimeSlots(Request $request)
-{
+    {
 
-    $doctorId = $request->input('doctor_id');
-    $date = $request->input('date');
+        $doctorId = $request->input('doctor_id');
+        $date = $request->input('date');
 
-    if (!$doctorId || !$date) {
+        if (!$doctorId || !$date) {
+            return response()->json([
+                'success' => false,
+                'time_slots' => [],
+                'message' => 'Missing doctor_id or date'
+            ]);
+        }
+
+        // Retrieve available time slots for the doctor on the specified date
+        $timeSlots = DB::table('schedules')
+            ->where('doctor_id', $doctorId)
+            ->where('working_date', $date)
+            ->where('status', 1)
+            ->where('isDeleted', 0)
+            ->select('id', 'time_start', 'time_end')
+            ->get();
+
+
+        // Check booking count for each time slot
+        foreach ($timeSlots as $key => $slot) {
+            // Count current bookings for this time slot
+            $bookingCount = DB::table('bookings')
+                ->where('doctor_id', $doctorId)
+                ->where('booking_date', $date)
+                ->where('booking_time', $slot->id)
+                ->where('status', '!=', 'canceled')
+                ->count();
+
+            // Add booking count to the slot object for response
+            $timeSlots[$key]->booking_count = $bookingCount;
+        }
+
         return response()->json([
-            'success' => false,
-            'time_slots' => [],
-            'message' => 'Missing doctor_id or date'
+            'success' => true,
+            'time_slots' => array_values($timeSlots->toArray())
         ]);
     }
-
-    // Retrieve available time slots for the doctor on the specified date
-    $timeSlots = DB::table('schedules')
-        ->where('doctor_id', $doctorId)
-        ->where('working_date', $date)
-        ->where('status', 1)
-        ->where('isDeleted', 0)
-        ->select('id', 'time_start', 'time_end')
-        ->get();
-
-
-    // Check booking count for each time slot
-    foreach ($timeSlots as $key => $slot) {
-        // Count current bookings for this time slot
-        $bookingCount = DB::table('bookings')
-            ->where('doctor_id', $doctorId)
-            ->where('booking_date', $date)
-            ->where('booking_time', $slot->id)
-            ->where('status', '!=', 'canceled')
-            ->count();
-
-        // Add booking count to the slot object for response
-        $timeSlots[$key]->booking_count = $bookingCount;
-    }
-
-    return response()->json([
-        'success' => true,
-        'time_slots' => array_values($timeSlots->toArray())
-    ]);
-}
 }

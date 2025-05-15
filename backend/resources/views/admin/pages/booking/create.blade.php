@@ -231,23 +231,6 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold mb-2">Trạng thái <span
-                                        class="text-danger">*</span></label>
-                                <select name="status"
-                                    class="form-select form-select-lg shadow-sm @error('status') is-invalid @enderror">
-                                    <option value="">Chọn trạng thái</option>
-                                    @foreach ($statuses as $key => $status)
-                                        <option value="{{ $key }}"
-                                            {{ old('status') == $key ? 'selected' : '' }}>
-                                            {{ $status }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('status')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
                             <div class="col-md-12 mb-3">
                                 <label class="form-label fw-semibold mb-2">Ghi chú</label>
                                 <textarea name="note" class="form-control shadow-sm @error('note') is-invalid @enderror" rows="3">{{ old('note') }}</textarea>
@@ -339,7 +322,7 @@
                                     var day = formattedDate.getDate().toString()
                                         .padStart(2, '0');
                                     var month = (formattedDate.getMonth() + 1)
-                                    .toString().padStart(2, '0');
+                                        .toString().padStart(2, '0');
                                     var year = formattedDate.getFullYear();
 
                                     var displayDate = day + '/' + month + '/' + year;
@@ -349,14 +332,14 @@
                             } else {
                                 dateSelect.append(
                                     '<option value="" disabled>Không có ngày làm việc</option>'
-                                    );
+                                );
                             }
                         },
                         error: function() {
                             $('#loading_dates').hide();
                             dateSelect.append(
                                 '<option value="" disabled>Lỗi khi tải ngày làm việc</option>'
-                                );
+                            );
                         }
                     });
                 }
@@ -419,9 +402,10 @@
                                         var timeStartStr = startTime.toTimeString().slice(0, 5);
                                         var timeEndStr = slotEnd.toTimeString().slice(0, 5);
                                         slots.push({
-                                            id: `${schedule.id}-${timeStartStr}`,
+                                            id: `${schedule.id}-${timeStartStr}`, // Keep ID for reference if needed
                                             time_start: timeStartStr,
-                                            time_end: timeEndStr
+                                            time_end: timeEndStr,
+                                            value: timeStartStr // Use time_start as the option value
                                         });
                                         startTime.setMinutes(startTime.getMinutes() + duration);
                                     }
@@ -437,7 +421,7 @@
                                 if (allTimeSlots.length > 0) {
                                     allTimeSlots.forEach(function(slot) {
                                         timeSelect.append(
-                                            `<option value="${slot.id}">${slot.time_start} - ${slot.time_end}</option>`
+                                            `<option value="${slot.value}">${slot.time_start} - ${slot.time_end}</option>`
                                         );
                                     });
                                 } else {
