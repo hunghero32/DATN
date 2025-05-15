@@ -19,38 +19,41 @@ class BookingController extends Controller
     {
         $this->notificationService = $notificationService;
     }
+
     /**
      * Lấy danh sách đặt lịch.
      */
     public function index(Request $request)
     {
-        // Sử dụng Scope để xử lý tìm kiếm và bộ lọc trong model Booking đọc kỹ vào nhé :))
         $bookings = Booking::with(['doctor', 'service', 'guest'])
             ->where('isDeleted', 0)
             ->whereHas('doctor', function ($query) {
                 $query->where('user_id', auth()->id());
             })
-            ->searchGuest($request->search) // search theo tên, sđt, email của guest
-            ->filterGender($request->gender) // lọc theo giới tính
-            ->filterAge($request->age) // lọc theo độ tuổi
-            ->filterSpecialty($request->specialty) // lọc theo chuyên khoa  
+            ->searchGuest($request->search)
+            ->filterGender($request->gender)
+            ->filterAge($request->age)
+            ->filterSpecialty($request->specialty)
             ->when(auth()->user()->role === 'doctor' && $request->status === 'pending', function ($query) {
-                return $query->filterDoctorPending(); // lọc theo trạng thái xác nhận
+                return $query->filterDoctorPending();
             })
             ->when(auth()->user()->role === 'doctor' && $request->status === 'confirmed', function ($query) {
-                return $query->filterDoctorConfirmed(); // lọc theo trạng thái xác nhận
+                return $query->filterDoctorConfirmed();
+            })
+            ->when(auth()->user()->role === 'doctor' && $request->status === 'examining', function ($query) {
+                return $query->scopeFilterDoctorExamining();
             })
             ->when(auth()->user()->role === 'doctor' && $request->status === 'completed', function ($query) {
-                return $query->filterDoctorCompleted(); // lọc theo trạng thái hoàn thành
+                return $query->filterDoctorCompleted();
             })
-            // Chỉ lấy booking chưa có kết quả khi có yêu cầu từ form
             ->when($request->boolean('available_for_result'), function ($query) {
-                return $query->whereDoesntHave('result') // Chỉ lấy booking chưa có kết quả
-                    ->whereIn('status', ['confirmed', 'completed']); // Chỉ lấy booking đã xác nhận hoặc hoàn thành
+                return $query->whereDoesntHave('result')
+                    ->whereIn('status', ['confirmed', 'completed']);
             })
             ->orderBy('booking_date', 'asc')
             ->orderBy('booking_time', 'asc')
-            ->get(); // Lấy tất cả kết quả thay vì phân trang
+            ->get();
+
         if ($bookings->isEmpty()) {
             return response()->json([
                 'message' => 'Không tìm thấy thông tin đặt lịch phù hợp.',
@@ -59,76 +62,99 @@ class BookingController extends Controller
         }
         return response()->json($bookings, 200);
     }
+
     /**
      * Hiển thị chi tiết đặt lịch.
      */
     public function show(Booking $booking)
     {
-        // Kiểm tra xem người dùng có đăng nhập và có vai trò là bác sĩ không
         if (!auth()->check() || auth()->user()->role !== 'doctor') {
             return response()->json(['message' => 'Bạn không có quyền xem lịch hẹn này.'], 403);
         }
-        // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
         $doctorId = Doctor::where('user_id', auth()->id())->value('id');
-        // Kiểm tra quyền sở hữu lịch hẹn
         if (!$doctorId || $booking->doctor_id !== $doctorId) {
             return response()->json(['message' => 'Bạn không thể xem lịch hẹn của bác sĩ khác.'], 403);
         }
-        // Load thông tin chi tiết với các quan hệ liên quan
         $booking->load(['doctor', 'service', 'guest', 'result']);
 
         return response()->json([
             'booking' => $booking
         ], 200);
     }
+
     /**
      * Cập nhật đặt lịch.
      */
     public function update(Request $request, Booking $booking)
     {
-        // Kiểm tra xem người dùng có đăng nhập và có vai trò là bác sĩ không
+        // Authorization checks
         if (!auth()->check() || auth()->user()->role !== 'doctor') {
             return response()->json(['message' => 'Bạn không có quyền cập nhật lịch hẹn này.'], 403);
         }
-        // Lấy doctor_id từ bảng doctors dựa vào user_id của bác sĩ hiện tại
         $doctorId = Doctor::where('user_id', auth()->id())->value('id');
-        // Kiểm tra quyền sở hữu lịch hẹn
         if (!$doctorId || $booking->doctor_id !== $doctorId) {
             return response()->json(['message' => 'Bạn không thể cập nhật lịch hẹn của bác sĩ khác.'], 403);
         }
-        // Validate trạng thái
+
+        // Validate status
         $validate = $request->validate([
-            'status' => 'required|in:pending,confirmed,completed,cancelled'
+            'status' => 'required|in:pending,confirmed,examining,completed,cancelled'
         ]);
+
+        // Prevent updates if cancelled
+        if ($booking->status === 'cancelled') {
+            return response()->json(['message' => 'Không thể cập nhật lịch hẹn đã huỷ.'], 400);
+        }
+
+        // Prevent updates if already completed
         if ($booking->status === 'completed') {
-            return response()->json([
-                'message' => 'Lịch hẹn đã hoàn thành và kết quả đã được tạo trước đó.'
-            ], 400);
+            return response()->json(['message' => 'Lịch hẹn đã hoàn tất, không thể cập nhật.'], 400);
         }
-        // Kiểm tra logic cập nhật status
-        if ($validate['status'] === 'completed' && $booking->status !== 'confirmed') {
-            return response()->json(['message' => 'Lịch hẹn phải được xác nhận trước khi hoàn thành.'], 400);
+
+        // Check if the doctor already has an examining booking
+        if ($validate['status'] === 'examining') {
+            $examiningCount = Booking::where('doctor_id', $doctorId)
+                ->where('status', 'examining')
+                ->where('id', '!=', $booking->id) // Exclude the current booking
+                ->count();
+
+            if ($examiningCount >= 1) {
+                return response()->json([
+                    'message' => 'Bạn chỉ có thể khám một bệnh nhân tại một thời điểm. Vui lòng hoàn thành hoặc hủy lịch hẹn đang khám.'
+                ], 400);
+            }
         }
-        // Nếu chuyển sang confirmed → tạo hồ sơ bệnh án nếu chưa có
+
+        // Status transition checks
+        if ($validate['status'] === 'examining' && $booking->status !== 'confirmed') {
+            return response()->json(['message' => 'Lịch hẹn phải được xác nhận trước khi khám bệnh.'], 400);
+        }
+        if ($validate['status'] === 'completed' && $booking->status !== 'examining') {
+            return response()->json(['message' => 'Bác sĩ phải khám bênh trước khi hoàn thành.'], 400);
+        }
+
+        // Actions based on status
         if ($validate['status'] === 'confirmed') {
-            $this->createMedicalRecord($booking);
             $this->createInvoiceForBooking($booking);
         }
-        // Nếu trạng thái là completed, tạo kết quả
-        if ($validate['status'] === 'completed') {
-            // Gộp ngày và giờ thành 1 đối tượng Carbon để so sánh
-            $bookingDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->booking_time);
-
-            if (now()->lt($bookingDateTime)) {
-                return response()->json(['message' => 'Bạn chỉ có thể hoàn thành lịch hẹn sau thời gian đã đặt.'], 400);
-            }
+        if ($validate['status'] === 'examining') {
             $this->createResultForBooking($booking);
         }
-        // Cập nhật trạng thái
+        if ($validate['status'] === 'completed') {
+            $bookingDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->booking_time);
+            //if (now()->lt($bookingDateTime)) {
+            //    return response()->json(['message' => 'Bạn chỉ có thể hoàn thành lịch hẹn sau thời gian đã đặt.'], 400);
+            //}
+            $this->createMedicalRecord($booking);
+        }
+
+        // Update status
         $booking->update(['status' => $validate['status']]);
-        // Gửi thông báo
+
+        // Send notification
         $this->sendBookingNotification($booking, $validate['status']);
-        // Load lại dữ liệu để đảm bảo trạng thái mới nhất
+
+        // Return updated booking
         $updatedBooking = Booking::with('doctor', 'service', 'guest')->find($booking->id);
         return response()->json([
             'booking' => $updatedBooking,
@@ -159,9 +185,9 @@ class BookingController extends Controller
 
         return $invoice;
     }
+
     private function createResultForBooking(Booking $booking)
     {
-        // Kiểm tra nếu đã có Result thì không tạo lại
         if ($booking->result()->exists()) {
             return;
         }
@@ -171,14 +197,13 @@ class BookingController extends Controller
             'booking_id' => $booking->id,
         ]);
     }
+
     private function createMedicalRecord(Booking $booking)
     {
-        // Kiểm tra nếu khách đã có hồ sơ bệnh án thì không tạo lại
         if ($booking->guest->medicalRecord()->exists()) {
             return;
         }
 
-        // Tạo mới hồ sơ bệnh án trống lần đầu
         $booking->guest->medicalRecord()->create([
             'guest_id'           => $booking->guest_id,
             'BHYT'               => null,
@@ -191,14 +216,12 @@ class BookingController extends Controller
         ]);
     }
 
-    /**
-     * Hàm riêng để xử lý thông báo khi cập nhật lịch
-     */
     private function sendBookingNotification(Booking $booking, $status)
     {
         $statusMap = [
             'pending' => 'Chờ xác nhận',
             'confirmed' => 'Đã xác nhận',
+            'examining' => 'Đang khám',
             'completed' => 'Đã hoàn thành',
             'cancelled' => 'Đã hủy',
         ];
@@ -207,13 +230,10 @@ class BookingController extends Controller
         $bookingTime = Carbon::parse($booking->booking_time)->format('H:i');
         $title = "Cập nhật trạng thái lịch khám về {$booking->service->services_name}";
         $content = "Lịch khám #{$booking->id} về {$booking->service->services_name} vào lúc {$bookingTime} ngày {$bookingDate} đã được cập nhật trạng thái: {$statusVi}";
-        // Lấy ID của bác sĩ & khách hàng
         $doctorId = $booking->doctor->user_id ?? null;
         $guestId = $booking->guest->user_id ?? null;
 
-        // Tạo danh sách người nhận
         $recipientIds = array_unique(array_filter(array_merge([$doctorId, $guestId])));
-        // Gửi thông báo cập nhật trạng thái lịch khám
         foreach ($recipientIds as $userId) {
             $this->notificationService->sendNotification(
                 $userId,
@@ -223,12 +243,11 @@ class BookingController extends Controller
                 $booking->id
             );
         }
-        // Nếu trạng thái là "completed", gửi thêm thông báo về kết quả khám
         if ($status === 'completed' && $guestId) {
             $this->notificationService->sendNotification(
                 $guestId,
-                "Kết quả khám sắp có",
-                "Kết quả khám của bạn về {$booking->service->services_name} vào lúc {$bookingTime} ngày {$bookingDate} sắp có, chờ xíu nhé!",
+                "Đã hoan thành lịch khám",
+                "Kết quả khám của bạn về {$booking->service->services_name} vào lúc {$bookingTime} ngày {$bookingDate} đã có mời bạn kiểm tra!",
                 "result",
                 $booking->id
             );

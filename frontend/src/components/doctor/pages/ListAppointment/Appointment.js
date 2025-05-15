@@ -19,7 +19,6 @@ const Appointment = () => {
   const [date, setDate] = useState(null);
   const [statusFilter, setStatusFilter] = useState("pending");
   const [searchQuery, setSearchQuery] = useState("");
-  const [resultId, setResultId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showReacceptModal, setShowReacceptModal] = useState(false);
@@ -38,7 +37,7 @@ const Appointment = () => {
   const [diagnosis, setDiagnosis] = useState("");
   const [notes, setNotes] = useState("");
   const [prescription, setPrescription] = useState("");
-  const [file, setFile] = useState(null); // File state and setter
+  const [file, setFile] = useState(null);
   const [medicalForm, setMedicalForm] = useState({
     BHYT: "",
     medical_condition: "",
@@ -58,6 +57,10 @@ const Appointment = () => {
   useEffect(() => {
     fetchAppointments();
   }, [navigate]);
+
+  useEffect(() => {
+    setError(null);
+  }, [statusFilter]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -126,12 +129,18 @@ const Appointment = () => {
     }
   }, [searchQuery, appointments, searchMatchIds, statusFilter, highlightedBookingId]);
 
+  useEffect(() => {
+    if (statusFilter === "examining" && selectedAppointment?.status === "examining") {
+      handleShowExamResult(selectedAppointment);
+    }
+  }, [statusFilter, selectedAppointment]);
+
   const fetchAppointments = async () => {
     setLoading(true);
     setError(null);
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       setLoading(false);
       navigate("/login");
       return;
@@ -147,7 +156,7 @@ const Appointment = () => {
     } catch (error) {
       console.error("Error fetching appointments:", error);
       const errorMessage = error.response?.data?.message || "Lỗi khi tải dữ liệu cuộc hẹn.";
-      setError(errorMessage);
+      toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
     } finally {
       setLoading(false);
     }
@@ -167,7 +176,7 @@ const Appointment = () => {
 
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       navigate("/login");
       setShowConfirmModal(false);
       return;
@@ -183,7 +192,7 @@ const Appointment = () => {
 
       setAppointments((prev) =>
         prev.map((app) =>
-          app.id === selectedAppointment.id ? { ...app, ...response.data.data, status: "confirmed" } : app
+          app.id === selectedAppointment.id ? { ...app, ...response.data.booking, status: "confirmed" } : app
         )
       );
 
@@ -192,7 +201,7 @@ const Appointment = () => {
         autoClose: 3000,
       });
 
-      await NotificationService.sendNotification(doctorInfo.id, {
+      await NotificationService.sendNotification(doctorInfo?.id, {
         type: "booking_accepted",
         title: "Lịch hẹn được chấp nhận",
         message: `Lịch hẹn với bệnh nhân ${selectedAppointment.guest?.guest_name} đã được chấp nhận`,
@@ -201,10 +210,58 @@ const Appointment = () => {
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi cập nhật trạng thái.";
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
-      setError(errorMessage);
     } finally {
       setLoading(false);
       setShowConfirmModal(false);
+    }
+  };
+
+  const handleStartExam = async (appointment) => {
+    if (!appointment?.id) {
+      toast.error("Cuộc hẹn không hợp lệ.", { position: "top-right", autoClose: 3000 });
+      return;
+    }
+
+    const token = getAuthToken();
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
+      navigate("/login");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.put(
+        `http://127.0.0.1:8000/api/doctor/bookings/${appointment.id}`,
+        { status: "examining" },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setAppointments((prev) =>
+        prev.map((app) =>
+          app.id === appointment.id ? { ...app, ...response.data.booking, status: "examining" } : app
+        )
+      );
+
+      setSelectedAppointment({ ...appointment, status: "examining" });
+      setStatusFilter("examining");
+
+      toast.success(`Bắt đầu khám cho ${appointment.guest?.guest_name} thành công!`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      await NotificationService.sendNotification(doctorInfo?.id, {
+        type: "exam_started",
+        title: "Bắt đầu khám",
+        message: `Đang khám cho bệnh nhân ${appointment.guest?.guest_name}`,
+        bookingId: appointment.id,
+      });
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Lỗi khi bắt đầu khám.";
+      toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -222,7 +279,7 @@ const Appointment = () => {
 
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       navigate("/login");
       setShowTransferModal(false);
       return;
@@ -238,7 +295,7 @@ const Appointment = () => {
 
       setAppointments((prev) =>
         prev.map((app) =>
-          app.id === selectedAppointment.id ? { ...app, ...response.data.data, status: "confirmed" } : app
+          app.id === selectedAppointment.id ? { ...app, ...response.data.booking, status: "confirmed" } : app
         )
       );
 
@@ -250,7 +307,6 @@ const Appointment = () => {
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi chuyển bệnh.";
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
-      setError(errorMessage);
     } finally {
       setLoading(false);
       setShowTransferModal(false);
@@ -271,7 +327,7 @@ const Appointment = () => {
 
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       navigate("/login");
       setShowReacceptModal(false);
       return;
@@ -287,7 +343,7 @@ const Appointment = () => {
 
       setAppointments((prev) =>
         prev.map((app) =>
-          app.id === selectedAppointment.id ? { ...app, ...response.data.data, status: "confirmed" } : app
+          app.id === selectedAppointment.id ? { ...app, ...response.data.booking, status: "confirmed" } : app
         )
       );
 
@@ -299,7 +355,6 @@ const Appointment = () => {
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi nhận lại bệnh nhân.";
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
-      setError(errorMessage);
     } finally {
       setLoading(false);
       setShowReacceptModal(false);
@@ -314,19 +369,19 @@ const Appointment = () => {
     setShowCompleteModal(true);
   };
 
-  const handleConfirmComplete = async () => {
+  const handleCompleteAppointmentFromModal = async () => {
     if (!selectedAppointment) return;
 
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       navigate("/login");
       return;
     }
 
     setLoading(true);
     try {
-      await axios.put(
+      const response = await axios.put(
         `http://127.0.0.1:8000/api/doctor/bookings/${selectedAppointment.id}`,
         { status: "completed" },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -334,7 +389,7 @@ const Appointment = () => {
 
       setAppointments((prev) =>
         prev.map((app) =>
-          app.id === selectedAppointment.id ? { ...app, status: "completed" } : app
+          app.id === selectedAppointment.id ? { ...app, ...response.data.booking, status: "completed" } : app
         )
       );
 
@@ -342,16 +397,20 @@ const Appointment = () => {
         position: "top-right",
         autoClose: 3000,
       });
+
+      await NotificationService.sendNotification(doctorInfo?.id, {
+        type: "appointment_completed",
+        title: "Hoàn thành khám",
+        message: `Cuộc hẹn với ${selectedAppointment.guest?.guest_name} đã hoàn thành`,
+        bookingId: selectedAppointment.id,
+      });
+
+      setShowEditResultModal(false); // Close the ExamResultModal
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi hoàn thành cuộc hẹn.";
-      setError(errorMessage);
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
     } finally {
       setLoading(false);
-      setShowCompleteModal(false);
-      setDiagnosis("");
-      setNotes("");
-      setFile(null);
     }
   };
 
@@ -363,7 +422,7 @@ const Appointment = () => {
 
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       navigate("/login");
       return;
     }
@@ -404,11 +463,11 @@ const Appointment = () => {
     setShowMedicalRecordModal(true);
     setMedicalRecord(null);
     setResults([]);
-    setError(null); // Clear previous errors
+    setError(null);
 
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       navigate("/login");
       return;
     }
@@ -448,9 +507,7 @@ const Appointment = () => {
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi tải hồ sơ y tế.";
-      // Only set error and show toast if it's not "No query results for model"
       if (!errorMessage.includes("No query results for model")) {
-        setError(errorMessage);
         toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
       }
     } finally {
@@ -466,7 +523,7 @@ const Appointment = () => {
 
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       navigate("/login");
       return;
     }
@@ -494,11 +551,9 @@ const Appointment = () => {
       });
 
       setShowMedicalRecordFormModal(false);
-
       handleShowMedicalRecord(selectedAppointment);
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Lỗi khi lưu hồ sơ bệnh án.";
-      setError(errorMessage);
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
     } finally {
       setLoading(false);
@@ -509,13 +564,12 @@ const Appointment = () => {
     if (!appointment) return;
 
     setSelectedAppointment(appointment);
-    setShowResultViewModal(true);
+    setShowEditResultModal(true);
     setLoading(true);
-    setError(null);
 
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       navigate("/login");
       return;
     }
@@ -533,7 +587,6 @@ const Appointment = () => {
       );
 
       if (response.data) {
-        console.log("Fetched exam result:", response.data);
         setDiagnosis(response.data.diagnosis || "");
         setNotes(response.data.note || "");
         setPrescription(response.data.prescription || "");
@@ -547,7 +600,6 @@ const Appointment = () => {
     } catch (error) {
       console.error("Error fetching exam result:", error);
       const errorMessage = error.response?.data?.message || "Lỗi khi tải kết quả khám.";
-      setError(errorMessage);
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
     } finally {
       setLoading(false);
@@ -556,25 +608,22 @@ const Appointment = () => {
 
   const handleUpdateExamResult = async (formData) => {
     if (!selectedAppointment || !selectedAppointment.id) {
-      toast.error("Không tìm thấy thông tin cuộc hẹn.");
+      toast.error("Không tìm thấy thông tin cuộc hẹn.", { position: "top-right", autoClose: 3000 });
       return;
     }
 
     const token = getAuthToken();
     if (!token) {
-      setError("Vui lòng đăng nhập để tiếp tục.");
+      toast.error("Vui lòng đăng nhập để tiếp tục.", { position: "top-right", autoClose: 3000 });
       navigate("/login");
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     try {
-      console.log("Sending data:", Object.fromEntries(formData));
-
       const updateResponse = await axios({
-        method: "post", // Use POST with _method: PUT
+        method: "post",
         url: `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
         data: formData,
         headers: {
@@ -584,49 +633,22 @@ const Appointment = () => {
         },
       });
 
-      console.log("Update response:", updateResponse.data);
-
       if (updateResponse.status === 200 && updateResponse.data) {
-        const newData = updateResponse.data.data || updateResponse.data; // Adjust based on response structure
+        const newData = updateResponse.data.data || updateResponse.data;
         setDiagnosis(newData.diagnosis || "");
         setNotes(newData.note || "");
         setPrescription(newData.prescription || "");
-        setFile(newData.file || null); // Use setFile instead of setInitialFile
+        setFile(newData.file || null);
 
         toast.success("Cập nhật kết quả khám thành công!", {
           position: "top-right",
           autoClose: 3000,
         });
-      } else {
-        const getResponse = await axios.get(
-          `http://127.0.0.1:8000/api/doctor/results/booking/${selectedAppointment.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/json",
-            },
-          }
-        );
-
-        if (getResponse.data) {
-          console.log("Fetched updated data:", getResponse.data);
-          const newData = getResponse.data;
-          setDiagnosis(newData.diagnosis || "");
-          setNotes(newData.note || "");
-          setPrescription(newData.prescription || "");
-          setFile(newData.file || null); // Use setFile instead of setInitialFile
-
-          toast.success("Cập nhật kết quả khám thành công!", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        }
       }
     } catch (error) {
       console.error("Error updating exam result:", error.response || error);
       const errorMessage =
         error.response?.data?.message || error.message || "Lỗi khi cập nhật kết quả khám.";
-      setError(errorMessage);
       toast.error(errorMessage, { position: "top-right", autoClose: 3000 });
     } finally {
       setLoading(false);
@@ -678,16 +700,14 @@ const Appointment = () => {
 
   return (
     <div className="container mt-5 table-responsive">
-      <ToastContainer />
+      <ToastContainer position="top-right" autoClose={3000} />
       <style>
         {`
-          /* General Styling */
           body {
             font-family: 'Inter', sans-serif;
             background-color: #f4f7fc;
           }
 
-          /* Filter Row Styling */
           .filter-row {
             display: flex;
             align-items: center;
@@ -714,7 +734,7 @@ const Appointment = () => {
             margin: 0 !important;
             line-height: 45px !important;
             color: #333;
-            appearance: none; /* Remove default select arrow */
+            appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 15px center;
@@ -788,6 +808,7 @@ const Appointment = () => {
         >
           <option value="pending">Chờ xử lý</option>
           <option value="confirmed">Đã xác nhận</option>
+          <option value="examining">Đang khám</option>
           <option value="completed">Hoàn thành</option>
         </select>
         <div className="custom-input-group">
@@ -804,12 +825,12 @@ const Appointment = () => {
         appointmentsToDisplay={appointmentsToDisplay}
         statusFilter={statusFilter}
         loading={loading}
-        error={error}
         handleShowDetail={handleShowDetail}
         handleCompleteAppointment={handleCompleteAppointment}
         handleShowMedicalRecord={handleShowMedicalRecord}
         handleShowExamResult={handleShowExamResult}
         handleTransferAppointment={handleTransferAppointment}
+        handleStartExam={handleStartExam}
         highlightedBookingId={highlightedBookingId}
         searchMatchIds={searchMatchIds}
       />
@@ -821,6 +842,7 @@ const Appointment = () => {
         handleDeleteAppointment={handleDeleteAppointment}
         handleTransferAppointment={handleTransferAppointment}
         handleCompleteAppointment={handleCompleteAppointment}
+        handleStartExam={handleStartExam}
       />
       <ConfirmModal
         show={showConfirmModal}
@@ -851,7 +873,7 @@ const Appointment = () => {
         onHide={() => setShowCompleteModal(false)}
         title="Xác nhận hoàn thành"
         message="Bạn có chắc chắn muốn hoàn thành cuộc hẹn này?"
-        onConfirm={handleConfirmComplete}
+        onConfirm={handleCompleteAppointmentFromModal}
         loading={loading}
       />
       <MedicalRecordModal
@@ -861,7 +883,6 @@ const Appointment = () => {
         setShowForm={setShowMedicalRecordFormModal}
         medicalRecord={medicalRecord}
         results={results}
-        error={error}
         medicalForm={medicalForm}
         setMedicalForm={setMedicalForm}
         handleSaveMedicalRecord={handleSaveMedicalRecord}
@@ -883,8 +904,8 @@ const Appointment = () => {
         file={file}
         setFile={setFile}
         handleUpdateExamResult={handleUpdateExamResult}
+        handleCompleteAppointment={handleCompleteAppointmentFromModal}
         loading={loading}
-        error={error}
       />
     </div>
   );

@@ -22,41 +22,41 @@ const Header = () => {
   const popoverRef = useRef(null);
   const [headerSearchTerm, setHeaderSearchTerm] = useState("");
 
-  // Utility to escape HTML characters
   const escapeHtml = (unsafe) => {
     if (typeof unsafe !== 'string') return unsafe || '';
     return unsafe
       .replace(/&/g, "&")
       .replace(/</g, "<")
       .replace(/>/g, ">")
-      .replace(/"/g, "&quot;")
+      .replace(/"/g, "")
       .replace(/'/g, "'");
   };
 
-  // --- Fetch Doctor Info ---
+  const unescapeHtml = (text) => {
+    const parser = new DOMParser();
+    const dom = parser.parseFromString(
+      '<!DOCTYPE html><body>' + text,
+      'text/html'
+    );
+    return dom.body.textContent;
+  };
+
   useEffect(() => {
     let isMounted = true;
     const fetchDoctorInfo = async () => {
-      console.log('Attempting to fetch doctor info...');
       try {
         const token = localStorage.getItem('authToken');
-        if (!token || !isMounted) {
-          console.log('No token or component unmounted, skipping fetch.');
-          return;
-        }
+        if (!token || !isMounted) return;
         const response = await axios.get('http://127.0.0.1:8000/api/doctor/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (isMounted) {
-          console.log('Doctor info fetched:', response.data);
-          setDoctorInfo(response.data);
-        }
+        if (isMounted) setDoctorInfo(response.data);
       } catch (error) {
         if (isMounted) {
           console.error('Error fetching doctor info:', error);
           if (error.response && error.response.status === 401) {
-             logout();
-             navigate('/login');
+            logout();
+            navigate('/login');
           }
         }
       }
@@ -65,132 +65,74 @@ const Header = () => {
     return () => { isMounted = false; };
   }, [logout, navigate]);
 
-  // --- Setup Firebase Listener - Chạy KHI doctorInfo THAY ĐỔI và CÓ ID ---
   useEffect(() => {
-    console.log('Listener useEffect is running. Current doctorInfo:', doctorInfo);
-
     if (doctorInfo?.doctor_id) {
       const currentDoctorId = doctorInfo.doctor_id;
-      console.log(`Doctor info available (ID: ${currentDoctorId}). Setting up RTDB listener...`);
       setLoadingNotifications(true);
-
-      try {
-        const notificationsRef = ref(database, `notifications/${currentDoctorId}`);
-        console.log('Created notificationsRef:', notificationsRef);
-
-        const handleValueChange = (snapshot) => {
-          const data = snapshot.val();
-          console.log('RTDB data received:', data);
-
-          if (data) {
-            const notificationsArray = Object.entries(data)
-              .map(([id, notificationData]) => ({
-                id,
-                ...notificationData,
-                timestamp: typeof notificationData.timestamp === 'number' ? notificationData.timestamp : Date.now()
-              }))
-              .sort((a, b) => b.timestamp - a.timestamp);
-
-            setNotifications(notificationsArray);
-            const newUnreadCount = notificationsArray.filter(n => !n.read).length;
-            setUnreadCount(newUnreadCount);
-            console.log('Updated notifications state:', notificationsArray);
-            console.log('Updated unread count:', newUnreadCount);
-          } else {
-            setNotifications([]);
-            setUnreadCount(0);
-            console.log('No notifications found in RTDB.');
-          }
-          setLoadingNotifications(false);
-        };
-
-        const handleError = (error) => {
-          console.error("Firebase listener error:", error);
-          setLoadingNotifications(false);
-        };
-
-        console.log('Attempting to attach onValue listener...');
-        const listener = onValue(notificationsRef, handleValueChange, handleError);
-        console.log('RTDB listener attached successfully (listener object created).');
-
-        return () => {
-          console.log(`Cleaning up RTDB listener for doctor ID: ${currentDoctorId}`);
-          off(notificationsRef, 'value', listener);
-        };
-      } catch (error) {
-        console.error("Error during listener setup:", error);
+      const notificationsRef = ref(database, `notifications/${currentDoctorId}`);
+      const handleValueChange = (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const notificationsArray = Object.entries(data)
+            .map(([id, notificationData]) => ({
+              id,
+              ...notificationData,
+              timestamp: typeof notificationData.timestamp === 'number' ? notificationData.timestamp : Date.now()
+            }))
+            .sort((a, b) => b.timestamp - a.timestamp);
+          setNotifications(notificationsArray);
+          setUnreadCount(notificationsArray.filter(n => !n.read).length);
+        } else {
+          setNotifications([]);
+          setUnreadCount(0);
+        }
         setLoadingNotifications(false);
-      }
+      };
+      const handleError = (error) => {
+        console.error("Firebase listener error:", error);
+        setLoadingNotifications(false);
+      };
+      const listener = onValue(notificationsRef, handleValueChange, handleError);
+      return () => off(notificationsRef, 'value', listener);
     } else {
-      console.log('Doctor info not available yet (or missing doctor_id), listener not attached.');
       setNotifications([]);
       setUnreadCount(0);
       setLoadingNotifications(false);
     }
   }, [doctorInfo]);
 
-  // --- Xử lý click thông báo ---
   const handleNotificationClick = useCallback(async (notif, e) => {
     if (e) e.stopPropagation();
-    
-    console.log('🔔 Notification clicked:', notif.id);
-    
     setPopoverVisible(false);
-    console.log('🔔 Popover closed immediately on click');
-    
     const processNotification = async () => {
       if (!notif.read && doctorInfo?.doctor_id) {
-        try {
-          const updates = {};
-          updates[`notifications/${doctorInfo.doctor_id}/${notif.id}/read`] = true;
-          await update(ref(database), updates);
-          console.log('Marked as read:', notif.id);
-        } catch (error) {
-          console.error('Error marking notification as read:', error);
-        }
+        const updates = {};
+        updates[`notifications/${doctorInfo.doctor_id}/${notif.id}/read`] = true;
+        await update(ref(database), updates);
       }
-      
-      if (notif.bookingId) {
-        console.log(`Navigating to appointment with bookingId: ${notif.bookingId}`);
-        navigate(`/doctor/appointment?bookingId=${notif.bookingId}`, { replace: true });
-      } else {
-        console.log('Notification does not have bookingId, not navigating.');
-      }
+      if (notif.bookingId) navigate(`/doctor/appointment?bookingId=${notif.bookingId}`, { replace: true });
     };
-
     setTimeout(processNotification, 100);
   }, [doctorInfo?.doctor_id, navigate]);
 
-  // --- Xử lý xóa thông báo ---
   const handleDeleteNotification = useCallback(async (notificationId, e) => {
     if (e) e.stopPropagation();
-    console.log('🗑️ [Doctor] Attempting to delete notification:', notificationId);
-    if (!doctorInfo?.doctor_id) {
-        console.error("🗑️ [Doctor] Doctor ID is missing, cannot delete notification.");
-        return;
-    }
+    if (!doctorInfo?.doctor_id) return;
     try {
-        const notificationRef = ref(database, `notifications/${doctorInfo.doctor_id}/${notificationId}`);
-        console.log("🗑️ [Doctor] Notification ref path:", notificationRef.toString());
-        await remove(notificationRef);
-        console.log('🗑️ [Doctor] Notification deleted successfully:', notificationId);
+      const notificationRef = ref(database, `notifications/${doctorInfo.doctor_id}/${notificationId}`);
+      await remove(notificationRef);
     } catch (error) {
-        console.error('🗑️ [Doctor] Error deleting notification:', error);
-        notification.error({
-            message: 'Lỗi xóa thông báo',
-            description: 'Không thể xóa thông báo. Vui lòng thử lại.',
-            placement: 'topRight',
-        });
+      console.error('Error deleting notification:', error);
+      notification.error({
+        message: 'Lỗi xóa thông báo',
+        description: 'Không thể xóa thông báo. Vui lòng thử lại.',
+        placement: 'topRight',
+      });
     }
   }, [doctorInfo?.doctor_id]);
 
-  // --- Đóng popover thủ công ---
-  const closePopover = () => {
-    setPopoverVisible(false);
-    console.log('🔔 Manually closing popover');
-  };
+  const closePopover = () => setPopoverVisible(false);
 
-  // --- Xử lý click vào icon chuông ---
   const handleIconClick = () => {
     if (popoverVisible) {
       setPopoverVisible(false);
@@ -198,15 +140,26 @@ const Header = () => {
       if (notificationIconRef.current) {
         const rect = notificationIconRef.current.getBoundingClientRect();
         const popoverWidth = 380;
+        const popoverHeight = 400; // Approximate height of the popover
         const horizontalGap = 15;
         const verticalGap = 15;
+        const viewportHeight = window.innerHeight;
+        const scrollY = window.scrollY;
 
         let left = rect.left - popoverWidth - horizontalGap;
-        let top = rect.bottom + verticalGap + window.scrollY;
+        let top;
 
-        if (left < 10) {
-          left = 10;
+        // Check if the icon is near the bottom of the viewport
+        if (rect.bottom + popoverHeight + verticalGap > viewportHeight + scrollY) {
+          // Open upward
+          top = rect.top - popoverHeight - verticalGap + scrollY;
+        } else {
+          // Open downward
+          top = rect.bottom + verticalGap + scrollY;
         }
+
+        if (left < 10) left = 10;
+        if (top < scrollY) top = scrollY; // Ensure it doesn't go above the viewport
 
         setPopoverStyle({
           position: 'absolute',
@@ -216,40 +169,30 @@ const Header = () => {
           zIndex: 1050,
         });
         setPopoverVisible(true);
-        console.log('🔔 Calculated custom popover style (left side):', { top: `${top}px`, left: `${left}px` });
       } else {
         setPopoverVisible(true);
       }
     }
   };
 
-  // --- Xử lý click bên ngoài để đóng popover ---
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (popoverVisible &&
-          popoverRef.current &&
-          !popoverRef.current.contains(event.target) &&
-          notificationIconRef.current &&
-          !notificationIconRef.current.contains(event.target)) {
+      if (
+        popoverVisible &&
+        popoverRef.current &&
+        !popoverRef.current.contains(event.target) &&
+        notificationIconRef.current &&
+        !notificationIconRef.current.contains(event.target)
+      ) {
         setPopoverVisible(false);
-        console.log('🔔 Clicked outside, closing popover');
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [popoverVisible]);
 
-  // --- JSX cho nội dung bên trong popover ---
   const notificationContentJSX = (
-    <div
-      ref={popoverRef}
-      className="custom-notification-popover"
-      style={popoverStyle}
-    >
-      {/* Header */}
+    <div ref={popoverRef} className="custom-notification-popover" style={popoverStyle}>
       <div className="custom-popover-header" style={{ padding: '10px 16px' }}>
         <span style={{ fontWeight: 600 }}>Thông báo ({unreadCount} chưa đọc)</span>
         <Button
@@ -261,8 +204,6 @@ const Header = () => {
           aria-label="Đóng thông báo"
         />
       </div>
-
-      {/* Body - List */}
       {loadingNotifications ? (
         <div className="custom-popover-body loading"><Spin tip="Đang tải..." /></div>
       ) : notifications.length === 0 ? (
@@ -277,35 +218,26 @@ const Header = () => {
                 <List.Item
                   className={`notification-list-item ${!item.read ? 'unread' : ''}`}
                   style={{ padding: 0, backgroundColor: item.read ? '#fff' : '#e6f7ff' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleNotificationClick(item, e);
-                  }}
+                  onClick={(e) => handleNotificationClick(item, e)}
                 >
                   <div className="notification-item-content" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', width: '100%', position: 'relative' }}>
                     <List.Item.Meta
                       avatar={
                         <Avatar
-                          icon={item.read ? <CheckCircleOutlined style={{ color: '#8c8c8c' }}/> : <BellOutlined style={{ color: '#fff' }}/>}
+                          icon={item.read ? <CheckCircleOutlined style={{ color: '#8c8c8c' }} /> : <BellOutlined style={{ color: '#fff' }} />}
                           style={{
                             backgroundColor: item.read ? '#f0f0f0' : '#1890ff',
-                            boxShadow: !item.read ? '0 0 5px rgba(24, 144, 255, 0.5)' : 'none'
+                            boxShadow: !item.read ? '0 0 5px rgba(24, 144, 255, 0.5)' : 'none',
                           }}
                         />
                       }
                       title={
-                        <span style={{
-                          fontWeight: item.read ? 400 : 600,
-                          color: '#333',
-                          fontSize: '14px'
-                        }}>
-                          {escapeHtml(item.title) || 'Thông báo'}
+                        <span style={{ fontWeight: item.read ? 400 : 600, color: '#333', fontSize: '14px' }}>
+                          {unescapeHtml(escapeHtml(item.title)) || 'Thông báo'}
                         </span>
                       }
                       description={
-                        <span style={{ color: '#555', fontSize: '13px' }}>
-                          {escapeHtml(item.message) || ''}
-                        </span>
+                        unescapeHtml(escapeHtml(item.message)) || ''
                       }
                       style={{ flexGrow: 1, margin: 0, marginRight: '10px', overflow: 'hidden' }}
                     />
@@ -333,7 +265,6 @@ const Header = () => {
     </div>
   );
 
-  // --- Các hàm và JSX còn lại (Giữ nguyên) ---
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 11) return "Chào buổi sáng";
@@ -341,25 +272,17 @@ const Header = () => {
     if (hour >= 13 && hour < 18) return "Chào buổi chiều";
     return "Chào buổi tối";
   };
+
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
-  const handleViewUserProfile = () => {
-    navigate("/doctor/profileUser");
-  };
-  const handleViewDoctorProfile = () => {
-    navigate("/doctor/profile");
-  };
-  const handleEditDoctorProfile = () => {
-    navigate("/doctor/profile/edit");
-  };
-  const handleAppointments = () => {
-    navigate("/doctor/appointments");
-  };
-  const handleSchedule = () => {
-    navigate("/doctor/schedule");
-  };
+
+  const handleViewUserProfile = () => navigate("/doctor/profileUser");
+  const handleViewDoctorProfile = () => navigate("/doctor/profile");
+  const handleEditDoctorProfile = () => navigate("/doctor/profile/edit");
+  const handleAppointments = () => navigate("/doctor/appointments");
+  const handleSchedule = () => navigate("/doctor/schedule");
 
   const handleHeaderSearch = (e) => {
     if (e.key === 'Enter') {
@@ -388,6 +311,9 @@ const Header = () => {
           }
           .doctor-notification-trigger {
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
           .doctor-notification-icon {
             cursor: pointer;
@@ -399,12 +325,37 @@ const Header = () => {
             border-radius: 50%;
             background-color: #f0f0f0;
             transition: background-color 0.2s ease;
+            position: relative;
           }
           .doctor-notification-icon:hover {
             background-color: #e0e0e0;
           }
-          .doctor-notification-icon .ant-badge .ant-badge-count { background-color: #ff4d4f !important; box-shadow: 0 0 0 1px #ff4d4f inset !important; color: white !important; }
-          .doctor-notification-icon .anticon-bell { font-size: 22px; color: #4b5563; }
+          .doctor-notification-icon .ant-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+          }
+          .doctor-notification-icon .anticon-bell {
+            font-size: 22px;
+            color: #4b5563;
+          }
+          .doctor-notification-icon .ant-badge .ant-badge-count {
+            background-color: #ff4d4f !important;
+            color: white !important;
+            font-size: 10px;
+            min-width: 16px;
+            height: 16px;
+            line-height: 16px;
+            border-radius: 50%;
+            padding: 0 4px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            transform: none;
+            box-shadow: 0 0 0 1px #fff !important;
+          }
           .doctor-greeting { text-align: right; line-height: 1.4; }
           .doctor-greeting-text { color: #6b7280; font-size: 13px; margin: 0; }
           .doctor-greeting-name { color: #1f2937; font-size: 15px; font-weight: 600; margin: 0; }
@@ -417,7 +368,7 @@ const Header = () => {
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
             border: 1px solid #f0f0f0;
             overflow: hidden;
-            z-index: 1100;
+            z-index: 1050;
           }
           .custom-popover-header {
             display: flex;
@@ -467,6 +418,9 @@ const Header = () => {
           .custom-popover-body.empty {
             padding: 40px 20px;
             text-align: center;
+          }
+          .ant-list-item-meta-description {
+            margin: 0 !important;
           }
         `}
       </style>
@@ -518,7 +472,6 @@ const Header = () => {
               data-bs-toggle="dropdown"
               aria-expanded="false"
             />
-
             <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuAvatar">
               <li>
                 <a className="dropdown-item" onClick={(e) => { e.preventDefault(); handleViewUserProfile(); }}>
@@ -549,4 +502,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default Header; 

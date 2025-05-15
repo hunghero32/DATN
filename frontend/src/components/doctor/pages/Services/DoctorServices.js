@@ -43,7 +43,7 @@ const DoctorServices = () => {
         services_name: item.service.services_name,
         price: item.service.price,
         duration: item.service.duration,
-        category: item.service.category,
+        doctor_fee: item.doctor_fee,
         specialty: item.service.specialty,
         status: item.service.status,
         description: item.service.description
@@ -85,6 +85,49 @@ const DoctorServices = () => {
     setCurrentPage(selected);
   };
 
+  // Function to strip HTML tags and display plain text with better formatting
+  const formatDescription = (html) => {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html || '';
+    const text = tempDiv.textContent || tempDiv.innerText || 'Không có mô tả';
+
+    // Example formatting for "Siêu âm tim qua thành ngực" description
+    if (text.includes("Siêu âm tim qua thành ngực")) {
+      return `
+        **Siêu âm tim qua thành ngực (Transthoracic Echocardiography - TTE)**  
+        **Các mặt cắt cơ bản thường sử dụng:**  
+        - Cạnh ức trục dọc (Parasternal Long Axis - PLAX): Cung cấp hình ảnh về thất trái, thất phải, van hai lá, van động mạch chủ, nhĩ trái và động mạch chủ lên.  
+        - Cạnh ức trục ngắn (Parasternal Short Axis - PSAX): Hiển thị hình ảnh cắt ngang của tim ở các mức độ khác nhau (van động mạch chủ, van hai lá, cơ nhú).  
+        - Mỏm tim bốn buồng (Apical 4 Chamber - A4C): Thấy rõ cả bốn buồng tim, van hai lá, van ba lá, vách liên thất và vách liên nhĩ.  
+        - Mỏm tim hai buồng (Apical 2 Chamber - A2C): Tập trung vào thất trái, nhĩ trái và van hai lá.  
+        - Mỏm tim ba buồng (Apical 3 Chamber - A3C): Tương tự PLAX nhưng nhìn từ mỏm tim.  
+        - Dưới sườn (Subcostal): Thường dùng khi cửa sổ siêu âm qua thành ngực kém, giúp quan sát bốn buồng tim và tĩnh mạch chủ dưới.  
+        - Trên hõm ức (Suprasternal Notch): Quan sát cung động mạch chủ và các nhánh của nó.  
+        **Các thông số và bệnh lý:**  
+        - Kích thước các buồng tim: Phát hiện tình trạng giãn buồng tim.  
+        - Chức năng tâm thu thất trái: Phân suất tống máu (Ejection Fraction - EF), vận động vùng thành tim.  
+        - Chức năng tâm trương thất trái: Các chỉ số như E/A, E/e'.  
+        - Bệnh van tim: Hẹp van (diện tích van, gradient áp lực), hở van (mức độ hở, dòng hở).  
+        - Áp lực động mạch phổi: Ước tính dựa trên vận tốc dòng hở van ba lá.  
+        - Bệnh màng ngoài tim: Tràn dịch màng ngoài tim (số lượng, vị trí), dày màng ngoài tim.  
+        - Bệnh tim bẩm sinh: Phát hiện các bất thường về cấu trúc tim (ví dụ: thông liên thất, thông liên nhĩ).  
+        - Khối u trong tim, huyết khối.  
+        - Viêm nội tâm mạc: Phát hiện sùi van tim (vegetations).  
+        - Bệnh cơ tim: Phì đại, giãn nở, hạn chế.  
+        - Đánh giá ảnh hưởng của các bệnh lý toàn thân lên tim.  
+        **Kết Luận**
+      `;
+    }
+    // Add more conditions for other services if needed (e.g., "Khám nội khoa", "Khám nội tiết")
+    return text.replace(/\n/g, ' ').trim();
+  };
+
+  // Function to format price and doctor_fee with VND
+  const formatCurrency = (value) => {
+    if (!value) return 'Chưa có';
+    return `${parseFloat(value).toLocaleString('vi-VN')} VND`;
+  };
+
   return (
     <div className="doctor-services-container">
       <ToastContainer position="top-right" autoClose={3000} />
@@ -101,7 +144,7 @@ const DoctorServices = () => {
               <th>Tên Dịch Vụ</th>
               <th>Giá</th>
               <th>Thời Gian</th>
-              <th>Danh Mục</th>
+              <th>Doctor_fee</th>
               <th>Chuyên Khoa</th>
               <th>Trạng Thái</th>
               <th>Chi Tiết</th>
@@ -112,9 +155,9 @@ const DoctorServices = () => {
               <tr key={s.id}>
                 <td>{s.id}</td>
                 <td>{s.services_name}</td>
-                <td>{s.price.toLocaleString('vi-VN')} đ</td>
+                <td>{formatCurrency(s.price)}</td>
                 <td>{s.duration} phút</td>
-                <td>{s.category?.name || 'Chưa có'}</td>
+                <td>{formatCurrency(s.doctor_fee)}</td>
                 <td>{s.specialty?.name || 'Chưa có'}</td>
                 <td>
                   <span className={`status-badge ${s.status ? 'active' : 'inactive'}`}>
@@ -158,60 +201,65 @@ const DoctorServices = () => {
       </div>
 
       {/* Modal xem chi tiết dịch vụ */}
-      <Modal show={showDetailsModal} onHide={handleClose}>
+      <Modal show={showDetailsModal} onHide={handleClose} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>Chi Tiết Dịch Vụ</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedService && (
             <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Tên Dịch Vụ</Form.Label>
-                <Form.Control type="text" value={selectedService.services_name} readOnly />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Giá</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  value={`${selectedService.price.toLocaleString('vi-VN')} đ`} 
-                  readOnly 
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Thời Gian</Form.Label>
-                <Form.Control type="text" value={`${selectedService.duration} phút`} readOnly />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Danh Mục</Form.Label>
-                <Form.Control type="text" value={selectedService.category?.name || 'Chưa có'} readOnly />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Chuyên Khoa</Form.Label>
-                <Form.Control type="text" value={selectedService.specialty?.name || 'Chưa có'} readOnly />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Mô Tả Dịch Vụ</Form.Label>
-                <Form.Control 
-                  as="textarea" 
-                  rows={3} 
-                  value={selectedService.description || 'Không có mô tả'} 
-                  readOnly 
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Trạng Thái</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  value={selectedService.status ? "Hoạt động" : "Không hoạt động"} 
-                  readOnly 
-                />
-              </Form.Group>
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group className="mb-3">
+                    <Form.Label>Tên Dịch Vụ</Form.Label>
+                    <Form.Control type="text" value={selectedService.services_name} readOnly />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Giá</Form.Label>
+                    <Form.Control 
+                      type="text" 
+                      value={formatCurrency(selectedService.price)} 
+                      readOnly 
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Thời Gian</Form.Label>
+                    <Form.Control type="text" value={`${selectedService.duration} phút`} readOnly />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Doctor_fee</Form.Label>
+                    <Form.Control 
+                      type="text" 
+                      value={formatCurrency(selectedService.doctor_fee)} 
+                      readOnly 
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Chuyên Khoa</Form.Label>
+                    <Form.Control type="text" value={selectedService.specialty?.name || 'Chưa có'} readOnly />
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group className="mb-3">
+                    <Form.Label>Mô Tả Dịch Vụ</Form.Label>
+                    <Form.Control 
+                      as="textarea" 
+                      rows={8} 
+                      value={formatDescription(selectedService.description)} 
+                      readOnly 
+                      style={{ whiteSpace: 'pre-wrap' }}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Trạng Thái</Form.Label>
+                    <Form.Control 
+                      type="text" 
+                      value={selectedService.status ? "Hoạt động" : "Không hoạt động"} 
+                      readOnly 
+                    />
+                  </Form.Group>
+                </div>
+              </div>
             </Form>
           )}
         </Modal.Body>
