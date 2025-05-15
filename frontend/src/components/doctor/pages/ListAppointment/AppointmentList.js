@@ -101,14 +101,12 @@ const AppointmentList = ({
                         Chi tiết
                       </button>
                       {status === "confirmed" && (
-                        <>
-                          <button
-                            className="action-button start-exam"
-                            onClick={() => handleStartExam(app)}
-                          >
-                            Bắt đầu khám
-                          </button>
-                        </>
+                        <button
+                          className="action-button start-exam"
+                          onClick={() => handleStartExam(app)}
+                        >
+                          Bắt đầu khám
+                        </button>
                       )}
                       {status === "examining" && (
                         <>
@@ -119,10 +117,10 @@ const AppointmentList = ({
                             Kết quả khám
                           </button>
                           <button
-                            className="action-button complete"
-                            onClick={() => handleCompleteAppointment(app)}
+                            className="action-button medical-record"
+                            onClick={() => handleShowMedicalRecord(app)}
                           >
-                            Hoàn thành
+                            Xem hồ sơ bệnh án
                           </button>
                         </>
                       )}
@@ -269,11 +267,6 @@ const AppointmentList = ({
             color: #fff;
           }
 
-          .action-button.complete {
-            background-color: #f97316;
-            color: #fff;
-          }
-
           .action-button.detail:hover {
             background-color: #2563eb;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -291,11 +284,6 @@ const AppointmentList = ({
 
           .action-button.exam-result:hover {
             background-color: #db2777;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          }
-
-          .action-button.complete:hover {
-            background-color: #ea580c;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
           }
         `}

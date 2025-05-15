@@ -1,7 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Button, Spinner, Table } from "react-bootstrap";
-import { FaFileMedical, FaPrescriptionBottle, FaStickyNote, FaFileUpload, FaEdit, FaTimes, FaDownload, FaBold, FaItalic, FaUnderline, FaPrint } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import {
+  FaFileMedical,
+  FaPrescriptionBottle,
+  FaStickyNote,
+  FaFileUpload,
+  FaEdit,
+  FaTimes,
+  FaPrint,
+  FaBold,
+  FaItalic,
+  FaUnderline,
+  FaCheckCircle,
+  FaTimesCircle,
+} from "react-icons/fa";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const ExamResultModal = ({
   showView,
@@ -20,26 +34,121 @@ const ExamResultModal = ({
   file,
   setFile,
   handleUpdateExamResult,
+  handleCompleteAppointment,
   loading,
   error,
 }) => {
-  const [prescriptionList, setPrescriptionList] = useState([{ medicine: '', quantity: '', note: '', styles: {} }]);
+  const [prescriptionList, setPrescriptionList] = useState([
+    { medicine: "", quantity: "", note: "", styles: {} },
+  ]);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
   const [localFile, setLocalFile] = useState(null);
-  const [isImage, setIsImage] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [fileType, setFileType] = useState(null);
+  const [doctorInfo, setDoctorInfo] = useState({
+    name: "Bác sĩ không xác định",
+    address: "Địa chỉ không xác định",
+    phone: "0123 456 789",
+  });
+  const [systemInfo, setSystemInfo] = useState({
+    site_name: "PHÒNG KHÁM ĐA KHOA XYZ",
+    address: "Địa chỉ không xác định",
+  });
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+
+  const currentDateTime = new Date("2025-05-15T14:57:00+07:00")
+    .toLocaleString("en-GB", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    })
+    .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+)/, "$1/$2/$3 $4");
+
+  const getAuthToken = () => localStorage.getItem("authToken");
+
+  // Fetch system info and doctor info when the component mounts
+  useEffect(() => {
+    const fetchSystemInfo = async () => {
+      try {
+        const token = getAuthToken();
+        if (!token) {
+          toast.error("Vui lòng đăng nhập để tiếp tục.", { toastId: "auth-error" });
+          return;
+        }
+        const response = await axios.get("http://127.0.0.1:8000/api/system", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+        setSystemInfo({
+          site_name: response.data.site_name || "PHÒNG KHÁM ĐA KHOA XYZ",
+          address: response.data.address || "Địa chỉ không xác định",
+        });
+      } catch (error) {
+        console.error("Error fetching system info:", error);
+        toast.error("Không thể tải thông tin hệ thống.", { toastId: "system-info-error" });
+      }
+    };
+
+    const fetchDoctorInfo = async () => {
+      try {
+        const token = getAuthToken();
+        if (!token) {
+          toast.error("Vui lòng đăng nhập để tiếp tục.", { toastId: "auth-error" });
+          return;
+        }
+        const response = await axios.get("http://127.0.0.1:8000/api/doctor/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+        setDoctorInfo({
+          name: `${response.data.doctor_name || "Bác sĩ"} ${response.data.last_name || "không xác định"}`,
+          address: systemInfo.address,
+          phone: "0123 456 789",
+        });
+      } catch (error) {
+        console.error("Error fetching doctor info:", error);
+        toast.error("Không thể tải thông tin bác sĩ.", { toastId: "doctor-info-error" });
+      }
+    };
+
+    fetchSystemInfo();
+    fetchDoctorInfo();
+  }, [systemInfo.address]);
 
   useEffect(() => {
-    // Reset state when modal mode changes
     if (!showEdit) {
       setDiagnosis(diagnosis || "");
       setNotes(notes || "");
       setPrescription(prescription || "");
       setLocalFile(file || null);
       try {
-        const parsedPrescription = typeof prescription === 'string' && prescription.trim() ? JSON.parse(prescription) : null;
-        setPrescriptionList(Array.isArray(parsedPrescription) ? parsedPrescription : [{ medicine: '', quantity: '', note: '', styles: {} }]);
+        const parsedPrescription =
+          typeof prescription === "string" && prescription.trim()
+            ? JSON.parse(prescription)
+            : null;
+        setPrescriptionList(
+          Array.isArray(parsedPrescription)
+            ? parsedPrescription
+            : [{ medicine: "", quantity: "", note: "", styles: {} }]
+        );
       } catch (e) {
-        setPrescriptionList([{ medicine: '', quantity: '', note: prescription || 'Không cần thuốc', styles: {} }]);
+        setPrescriptionList([
+          {
+            medicine: "",
+            quantity: "",
+            note: prescription || "Không cần thuốc",
+            styles: {},
+          },
+        ]);
       }
     } else {
       setDiagnosis(diagnosis || "");
@@ -47,20 +156,47 @@ const ExamResultModal = ({
       setPrescription(prescription || "");
       setLocalFile(file || null);
       try {
-        const parsedPrescription = typeof prescription === 'string' && prescription.trim() ? JSON.parse(prescription) : null;
-        setPrescriptionList(Array.isArray(parsedPrescription) ? parsedPrescription : [{ medicine: '', quantity: '', note: '', styles: {} }]);
+        const parsedPrescription =
+          typeof prescription === "string" && prescription.trim()
+            ? JSON.parse(prescription)
+            : null;
+        setPrescriptionList(
+          Array.isArray(parsedPrescription)
+            ? parsedPrescription
+            : [{ medicine: "", quantity: "", note: "", styles: {} }]
+        );
       } catch (e) {
-        setPrescriptionList([{ medicine: '', quantity: '', note: prescription || 'Không cần thuốc', styles: {} }]);
+        setPrescriptionList([
+          {
+            medicine: "",
+            quantity: "",
+            note: prescription || "Không cần thuốc",
+            styles: {},
+          },
+        ]);
       }
     }
 
-    // Check if the file is an image
-    if (file && typeof file === 'string') {
-      const extension = file.split('.').pop().toLowerCase();
-      const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp'];
-      setIsImage(imageExtensions.includes(extension));
+    const determineFileType = (file) => {
+      if (!file || typeof file !== "string") return null;
+      const extension = file.split(".").pop().toLowerCase();
+      const imageExtensions = ["png", "jpg", "jpeg", "gif", "bmp"];
+      const videoExtensions = ["mp4", "webm", "ogg"];
+      const audioExtensions = ["mp3", "wav", "ogg"];
+      const pdfExtensions = ["pdf"];
+      if (imageExtensions.includes(extension)) return "image";
+      if (videoExtensions.includes(extension)) return "video";
+      if (audioExtensions.includes(extension)) return "audio";
+      if (pdfExtensions.includes(extension)) return "pdf";
+      return "other";
+    };
+
+    setFileType(determineFileType(file));
+
+    if (file && typeof file === "string") {
+      setPreviewImage(`http://127.0.0.1:8000/storage/${file}`);
     } else {
-      setIsImage(false);
+      setPreviewImage(null);
     }
   }, [showEdit, diagnosis, notes, prescription, file, setDiagnosis, setNotes, setPrescription, setFile]);
 
@@ -72,7 +208,10 @@ const ExamResultModal = ({
   };
 
   const addPrescriptionRow = () => {
-    setPrescriptionList(prev => [...prev, { medicine: '', quantity: '', note: '', styles: {} }]);
+    setPrescriptionList((prev) => [
+      ...prev,
+      { medicine: "", quantity: "", note: "", styles: {} },
+    ]);
   };
 
   const removePrescriptionRow = (index) => {
@@ -89,7 +228,6 @@ const ExamResultModal = ({
 
   const applyStyleToRow = (styleKey, styleValue) => {
     if (selectedRowIndex === null) return;
-
     const updatedPrescription = [...prescriptionList];
     const currentStyles = updatedPrescription[selectedRowIndex].styles || {};
     updatedPrescription[selectedRowIndex].styles = {
@@ -101,22 +239,29 @@ const ExamResultModal = ({
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setLocalFile(file || null);
-    console.log("Selected file:", file);
+    const selectedFile = e.target.files[0];
+    setLocalFile(selectedFile || null);
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setPreviewImage(null);
+    }
   };
 
   const handleSave = async () => {
     const data = new FormData();
-    data.append('diagnosis', diagnosis.trim());
-    data.append('note', notes.trim());
-    data.append('prescription', prescription || '');
-    data.append('booking_id', selectedAppointment.id);
-    data.append('_method', 'PUT');
+    data.append("diagnosis", diagnosis.trim());
+    data.append("note", notes.trim());
+    data.append("prescription", prescription || "");
+    data.append("booking_id", selectedAppointment.id);
+    data.append("_method", "PUT");
 
     if (localFile instanceof File) {
-      data.append('file', localFile);
-      console.log("File appended:", localFile.name);
+      data.append("file", localFile);
     } else if (localFile === null || localFile === undefined) {
       console.log("No valid file selected, skipping file field.");
     } else {
@@ -124,22 +269,334 @@ const ExamResultModal = ({
       return;
     }
 
-    console.log("Sending data:", Object.fromEntries(data));
-
     try {
       await handleUpdateExamResult(data);
       onHideEdit();
-      if (setShowResultViewModal && typeof setShowResultViewModal === 'function') {
+      if (setShowResultViewModal && typeof setShowResultViewModal === "function") {
         setShowResultViewModal(true);
       }
     } catch (error) {
-      console.error("Error during save:", error);
       toast.error(error.message || "Lỗi khi cập nhật kết quả khám.");
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleConfirmComplete = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmAction = async () => {
+    setIsCompleting(true);
+    try {
+      const data = new FormData();
+      data.append("diagnosis", diagnosis ? diagnosis.trim() : "");
+      data.append("note", notes ? notes.trim() : "");
+      data.append("prescription", prescription || "");
+      data.append("booking_id", selectedAppointment.id);
+      data.append("_method", "PUT");
+
+      if (localFile instanceof File) {
+        data.append("file", localFile);
+      }
+
+      await handleUpdateExamResult(data);
+      await handleCompleteAppointment();
+      setShowConfirmModal(false);
+      onHideEdit();
+      toast.success("Hoàn thành cuộc hẹn thành công!");
+    } catch (error) {
+      console.error("Error completing appointment:", error);
+      toast.error(error.message || "Lỗi khi hoàn thành cuộc hẹn.");
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
+  const handleCloseConfirmModal = () => {
+    setShowConfirmModal(false);
+  };
+
+  const handlePrint = async () => {
+    const printContent = `
+      <div class="print-header">
+        <h1>${systemInfo.site_name}</h1>
+        <h2>KẾT QUẢ KHÁM BỆNH</h2>
+      </div>
+      <div class="print-section info-section">
+        <div class="info-block">
+          <p><strong>Tên bệnh nhân:</strong> ${selectedAppointment?.guest?.guest_name || "Không có tên"}</p>
+          <p><strong>Bác sĩ khám:</strong> ${doctorInfo.name}</p>
+          <p><strong>Ngày khám:</strong> ${selectedAppointment?.booking_date || "N/A"} ${selectedAppointment?.booking_time || "N/A"}</p>
+          <p><strong>Mã đặt lịch:</strong> ${selectedAppointment?.id || "N/A"}</p>
+        </div>
+      </div>
+      <div class="print-section">
+        <h3>Chẩn Đoán</h3>
+        <p>${diagnosis || "Chưa có chẩn đoán"}</p>
+      </div>
+      <div class="print-section">
+        <h3>Đơn Thuốc</h3>
+        ${
+          prescriptionList.length > 0 && prescriptionList[0].note && !prescriptionList[0].medicine
+            ? `<p>${prescriptionList[0].note}</p>`
+            : prescriptionList.length > 0
+            ? `
+              <table class="prescription-table">
+                <thead>
+                  <tr>
+                    <th>Tên Thuốc</th>
+                    <th>Số lượng</th>
+                    <th>Ghi chú</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${prescriptionList
+                    .map(
+                      (item) => `
+                    <tr>
+                      <td style="${Object.entries(item.styles)
+                        .map(([k, v]) => `${k}: ${v}`)
+                        .join(";")}">${item.medicine || "N/A"}</td>
+                      <td style="${Object.entries(item.styles)
+                        .map(([k, v]) => `${k}: ${v}`)
+                        .join(";")}">${item.quantity || "N/A"}</td>
+                      <td style="${Object.entries(item.styles)
+                        .map(([k, v]) => `${k}: ${v}`)
+                        .join(";")}">${item.note || "N/A"}</td>
+                    </tr>
+                  `
+                    )
+                    .join("")}
+                </tbody>
+              </table>`
+            : `<p>Chưa có đơn thuốc</p>`
+        }
+      </div>
+      <div class="print-section">
+        <h3>Ghi Chú</h3>
+        <p>${notes || "Chưa có ghi chú"}</p>
+      </div>
+      <div class="print-section">
+        <h3>Tệp Đính Kèm</h3>
+        ${
+          previewImage
+            ? `<img src="${previewImage}" alt="Tệp đính kèm" class="medical-image" />`
+            : file && typeof file === "string"
+            ? `<img src="http://127.0.0.1:8000/storage/${file}" alt="Tệp đính kèm" class="medical-image" />`
+            : `<p>Chưa có tệp đính kèm</p>`
+        }
+      </div>
+      <div class="print-footer">
+        <p><strong>Bác sĩ khám:</strong> ${doctorInfo.name}</p>
+        <p><strong>Địa chỉ:</strong> ${systemInfo.address}</p>
+        <p><strong>Hotline:</strong> ${doctorInfo.phone}</p>
+        <p><strong>Ngày in:</strong> ${currentDateTime}</p>
+      </div>
+    `;
+
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>In Kết Quả Khám</title>
+          <style>
+            @page { size: A4; margin: 20mm; }
+            body {
+              font-family: 'Times New Roman', serif;
+              padding: 20px;
+              color: #333;
+              line-height: 1.6;
+            }
+            .print-header {
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #000;
+              padding-bottom: 10px;
+            }
+            .print-header h1 {
+              font-size: 26px;
+              font-weight: bold;
+              color: #2c3e50;
+              margin: 0;
+              text-transform: uppercase;
+            }
+            .print-header h2 {
+              font-size: 22px;
+              font-weight: bold;
+              color: #34495e;
+              margin: 5px 0;
+              text-transform: uppercase;
+            }
+            .print-section {
+              margin-bottom: 20px;
+              padding: 15px;
+              background: #fff;
+              border: 1px solid #ddd;
+              border-radius: 5px;
+              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            .info-section {
+              padding: 10px;
+            }
+            .info-block p {
+              margin: 5px 0;
+              font-size: 14px;
+            }
+            h3 {
+              font-size: 18px;
+              color: #2c3e50;
+              margin-bottom: 10px;
+              border-bottom: 1px solid #ddd;
+              padding-bottom: 5px;
+              font-weight: bold;
+            }
+            p {
+              font-size: 14px;
+              color: #333;
+              margin: 5px 0;
+            }
+            .prescription-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 10px;
+            }
+            .prescription-table th,
+            .prescription-table td {
+              border: 1px solid #ddd;
+              padding: 10px;
+              text-align: left;
+              font-size: 14px;
+            }
+            .prescription-table th {
+              background-color: #f4f4f4;
+              font-weight: bold;
+            }
+            .medical-image {
+              max-width: 400px;
+              max-height: 300px;
+              object-fit: contain;
+              border: 1px solid #ddd;
+              border-radius: 5px;
+              margin-top: 10px;
+            }
+            .print-footer {
+              margin-top: 20px;
+              text-align: center;
+              padding-top: 10px;
+              border-top: 1px solid #ddd;
+            }
+            .print-footer p {
+              font-size: 14px;
+              margin: 5px 0;
+              font-style: italic;
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const renderFilePreview = (file, fileType) => {
+    const fileUrl = `http://127.0.0.1:8000/storage/${file}`;
+
+    switch (fileType) {
+      case "image":
+        return (
+          <>
+            <img
+              src={fileUrl}
+              alt="Tệp đính kèm"
+              className="medical-image"
+              onError={(e) => {
+                e.target.style.display = "none";
+                e.target.nextSibling.style.display = "block";
+              }}
+            />
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="file-link"
+              style={{ display: "none" }}
+            >
+              <FaFileUpload /> Xem tệp đính kèm
+            </a>
+            <span className="image-caption">Hình ảnh đính kèm</span>
+          </>
+        );
+      case "video":
+        return (
+          <>
+            <video
+              controls
+              className="medical-image"
+              style={{ maxHeight: "300px" }}
+              onError={(e) => {
+                e.target.style.display = "none";
+                e.target.nextSibling.style.display = "block";
+              }}
+            >
+              <source src={fileUrl} type={`video/${file.split(".").pop().toLowerCase()}`} />
+              Trình duyệt của bạn không hỗ trợ thẻ video.
+            </video>
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="file-link"
+              style={{ display: "none" }}
+            >
+              <FaFileUpload /> Xem tệp đính kèm
+            </a>
+            <span className="image-caption">Video đính kèm</span>
+          </>
+        );
+      case "audio":
+        return (
+          <>
+            <audio
+              controls
+              className="medical-image"
+              style={{ width: "100%", maxWidth: "400px" }}
+              onError={(e) => {
+                e.target.style.display = "none";
+                e.target.nextSibling.style.display = "block";
+              }}
+            >
+              <source src={fileUrl} type={`audio/${file.split(".").pop().toLowerCase()}`} />
+              Trình duyệt của bạn không hỗ trợ thẻ audio.
+            </audio>
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="file-link"
+              style={{ display: "none" }}
+            >
+              <FaFileUpload /> Xem tệp đính kèm
+            </a>
+            <span className="image-caption">Âm thanh đính kèm</span>
+          </>
+        );
+      case "pdf":
+      case "other":
+        return (
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="file-link"
+          >
+            <FaFileUpload /> Xem tệp đính kèm
+          </a>
+        );
+      default:
+        return <p>Chưa có tệp đính kèm</p>;
+    }
   };
 
   return (
@@ -333,140 +790,102 @@ const ExamResultModal = ({
             cursor: not-allowed;
           }
 
-          @media print {
-            @page {
-              size: A4;
-              margin: 20mm;
-            }
-            body * {
-              visibility: hidden;
-            }
-            .medical-modal .modal-body,
-            .medical-modal .modal-body * {
-              visibility: visible;
-            }
-            .medical-modal .modal-body {
-              position: absolute;
-              left: 0;
-              top: 0;
-              width: 100%;
-              padding: 20px;
-              background-color: white;
-              box-shadow: none !important;
-              border: none !important;
-              font-family: Arial, sans-serif;
-            }
-            .medical-modal .modal-body::before {
-              content: "PHÒNG KHÁM ĐA KHOA XYZ\\A KẾT QUẢ KHÁM BỆNH";
-              white-space: pre-wrap;
-              display: block;
-              text-align: center;
-              font-size: 20px;
-              font-weight: bold;
-              margin-bottom: 20px;
-              color: #000;
-              border-bottom: 2px solid #000;
-              padding-bottom: 10px;
-            }
-            .medical-modal .modal-body::after {
-              content: "Địa chỉ: 123 Đường Sức Khỏe, Quận 1, TP. HCM \\A Hotline: 0123 456 789 \\A Ngày in: 01:38 PM, 14/05/2025";
-              white-space: pre-wrap;
-              display: block;
-              text-align: center;
-              font-size: 12px;
-              color: #555;
-              margin-top: 30px;
-              border-top: 1px solid #ddd;
-              padding-top: 10px;
-            }
-            .patient-info {
-              display: flex !important;
-              flex-wrap: wrap;
-              margin-bottom: 20px;
-              padding: 10px;
-              border: 1px solid #ddd;
-              border-radius: 5px;
-            }
-            .patient-info p {
-              margin: 5px 20px 5px 0;
-              font-size: 14px;
-              color: #000;
-              flex: 1 1 45%;
-              word-wrap: break-word;
-              overflow-wrap: break-word;
-            }
-            .medical-info-card {
-              box-shadow: none;
-              margin-bottom: 20px;
-              padding: 15px;
-              border: 1px solid #ddd;
-              border-radius: 5px;
-              page-break-inside: avoid;
-            }
-            .medical-info-card h5 {
-              font-size: 16px;
-              margin-bottom: 10px;
-              color: #000;
-              border-bottom: 1px solid #ddd;
-              padding-bottom: 5px;
-            }
-            .medical-info-card p {
-              font-size: 14px;
-              color: #000;
-              margin-bottom: 5px;
-              word-wrap: break-word;
-              overflow-wrap: break-word;
-              white-space: pre-wrap;
-            }
-            .table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 15px;
-              page-break-inside: avoid;
-            }
-            .table th,
-            .table td {
-              border: 1px solid #000;
-              padding: 8px;
-              font-size: 14px;
-              color: #000;
-              word-wrap: break-word;
-              overflow-wrap: break-word;
-              text-align: left;
-            }
-            .table th {
-              background-color: #f0f0f0;
-              font-weight: bold;
-              width: 33.33%;
-            }
-            .table td {
-              width: 33.33%;
-            }
-            .file-link {
-              color: #000;
-              text-decoration: underline;
-              word-wrap: break-word;
-              overflow-wrap: break-word;
-            }
-            .medical-image {
-              max-width: 400px;
-              max-height: 300px;
-              object-fit: contain;
-              border: 1px solid #000;
-              margin-top: 10px;
-              page-break-inside: avoid;
-            }
-            .image-caption {
-              display: block;
-              font-size: 12px;
-              color: #555;
-              text-align: center;
-              margin-top: 5px;
-            }
-            .spinner-overlay,
-            .alert-danger {
-              display: none;
-            }
+          .custom-confirm-modal .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+          }
+
+          .custom-confirm-modal .modal-header {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+            border-bottom: none;
+          }
+
+          .custom-confirm-modal .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .custom-confirm-modal .modal-body {
+            padding: 2rem;
+            background-color: #f8fafc;
+            text-align: center;
+          }
+
+          .custom-confirm-modal .modal-body p {
+            font-size: 1.1rem;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+          }
+
+          .custom-confirm-modal .modal-footer {
+            border-top: none;
+            padding: 1rem 2rem;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+          }
+
+          .custom-confirm-modal .btn-cancel {
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .custom-confirm-modal .btn-cancel:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+          }
+
+          .custom-confirm-modal .btn-confirm {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            color: white;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .custom-confirm-modal .btn-confirm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+          }
+
+          .custom-confirm-modal .btn-confirm:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+          }
+
+          .custom-confirm-modal .spinner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
           }
         `}
       </style>
@@ -489,22 +908,37 @@ const ExamResultModal = ({
             </div>
           ) : (
             <div>
-              {/* Patient and Doctor Info (Hidden on Screen, Visible on Print) */}
-              <div className="patient-info" style={{ display: 'none' }}>
-                <p><strong>Tên bệnh nhân:</strong> {selectedAppointment?.guest?.guest_name || "Không có tên"}</p>
-                <p><strong>Bác sĩ khám:</strong> {selectedAppointment?.doctor?.doctor_name || "Không có thông tin"}</p>
-                <p><strong>Ngày khám:</strong> {selectedAppointment?.booking_date || "N/A"} {selectedAppointment?.booking_time || "N/A"}</p>
-                <p><strong>Mã đặt lịch:</strong> {selectedAppointment?.id || "N/A"}</p>
+              <div className="patient-info" style={{ display: "none" }}>
+                <p>
+                  <strong>Tên bệnh nhân:</strong>{" "}
+                  {selectedAppointment?.guest?.guest_name || "Không có tên"}
+                </p>
+                <p>
+                  <strong>Bác sĩ khám:</strong> {doctorInfo.name || "Không có thông tin"}
+                </p>
+                <p>
+                  <strong>Ngày khám:</strong> {selectedAppointment?.booking_date || "N/A"}{" "}
+                  {selectedAppointment?.booking_time || "N/A"}
+                </p>
+                <p>
+                  <strong>Mã đặt lịch:</strong> {selectedAppointment?.id || "N/A"}
+                </p>
               </div>
 
               <div className="medical-info-card">
-                <h5><FaFileMedical /> Chẩn Đoán</h5>
+                <h5>
+                  <FaFileMedical /> Chẩn Đoán
+                </h5>
                 <p className="mb-0">{diagnosis || "Chưa có chẩn đoán"}</p>
               </div>
 
               <div className="medical-info-card">
-                <h5><FaPrescriptionBottle /> Đơn Thuốc</h5>
-                {prescriptionList.length > 0 && prescriptionList[0].note && !prescriptionList[0].medicine ? (
+                <h5>
+                  <FaPrescriptionBottle /> Đơn Thuốc
+                </h5>
+                {prescriptionList.length > 0 &&
+                prescriptionList[0].note &&
+                !prescriptionList[0].medicine ? (
                   <p className="mb-0">{prescriptionList[0].note}</p>
                 ) : prescriptionList.length > 0 ? (
                   <Table bordered>
@@ -531,45 +965,18 @@ const ExamResultModal = ({
               </div>
 
               <div className="medical-info-card">
-                <h5><FaStickyNote /> Ghi Chú</h5>
+                <h5>
+                  <FaStickyNote /> Ghi Chú
+                </h5>
                 <p className="mb-0">{notes || "Chưa có ghi chú"}</p>
               </div>
 
               <div className="medical-info-card">
-                <h5><FaFileUpload /> Tệp Đính Kèm</h5>
-                {file && typeof file === 'string' ? (
-                  isImage ? (
-                    <>
-                      <img
-                        src={`http://127.0.0.1:8000/storage/${file}`}
-                        alt="Tệp đính kèm"
-                        className="medical-image"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'block';
-                        }}
-                      />
-                      <a
-                        href={`http://127.0.0.1:8000/storage/${file}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="file-link"
-                        style={{ display: 'none' }}
-                      >
-                        <FaFileUpload /> Xem tệp đính kèm
-                      </a>
-                      <span className="image-caption">Hình ảnh đính kèm</span>
-                    </>
-                  ) : (
-                    <a
-                      href={`http://127.0.0.1:8000/storage/${file}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="file-link"
-                    >
-                      <FaFileUpload /> Xem tệp đính kèm
-                    </a>
-                  )
+                <h5>
+                  <FaFileUpload /> Tệp Đính Kèm
+                </h5>
+                {file && typeof file === "string" ? (
+                  renderFilePreview(file, fileType)
                 ) : file instanceof File ? (
                   <p>Tệp đã chọn: {file.name}</p>
                 ) : (
@@ -614,7 +1021,7 @@ const ExamResultModal = ({
               {error}
             </div>
           )}
-          
+
           <Form>
             <div className="medical-info-card">
               <Form.Group className="mb-4">
@@ -638,21 +1045,21 @@ const ExamResultModal = ({
                 </Form.Label>
                 <div className="editor-toolbar">
                   <Button
-                    onClick={() => applyStyleToRow('fontWeight', 'bold')}
+                    onClick={() => applyStyleToRow("fontWeight", "bold")}
                     disabled={selectedRowIndex === null}
                     title="Bold"
                   >
                     <FaBold />
                   </Button>
                   <Button
-                    onClick={() => applyStyleToRow('fontStyle', 'italic')}
+                    onClick={() => applyStyleToRow("fontStyle", "italic")}
                     disabled={selectedRowIndex === null}
                     title="Italic"
                   >
                     <FaItalic />
                   </Button>
                   <Button
-                    onClick={() => applyStyleToRow('textDecoration', 'underline')}
+                    onClick={() => applyStyleToRow("textDecoration", "underline")}
                     disabled={selectedRowIndex === null}
                     title="Underline"
                   >
@@ -673,13 +1080,17 @@ const ExamResultModal = ({
                       <tr
                         key={index}
                         onClick={() => handleRowSelect(index)}
-                        style={{ backgroundColor: selectedRowIndex === index ? '#e6f7ff' : 'transparent' }}
+                        style={{
+                          backgroundColor: selectedRowIndex === index ? "#e6f7ff" : "transparent",
+                        }}
                       >
                         <td>
                           <Form.Control
                             type="text"
                             value={item.medicine}
-                            onChange={(e) => handlePrescriptionChange(index, 'medicine', e.target.value)}
+                            onChange={(e) =>
+                              handlePrescriptionChange(index, "medicine", e.target.value)
+                            }
                             placeholder="Nhập tên thuốc..."
                             style={{ border: "none", padding: "8px", ...item.styles }}
                           />
@@ -688,7 +1099,9 @@ const ExamResultModal = ({
                           <Form.Control
                             type="text"
                             value={item.quantity}
-                            onChange={(e) => handlePrescriptionChange(index, 'quantity', e.target.value)}
+                            onChange={(e) =>
+                              handlePrescriptionChange(index, "quantity", e.target.value)
+                            }
                             placeholder="Nhập số lượng..."
                             style={{ border: "none", padding: "8px", ...item.styles }}
                           />
@@ -697,7 +1110,9 @@ const ExamResultModal = ({
                           <Form.Control
                             type="text"
                             value={item.note}
-                            onChange={(e) => handlePrescriptionChange(index, 'note', e.target.value)}
+                            onChange={(e) =>
+                              handlePrescriptionChange(index, "note", e.target.value)
+                            }
                             placeholder="Nhập ghi chú..."
                             style={{ border: "none", padding: "8px", ...item.styles }}
                           />
@@ -740,27 +1155,25 @@ const ExamResultModal = ({
                   <FaFileUpload className="me-2" />
                   Tệp Đính Kèm
                 </Form.Label>
-                <Form.Control
-                  type="file"
-                  onChange={handleFileChange}
-                  className="mb-3"
-                />
-                {file && typeof file === 'string' ? (
+                <Form.Control type="file" onChange={handleFileChange} className="mb-3" />
+                {previewImage ? (
+                  <div className="file-preview">
+                    <span className="me-2">Xem trước:</span>
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      style={{ maxWidth: "200px", maxheight: "200px" }}
+                    />
+                  </div>
+                ) : file && typeof file === "string" ? (
                   <div className="file-preview">
                     <span className="me-2">Tệp hiện tại:</span>
-                    <a
-                      href={`http://127.0.0.1:8000/storage/${file}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="file-link"
-                    >
-                      <FaFileUpload /> Xem tệp
-                    </a>
+                    {renderFilePreview(file, fileType)}
                   </div>
-                ) : file instanceof File ? (
+                ) : localFile instanceof File ? (
                   <div className="file-preview">
                     <span className="me-2">Tệp đã chọn:</span>
-                    <span>{file.name}</span>
+                    <span>{localFile.name}</span>
                   </div>
                 ) : (
                   <p>Chưa có tệp đính kèm</p>
@@ -774,12 +1187,31 @@ const ExamResultModal = ({
             <FaTimes className="me-2" />
             Hủy
           </Button>
+          {selectedAppointment?.status !== "completed" && (
+            <Button
+              variant="success"
+              onClick={handleConfirmComplete}
+              disabled={loading || isCompleting}
+            >
+              {loading || isCompleting ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Đang xử lý...
+                </>
+              ) : (
+                <>
+                  <FaEdit className="me-2" />
+                  Hoàn thành
+                </>
+              )}
+            </Button>
+          )}
           <Button
             variant="primary"
             onClick={handleSave}
-            disabled={loading}
+            disabled={loading || isCompleting}
           >
-            {loading ? (
+            {loading || isCompleting ? (
               <>
                 <Spinner animation="border" size="sm" className="me-2" />
                 Đang lưu...
@@ -791,7 +1223,62 @@ const ExamResultModal = ({
               </>
             )}
           </Button>
+          <Button variant="success" onClick={handlePrint} disabled={loading || isCompleting}>
+            <FaPrint className="me-2" />
+            In
+          </Button>
         </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={showConfirmModal}
+        onHide={handleCloseConfirmModal}
+        centered
+        className="custom-confirm-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <FaCheckCircle /> Xác nhận hoàn thành
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Bạn có chắc chắn muốn hoàn thành cuộc hẹn của{" "}
+            <strong>{selectedAppointment?.guest?.guest_name || "Khách hàng"}</strong>{" "}
+            vào lúc {selectedAppointment?.booking_time} ngày{" "}
+            {selectedAppointment?.booking_date} không?
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            className="btn-cancel"
+            onClick={handleCloseConfirmModal}
+            disabled={isCompleting}
+          >
+            <FaTimesCircle /> Hủy
+          </Button>
+          <Button
+            className="btn-confirm"
+            onClick={handleConfirmAction}
+            disabled={isCompleting}
+          >
+            {isCompleting ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Đang xử lý...
+              </>
+            ) : (
+              <>
+                <FaCheckCircle /> Xác nhận
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+        {isCompleting && (
+          <div className="spinner-overlay">
+            <Spinner animation="border" variant="success" />
+          </div>
+        )}
       </Modal>
     </>
   );
