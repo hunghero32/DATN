@@ -41,7 +41,8 @@ Route::prefix('admin')->group(function () {
     Route::get('login', [AdminAuthController::class, 'create'])->name('admin.login');
     Route::post('login', [AdminAuthController::class, 'login'])->name('admin.login.post');
 });
-
+// Thêm vào file routes/web.php trong phần admin routes
+;
 Route::prefix('admin')->group(function () {
     // Auth & Profile
     Route::post('logout', [AdminAuthController::class, 'destroy'])->name('admin.logout');
@@ -85,8 +86,15 @@ Route::prefix('admin')->group(function () {
     Route::delete('bookings-{booking}', [BookingController::class, 'destroy'])->name('admin.bookings.delete');
     Route::get('bookings-search', [BookingController::class, 'search'])->name('admin.bookings.search');
     Route::patch('bookings/{id}/status', [BookingController::class, 'updateStatus'])->name('admin.bookings.update-status');
-
-
+    Route::get('bookings-create',[BookingController::class,'create'])->name('admin.bookings.create');
+    Route::post('bookings-save', [BookingController::class,'store'])->name('admin.bookings.store');
+    Route::get('bookings-{booking}/edit', [BookingController::class, 'edit'])->name('admin.bookings.edit');
+    Route::get('/bookings/get-available-time-slots', [BookingController::class, 'getAvailableTimeSlots'])->name('admin.bookings.get-available-time-slots');
+    Route::get('bookings/get-services-by-doctor', [BookingController::class, 'getServicesByDoctor'])->name('admin.bookings.get-services-by-doctor');
+    Route::get('bookings/doctor-services', [BookingController::class, 'getDoctorServices'])->name('admin.bookings.doctor-services');
+    Route::get('/bookings/get-working-dates', [BookingController::class, 'getWorkingDates'])->name('admin.bookings.get-working-dates');
+    Route::get('/bookings/get-available-times', [BookingController::class, 'getAvailableTimes'])->name('admin.bookings.get-available-times');
+    Route::get('bookings/doctor-time-slots', [BookingController::class, 'getDoctorTimeSlots'])->name('admin.bookings.doctor-time-slots');
     // Services
     Route::get('services', [ServiceController::class, 'index'])->name('admin.services.index');
     Route::get('services-create', [ServiceController::class, 'create'])->name('admin.services.create');

@@ -45,7 +45,7 @@ use App\Http\Controllers\LinkPreviewController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+Route::get('/available-time-slots', 'Api\BookingController@getAvailableTimeSlots');
 Route::middleware(['web'])->group(function () {
     Route::get('/auth/google/redirect', [SocialController::class, 'redirect']);
     Route::get('/auth/google/callback', [SocialController::class, 'callback']);

@@ -35,7 +35,8 @@ class SchedulesController extends Controller
 
         $query = Schedule::join('doctors', 'schedules.doctor_id', '=', 'doctors.id')
             ->select('schedules.*', 'doctors.doctor_name')
-            ->where('schedules.isDeleted', 0);
+            ->where('schedules.isDeleted', 0)
+              ->whereDate('schedules.working_date', '>=', now());
 
         if (!empty($search)) {
             $query->where('doctors.doctor_name', 'like', '%' . $search . '%');
