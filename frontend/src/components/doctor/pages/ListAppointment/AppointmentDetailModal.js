@@ -9,6 +9,7 @@ const AppointmentDetailModal = ({
   handleDeleteAppointment,
   handleTransferAppointment,
   handleCompleteAppointment,
+  handleStartExam,
 }) => {
   if (!selectedAppointment) {
     return (
@@ -169,7 +170,6 @@ const AppointmentDetailModal = ({
                 }
                 readOnly
               />
-
             </Form.Group>
 
             <Form.Group>
@@ -298,12 +298,12 @@ const AppointmentDetailModal = ({
               className="me-2"
               onClick={() => {
                 if (selectedAppointment) {
-                  handleCompleteAppointment(selectedAppointment);
+                  handleStartExam(selectedAppointment);
                   onHide();
                 }
               }}
             >
-              Hoàn thành
+              Khám bệnh
             </Button>
             <Button variant="secondary" onClick={onHide}>
               Đóng

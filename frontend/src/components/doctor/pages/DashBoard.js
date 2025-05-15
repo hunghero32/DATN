@@ -13,8 +13,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Container, Row, Col, Card, Table, Badge } from 'react-bootstrap';
-import { FaUserMd, FaCalendarCheck, FaClipboardList, FaChartLine, FaDollarSign, FaCalendarAlt } from 'react-icons/fa';
+import { Container, Row, Col, Card, Table, Badge, Modal, Button } from 'react-bootstrap';
+import { FaUserMd, FaCalendarCheck, FaClipboardList, FaChartLine, FaDollarSign, FaCheck, FaTimes } from 'react-icons/fa';
 import { format, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { toast, ToastContainer } from "react-toastify";
@@ -66,6 +66,11 @@ const Dashboard = () => {
   const [doctorInfo, setDoctorInfo] = useState(null);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [loading, setLoading] = useState(true);
+
+  // State for the confirmation modal
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const getAuthToken = () => localStorage.getItem("authToken");
 
@@ -178,6 +183,58 @@ const Dashboard = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Function to handle appointment completion
+  const handleCompleteAppointment = async () => {
+    if (!selectedAppointmentId) return;
+
+    setConfirmLoading(true);
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        toast.error("Vui lòng đăng nhập để tiếp tục.", { toastId: "auth-error" });
+        setShowConfirmModal(false);
+        setConfirmLoading(false);
+        return;
+      }
+
+      const response = await axios.post(
+        `http://127.0.0.1:8000/api/doctor/appointments/${selectedAppointmentId}/complete`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Cuộc hẹn đã được hoàn thành!", { toastId: "complete-success" });
+
+        // Refresh dashboard data
+        const dashboardResponse = await axios.get("http://127.0.0.1:8000/api/doctor/dashboard", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        });
+
+        if (dashboardResponse.data.success) {
+          setDashboardData(dashboardResponse.data.data);
+        }
+      } else {
+        throw new Error(response.data.message || "Không thể hoàn thành cuộc hẹn.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi hoàn thành cuộc hẹn:", error);
+      toast.error(error.message || "Không thể hoàn thành cuộc hẹn.", { toastId: "complete-error" });
+    } finally {
+      setConfirmLoading(false);
+      setShowConfirmModal(false);
+      setSelectedAppointmentId(null);
+    }
+  };
 
   // Prepare data for the Patients by Month chart (Line chart)
   const patientsByMonthData = {
@@ -303,11 +360,6 @@ const Dashboard = () => {
             color: white;
           }
 
-          .card-icon.days-off {
-            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
-            color: white;
-          }
-
           .stat-title {
             color: #6b7280;
             font-size: 0.875rem;
@@ -414,6 +466,63 @@ const Dashboard = () => {
             background-color: #fee2e2;
             color: #ef4444;
           }
+
+          .confirm-modal .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+          }
+
+          .confirm-modal .modal-header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.5rem;
+          }
+
+          .confirm-modal .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .confirm-modal .modal-body {
+            padding: 2rem;
+            background-color: #f8fafc;
+            font-size: 1.1rem;
+            text-align: center;
+          }
+
+          .confirm-modal .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+          }
+
+          .confirm-modal .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+          }
+
+          .confirm-modal .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+          }
+
+          .confirm-modal .btn-secondary:hover {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+          }
         `}
       </style>
 
@@ -491,7 +600,7 @@ const Dashboard = () => {
               </Card>
             </Col>
 
-            <Col lg={3} sm={6}>
+            <Col lg={6} sm={6}>
               <Card className="dashboard-card h-100">
                 <Card.Body>
                   <div className="card-icon earnings">
@@ -504,7 +613,7 @@ const Dashboard = () => {
               </Card>
             </Col>
 
-            <Col lg={3} sm={6}>
+            <Col lg={6} sm={6}>
               <Card className="dashboard-card h-100">
                 <Card.Body>
                   <div className="card-icon earnings">
@@ -513,32 +622,6 @@ const Dashboard = () => {
                   <div className="stat-title">Tổng Doanh Thu</div>
                   <div className="stat-value">{formatCurrency(dashboardData.total_earnings)}</div>
                   <div className="stat-description">Tổng doanh thu từ trước đến nay</div>
-                </Card.Body>
-              </Card>
-            </Col>
-
-            <Col lg={3} sm={6}>
-              <Card className="dashboard-card h-100">
-                <Card.Body>
-                  <div className="card-icon days-off">
-                    <FaCalendarAlt />
-                  </div>
-                  <div className="stat-title">Ngày Nghỉ</div>
-                  <div className="stat-value">{dashboardData.days_off}</div>
-                  <div className="stat-description">Số ngày nghỉ trong tháng này</div>
-                </Card.Body>
-              </Card>
-            </Col>
-
-            <Col lg={3} sm={6}>
-              <Card className="dashboard-card h-100">
-                <Card.Body>
-                  <div className="card-icon appointments">
-                    <FaCalendarCheck />
-                  </div>
-                  <div className="stat-title">Khung Giờ Trống</div>
-                  <div className="stat-value">{dashboardData.available_slots}</div>
-                  <div className="stat-description">Số khung giờ trống trong tháng</div>
                 </Card.Body>
               </Card>
             </Col>
@@ -706,6 +789,7 @@ const Dashboard = () => {
                           <th>Số điện thoại</th>
                           <th>Dịch vụ</th>
                           <th>Trạng thái</th>
+                          <th>Hành động</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -718,19 +802,30 @@ const Dashboard = () => {
                               <td>{appointment.guest?.guest_phone || "N/A"}</td>
                               <td>{appointment.service?.services_name || "N/A"}</td>
                               <td>
-                                <Badge
-                                  className={`bg-${appointment.status}`}
-                                >
+                                <Badge className={`bg-${appointment.status}`}>
                                   {appointment.status === "confirmed" ? "Đã xác nhận" :
                                    appointment.status === "pending" ? "Đang chờ xử lý" :
                                    appointment.status === "examining" ? "Đang khám" : "N/A"}
                                 </Badge>
                               </td>
+                              <td>
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedAppointmentId(appointment.id);
+                                    setShowConfirmModal(true);
+                                  }}
+                                  disabled={appointment.status === "examining"}
+                                >
+                                  <FaCheck /> Hoàn thành
+                                </Button>
+                              </td>
                             </tr>
                           ))
                         ) : (
                           <tr>
-                            <td colSpan="6" className="text-center">
+                            <td colSpan="7" className="text-center">
                               Không có lịch hẹn sắp tới
                             </td>
                           </tr>
@@ -782,6 +877,7 @@ const Dashboard = () => {
           </div>
         </>
       )}
+
     </Container>
   );
 };
