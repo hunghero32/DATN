@@ -73,6 +73,13 @@
         ]
     ]"
     :actions="[
+         [
+            'label' => 'Thêm mới',
+            'route' => fn() => route('admin.bookings.create'),
+            'method' => 'GET',
+            'type' => 'global',
+            'class' => 'btn btn-success btn-sm'
+        ],
         [
             'label' => 'Xóa',
             'route' => fn($id) => route('admin.bookings.delete', $id),
