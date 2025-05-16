@@ -56,9 +56,9 @@
                     </thead>
 
                     <tbody>
-                        @foreach ($data as $record)
+                        @foreach ($records as $record)
                         <tr>
-                            <td>{{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}</td>
+                            <td>{{ ($records->currentPage() - 1) * $records->perPage() + $loop->iteration }}</td>
                             <td>{{ $record->guest ? $record->guest->guest_name : 'N/A' }}</td>
                             <td>{{ strip_tags($record->BHYT) }}</td>
                             <td>{{ strip_tags($record->note) }}</td>
@@ -77,7 +77,7 @@
             </div>
 
             <div class="card-footer">
-                {{ $data->appends(request()->query())->links() }}
+                {{ $records->appends(request()->query())->links() }}
             </div>
         </div>
 

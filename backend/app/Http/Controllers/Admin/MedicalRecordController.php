@@ -3,92 +3,86 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\MedicalRecord;
 use App\Models\Guest;
-use Illuminate\Http\Request;
 
 class MedicalRecordController extends Controller
 {
+    
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
         $search = $request->input('search');
 
-        $query = MedicalRecord::with('guest');
+        $records = MedicalRecord::with('guest')
+            ->searchGuest($search)
+            ->where('isDeleted', false)
+            ->latest()
+            ->paginate(10);
 
-        if (!empty($search)) {
-            $query->whereHas('guest', function ($q) use ($search) {
-                $q->where('guests.guest_name', 'like', "%$search%")  // Thêm bảng 'guests' vào tên cột
-                  ->orWhere('guests.guest_phone', 'like', "%$search%");
-            });
-        }
-
-        $data = $query->orderBy('created_at', 'desc')->paginate($perPage);
-
-        return view('admin.pages.medical_records.index', compact('data'));
+        return view('admin.pages.medical_records.index', compact('records', 'search'));
     }
 
-    public function show($id)
-    {
-        $record = MedicalRecord::with('guest')->findOrFail($id);
-        return view('admin.pages.medical_records.show', compact('record'));
-    }
     
     public function create()
     {
-        $guests = Guest::pluck('guest_name', 'id')->toArray();
+        $guests = Guest::all();
         return view('admin.pages.medical_records.create', compact('guests'));
     }
 
+    
     public function store(Request $request)
     {
         $request->validate([
             'guest_id' => 'required|exists:guests,id',
             'BHYT' => 'nullable|string|max:50',
-            'medical_condition' => 'required|string',
+            'medical_condition' => 'nullable|string',
             'medications' => 'nullable|string',
             'allergies' => 'nullable|string',
             'family_history' => 'nullable|string',
-            'treatment' => 'required|string',
+            'treatment' => 'nullable|string',
             'note' => 'nullable|string',
         ]);
 
         MedicalRecord::create($request->all());
 
-        return redirect()->route('admin.medical_records.index')->with('success', 'Hồ sơ bệnh án đã được tạo!');
+        return redirect()->route('admin.pages.medical_records.index')
+            ->with('success', 'Tạo hồ sơ bệnh án thành công.');
     }
 
+    
+    public function show($id)
+    {
+        $record = MedicalRecord::with(['guest', 'results'])->findOrFail($id);
+        return view('admin.pages.medical_records.show', compact('record'));
+    }
+
+    
     public function edit($id)
     {
         $record = MedicalRecord::findOrFail($id);
-        $guests = Guest::pluck('guest_name', 'id');
+        $guests = Guest::all();
         return view('admin.pages.medical_records.edit', compact('record', 'guests'));
     }
 
+    
     public function update(Request $request, $id)
     {
-        $record = MedicalRecord::findOrFail($id);
-
-        $validated = $request->validate([
+        $request->validate([
+            'guest_id' => 'required|exists:guests,id',
             'BHYT' => 'nullable|string|max:50',
-            'medical_condition' => 'required|string',
+            'medical_condition' => 'nullable|string',
             'medications' => 'nullable|string',
             'allergies' => 'nullable|string',
             'family_history' => 'nullable|string',
-            'treatment' => 'required|string',
+            'treatment' => 'nullable|string',
             'note' => 'nullable|string',
         ]);
 
-        $record->update($validated);
-
-        return redirect()->route('admin.medical_records.index')->with('success', 'Cập nhật hồ sơ bệnh án thành công!');
-    }
-
-    public function destroy($id)
-    {
         $record = MedicalRecord::findOrFail($id);
-        $record->delete();
+        $record->update($request->all());
 
-        return redirect()->route('admin.medical_records.index')->with('success', 'Hồ sơ bệnh án đã bị xóa!');
+        return redirect()->route('admin.pages.medical_records.index')
+            ->with('success', 'Cập nhật hồ sơ bệnh án thành công.');
     }
 }

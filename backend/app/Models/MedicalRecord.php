@@ -26,9 +26,9 @@ class MedicalRecord extends Model
         return $this->belongsTo(Guest::class,'guest_id');
     }
     public function results()
-    {
-        return $this->hasMany(Result::class);
-    }
+{
+    return $this->hasMany(Result::class, 'guest_id', 'guest_id');
+}
     public function scopeSearchGuest($query, $search)
     {
         if (!empty($search)) {
