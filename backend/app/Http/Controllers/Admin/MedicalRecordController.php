@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MedicalRecord;
 use App\Models\Guest;
+use App\Models\Result;
 
 class MedicalRecordController extends Controller
 {
-    
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -23,14 +23,12 @@ class MedicalRecordController extends Controller
         return view('admin.pages.medical_records.index', compact('records', 'search'));
     }
 
-    
     public function create()
     {
-        $guests = Guest::all();
+        $guests = Guest::pluck('guest_name', 'id');
         return view('admin.pages.medical_records.create', compact('guests'));
     }
 
-    
     public function store(Request $request)
     {
         $request->validate([
@@ -50,14 +48,20 @@ class MedicalRecordController extends Controller
             ->with('success', 'Tạo hồ sơ bệnh án thành công.');
     }
 
-    
     public function show($id)
     {
-        $record = MedicalRecord::with(['guest', 'results'])->findOrFail($id);
-        return view('admin.pages.medical_records.show', compact('record'));
+        $record = MedicalRecord::with(['guest'])->findOrFail($id);
+
+        // Lấy tất cả kết quả khám của guest
+        $guestResults = Result::with('booking')
+            ->where('guest_id', $record->guest_id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        // Truyền kèm $guestResults vào view
+        return view('admin.pages.medical_records.show', compact('record', 'guestResults'));
     }
 
-    
     public function edit($id)
     {
         $record = MedicalRecord::findOrFail($id);
@@ -65,7 +69,6 @@ class MedicalRecordController extends Controller
         return view('admin.pages.medical_records.edit', compact('record', 'guests'));
     }
 
-    
     public function update(Request $request, $id)
     {
         $request->validate([

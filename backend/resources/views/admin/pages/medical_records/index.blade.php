@@ -14,12 +14,12 @@
 
             <div class="card-header d-flex justify-content-between">
                 <h5 class="mb-0">Danh sách hồ sơ bệnh án</h5>
-                <a href="{{ route('admin.medical_records.create') }}" class="btn btn-success">Thêm mới</a>
+                <a href="{{ route('admin.pages.medical_records.create') }}" class="btn btn-success">Thêm mới</a>
             </div>
 
             <div class="card-body">
 
-                <form method="GET" action="{{ route('admin.medical_records.index') }}" class="row g-3">
+                <form method="GET" action="{{ route('admin.pages.medical_records.index') }}" class="row g-3">
                     <div class="col-md-4">
                         <input type="text" name="search" class="form-control"
                             placeholder="Tìm theo Tên hoặc SĐT" value="{{ request('search') }}">
@@ -31,7 +31,7 @@
 
                     @if (request('search'))
                     <div class="col-md-2">
-                        <a href="{{ route('admin.medical_records.index') }}" class="btn btn-secondary">Quay lại</a>
+                        <a href="{{ route('admin.pages.medical_records.index') }}" class="btn btn-secondary">Quay lại</a>
                     </div>
                     @endif
 

@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Result;
 
 class MedicalRecord extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'guest_id',
         'BHYT',
@@ -20,15 +22,17 @@ class MedicalRecord extends Model
         'isDeleted',
     ];
 
-    // Quan hệ với bảng Guest
     public function guest()
     {
-        return $this->belongsTo(Guest::class,'guest_id');
+        return $this->belongsTo(Guest::class, 'guest_id');
     }
+
     public function results()
-{
-    return $this->hasMany(Result::class, 'guest_id', 'guest_id');
-}
+    {
+        return $this->hasMany(Result::class, 'guest_id', 'guest_id')
+                    ->where('isDeleted', false);
+    }
+
     public function scopeSearchGuest($query, $search)
     {
         if (!empty($search)) {
