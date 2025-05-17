@@ -119,7 +119,7 @@
             </ul>
             <ul class="menu-sub">
                 <li class="menu-item {{ request()->is('admin/medical_records*') ? 'active' : '' }}">
-                    <a href="{{route('admin.medical_records.index')}}" class="menu-link">
+                    <a href="{{route('admin.pages.medical_records.index')}}" class="menu-link">
                         <div data-i18n="Account">Danh sách hồ sơ y tế</div>
                     </a>
                 </li>

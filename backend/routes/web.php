@@ -74,7 +74,7 @@ Route::prefix('admin')->group(function () {
     Route::patch('doctor-schedule-{id}/status', [SchedulesController::class, 'updateStatus'])->name('admin.schedule.update-status');
 
     // Medical Records & Notifications
-    Route::resource('medical_records', MedicalRecordController::class)->names('admin.medical_records');
+    Route::resource('medical_records', MedicalRecordController::class)->names('admin.pages.medical_records');
     Route::resource('notifications', NotificationController::class)->names('admin.notifications');
 
 
