@@ -3,10 +3,14 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { message, Rate } from "antd";
 import api from "../../../ultils/api/axios";
 import { StarFilled } from '@ant-design/icons';
+import ChuotChay from "../../loadding/chuotchay";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ServiceDetail = () => {
   // Add this new state at the top with other states
   const [expandedBios, setExpandedBios] = useState({});
+  const [expandedDescription, setExpandedDescription] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
   const [service, setService] = useState(null);
@@ -121,6 +125,7 @@ const ServiceDetail = () => {
         id: `${schedule.id}-${startTime.toTimeString().slice(0, 5)}`,
         time_start: startTime.toTimeString().slice(0, 5),
         time_end: slotEnd.toTimeString().slice(0, 5),
+        scheduleId: schedule.id // Add this line
       });
       startTime.setMinutes(startTime.getMinutes() + duration);
     }
@@ -128,8 +133,32 @@ const ServiceDetail = () => {
   };
 
   const handleBooking = async (doctorId, date, time, scheduleId) => {
+    // Check for authentication token first
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      toast.error("Vui lòng đăng nhập để đặt lịch!", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored"
+      });
+      // navigate('/login'); // Redirect to login page
+      return;
+    }
+
     if (!doctorId || !date || !time || !scheduleId) {
-      message.error("Vui lòng chọn ngày và giờ trước khi đặt lịch.");
+      toast.error("Vui lòng chọn ngày và giờ trước khi đặt lịch!", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored"
+      });
       return;
     }
 
@@ -152,11 +181,27 @@ const ServiceDetail = () => {
         localStorage.setItem("bookingData", JSON.stringify(response.data.data));
         navigate(`/booking/${doctorId}?date=${date}&time=${time}`);
       } else {
-        message.error(response.data.message || "Có lỗi xảy ra. Vui lòng thử lại!");
+        toast.error(response.data.message || "Có lỗi xảy ra. Vui lòng thử lại!", {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored"
+        });
       }
     } catch (error) {
       console.error("Lỗi API:", error.response?.data || error.message);
-      // message.error(error.response?.data?.message || "Không thể đặt lịch. Vui lòng thử lại!");
+      toast.error(error.response?.data?.message || "Vui lòng đăng nhập trước khi đặt lịch!", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored"
+      });
     }
   };
 
@@ -170,23 +215,68 @@ const ServiceDetail = () => {
     });
   };
 
-  if (loading) return <p className="text-center text-gray-500">Đang tải...</p>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[400px]">
+      <ChuotChay/>
+      <p className="mt-4 text-gray-600">Đang tải dữ liệu...</p>
+    </div>
+  );
   if (error) return <p className="text-center text-red-500">{error}</p>;
   if (!service) return <p className="text-center text-gray-500">Không có dữ liệu.</p>;
 
   return (
     <div className="container mx-auto p-4 sm:p-6 max-w-6xl">
+      <ToastContainer />
       <div className="bg-gray-100 p-4 sm:p-6 rounded-lg mb-4">
-        <h2 className="text-xl sm:text-2xl font-bold text-blue-800">{service.services_name}</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl sm:text-2xl font-bold text-blue-800">{service.services_name}</h2>
+          {averageRating !== null && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Đánh giá dịch vụ:</span>
+              <div className="flex">
+                {[...Array(5)].map((_, index) => (
+                  <StarFilled
+                    key={index}
+                    style={{
+                      color: index < averageRating ? '#fadb14' : '#e8e8e8',
+                      fontSize: '16px',
+                      marginRight: '2px'
+                    }}
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-gray-600">
+                ({averageRating.toFixed(1)})
+              </span>
+            </div>
+          )}
+        </div>
 
         <p className="text-gray-700 mt-2">
           <b>Danh sách bác sĩ uy tín đầu ngành chuyên khoa {service.services_name} tại Việt Nam:</b>
-          <ul className="text-sm sm:text-base">
-            <li>Các chuyên gia có quá trình đào tạo bài bản, nhiều kinh nghiệm</li>
-            <li>Các giáo sư, phó giáo sư đang trực tiếp nghiên cứu và giảng dạy tại Đại học Y khoa Hà Nội</li>
-            <li>Các bác sĩ đã, đang công tác tại các bệnh viện hàng đầu Khoa Cơ Xương Khớp - Bệnh viện Bạch Mai, Bệnh viện Hữu nghị Việt Đức, Bệnh Viện E.</li>
-          </ul>
         </p>
+        <div className="mt-4">
+          <div dangerouslySetInnerHTML={{ 
+            __html: expandedDescription 
+              ? service.description 
+              : service.description?.substring(0, 300) + '...' 
+          }} />
+          {service.description?.length > 300 && (
+            <button
+              onClick={() => setExpandedDescription(!expandedDescription)}
+              className="text-blue-500 hover:text-blue-700 font-medium mt-2"
+            >
+              {expandedDescription ? 'Ẩn bớt' : 'Xem thêm'}
+            </button>
+          )}
+        </div>
+        <div className="mt-4">
+          <div className="flex items-center justify-between">
+            <p className="font-semibold">Giá dịch vụ: <span className="text-red-600 font-bold">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(service.price)}</span></p>
+          
+          </div>
+          <p className="font-semibold mt-2">Thời gian khám: {service.duration} phút</p>
+        </div>
       </div>
 
       {doctors.map((doctor) => {
@@ -238,26 +328,7 @@ const ServiceDetail = () => {
                   )}
                 </div>
                 {/* Update the service rating display */}
-                {averageRating !== null && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-sm text-gray-600">Đánh giá dịch vụ:</span>
-                    <div className="flex">
-                      {[...Array(5)].map((_, index) => (
-                        <StarFilled
-                          key={index}
-                          style={{
-                            color: index < averageRating ? '#fadb14' : '#e8e8e8',
-                            fontSize: '16px',
-                            marginRight: '2px'
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600">
-                      ({averageRating.toFixed(1)})
-                    </span>
-                  </div>
-                )}
+                
                 {/* Update the doctor rating display */}
                 {doctorRatings[doctor.id] !== undefined && (
                   <div className="flex items-center gap-2 mt-2">
@@ -309,34 +380,37 @@ const ServiceDetail = () => {
               </select>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-                {doctor.schedules
-                  .filter((s) => s.working_date === selectedDates[doctor.id])
-                  .flatMap((schedule) => {
-                    const slots = generateTimeSlots(schedule);
-                    if (slots.length === 0) {
-                      return [
-                        <div key="no-slots" className="col-span-full text-center text-red-500 p-2">
-                          Đã hết thời gian làm việc trong ngày
-                        </div>
-                      ];
-                    }
-                    return slots.map((slot) => (
-                      <button
-                        key={slot.id}
-                        className="p-2 rounded-lg bg-blue-100 border hover:border-blue-500 hover:shadow-md"
-                        onClick={() =>
-                          handleBooking(
-                            doctor.id,
-                            selectedDates[doctor.id],
-                            slot.time_start,
-                            schedule.id
-                          )
-                        }
-                      >
-                        {slot.time_start} - {slot.time_end}
-                      </button>
-                    ));
-                  })}
+                {(() => {
+                  const filteredSchedules = doctor.schedules
+                    .filter((s) => s.working_date === selectedDates[doctor.id]);
+                  
+                  const allSlots = filteredSchedules.flatMap(schedule => generateTimeSlots(schedule));
+                  
+                  if (allSlots.length === 0) {
+                    return (
+                      <div className="col-span-full text-center text-red-500 p-2">
+                        Đã hết thời gian làm việc trong ngày
+                      </div>
+                    );
+                  }
+
+                  return allSlots.map((slot) => (
+                    <button
+                      key={slot.id}
+                      className="p-2 rounded-lg bg-blue-100 border hover:border-blue-500 hover:shadow-md"
+                      onClick={() =>
+                        handleBooking(
+                          doctor.id,
+                          selectedDates[doctor.id],
+                          slot.time_start,
+                          slot.scheduleId // Now this will have the correct schedule ID
+                        )
+                      }
+                    >
+                      {slot.time_start} - {slot.time_end}
+                    </button>
+                  ));
+                })()}
               </div>
             </div>
           </div>

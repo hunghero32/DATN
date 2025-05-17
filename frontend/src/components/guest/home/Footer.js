@@ -24,8 +24,7 @@ export default function Footer() {
       .catch((error) => console.error("Lỗi khi tải dữ liệu footer:", error));
   }, []);
 
-  // Nếu dữ liệu chưa tải xong, hiển thị "Loading..."
-  if (!footerData) return <p>Loading...</p>;
+  if (!footerData) return <p></p>;
 
   return (
     <footer className="pq-bg-dark">

@@ -15,8 +15,12 @@ const ChiTietBacSi = () => {
   const [showFullDesc, setShowFullDesc] = useState(false);
   const [expandedServices, setExpandedServices] = useState({});
   // Hàm định dạng tiền Việt Nam
+  // Update the formatPrice function
   const formatPrice = (price) => {
-    return price.toLocaleString("vi-VN") + " ₫";
+    return new Intl.NumberFormat('vi-VN', { 
+      style: 'currency', 
+      currency: 'VND' 
+    }).format(price);
   };
 
   useEffect(() => {

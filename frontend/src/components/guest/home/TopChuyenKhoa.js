@@ -6,6 +6,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import api from "../../../ultils/api/axios";
+import ChuotChay from "../../loadding/chuotchay";
 
 const SpecialtiesSection = () => {
   const [specialties, setSpecialties] = useState([]);
@@ -39,7 +40,10 @@ const SpecialtiesSection = () => {
     navigate(`/detail-specialty/${id}`);
   };
 
-  if (loading) return <p className="text-center text-gray-500">Đang tải danh sách chuyên khoa...</p>;
+  if (loading) return <div className="flex flex-col items-center justify-center min-h-[400px]">
+      <ChuotChay/>
+      <p className="mt-4 text-gray-600">Đang tải dữ liệu</p>
+    </div>
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   // Giới hạn số lượng hiển thị chuyên khoa
