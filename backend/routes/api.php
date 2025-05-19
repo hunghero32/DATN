@@ -81,7 +81,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 });
 
 Route::get('/client/search', [SearchController::class, 'search']);
-
+Route::get('/client/search/bookings', [SearchController::class, 'searchBookings']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/conversations', [ChatController::class, 'getConversations']);

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services;
 
@@ -7,6 +7,7 @@ use App\Repositories\ServiceRepository;
 use App\Repositories\ResultRepository;
 use App\Repositories\FeedbackRepository;
 use App\Repositories\DoctorRepository;
+use App\Repositories\BookingRepository;
 
 class SearchService
 {
@@ -15,20 +16,22 @@ class SearchService
     protected $resultRepo;
     protected $feedbackRepo;
     protected $doctorRepo;
+    protected $bookingRepo;
 
     public function __construct(
         SpecialtyRepository $specialtyRepo,
         ServiceRepository $serviceRepo,
         ResultRepository $resultRepo,
         FeedbackRepository $feedbackRepo,
-        DoctorRepository $doctorRepo
-    ) 
-    {
+        DoctorRepository $doctorRepo,
+        BookingRepository $bookingRepo
+    ) {
         $this->specialtyRepo = $specialtyRepo;
         $this->serviceRepo = $serviceRepo;
         $this->resultRepo = $resultRepo;
         $this->feedbackRepo = $feedbackRepo;
         $this->doctorRepo = $doctorRepo;
+        $this->bookingRepo = $bookingRepo;
     }
 
     public function searchAll(string $query): array
@@ -41,9 +44,9 @@ class SearchService
             'doctors'     => $this->doctorRepo->search($query),
         ];
     }
+
+    public function searchBookings(array $filters)
+    {
+        return $this->bookingRepo->search($filters);
+    }
 }
-
-
-
-
-
