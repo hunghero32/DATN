@@ -149,8 +149,20 @@ class BookingController extends Controller
         // Không lấy tất cả dịch vụ ở đây, sẽ lấy theo bác sĩ bằng AJAX
         $services = [];
 
+        // Lấy thông tin khách hàng bao gồm tên, số điện thoại và email
         $guests = Guest::where('isDeleted', 0)
-            ->pluck('guest_name', 'id')
+            ->select('id', 'guest_name', 'guest_phone', 'guest_email')
+            ->get()
+            ->mapWithKeys(function ($guest) {
+                $guestInfo = $guest->guest_name;
+                if ($guest->guest_phone) {
+                    $guestInfo .= ' - ' . $guest->guest_phone;
+                }
+                if ($guest->guest_email) {
+                    $guestInfo .= ' - ' . $guest->guest_email;
+                }
+                return [$guest->id => $guestInfo];
+            })
             ->toArray();
 
         $statuses = config('app.order_statuses');

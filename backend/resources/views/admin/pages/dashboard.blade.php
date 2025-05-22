@@ -192,47 +192,22 @@
             </div>
         </div>
 
-        <!-- Top Revenue Doctors Chart -->
+        <!-- Combined Revenue and Profit Doctors Chart -->
         <div class="row">
             <div class="col-12">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Doanh Thu Bác Sĩ</h6>
-
+                        <h6 class="m-0 font-weight-bold text-primary">Thống Kê Doanh Thu & Lợi Nhuận Bác Sĩ</h6>
                     </div>
                     <div class="card-body">
-                        @if (isset($topRevenueDoctors) && $topRevenueDoctors->isNotEmpty())
+                        @if ((isset($topRevenueDoctors) && $topRevenueDoctors->isNotEmpty()) || (isset($topProfitDoctors) && $topProfitDoctors->isNotEmpty()))
                             <div class="chart-container" style="position: relative; height:400px;">
-                                <canvas id="doctorsRevenueChart"></canvas>
+                                <canvas id="doctorsCombinedChart"></canvas>
                             </div>
                         @else
                             <div class="text-center py-4">
                                 <i class="fas fa-user-md fa-4x text-gray-300 mb-3"></i>
-                                <p class="text-muted">Chưa có dữ liệu doanh thu bác sĩ</p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Profit Doctors Chart -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Lợi Nhuận Bác Sĩ</h6>
-
-                    </div>
-                    <div class="card-body">
-                        @if (isset($topProfitDoctors) && $topProfitDoctors->isNotEmpty())
-                            <div class="chart-container" style="position: relative; height:400px;">
-                                <canvas id="doctorsProfitChart"></canvas>
-                            </div>
-                        @else
-                            <div class="text-center py-4">
-                                <i class="fas fa-user-md fa-4x text-gray-300 mb-3"></i>
-                                <p class="text-muted">Chưa có dữ liệu lợi nhuận bác sĩ</p>
+                                <p class="text-muted">Chưa có dữ liệu doanh thu và lợi nhuận bác sĩ</p>
                             </div>
                         @endif
                     </div>
@@ -509,72 +484,60 @@
                 });
             }
 
-            // Top Revenue Doctors Chart
+            // Combined Revenue and Profit Doctors Chart
             const revenueData = @json($topRevenueDoctors);
-            const doctorNames = revenueData.map(item => item.doctor_name);
-            const revenues = revenueData.map(item => item.total_revenue);
+            const profitData = @json($topProfitDoctors);
 
-            const revenueChartCanvas = document.getElementById('doctorsRevenueChart');
-            if (!revenueChartCanvas) {
-                console.error('Canvas element "doctorsRevenueChart" not found!');
-            } else if (revenueData.length === 0) {
-                console.warn('No data available for Doctor Revenue Chart.');
+            // Combine doctor names from both datasets
+            let allDoctorNames = new Set();
+
+            if (revenueData && revenueData.length > 0) {
+                revenueData.forEach(item => allDoctorNames.add(item.doctor_name));
+            }
+
+            if (profitData && profitData.length > 0) {
+                profitData.forEach(item => allDoctorNames.add(item.doctor_name));
+            }
+
+            const doctorNames = Array.from(allDoctorNames);
+
+            // Prepare datasets
+            const revenues = doctorNames.map(name => {
+                const doctor = revenueData.find(item => item.doctor_name === name);
+                return doctor ? doctor.total_revenue : 0;
+            });
+
+            const profits = doctorNames.map(name => {
+                const doctor = profitData.find(item => item.doctor_name === name);
+                return doctor ? doctor.total_profit : 0;
+            });
+
+            const combinedChartCanvas = document.getElementById('doctorsCombinedChart');
+            if (!combinedChartCanvas) {
+                console.error('Canvas element "doctorsCombinedChart" not found!');
+            } else if (doctorNames.length === 0) {
+                console.warn('No data available for Combined Doctor Chart.');
             } else {
-                new Chart(revenueChartCanvas, {
+                new Chart(combinedChartCanvas, {
                     type: 'bar',
                     data: {
                         labels: doctorNames,
-                        datasets: [{
-                            label: 'Doanh thu',
-                            data: revenues,
-                            backgroundColor: 'rgba(28, 200, 138, 0.5)',
-                            borderColor: 'rgba(28, 200, 138, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return value.toLocaleString('vi-VN') + ' VNĐ';
-                                    }
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Doanh Thu'
-                                }
+                        datasets: [
+                            {
+                                label: 'Doanh thu',
+                                data: revenues,
+                                backgroundColor: 'rgba(28, 200, 138, 0.5)',
+                                borderColor: 'rgba(28, 200, 138, 1)',
+                                borderWidth: 1
                             },
-                        }
-                    }
-                });
-            }
-
-            // Top Profit Doctors Chart
-            const profitData = @json($topProfitDoctors);
-            const profitDoctorNames = profitData.map(item => item.doctor_name);
-            const profits = profitData.map(item => item.total_profit);
-
-            const profitChartCanvas = document.getElementById('doctorsProfitChart');
-            if (!profitChartCanvas) {
-                console.error('Canvas element "doctorsProfitChart" not found!');
-            } else if (profitData.length === 0) {
-                console.warn('No data available for Doctor Profit Chart.');
-            } else {
-                new Chart(profitChartCanvas, {
-                    type: 'bar',
-                    data: {
-                        labels: profitDoctorNames,
-                        datasets: [{
-                            label: 'Lợi nhuận',
-                            data: profits,
-                            backgroundColor: 'rgba(246, 194, 62, 0.5)',
-                            borderColor: 'rgba(246, 194, 62, 1)',
-                            borderWidth: 1
-                        }]
+                            {
+                                label: 'Lợi nhuận',
+                                data: profits,
+                                backgroundColor: 'rgba(246, 194, 62, 0.5)',
+                                borderColor: 'rgba(246, 194, 62, 1)',
+                                borderWidth: 1
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
@@ -589,7 +552,7 @@
                                 },
                                 title: {
                                     display: true,
-                                    text: 'Lợi Nhuận'
+                                    text: 'Giá trị (VNĐ)'
                                 }
                             },
                             x: {
@@ -601,11 +564,12 @@
                         },
                         plugins: {
                             legend: {
-                                display: false
+                                display: true,
+                                position: 'top'
                             },
                             title: {
                                 display: true,
-                                text: 'Lợi Nhuận Bác Sĩ'
+                                text: 'Thống Kê Doanh Thu & Lợi Nhuận Bác Sĩ'
                             }
                         }
                     }

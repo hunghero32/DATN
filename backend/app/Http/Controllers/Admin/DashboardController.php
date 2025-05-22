@@ -224,7 +224,7 @@ class DashboardController extends Controller
             ->whereBetween('bookings.booking_date', [$startDate, $endDate])
             ->groupBy('doctors.id', 'doctors.doctor_name')
             ->orderBy('appointment_count', 'desc')
-            ->limit(5)
+          
             ->get();
 
         // Lấy bác sĩ có doanh thu cao nhất
@@ -261,7 +261,7 @@ class DashboardController extends Controller
             ->orderBy('total_profit', 'desc')
 
             ->get();
-            
+
 
         return view('admin.pages.dashboard', compact(
             'totalAppointments',
