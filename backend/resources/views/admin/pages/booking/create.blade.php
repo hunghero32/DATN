@@ -201,7 +201,6 @@
                                 <select name="booking_date" id="booking_date"
                                     class="form-select form-select-lg shadow-sm @error('booking_date') is-invalid @enderror">
                                     <option value="">Chọn ngày hẹn</option>
-                                    <!-- Các ngày làm việc sẽ được cập nhật động bằng JavaScript -->
                                 </select>
                                 <div id="loading_dates" style="display: none;" class="mt-2">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
@@ -219,7 +218,6 @@
                                 <select name="booking_time" id="booking_time"
                                     class="form-select form-select-lg shadow-sm @error('booking_time') is-invalid @enderror">
                                     <option value="">Chọn giờ hẹn</option>
-                                    <!-- Các khung giờ sẽ được cập nhật động bằng JavaScript -->
                                 </select>
                                 <div id="loading_time_slots" style="display: none;" class="mt-2">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
@@ -254,7 +252,10 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
-            // Xử lý chọn khách hàng mới hoặc có sẵn
+            // Initialize Select2 for all dropdowns
+            initializeSelect2();
+
+            // Handle guest option toggle (existing vs new guest)
             $('input[name="guest_option"]').change(function() {
                 if ($(this).val() === 'existing') {
                     $('#existing_guest_section').show();
@@ -267,302 +268,196 @@
                 }
             });
 
-            // Xử lý khi chọn bác sĩ
-            $('select[name="doctor_id"]').change(function() {
-                var doctorId = $(this).val();
-                selectedDoctor = doctorId; // Cập nhật biến theo dõi bác sĩ đã chọn
+            // Reset dependent selects (service, date, time)
+            function resetDependentSelects() {
+                const serviceSelect = $('select[name="service_id"]');
+                const dateSelect = $('#booking_date');
+                const timeSelect = $('#booking_time');
 
-                if (doctorId) {
-                    var serviceSelect = $('select[name="service_id"]');
-                    serviceSelect.empty().append('<option value="">Chọn dịch vụ</option>');
+                serviceSelect.empty().append('<option value="">Chọn dịch vụ</option>');
+                dateSelect.empty().append('<option value="">Chọn ngày hẹn</option>');
+                timeSelect.empty().append('<option value="">Chọn giờ hẹn</option>');
 
-                    // Cập nhật text hiển thị trong Select2
-                    serviceSelect.siblings('.select2-container').find('.select2-selection__rendered').text(
-                        'Đang tải dịch vụ...');
+                updateSelect2(serviceSelect);
+            }
 
-                    // Lấy dịch vụ của bác sĩ
-                    $.ajax({
-                        url: "{{ route('admin.bookings.get-services-by-doctor') }}",
-                        type: "GET",
-                        data: {
-                            doctor_id: doctorId
-                        },
-                        dataType: 'json',
-                        success: function(data) {
-                            if (data && Object.keys(data).length > 0) {
-                                $.each(data, function(key, value) {
-                                    serviceSelect.append('<option value="' + key +
-                                        '">' + value + '</option>');
-                                });
-                            }
+            // Load services for a selected doctor
+            function loadServices(doctorId) {
+                const serviceSelect = $('select[name="service_id"]');
+                serviceSelect.empty().append('<option value="">Chọn dịch vụ</option>');
+                serviceSelect.siblings('.select2-container').find('.select2-selection__rendered').text('Đang tải dịch vụ...');
 
-                            // Cập nhật Select2 sau khi thêm options mới
-                            updateSelect2(serviceSelect);
+                $.ajax({
+                    url: "{{ route('admin.bookings.get-services-by-doctor') }}",
+                    type: "GET",
+                    data: { doctor_id: doctorId },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data && Object.keys(data).length > 0) {
+                            $.each(data, function(key, value) {
+                                serviceSelect.append(`<option value="${key}">${value}</option>`);
+                            });
                         }
-                    });
-
-                    // Lấy ngày làm việc của bác sĩ
-                    var dateSelect = $('#booking_date');
-                    dateSelect.empty().append('<option value="">Chọn ngày hẹn</option>');
-                    $('#loading_dates').show();
-
-                    $.ajax({
-                        url: "{{ route('admin.bookings.get-working-dates') }}",
-                        type: "GET",
-                        data: {
-                            doctor_id: doctorId
-                        },
-                        dataType: 'json',
-                        success: function(data) {
-                            $('#loading_dates').hide();
-
-                            if (data && data.length > 0) {
-                                $.each(data, function(index, date) {
-                                    var formattedDate = new Date(date);
-                                    var day = formattedDate.getDate().toString()
-                                        .padStart(2, '0');
-                                    var month = (formattedDate.getMonth() + 1)
-                                        .toString().padStart(2, '0');
-                                    var year = formattedDate.getFullYear();
-
-                                    var displayDate = day + '/' + month + '/' + year;
-                                    dateSelect.append('<option value="' + date + '">' +
-                                        displayDate + '</option>');
-                                });
-                            } else {
-                                dateSelect.append(
-                                    '<option value="" disabled>Không có ngày làm việc</option>'
-                                );
-                            }
-                        },
-                        error: function() {
-                            $('#loading_dates').hide();
-                            dateSelect.append(
-                                '<option value="" disabled>Lỗi khi tải ngày làm việc</option>'
-                            );
-                        }
-                    });
-                }
-            });
-
-            // Xử lý khi chọn ngày hẹn
-            $('#booking_date').change(function() {
-                var selectedDate = $(this).val();
-                var doctorId = $('select[name="doctor_id"]').val();
-                var serviceId = $('select[name="service_id"]').val();
-
-                if (selectedDate && doctorId && serviceId) {
-                    var timeSelect = $('#booking_time');
-                    timeSelect.empty().append('<option value="">Chọn giờ hẹn</option>');
-                    $('#loading_time_slots').show();
-
-                    $.ajax({
-                        url: "{{ route('admin.bookings.get-available-time-slots') }}",
-                        type: "GET",
-                        data: {
-                            doctor_id: doctorId,
-                            date: selectedDate
-                        },
-                        dataType: 'json',
-                        success: function(response) {
-                            $('#loading_time_slots').hide();
-
-                            if (response.success && response.time_slots && response.time_slots
-                                .length > 0) {
-                                var serviceDuration = $(
-                                    'select[name="service_id"] option:selected').data(
-                                    'duration') || 30;
-                                var today = new Date();
-                                var todayString = today.toISOString().split('T')[0];
-                                var isToday = selectedDate === todayString;
-
-                                function generateTimeSlots(schedule) {
-                                    var slots = [];
-                                    var startTime = new Date(
-                                        `1970-01-01T${schedule.time_start}`);
-                                    var endTime = new Date(`1970-01-01T${schedule.time_end}`);
-                                    var duration = serviceDuration;
-
-                                    while (startTime < endTime) {
-                                        var slotEnd = new Date(startTime.getTime() + duration *
-                                            60000);
-                                        if (slotEnd > endTime) break;
-
-                                        if (isToday) {
-                                            var slotTime = new Date();
-                                            slotTime.setHours(startTime.getHours(), startTime
-                                                .getMinutes());
-                                            if (slotTime < today) {
-                                                startTime.setMinutes(startTime.getMinutes() +
-                                                    duration);
-                                                continue;
-                                            }
-                                        }
-
-                                        var timeStartStr = startTime.toTimeString().slice(0, 5);
-                                        var timeEndStr = slotEnd.toTimeString().slice(0, 5);
-                                        slots.push({
-                                            id: `${schedule.id}-${timeStartStr}`, // Keep ID for reference if needed
-                                            time_start: timeStartStr,
-                                            time_end: timeEndStr,
-                                            value: timeStartStr // Use time_start as the option value
-                                        });
-                                        startTime.setMinutes(startTime.getMinutes() + duration);
-                                    }
-                                    return slots;
-                                }
-
-                                var allTimeSlots = [];
-                                response.time_slots.forEach(function(schedule) {
-                                    var slots = generateTimeSlots(schedule);
-                                    allTimeSlots = allTimeSlots.concat(slots);
-                                });
-
-                                if (allTimeSlots.length > 0) {
-                                    allTimeSlots.forEach(function(slot) {
-                                        timeSelect.append(
-                                            `<option value="${slot.value}">${slot.time_start} - ${slot.time_end}</option>`
-                                        );
-                                    });
-                                } else {
-                                    timeSelect.append(
-                                        '<option value="" disabled>Không có khung giờ trống</option>'
-                                        );
-                                }
-                            } else {
-                                timeSelect.append(
-                                    '<option value="" disabled>Không có khung giờ trống</option>'
-                                    );
-                            }
-                        },
-                        error: function(xhr) {
-                            $('#loading_time_slots').hide();
-                            console.error('Lỗi khi tải khung giờ:', xhr);
-                            timeSelect.append(
-                                '<option value="" disabled>Lỗi khi tải khung giờ</option>');
-                        }
-                    });
-                } else {
-                    $('#booking_time').empty().append('<option value="">Chọn giờ hẹn</option>');
-                }
-            });
-
-            // Các xử lý khác
-            // Khởi tạo Select2 cho các dropdown
-            initializeSelect2();
-
-            // Biến để theo dõi trạng thái chọn
-            let selectedDoctor = $('select[name="doctor_id"]').val() || '';
-            let selectedService = $('select[name="service_id"]').val() || '';
-            let selectedDate = $('input[name="booking_date"]').val() || '';
-
-
-            // Hàm cập nhật Select2 cho dịch vụ
-            function updateSelect2Services() {
-                var serviceSelect = $('select[name="service_id"]');
-                var serviceResults = $('.select2-results');
-                serviceResults.empty();
-
-                serviceSelect.find('option').each(function() {
-                    if ($(this).val()) {
-                        var resultItem = $('<li class="select2-results__option" role="option"></li>');
-                        resultItem.attr('data-value', $(this).val());
-                        resultItem.text($(this).text());
-                        serviceResults.append(resultItem);
+                        updateSelect2(serviceSelect);
+                    },
+                    error: function() {
+                        serviceSelect.siblings('.select2-container').find('.select2-selection__rendered').text('Chọn dịch vụ');
                     }
                 });
+            }
 
-                // Xử lý sự kiện click cho các option mới
-                $('.select2-results__option').click(function() {
-                    var value = $(this).data('value');
-                    var text = $(this).text();
+            // Load working dates for a selected doctor
+            function loadWorkingDates(doctorId) {
+                const dateSelect = $('#booking_date');
+                dateSelect.empty().append('<option value="">Chọn ngày hẹn</option>');
+                $('#loading_dates').show();
 
-                    serviceSelect.val(value);
-                    $('.select2-selection__rendered').text(text);
-                    $('.select2-dropdown').hide();
+                $.ajax({
+                    url: "{{ route('admin.bookings.get-working-dates') }}",
+                    type: "GET",
+                    data: { doctor_id: doctorId },
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#loading_dates').hide();
+                        if (data && data.length > 0) {
+                            $.each(data, function(index, date) {
+                                const formattedDate = new Date(date);
+                                const day = formattedDate.getDate().toString().padStart(2, '0');
+                                const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
+                                const year = formattedDate.getFullYear();
+                                const displayDate = `${day}/${month}/${year}`;
+                                dateSelect.append(`<option value="${date}">${displayDate}</option>`);
+                            });
+                        } else {
+                            dateSelect.append('<option value="" disabled>Không có ngày làm việc</option>');
+                        }
+                    },
+                    error: function() {
+                        $('#loading_dates').hide();
+                        dateSelect.append('<option value="" disabled>Lỗi khi tải ngày làm việc</option>');
+                    }
                 });
             }
 
-            // Xử lý khi chọn dịch vụ
-            $('select[name="service_id"]').on('change', function() {
-                selectedService = $(this).val();
-                checkAndLoadTimeSlots();
-            });
-
-            // Xử lý khi chọn ngày
-            $('input[name="booking_date"]').on('change', function() {
-                selectedDate = $(this).val();
-                checkAndLoadTimeSlots();
-            });
-
-            // Hàm kiểm tra và tải khung giờ nếu đã chọn đủ thông tin
-            function checkAndLoadTimeSlots() {
-                // Reset dropdown giờ hẹn
-                $('#booking_time').empty().append('<option value="">Chọn giờ hẹn</option>');
-
-                // Chỉ tải khung giờ khi đã chọn đủ bác sĩ, dịch vụ và ngày
-                if (selectedDoctor && selectedService && selectedDate) {
-                    loadAvailableTimeSlots(selectedDoctor, selectedService, selectedDate);
-                }
-            }
-
-            // Hàm tải khung giờ có sẵn
+            // Load available time slots
             function loadAvailableTimeSlots(doctorId, serviceId, bookingDate) {
-                console.log("Bắt đầu tải khung giờ...", {
-                    doctorId,
-                    serviceId,
-                    bookingDate
-                });
+                const timeSelect = $('#booking_time');
+                timeSelect.empty().append('<option value="">Chọn giờ hẹn</option>');
                 $('#loading_time_slots').show();
 
                 $.ajax({
-                    url: "{{ route('admin.bookings.doctor-time-slots') }}",
+                    url: "{{ route('admin.bookings.get-available-time-slots') }}",
                     type: "GET",
                     data: {
                         doctor_id: doctorId,
                         service_id: serviceId,
-                        booking_date: bookingDate
+                        date: bookingDate
                     },
+                    dataType: 'json',
                     success: function(response) {
-                        console.log("AJAX Success11111:", response); // ✅ In kết quả
                         $('#loading_time_slots').hide();
+                        if (response.success && response.time_slots && response.time_slots.length > 0) {
+                            const serviceDuration = $('select[name="service_id"] option:selected').data('duration') || 30;
+                            const today = new Date();
+                            const todayString = today.toISOString().split('T')[0];
+                            const isToday = bookingDate === todayString;
 
-                        if (response.success) {
-                            const timeSlots = response.time_slots;
-                            if (timeSlots.length > 0) {
-                                timeSlots.forEach(function(slot) {
-                                    $('#booking_time').append(
-                                        `<option value="${slot.value}">${slot.label}</option>`
-                                    );
+                            function generateTimeSlots(schedule) {
+                                const slots = [];
+                                let startTime = new Date(`1970-01-01T${schedule.time_start}`);
+                                const endTime = new Date(`1970-01-01T${schedule.time_end}`);
+                                const duration = serviceDuration;
+
+                                while (startTime < endTime) {
+                                    const slotEnd = new Date(startTime.getTime() + duration * 60000);
+                                    if (slotEnd > endTime) break;
+
+                                    if (isToday) {
+                                        const slotTime = new Date();
+                                        slotTime.setHours(startTime.getHours(), startTime.getMinutes());
+                                        if (slotTime < today) {
+                                            startTime.setMinutes(startTime.getMinutes() + duration);
+                                            continue;
+                                        }
+                                    }
+
+                                    const timeStartStr = startTime.toTimeString().slice(0, 5);
+                                    const timeEndStr = slotEnd.toTimeString().slice(0, 5);
+                                    slots.push({
+                                        value: timeStartStr,
+                                        label: `${timeStartStr} - ${timeEndStr}`
+                                    });
+                                    startTime.setMinutes(startTime.getMinutes() + duration);
+                                }
+                                return slots;
+                            }
+
+                            let allTimeSlots = [];
+                            response.time_slots.forEach(function(schedule) {
+                                const slots = generateTimeSlots(schedule);
+                                allTimeSlots = allTimeSlots.concat(slots);
+                            });
+
+                            if (allTimeSlots.length > 0) {
+                                allTimeSlots.forEach(function(slot) {
+                                    timeSelect.append(`<option value="${slot.value}">${slot.label}</option>`);
                                 });
                             } else {
-                                $('#booking_time').append(
-                                    '<option value="" disabled>Không có khung giờ trống</option>'
-                                );
+                                timeSelect.append('<option value="" disabled>Không có khung giờ trống</option>');
                             }
                         } else {
-                            alert(response.message);
+                            timeSelect.append('<option value="" disabled>Không có khung giờ trống</option>');
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function(xhr) {
                         $('#loading_time_slots').hide();
-
-                        console.error("AJAX Error:", {
-                            status: xhr.status,
-                            statusText: xhr.statusText,
-                            responseText: xhr.responseText,
-                            error: error
-                        });
-
-                        alert("Có lỗi xảy ra khi tải khung giờ. Vui lòng thử lại sau.");
+                        console.error('Lỗi khi tải khung giờ:', xhr);
+                        timeSelect.append('<option value="" disabled>Lỗi khi tải khung giờ</option>');
                     }
                 });
-
             }
 
-            // Hàm khởi tạo Select2
+            // Handle doctor selection
+            $('select[name="doctor_id"]').change(function() {
+                const doctorId = $(this).val();
+                resetDependentSelects(); // Reset service, date, and time selects
+                if (doctorId) {
+                    loadServices(doctorId);
+                    loadWorkingDates(doctorId);
+                }
+            });
+
+            // Handle service selection
+            $('select[name="service_id"]').change(function() {
+                const serviceId = $(this).val();
+                const doctorId = $('select[name="doctor_id"]').val();
+                const dateSelect = $('#booking_date');
+
+                // Reset date and time selects
+                dateSelect.empty().append('<option value="">Chọn ngày hẹn</option>');
+                $('#booking_time').empty().append('<option value="">Chọn giờ hẹn</option>');
+
+                if (doctorId && serviceId) {
+                    loadWorkingDates(doctorId); // Reload dates based on doctor
+                }
+            });
+
+            // Handle date selection
+            $('#booking_date').change(function() {
+                const bookingDate = $(this).val();
+                const doctorId = $('select[name="doctor_id"]').val();
+                const serviceId = $('select[name="service_id"]').val();
+
+                // Reset time select
+                $('#booking_time').empty().append('<option value="">Chọn giờ hẹn</option>');
+
+                if (doctorId && serviceId && bookingDate) {
+                    loadAvailableTimeSlots(doctorId, serviceId, bookingDate);
+                }
+            });
+
+            // Initialize Select2 for dropdowns
             function initializeSelect2() {
-                // Khởi tạo Select2 cho các dropdown
                 $('.custom-select2').each(function() {
                     const container = $(this);
                     const select = container.find('.hidden-select');
@@ -571,36 +466,29 @@
                     const search = container.find('.select2-search');
                     const results = container.find('.select2-results');
 
-                    // Hiển thị giá trị đã chọn
                     function updateSelection() {
                         const selectedOption = select.find('option:selected');
                         const text = selectedOption.text();
                         selection.find('.select2-selection__rendered').text(
-                            selectedOption.val() ? text : selection.find('.select2-selection__rendered')
-                            .attr('data-placeholder') || 'Chọn'
+                            selectedOption.val() ? text : 'Chọn'
                         );
                     }
 
-                    // Cập nhật danh sách kết quả
                     function updateResults(query = '') {
                         results.empty();
                         select.find('option').each(function() {
                             const option = $(this);
                             const text = option.text();
-
                             if (text.toLowerCase().includes(query.toLowerCase())) {
                                 const item = $('<li class="select2-results__option"></li>')
                                     .text(text)
                                     .attr('data-value', option.val())
-                                    .addClass(option.is(':selected') ?
-                                        'select2-results__option--selected' : '');
-
+                                    .addClass(option.is(':selected') ? 'select2-results__option--selected' : '');
                                 results.append(item);
                             }
                         });
                     }
 
-                    // Xử lý khi click vào selection
                     selection.on('click', function() {
                         dropdown.toggle();
                         if (dropdown.is(':visible')) {
@@ -609,12 +497,10 @@
                         }
                     });
 
-                    // Xử lý tìm kiếm
                     search.on('input', function() {
                         updateResults($(this).val());
                     });
 
-                    // Xử lý khi chọn một option
                     results.on('click', '.select2-results__option', function() {
                         const value = $(this).data('value');
                         select.val(value).trigger('change');
@@ -622,16 +508,43 @@
                         updateSelection();
                     });
 
-                    // Đóng dropdown khi click ra ngoài
                     $(document).on('click', function(e) {
                         if (!container.is(e.target) && container.has(e.target).length === 0) {
                             dropdown.hide();
                         }
                     });
 
-                    // Khởi tạo ban đầu
                     updateSelection();
                 });
+            }
+
+            // Update Select2 for dynamic options
+            function updateSelect2(selectElement) {
+                const container = selectElement.closest('.custom-select2');
+                const selection = container.find('.select2-selection');
+                const results = container.find('.select2-results');
+
+                results.empty();
+                selectElement.find('option').each(function() {
+                    if ($(this).val()) {
+                        const item = $('<li class="select2-results__option"></li>')
+                            .text($(this).text())
+                            .attr('data-value', $(this).val());
+                        results.append(item);
+                    }
+                });
+
+                results.on('click', '.select2-results__option', function() {
+                    const value = $(this).data('value');
+                    selectElement.val(value).trigger('change');
+                    selection.find('.select2-selection__rendered').text($(this).text());
+                    container.find('.select2-dropdown').hide();
+                });
+
+                const selectedOption = selectElement.find('option:selected');
+                selection.find('.select2-selection__rendered').text(
+                    selectedOption.val() ? selectedOption.text() : 'Chọn'
+                );
             }
         });
     </script>

@@ -32,6 +32,7 @@
         'fields' => [
            ['name' => 'doctor_name', 'label' => 'Họ và tên bác sĩ'],
            ['name' => 'services_name', 'label' => 'Tên dịch vụ'],
+           ['name'=>'doctor_fee', 'label' => 'Phí dịch vụ'],
            ['name' => 'created_at', 'label' => 'Ngày tạo'],
         ]
     ];
@@ -43,6 +44,7 @@
     :columns="[
         ['key' => 'doctor_name', 'label' => 'Họ và tên bác sĩ'],
         ['key' => 'services_name', 'label' => 'Tên dịch vụ'],
+        ['key'=>'doctor_fee', 'label' => 'Phí dịch vụ'],
         ['key' => 'created_at', 'label' => 'Ngày tạo'],
     ]"
     :data="$data"

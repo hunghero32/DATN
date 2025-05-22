@@ -216,6 +216,30 @@
             </div>
         </div>
 
+        <!-- Top Profit Doctors Chart -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Lợi Nhuận Bác Sĩ</h6>
+
+                    </div>
+                    <div class="card-body">
+                        @if (isset($topProfitDoctors) && $topProfitDoctors->isNotEmpty())
+                            <div class="chart-container" style="position: relative; height:400px;">
+                                <canvas id="doctorsProfitChart"></canvas>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="fas fa-user-md fa-4x text-gray-300 mb-3"></i>
+                                <p class="text-muted">Chưa có dữ liệu lợi nhuận bác sĩ</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Charts Row -->
         <div class="row  d-flex">
             <!-- Appointments Chart -->
@@ -524,6 +548,50 @@
                                     text: 'Doanh Thu'
                                 }
                             },
+                        }
+                    }
+                });
+            }
+
+            // Top Profit Doctors Chart
+            const profitData = @json($topProfitDoctors);
+            const profitDoctorNames = profitData.map(item => item.doctor_name);
+            const profits = profitData.map(item => item.total_profit);
+
+            const profitChartCanvas = document.getElementById('doctorsProfitChart');
+            if (!profitChartCanvas) {
+                console.error('Canvas element "doctorsProfitChart" not found!');
+            } else if (profitData.length === 0) {
+                console.warn('No data available for Doctor Profit Chart.');
+            } else {
+                new Chart(profitChartCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: profitDoctorNames,
+                        datasets: [{
+                            label: 'Lợi nhuận',
+                            data: profits,
+                            backgroundColor: 'rgba(246, 194, 62, 0.5)',
+                            borderColor: 'rgba(246, 194, 62, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString('vi-VN') + ' VNĐ';
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Lợi Nhuận'
+                                }
+                            },
                             x: {
                                 title: {
                                     display: true,
@@ -537,7 +605,7 @@
                             },
                             title: {
                                 display: true,
-                                text: 'Doanh Thu Bác Sĩ'
+                                text: 'Lợi Nhuận Bác Sĩ'
                             }
                         }
                     }

@@ -57,21 +57,39 @@
                                                 <div class="file-upload-container">
                                                     <div class="file-preview-wrapper">
                                                         @php
-                                                            $fileExists = isset($data[$field['name']]) && Storage::exists($data[$field['name']]);
-                                                            $fileUrl = $fileExists ? Storage::url($data[$field['name']]) : '';
-                                                            $fileName = $fileExists ? basename($data[$field['name']]) : '';
-                                                            $fileExtension = $fileExists ? pathinfo($fileName, PATHINFO_EXTENSION) : '';
-                                                            $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'svg']);
+                                                            $fileExists =
+                                                                isset($data[$field['name']]) &&
+                                                                Storage::exists($data[$field['name']]);
+                                                            $fileUrl = $fileExists
+                                                                ? Storage::url($data[$field['name']])
+                                                                : '';
+                                                            $fileName = $fileExists
+                                                                ? basename($data[$field['name']])
+                                                                : '';
+                                                            $fileExtension = $fileExists
+                                                                ? pathinfo($fileName, PATHINFO_EXTENSION)
+                                                                : '';
+                                                            $isImage = in_array(strtolower($fileExtension), [
+                                                                'jpg',
+                                                                'jpeg',
+                                                                'png',
+                                                                'gif',
+                                                                'svg',
+                                                            ]);
                                                         @endphp
 
-                                                        @if($fileExists)
-                                                            @if($isImage)
-                                                                <img src="{{ $fileUrl }}" alt="{{ $field['label'] }}" class="file-preview-image" id="preview-{{ $field['name'] }}" />
+                                                        @if ($fileExists)
+                                                            @if ($isImage)
+                                                                <img src="{{ $fileUrl }}" alt="{{ $field['label'] }}"
+                                                                    class="file-preview-image"
+                                                                    id="preview-{{ $field['name'] }}" />
                                                             @else
                                                                 <div class="file-preview-document">
-                                                                    <i class="bx {{ $fileExtension == 'pdf' ? 'bxs-file-pdf' : 'bxs-file-doc' }} file-icon"></i>
+                                                                    <i
+                                                                        class="bx {{ $fileExtension == 'pdf' ? 'bxs-file-pdf' : 'bxs-file-doc' }} file-icon"></i>
                                                                     <span class="file-name">{{ $fileName }}</span>
-                                                                    <a href="{{ $fileUrl }}" target="_blank" class="btn btn-sm btn-primary mt-2">
+                                                                    <a href="{{ $fileUrl }}" target="_blank"
+                                                                        class="btn btn-sm btn-primary mt-2">
                                                                         <i class="bx bx-download"></i> Xem file
                                                                     </a>
                                                                 </div>
@@ -84,20 +102,24 @@
                                                         @endif
                                                     </div>
                                                     <div class="upload-controls">
-                                                        <label for="{{ $field['name'] }}" class="btn btn-primary upload-btn">
+                                                        <label for="{{ $field['name'] }}"
+                                                            class="btn btn-primary upload-btn">
                                                             <i class="bx bx-upload"></i> Chọn file
-                                                            <input type="file" id="{{ $field['name'] }}" name="{{ $field['name'] }}" class="file-input"
+                                                            <input type="file" id="{{ $field['name'] }}"
+                                                                name="{{ $field['name'] }}" class="file-input"
                                                                 onchange="previewFile(this, 'preview-{{ $field['name'] }}')" />
                                                         </label>
-                                                        @if($fileExists)
-                                                        <button type="button" class="btn btn-outline-secondary reset-btn"
-                                                            onclick="resetFile('{{ $field['name'] }}', 'preview-{{ $field['name'] }}')">
-                                                            <i class="bx bx-reset"></i> Reset
-                                                        </button>
+                                                        @if ($fileExists)
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary reset-btn"
+                                                                onclick="resetFile('{{ $field['name'] }}', 'preview-{{ $field['name'] }}')">
+                                                                <i class="bx bx-reset"></i> Reset
+                                                            </button>
                                                         @endif
                                                     </div>
                                                 </div>
-                                                <input type="hidden" name="{{ $field['name'] }}_current" value="{{ $data[$field['name']] ?? '' }}">
+                                                <input type="hidden" name="{{ $field['name'] }}_current"
+                                                    value="{{ $data[$field['name']] ?? '' }}">
                                                 @error($field['name'])
                                                     <div class="text-danger">{{ $message }}</div>
                                                 @enderror
@@ -165,6 +187,9 @@
                                                         id="{{ $field['name'] }}" name="{{ $field['name'] }}"
                                                         value="{{ old($field['name'], isset($data[$field['name']]) && is_numeric($data[$field['name']]) ? (isset($field['is_price']) && $field['is_price'] ? number_format($data[$field['name']], 0, ',', '.') : $data[$field['name']]) : $data[$field['name']] ?? '') }}"
                                                         placeholder="{{ $field['placeholder'] ?? '' }}"
+                                                        @if (isset($field['attributes'])) @foreach ($field['attributes'] as $attr => $value)
+                                                                {{ $attr }}="{{ $value }}"
+                                                            @endforeach @endif
                                                         @if (isset($field['is_price']) && $field['is_price']) data-type="price"
                                                                                                                             data-original-value="{{ old($field['name'], $data[$field['name']] ?? '') }}"
                                                                                                                             oninput="formatNumberWithCommas(this)"
@@ -180,7 +205,8 @@
 
                                 <div class="mt-2">
                                     <button type="submit" class="btn btn-primary me-2">Lưu thay đổi</button>
-                                    <a href="{{ $backRoute ?? url()->previous() }}" class="btn btn-outline-secondary">Quay lại</a>
+                                    <a href="{{ $backRoute ?? url()->previous() }}"
+                                        class="btn btn-outline-secondary">Quay lại</a>
                                 </div>
                             </form>
                         </div>
@@ -262,7 +288,9 @@
                 resetBtn.type = 'button';
                 resetBtn.className = 'btn btn-outline-secondary reset-btn';
                 resetBtn.innerHTML = '<i class="bx bx-reset"></i> Reset';
-                resetBtn.onclick = function() { resetFile(input.name, targetId); };
+                resetBtn.onclick = function() {
+                    resetFile(input.name, targetId);
+                };
                 uploadControls.appendChild(resetBtn);
             }
         }
@@ -283,7 +311,8 @@
             `;
 
             // Xóa nút reset
-            const resetBtn = document.querySelector(`#${inputName}`).closest('.upload-controls').querySelector('.reset-btn');
+            const resetBtn = document.querySelector(`#${inputName}`).closest('.upload-controls').querySelector(
+            '.reset-btn');
             if (resetBtn) {
                 resetBtn.remove();
             }
@@ -545,6 +574,7 @@
             font-size: 3rem;
             margin-bottom: 10px;
         }
+
         .image-upload-container {
             display: flex;
             flex-direction: column;

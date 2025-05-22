@@ -240,8 +240,28 @@ class DashboardController extends Controller
             ->where('bookings.status', 'completed')
             ->groupBy('doctors.id', 'doctors.doctor_name')
             ->orderBy('total_revenue', 'desc')
-            ->limit(5)
+
             ->get();
+
+        // Lấy bác sĩ có lợi nhuận cao nhất (dựa trên doctor_fee)
+        $topProfitDoctors = DB::table('bookings')
+            ->select(
+                'doctors.id',
+                'doctors.doctor_name',
+                DB::raw('SUM(doctor_service.doctor_fee) as total_profit')
+            )
+            ->join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
+            ->join('doctor_service', function($join) {
+                $join->on('bookings.doctor_id', '=', 'doctor_service.doctor_id')
+                     ->on('bookings.service_id', '=', 'doctor_service.service_id');
+            })
+            ->whereBetween('bookings.booking_date', [$startDate, $endDate])
+            ->where('bookings.status', 'completed')
+            ->groupBy('doctors.id', 'doctors.doctor_name')
+            ->orderBy('total_profit', 'desc')
+
+            ->get();
+            
 
         return view('admin.pages.dashboard', compact(
             'totalAppointments',
@@ -258,6 +278,7 @@ class DashboardController extends Controller
             'statusStats',
             'topDoctors',
             'topRevenueDoctors',
+            'topProfitDoctors',
             'filterType',
             'customStartDate',
             'customEndDate'
