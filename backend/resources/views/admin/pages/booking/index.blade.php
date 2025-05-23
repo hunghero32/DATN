@@ -69,7 +69,7 @@
             'id' => 'status',
             'name' => 'status',
             'class' => 'select-search',
-            'options' => ['all' => 'Tất cả trạng thái'] + (config('app.statuses') ?? [])
+            'options' => ['all' => 'Tất cả trạng thái'] + (config('app.order_statuses') ?? [])
         ]
     ]"
     :actions="[

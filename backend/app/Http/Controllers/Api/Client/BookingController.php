@@ -9,6 +9,7 @@ use App\Models\Booking;
 use App\Models\Guest;
 use Illuminate\Support\Facades\Log;
 use App\Models\Doctor;
+use App\Models\DoctorService;
 use App\Models\Specialty;
 use App\Models\Service;
 use App\Models\Schedule;
@@ -257,6 +258,11 @@ class BookingController extends Controller
         $doctor = Doctor::find($tempBooking['doctor_id']);
         $service = Services::find($tempBooking['service_id']);
 
+        // Get doctor_fee from doctor_service table
+        $doctorService = DoctorService::where('doctor_id', $tempBooking['doctor_id'])
+            ->where('service_id', $tempBooking['service_id'])
+            ->first();
+
         // Create new booking with additional fields
         $booking = Booking::create([
             'doctor_id' => $tempBooking['doctor_id'],
@@ -268,7 +274,8 @@ class BookingController extends Controller
             'status' => 'pending',
             'doctor_name' => $doctor ? $doctor->doctor_name : null,
             'service_name' => $service ? $service->services_name : null,
-            'service_price' => $service ? $service->price : null
+            'service_price' => $service ? $service->price : null,
+            'doctor_fee' => $doctorService ? $doctorService->doctor_fee : 0
         ]);
 
         // Send notification
