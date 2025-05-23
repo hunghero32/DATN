@@ -85,10 +85,10 @@ class BookingController extends Controller
             ->where('bookings.doctor_id', $doctor_id)
             ->where('bookings.booking_date', '>=', $today)
             ->where('bookings.isDeleted', 0) // loại bỏ lịch đã bị xóa (nếu có cờ này)
+            ->whereNotIn('bookings.status', ['canceled', 'examining']) // loại bỏ lịch đã hủy hoặc đang khám
             ->orderBy('bookings.booking_date')
             ->orderBy('bookings.booking_time')
             ->get();
-
         if ($data->isEmpty()) {
             return response()->json(['success' => false, 'message' => 'Không có lịch khám từ hôm nay '], 404);
         }
