@@ -139,6 +139,7 @@ Route::prefix('admin')->group(function () {
     Route::delete('guests/delete/{id}', [GuestController::class, 'delete'])->name('admin.guests.delete');
     Route::get('guests/edit/{id}', [GuestController::class, 'edit'])->name('admin.guests.edit');
     Route::put('guests/update/{id}', [GuestController::class, 'update'])->name('admin.guests.update');
+    Route::get('guests/{id}', [GuestController::class, 'show'])->name('admin.guests.show');
 
     // System Settings
     Route::get('systems/edit', [SystemController::class, 'edit'])->name('admin.systems.edit');

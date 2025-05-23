@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Guest;
 use App\Models\User;
+use App\Models\MedicalRecord;
 
 class GuestController extends Controller
 {
@@ -94,7 +95,12 @@ class GuestController extends Controller
      */
     public function show(string $id)
     {
-        //
+            $guest = Guest::find($id); 
+        // Lấy các hồ sơ y tế của khách mời, sắp xếp theo ngày khám giảm dần
+    $records = MedicalRecord::where('guest_id', $id)
+                            ->orderByDesc('created_at')
+                            ->get();
+        return view('admin.pages.guests.show', compact('guest','records'));
     }
 
     /**
@@ -122,4 +128,5 @@ class GuestController extends Controller
             'succers' => 'Ban da xoa thanh cong'
         ]);
     }
+
 }
