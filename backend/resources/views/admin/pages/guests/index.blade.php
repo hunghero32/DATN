@@ -5,7 +5,7 @@
 @section('content')
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y">
-            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">khách hàng /</span> Danh sách khách hàng </h4>
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">khách hàng /</span> Danh sách khách hàng</h4>
 
             <div class="card">
                 <div class="card-header d-flex justify-content-between">
@@ -39,7 +39,7 @@
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary">Tìm kiếm</button>
                         </div>
-                        @if (request('search') || request('category_id') || request('status') || request('published_at'))
+                        @if (request('search') || request('gender') || request('age'))
                             <div class="col-md-1 d-grid">
                                 <a href="{{ route('admin.guests.index') }}" class="btn btn-secondary">Quay lại</a>
                             </div>
@@ -75,13 +75,13 @@
                                     <td>
                                         <button type="button" class="btn btn-sm border-danger btn-warning btn-show-guest"
                                             data-bs-toggle="modal" data-bs-target="#guestModal"
-                                            data-name="{{ $guest->user->name ?? 'N/A' }}"
+                                            data-id="{{ $guest->id }}" data-name="{{ $guest->user->name ?? 'N/A' }}"
                                             data-gender="{{ $genderMapping[$guest->gender] ?? 'Không xác định' }}"
                                             data-birthday="{{ $guest->birthday ?? 'N/A' }}"
                                             data-phone="{{ $guest->guest_phone ?? 'N/A' }}"
                                             data-email="{{ $guest->guest_email ?? 'N/A' }}"
                                             data-address="{{ $guest->address ?? 'N/A' }}">
-                                            <i class='bx bxs-info-circle' ></i>
+                                            <i class='bx bxs-info-circle'></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -96,14 +96,14 @@
             </div>
         </div>
     </div>
+
     <!-- Modal -->
     <div class="modal fade" id="guestModal" tabindex="-1" aria-labelledby="guestModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow rounded-3">
-                <div class="modal-header  text-white rounded-top">
+                <div class="modal-header text-white rounded-top">
                     <h5 class="modal-title" id="guestModalLabel"><i class="bx bx-user"></i> Thông tin khách hàng</h5>
-                    <button type="button" class="btn-close btn-close" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="row mb-3">
@@ -132,13 +132,15 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-light rounded-bottom">
+                    <a href="#" id="btnViewMedicalRecord" class="btn btn-primary" >
+                        Hồ sơ bệnh án
+                    </a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Script xử lý đổ dữ liệu vào modal -->
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -158,6 +160,12 @@
                             'data-email');
                         document.getElementById('modalGuestAddress').innerText = this.getAttribute(
                             'data-address');
+
+                        const guestId = this.getAttribute('data-id');
+                        const route = `{{ url('admin/guests') }}/${guestId}`;
+                     btnViewMedicalRecord.onclick = function () {
+                    window.location.href = route;
+                     }
                     });
                 });
             });

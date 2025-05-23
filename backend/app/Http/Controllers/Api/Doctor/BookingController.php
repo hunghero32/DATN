@@ -138,13 +138,19 @@ class BookingController extends Controller
             $this->createInvoiceForBooking($booking);
         }
         if ($validate['status'] === 'examining') {
+            $bookingDateTime = Carbon::parse($booking->booking_date);
+            if (now()->lt($bookingDateTime)) {
+                return response()->json(['message' => 'Bạn chỉ có thể khám cho bệnh nhân trong ngày.'], 400);
+            }
             $this->createResultForBooking($booking);
         }
         if ($validate['status'] === 'completed') {
             $bookingDateTime = Carbon::parse($booking->booking_date . ' ' . $booking->booking_time);
-            //if (now()->lt($bookingDateTime)) {
-            //    return response()->json(['message' => 'Bạn chỉ có thể hoàn thành lịch hẹn sau thời gian đã đặt.'], 400);
-            //}
+            $allowedTime = $bookingDateTime->subMinutes(30);
+            if (now()->lt($allowedTime)) {
+                return response()->json(['message' => 'Bạn chỉ có thể hoàn thành lịch hẹn trong vòng 30 phút trước giờ hẹn.'], 400);
+            }
+
             $this->createMedicalRecord($booking);
         }
 

@@ -294,57 +294,74 @@ class BookingController extends Controller
         ]);
     }
 
-    public function appointments()
-    {
-        try {
-            // Get authenticated user's ID
-            $userId = auth()->id();
+    public function appointments(Request $request)
+{
+    try {
+        $userId = 1;
 
-            // Get all bookings for guests associated with this user
-            $bookings = Booking::with(['doctor', 'service', 'guest'])
-                ->whereHas('guest', function ($query) use ($userId) {
-                    $query->where('user_id', $userId);
-                })
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function ($booking) {
-                    return [
-                        'id' => $booking->id,
-                        'doctor_id' => $booking->doctor_id,
-                        'doctor_name' => $booking->doctor_name ?? optional($booking->doctor)->doctor_name ?? 'Không có bác sĩ',
-                        'doctor_avatar' => $booking->doctor->doctor_avatar,
-                        'service_id' => $booking->service_id,
-                        'service_name' => $booking->services_name ?? optional($booking->service)->services_name ?? 'Không có dịch vụ',
-                        'guest_name' => $booking->guest->guest_name,
-                        'guest_phone' => $booking->guest->guest_phone,
-                        'booking_date' => $booking->booking_date,
-                        'booking_time' => $booking->booking_time,
-                        'status' => $booking->status,
-                        'notes' => $booking->notes,
-                        'created_at' => $booking->created_at
-                    ];
-                });
+        $query = Booking::with(['doctor', 'service', 'guest'])
+            ->whereHas('guest', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            });
 
-            if ($bookings->isEmpty()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Không tìm thấy thông tin đặt lịch'
-                ], 404);
-            }
+        // Tìm kiếm
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('doctor', fn($q2) => $q2->where('doctor_name', 'like', "%$search%"))
+                  ->orWhereHas('service', fn($q2) => $q2->where('services_name', 'like', "%$search%"))
+                  ->orWhereHas('guest', fn($q2) => $q2->where('guest_name', 'like', "%$search%"));
+            });
+        }
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Danh sách lịch hẹn',
-                'data' => $bookings
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error in appointments: ' . $e->getMessage());
+        // Bộ lọc theo ngày
+        if ($date = $request->input('booking_date')) {
+            $query->whereDate('booking_date', $date);
+        }
+
+        // Bộ lọc theo trạng thái
+        if (!is_null($request->input('status'))) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $bookings = $query->orderBy('created_at', 'desc')->get()->map(function ($booking) {
+            return [
+                'id' => $booking->id,
+                'doctor_id' => $booking->doctor_id,
+                'doctor_name' => $booking->doctor_name ?? optional($booking->doctor)->doctor_name ?? 'Không có bác sĩ',
+                'doctor_avatar' => optional($booking->doctor)->doctor_avatar,
+                'service_id' => $booking->service_id,
+                'service_name' => $booking->services_name ?? optional($booking->service)->services_name ?? 'Không có dịch vụ',
+                'guest_name' => optional($booking->guest)->guest_name,
+                'guest_phone' => optional($booking->guest)->guest_phone,
+                'booking_date' => $booking->booking_date,
+                'booking_time' => $booking->booking_time,
+                'status' => $booking->status,
+                'notes' => $booking->notes,
+                'created_at' => $booking->created_at
+            ];
+        });
+
+        if ($bookings->isEmpty()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Lỗi khi lấy danh sách lịch hẹn: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Không tìm thấy thông tin đặt lịch'
+            ], 404);
         }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Danh sách lịch hẹn',
+            'data' => $bookings
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error in appointments: ' . $e->getMessage());
+        return response()->json([
+            'status' => false,
+            'message' => 'Lỗi khi lấy danh sách lịch hẹn: ' . $e->getMessage()
+        ], 500);
     }
+}
+
     private function sendBookingNotification(Booking $booking)
     {
         $doctor = Doctor::find($booking->doctor_id);
@@ -370,6 +387,8 @@ class BookingController extends Controller
             $booking->id
         );
     }
+
+    
 
     public function cancelBooking(Request $request, $id)
     {
