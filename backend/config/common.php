@@ -10,7 +10,7 @@ return [
             'class' => 'badge bg-danger'
         ],
     ],
-    'order_statuses'=>[
+    'order_statuses' => [
         'pending' => [
             'text' => 'Đang chờ',
             'class' => 'badge bg-warning'
@@ -18,6 +18,10 @@ return [
         'confirmed' => [
             'text' => 'Đã xác nhận',
             'class' => 'badge bg-info'
+        ],
+        'examining' => [
+            'text' => 'Đang khám',
+            'class' => 'badge bg-primary'
         ],
         'completed' => [
             'text' => 'Hoàn thành',

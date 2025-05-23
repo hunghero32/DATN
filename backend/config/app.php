@@ -223,8 +223,9 @@ return [
     'order_statuses' => [
             'pending' => 'Chờ xác nhận',
             'confirmed' => 'Đã xác nhận',
+            'examining' => 'Đang khám',
             'completed' => 'Hoàn thành',
-            'cancelled' => 'Đã hủy'
+            'cancelled' => 'Đã hủy',
     ],
 
 ];

@@ -20,6 +20,7 @@ class Booking extends Model
         'booking_time',
         'notes',
         'status',
+        'doctor_fee',
     ];
 
     // Quan hệ với bảng Doctor
