@@ -15,7 +15,7 @@ class AddDoctorFeeToBookingsTable extends Migration
     {
         Schema::table('bookings', function (Blueprint $table) {
             // Thêm cột doctor_fee sau cột service_price
-            $table->decimal('doctor_fee', 10, 2)->nullable()->after('service_price');
+            $table->decimal('doctor_fee', 15, 0)->nullable()->after('service_price');
         });
     }
 
