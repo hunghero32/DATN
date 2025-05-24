@@ -297,7 +297,7 @@ class BookingController extends Controller
     public function appointments(Request $request)
 {
     try {
-        $userId = 1;
+        $userId = auth()->id();
 
         $query = Booking::with(['doctor', 'service', 'guest'])
             ->whereHas('guest', function ($q) use ($userId) {
