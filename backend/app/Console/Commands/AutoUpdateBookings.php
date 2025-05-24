@@ -31,18 +31,24 @@ class AutoUpdateBookings extends Command
 
         $updatedCount = 0;
         $canceledCount = 0;
+        $invoiceCount = 0;
+        $notificationCount = 0;
 
         $groupedByDoctor = $bookings->groupBy('doctor_id'); // Nhóm các booking theo doctor_id
 
         foreach ($groupedByDoctor as $doctorId => $bookingsForDoctor) {
             // Xử lý kiểm tra chồng lấn thời gian và cập nhật trạng thái
-            [$confirmed, $canceled] = $this->processBookingsWithOverlap($bookingsForDoctor);
+            [$confirmed, $canceled, $invoices, $notifications] = $this->processBookingsWithOverlap($bookingsForDoctor);
             $updatedCount += $confirmed;
             $canceledCount += $canceled;
+            $invoiceCount += $invoices;
+            $notificationCount += $notifications;
         }
 
         $this->info("Đã cập nhật: $updatedCount booking -> confirmed");
         $this->info("Đã hủy: $canceledCount booking -> canceled");
+        $this->info("Đã tạo: $invoiceCount hóa đơn");
+        $this->info("Đã gửi: $notificationCount thông báo");
     }
 
     private function getPendingBookings() // Lấy danh sách các booking
@@ -58,6 +64,8 @@ class AutoUpdateBookings extends Command
     {
         $confirmed = 0;
         $canceled = 0;
+        $invoices = 0; 
+        $notifications = 0;
         $schedule = []; // Danh sách thời gian đã được xác nhận
 
         $sorted = $bookings->sortBy('created_at'); // Ưu tiên xử lý booking được tạo sớm hơn
@@ -79,16 +87,19 @@ class AutoUpdateBookings extends Command
             }
 
             if (!$isOverlap) {
-                $this->confirmBooking($booking);
+                $result = $this->confirmBooking($booking);
                 $schedule[] = [$start, $end];
                 $confirmed++;
+                $invoices += $result['invoices'];
+                $notifications += $result['notifications'];
             } else {
-                $this->cancelBooking($booking);
+                $result = $this->cancelBooking($booking);
                 $canceled++;
+                $notifications += $result['notifications'];
             }
         }
 
-        return [$confirmed, $canceled];
+        return [$confirmed, $canceled, $invoices, $notifications];
     }
 
     private function confirmBooking($booking)
@@ -96,13 +107,19 @@ class AutoUpdateBookings extends Command
         $booking->update(['status' => 'confirmed']);
 
         $this->createMedicalRecordForBooking($booking);
-        $this->createInvoiceForBooking($booking);
-        $this->sendConfirmationNotifications($booking);
+        $invoice = $this->createInvoiceForBooking($booking);
+        $notifCount = $this->sendConfirmationNotifications($booking);
+
+        return [
+            'invoices' => $invoice ? 1 : 0,
+            'notifications' => $notifCount
+        ];
     }
 
-    private function cancelBooking($booking)
+    private function cancelBooking($booking) 
     {
         $booking->update(['status' => 'canceled']);
+        $notifCount = 0;
 
         $guest = optional(Guest::find($booking->guest_id));
         if ($guest->exists) {
@@ -116,11 +133,22 @@ class AutoUpdateBookings extends Command
                 "booking",
                 $booking->id
             );
+            $notifCount++;
         }
+
+        return [
+            'notifications' => $notifCount
+        ];
     }
 
     private function createInvoiceForBooking($booking)
     {
+        // Check if invoice already exists for this booking
+        $existingInvoice = InvoiceDetail::where('booking_id', $booking->id)->first();
+        if ($existingInvoice) {
+            return Invoice::find($existingInvoice->invoice_id);
+        }
+
         $price = $booking->service->price ?? 0;
         $discount = 0;
         $taxPercent = 0;
@@ -133,6 +161,7 @@ class AutoUpdateBookings extends Command
             'total_amount' => $total,
             'discount' => $discount,
             'tax' => $tax,
+            'status' => 'unpaid',
         ]);
 
         InvoiceDetail::create([
@@ -162,6 +191,7 @@ class AutoUpdateBookings extends Command
 
     private function sendConfirmationNotifications($booking)
     {
+        $notifCount = 0;
         $doctor = optional(Doctor::find($booking->doctor_id));
         $guest = optional(Guest::find($booking->guest_id));
         $date = Carbon::parse($booking->booking_date)->format('d/m/Y');
@@ -175,6 +205,7 @@ class AutoUpdateBookings extends Command
                 "booking",
                 $booking->id
             );
+            $notifCount++;
         }
 
         if ($guest) {
@@ -185,6 +216,9 @@ class AutoUpdateBookings extends Command
                 "booking",
                 $booking->id
             );
+            $notifCount++;
         }
+
+        return $notifCount;
     }
 }
