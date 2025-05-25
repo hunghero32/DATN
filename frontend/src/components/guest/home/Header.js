@@ -39,17 +39,12 @@ export default function Header() {
       setToken(null);
     }
 
+    // Single API call to fetch site data
     fetch("http://localhost:8000/api/system")
       .then((response) => response.json())
-      .then((data) => setSiteData(data))
-      .catch((error) => console.error("Error fetching site data:", error));
-    api.get("/api/client/appointments")
-      .then((response) => {
-        if (response.data?.data) { // Ưu tiên kiểm tra data.data trước
-          setSiteData(response.data.data);
-        } else {
-          setSiteData(response.data); // Fallback nếu data nằm trực tiếp
-        }
+      .then((data) => {
+        console.log("Fetched site data:", data);
+        setSiteData(data.data || data); // Handle both data structures
       })
       .catch((error) => console.error("Error fetching site data:", error));
 
@@ -485,12 +480,18 @@ export default function Header() {
       <div className="pq-bottom-header bg-white shadow-md">
         <div className="container">
           <div className="navbar navbar-expand-lg flex justify-between items-center py-3">
-            {/* Logo - Reverted to always show text */}
+            {/* Logo - Updated to match Footer's logic */}
             <Link to="/" className="navbar-brand">
-              {siteData && siteData.site_logo ? (
-                <img src={`http://localhost:8000/storage/${siteData.site_logo}`} alt="logo" className="h-10 w-40" />
+              {siteData?.site_logo ? (
+                <img 
+                  src={`http://localhost:8000/storage/${siteData.site_logo}`} 
+                  alt={siteData?.site_name || 'Logo'} 
+                  className="h-20 w-30 object-contain" // Reduced from h-12 to h-8 and added fixed width w-28
+                />
               ) : (
-                <span className="text-sm  text-blue-300">Logo</span>
+                <span className="text-xl font-semibold text-blue-600">
+                  {siteData?.site_name || 'Quick Care'}
+                </span>
               )}
             </Link>
 

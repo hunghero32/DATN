@@ -28,9 +28,9 @@ const BaiViet = () => {
     fetchArticles();
   }, []);
 
-  if (loading) return <p className="text-center text-gray-500 text-xl py-8">Đang tải bài viết...</p>;
+  // if (loading) return <p className="text-center text-gray-500 text-xl py-8">Đang tải bài viết...</p>;
   if (error) return <p className="text-center text-red-500 text-xl py-8">{error}</p>;
-  if (!articles.length) return <p className="text-center text-gray-500 text-xl py-8">Không có bài viết nào.</p>;
+  // if (!articles.length) return <p className="text-center text-gray-500 text-xl py-8">Không có bài viết nào.</p>;
 
   return (
     <div className="container mx-auto p-6 mb-4">

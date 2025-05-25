@@ -39,7 +39,7 @@ const ClinicDetail = () => {
         </p>
       </div>
 
-      {loading && <p className="text-gray-500">Đang tải danh sách bác sĩ...</p>}
+      {/* {loading && <p className="text-gray-500">Đang tải danh sách bác sĩ...</p>} */}
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
@@ -82,8 +82,8 @@ const ClinicDetail = () => {
         </div>
       </div>
     ))
-  ) : (
-    <p className="text-gray-500">Chưa có bác sĩ nào.</p>
+  ): (
+    <p className="text-gray-500">Không có bác sĩ nào.</p>
   )}
 </div>
 

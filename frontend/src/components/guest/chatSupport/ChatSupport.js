@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import pusher from "../../../services/pusher"; // Import Pusher
 import { Send, User, Bot } from "lucide-react";
-
 const ChatSupport = () => {
   const [user, setUser] = useState(null); // User info
   const [conversations, setConversations] = useState([]); // List of conversations (for admin)
