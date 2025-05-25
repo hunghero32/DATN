@@ -196,15 +196,45 @@ class BookingController extends Controller
     {
         try {
             $booking = Booking::findOrFail($id);
-            $booking->status = $request->status;
+            $currentStatus = $booking->status;
+            $newStatus = $request->status;
+
+            // Kiểm tra các điều kiện không cho phép thay đổi trạng thái
+
+            // Định nghĩa thứ tự trạng thái
+            $statusOrder = [
+                'pending' => 1,
+                'confirmed' => 2,
+                'examining' => 3,
+                'completed' => 4,
+                'canceled' => 5
+            ];
+
+            // Không cho phép hủy khi đang khám hoặc đã hoàn thành
+            if ($newStatus === 'canceled' && ($currentStatus === 'examining' || $currentStatus === 'completed')) {
+                return redirect()->back()->with('error', 'Không thể hủy lịch khám đang trong trạng thái đang khám hoặc đã hoàn thành');
+            }
+
+            // Không cho phép chuyển từ trạng thái cao hơn về trạng thái thấp hơn (trừ trường hợp hủy)
+            if ($newStatus !== 'canceled' && isset($statusOrder[$currentStatus]) && isset($statusOrder[$newStatus])) {
+                if ($statusOrder[$newStatus] < $statusOrder[$currentStatus]) {
+                    $statusNames = config('app.order_statuses');
+                    return redirect()->back()->with('error', "Không thể chuyển từ trạng thái '{$statusNames[$currentStatus]}' về trạng thái '{$statusNames[$newStatus]}'.");
+                }
+            }
+
+            // Cập nhật trạng thái nếu thỏa mãn điều kiện
+            $booking->status = $newStatus;
             $booking->save();
 
-            // 2. Gửi email thông báo nếu booking liên kết với guest có email
-            //    (giả sử bảng guests có cột `email`)
+            // Gửi email thông báo nếu booking liên kết với guest có email
             $guest = $booking->guest;
             if ($guest && isset($guest->email)) {
+                $statusNames = config('app.order_statuses');
+                $statusText = isset($statusNames[$booking->status]) ? $statusNames[$booking->status] : $booking->status;
+
                 $title   = 'Cập nhật trạng thái đặt lịch';
-                $content = "Lịch khám #{$booking->id} của bạn đã được cập nhật sang trạng thái: {$booking->status}.";
+                $content = "Lịch khám #{$booking->id} của bạn đã được cập nhật sang trạng thái: {$statusText}.";
 
                 $url     = route('admin.bookings.edit', ['booking' => $booking->id]);
 
@@ -214,7 +244,7 @@ class BookingController extends Controller
 
             return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật trạng thái');
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật trạng thái: ' . $e->getMessage());
         }
     }
     public function create()
