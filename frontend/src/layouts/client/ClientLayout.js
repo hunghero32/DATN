@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../components/guest/home/Header";
 import Footer from "../../components/guest/home/Footer";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import HomeMain from "../../components/guest/home/HomeMain";
 import HomeMainContact from "../../components/guest/contact/HomeMainContact";
 import AboutUsSection from "../../components/guest/Page/AboutUs";
@@ -49,9 +49,12 @@ import SearchPage from "../../components/guest/home/SearchPage";
 import DanhGia from "../../components/guest/home/DanhGia";
 import KetQuaKham from "../../components/guest/home/KetQuaKham";
 import BaiVietHeader from "../../components/guest/home/BaiVietHeader";
+import ChatSupport from "../../components/guest/chatSupport/ChatSupport";
 
 
 const ClientLayout = () => {
+  const location = useLocation(); // Add this line at the beginning of the component
+  
   useEffect(() => {
     const loadScript = (src) => {
       const script = document.createElement("script");
@@ -142,6 +145,8 @@ const ClientLayout = () => {
         <Route path="/thongbao" element={<ThongBao/>}/>  {/* Thông báo đặt lịch thành công !}
         <Route path="/services" element={<Services/>}/>  {/* Trang dịch vụ */}
         {/* <Route path="/search" element={<SearchPage />} />     */}
+        <Route path="/chat-support" element={<ChatSupport/>}/>
+
         <Route path="/danhgia" element={<DanhGia/>}/>
         <Route path="/ketqua/:bookingId" element={<KetQuaKham />} />
         <Route path="/detail-service/:id" element={<ServiceDetail/>}/>  {/* Trang chi tiet dich vu  */}
@@ -176,7 +181,7 @@ const ClientLayout = () => {
         
       </Routes>
       
-      <Footer />
+      {location.pathname !== '/chat-support' && <Footer />}
     
     </>
   );

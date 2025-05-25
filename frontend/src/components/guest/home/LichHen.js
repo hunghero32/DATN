@@ -23,6 +23,11 @@ const LichHen = () => {
   const nav = useNavigate();
   const [captchaValue, setCaptchaValue] = useState(null);
   const [showCaptcha, setShowCaptcha] = useState(false);
+  const [filters, setFilters] = useState({
+    search: '',
+    booking_date: '',
+    status: ''
+  });
 
   const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
@@ -71,17 +76,7 @@ const LichHen = () => {
         setShowCancelModal(false);
         setCaptchaValue(null);
         setShowCaptcha(false);
-        // Refresh appointment list
-        api.get("/api/client/appointments")
-          .then((res) => {
-            if (res.data.status) {
-              setAppointments(res.data.data);
-            } else {
-              setError(res.data.message);
-            }
-          })
-          .catch(() => setError("Lỗi khi làm mới danh sách lịch hẹn."))
-          .finally(() => setLoading(false));
+        fetchAppointments();
       } else {
         toast.error(response.data.message || "Không thể hủy lịch hẹn.");
       }
@@ -90,114 +85,219 @@ const LichHen = () => {
       toast.error(error.response?.data?.message || "Đã xảy ra lỗi khi hủy lịch hẹn.");
     }
   };
-  
+
+  const fetchAppointments = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (filters.search) params.append('search', filters.search);
+      if (filters.booking_date) params.append('booking_date', filters.booking_date);
+      if (filters.status) params.append('status', filters.status);
+
+      const response = await api.get(`/api/client/appointments?${params.toString()}`);
+      if (response.data.status) {
+        setAppointments(response.data.data);
+        setError("");
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Bạn chưa có lịch hẹn !");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    api.get("/api/client/appointments")
-      .then((response) => {
-        if (response.data.status) {
-          setAppointments(response.data.data);
-        } else {
-          setError(response.data.message);
-        }
-      })
-      .catch(() => setError("Bạn chưa có lịch hẹn !"))
-      .finally(() => setLoading(false));
-  }, []);
+    fetchAppointments();
+  }, [filters]);
 
+  // Update the filter section
+  const filterSection = (
+    <div className="mb-6 bg-white p-4 md:p-6 rounded-xl shadow-lg">
+      {/* Desktop: Vertical layout, Tablet/Mobile: Horizontal layout */}
+      <div className="block md:hidden">
+        <div className="flex items-center space-x-2 mb-4">
+          <input
+            type="text"
+            className="flex-1 p-2 text-sm border rounded"
+            placeholder="Tìm kiếm theo tên bác sĩ, dịch vụ..."
+            value={filters.search}
+            onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+          />
+          <button className="p-2 bg-blue-600 text-white rounded">
+            <i className="ri-search-line"></i>
+          </button>
+        </div>
+        <div className="flex items-center space-x-2">
+          <input
+            type="date"
+            className="flex-1 p-2 text-sm border rounded"
+            value={filters.booking_date}
+            onChange={(e) => setFilters(prev => ({ ...prev, booking_date: e.target.value }))}
+          />
+          <select
+            className="flex-1 p-2 text-sm border rounded"
+            value={filters.status}
+            onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+          >
+            <option value="">Tất cả</option>
+            <option value="pending">Chờ xác nhận</option>
+            <option value="confirmed">Đã xác nhận</option>
+            <option value="completed">Hoàn thành</option>
+            <option value="canceled">Đã hủy</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Desktop layout */}
+      <div className="hidden md:block">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+            <input
+              type="text"
+              className="w-full p-2 text-sm border rounded"
+              placeholder="Tìm kiếm theo tên bác sĩ, dịch vụ..."
+              value={filters.search}
+              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ngày khám</label>
+            <input
+              type="date"
+              className="w-full p-2 text-sm border rounded"
+              value={filters.booking_date}
+              onChange={(e) => setFilters(prev => ({ ...prev, booking_date: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+            <select
+              className="w-full p-2 text-sm border rounded"
+              value={filters.status}
+              onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+            >
+              <option value="">Tất cả</option>
+              <option value="pending">Chờ xác nhận</option>
+              <option value="confirmed">Đã xác nhận</option>
+              <option value="completed">Hoàn thành</option>
+              <option value="canceled">Đã hủy</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Update the main container and cards
+  // Update the main container and grid layout
   return (
-    <div className="container mx-auto mt-4 p-6 min-h-screen">
+    <div className="container mx-auto px-4 md:px-6 mt-4 min-h-screen bg-gray-50 max-w-7xl">
       <ToastContainer position="top-right" />
-      <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
+      <h2 className="text-2xl md:text-3xl font-bold text-center text-blue-600 mb-4 md:mb-6">
         Lịch Hẹn Đã Đặt
       </h2>
-
+  
+      {filterSection}
+  
       {loading ? (
         <div className="flex justify-center items-center h-40">
-          <i className="ri-loader-2-line animate-spin text-blue-500 text-4xl"></i>
-          <span className="ml-2 text-gray-600 text-lg">Đang tải...</span>
+          <i className="ri-loader-2-line animate-spin text-blue-500 text-3xl md:text-4xl"></i>
+          <span className="ml-2 text-gray-600 text-base md:text-lg">Đang tải...</span>
         </div>
       ) : error ? (
-        <div className="mt-4 text-center text-red-500 text-lg font-semibold">
+        <div className="mt-4 text-center text-red-500 text-base md:text-lg font-semibold">
           {error}
         </div>
       ) : appointments.length === 0 ? (
-        <div className="text-center text-gray-500 text-lg font-semibold">
-          <i className="ri-calendar-line text-4xl"></i>
+        <div className="text-center text-gray-500 text-base md:text-lg font-semibold">
+          <i className="ri-calendar-line text-3xl md:text-4xl"></i>
           Bạn chưa có lịch hẹn nào!
         </div>
       ) : (
-        <div className="flex mt-2 flex-col items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 max-w-md md:max-w-none mx-auto">
           {appointments.map((appointment) => (
             <div
               key={appointment.id}
-              className="bg-white shadow-lg rounded-lg overflow-hidden w-full max-w-2xl p-5 mb-5 border border-gray-200"
+              className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300 mt-4"
             >
-              <div className="flex items-center space-x-8">
-                <img
-                  src={`http://localhost:8000/storage/${appointment.doctor_avatar}`}
-                  alt={appointment.doctor_name}
-                  className="w-16 h-16 rounded-full object-cover border"
-                />
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-600">
-                    {appointment.doctor_name}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    Dịch vụ khám: {appointment.service_name}
-                  </p>
+              <div className="p-3 md:p-5">
+                <div className="flex items-center space-x-3 md:space-x-4 mb-3 md:mb-4">
+                  <img
+                    src={`http://localhost:8000/storage/${appointment.doctor_avatar}`}
+                    alt={appointment.doctor_name}
+                    className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover border-2 border-blue-100"
+                  />
+                  <div>
+                    <h3 className="text-base md:text-lg font-semibold text-blue-600">
+                      {appointment.doctor_name}
+                    </h3>
+                    <p className="text-xs md:text-sm text-gray-600">
+                      {appointment.service_name}
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="border-t border-gray-200 mt-3 pt-3">
-                <p>
-                  <i className="ri-user-line text-blue-500"></i>
-                  <strong> Khách hàng:</strong> {appointment.guest_name} ({appointment.guest_phone})
-                </p>
-                <p>
-                  <i className="ri-calendar-line text-blue-500"></i>
-                  <strong> Ngày đặt:</strong> {new Date(appointment.booking_date).toLocaleDateString('vi-VN')}
-                </p>
-                <p>
-                  <i className="ri-time-line text-blue-500"></i>
-                  <strong> Giờ:</strong> {appointment.booking_time}
-                </p>
-                <p>
-                  <i className="ri-file-list-3-line text-blue-500"></i>
-                  <strong> Ghi chú:</strong> {appointment.notes || "Không có"}
-                </p>
-                <p>
-                  <i className="ri-checkbox-circle-line text-blue-500"></i>
-                  <strong> Trạng thái:</strong>
-                  <span
-                    className={`ml-2 px-2 py-1 rounded text-sm ${
-                      appointment.status === "completed"
-                        ? "bg-green-500 text-white"
+                <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
+                  <div className="flex items-center text-gray-700">
+                    <i className="ri-user-line text-blue-500 w-5"></i>
+                    <span className="font-medium mr-2">Khách hàng:</span>
+                    <span>{appointment.guest_name}</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <i className="ri-phone-line text-blue-500 w-5"></i>
+                    <span className="font-medium mr-2">SĐT:</span>
+                    <span>{appointment.guest_phone}</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <i className="ri-calendar-line text-blue-500 w-5"></i>
+                    <span className="font-medium mr-2">Ngày:</span>
+                    <span>{new Date(appointment.booking_date).toLocaleDateString('vi-VN')}</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <i className="ri-time-line text-blue-500 w-5"></i>
+                    <span className="font-medium mr-2">Giờ:</span>
+                    <span>{appointment.booking_time}</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <i className="ri-file-list-3-line text-blue-500 w-5"></i>
+                    <span className="font-medium mr-2">Ghi chú:</span>
+                    <span>{appointment.notes || "Không có"}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <i className="ri-checkbox-circle-line text-blue-500 w-5"></i>
+                    <span className="font-medium mr-2">Trạng thái:</span>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        appointment.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : appointment.status === "confirmed"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : appointment.status === "pending"
+                          ? "bg-gray-100 text-gray-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {appointment.status === "completed"
+                        ? "Hoàn thành"
                         : appointment.status === "confirmed"
-                        ? "bg-yellow-500 text-white"
+                        ? "Đã xác nhận"
                         : appointment.status === "pending"
-                        ? "bg-gray-500 text-white"
-                        : "bg-red-500 text-white"
-                    }`}
-                  >
-                    {appointment.status === "completed"
-                      ? "Hoàn thành"
-                      : appointment.status === "confirmed"
-                      ? "Đã xác nhận"
-                      : appointment.status === "pending"
-                      ? "Chờ xác nhận"
-                      : "Đã hủy"}
-                  </span>
-                </p>
+                        ? "Chờ xác nhận"
+                        : "Đã hủy"}
+                    </span>
+                  </div>
+                </div>
 
-                <div className="mt-4 flex gap-3">
+                <div className="mt-4 flex flex-wrap gap-2">
                   {appointment.status === "completed" && (
                     <>
                       <Link
                         to={`/hoadon/${appointment.id}`}
-                        className="inline-block px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
+                        className="inline-block px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
                       >
-                        <i className="ri-file-text-line mr-2"></i> Xem Hóa Đơn
+                        <i className="ri-file-text-line mr-1 md:mr-2"></i> Xem Hóa Đơn
                       </Link>
 
                       <Link
@@ -322,6 +422,7 @@ const LichHen = () => {
           setShowCaptcha(false);
         }}
         size="md"
+        className="max-w-[95%] mx-auto"
         style={{ marginTop: '20px' }}
       >
         <Modal.Header closeButton>
