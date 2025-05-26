@@ -11,12 +11,13 @@
         <div class="row">
           <div class="col-md-6"><strong>Tên khách:</strong> {{ $record->guest->guest_name ?? 'N/A' }}</div>
           <div class="col-md-6"><strong>Mã khách:</strong> #{{ $record->guest_id }}</div>
-          <div class="col-md-6"><strong>Số BHYT:</strong> {{ $record->BHYT ?? 'Không có' }}</div>
-          <div class="col-md-6"><strong>Tình trạng bệnh:</strong> {{ $record->medical_condition ?? 'Chưa cập nhật' }}</div>
-          <div class="col-md-6"><strong>Dị ứng:</strong> {{ $record->allergies ?? 'Không có' }}</div>
-          <div class="col-md-6"><strong>Tiền sử gia đình:</strong> {{ $record->family_history ?? 'Không rõ' }}</div>
-          <div class="col-md-6"><strong>Phác đồ điều trị:</strong> {{ $record->treatment ?? 'Chưa cập nhật' }}</div>
-          <div class="col-12 mt-2"><strong>Ghi chú:</strong><br>{{ $record->note ?? 'Không có ghi chú' }}</div>
+          <div class="col-md-6"><strong>Số BHYT:</strong> {{ strip_tags($record->BHYT) ?? 'Không có' }}</div>
+          <div class="col-md-6"><strong>Tình trạng bệnh:</strong> {{ strip_tags($record->medical_condition) ?? 'Chưa cập nhật' }}</div>
+          <div class="col-md-6"><strong>Thuốc:</strong> {{ strip_tags($record->medications) ?? 'Không rõ' }}</div>
+          <div class="col-md-6"><strong>Dị ứng:</strong> {{ strip_tags($record->allergies) ?? 'Không có' }}</div>
+          <div class="col-md-6"><strong>Tiền sử gia đình:</strong> {{ strip_tags($record->family_history) ?? 'Không rõ' }}</div>
+          <div class="col-md-6"><strong>Phác đồ điều trị:</strong> {{ strip_tags($record->treatment) ?? 'Chưa cập nhật' }}</div>
+          <div class="col-12 mt-2"><strong>Ghi chú:</strong><br>{{ strip_tags($record->note) ?? 'Không có ghi chú' }}</div>
         </div>
 
         @php

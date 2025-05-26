@@ -14,7 +14,7 @@
 
             <div class="card-body">
 
-                <form action="{{ route('admin.medical_records.update', $record->id) }}" method="POST">
+                <form action="{{ route('admin.pages.medical_records.update', $record->id) }}" method="POST">
                     
                     @csrf
                     @method('PUT')
@@ -65,7 +65,7 @@
 
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary">Cập nhật</button>
-                        <a href="{{ route('admin.medical_records.index') }}" class="btn btn-secondary">Quay lại</a>
+                        <a href="{{ route('admin.pages.medical_records.index') }}" class="btn btn-secondary">Quay lại</a>
                     </div>
 
                 </form>
