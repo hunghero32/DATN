@@ -5,6 +5,7 @@ use App\Exports\BookingExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\BookingsMultiSheetExport;
 use App\Models\Booking;
 
 class ReportController extends Controller
@@ -77,7 +78,7 @@ public function export(Request $request)
     $filename .= '.xlsx';
 
     return Excel::download(
-        new BookingExport($year, $month, $day, $start_date, $end_date, $guest_phone),
+        new BookingsMultiSheetExport($year, $month, $day, $start_date, $end_date, $guest_phone),
         $filename
     );
 }
