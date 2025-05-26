@@ -15,7 +15,7 @@ const KetQuaKham = () => {
       .then((response) => {
         if (response.data && response.data.data && response.data.data.length > 0) {
           setResult(response.data.data[0]);
-          console.log("dddddddddddddddddddddddd", response.data.data[0]);
+          console.log("Kết quả", response.data.data[0]);
         } else {
           setError("Không tìm thấy kết quả khám.");
         }
@@ -77,13 +77,26 @@ const KetQuaKham = () => {
           {`
             @page {
               size: A4;
-              margin: 10mm; /* Reduced margin to maximize printable area */
+              margin: 10mm;
             }
             @media print {
-              body {
-                background: none;
+              body * {
+                visibility: hidden;
+              }
+              .container, .container * {
+                visibility: visible;
+              }
+              .container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 190mm;
+                padding: 10mm;
                 margin: 0;
-                width: 100%;
+                background: white;
+              }
+              .print-button {
+                display: none;
               }
               /* Hide sidebar or any overlapping elements */
               .sidebar, .fixed-header, .header-spacer {
@@ -260,58 +273,72 @@ const KetQuaKham = () => {
 
           {/* Patient and Doctor Info */}
           <div className="section-grid grid md:grid-cols-2 gap-8 mb-8">
-            <div className="section bg-blue-50 mt-4 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="section mt-4 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <h5 className="text-xl font-semibold mb-4 text-blue-700 flex items-center">
                 <i className="ri-user-heart-line mr-2"></i>
                 Thông tin bệnh nhân
               </h5>
               <div className="info-grid space-y-4">
-                <div className="info-item flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
+                <div className="info-item flex items-start gap-4">
+                  <span className="text-gray-600 flex items-center min-w-[140px]">
                     <i className="ri-user-line mr-2"></i>Họ và tên:
                   </span>
                   <span className="font-medium">{guest.guest_name}</span>
                 </div>
-                <div className="info-item flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
+                <div className="info-item flex items-start gap-4">
+                  <span className="text-gray-600 flex items-center min-w-[140px]">
                     <i className="ri-men-line mr-2"></i>Giới tính:
                   </span>
-                  <span>{guest.gender === 'male' ? 'Nam' : 'Nữ'}</span>
+                  <span className="font-medium">{guest.gender === 'male' ? 'Nam' : 'Nữ'}</span>
                 </div>
-                <div className="info-item flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
-                    <i className="ri-phone-line mr-2"></i>Số điện thoại:
+                <div className="info-item flex items-start gap-4">
+                  <span className="text-gray-600 flex items-center min-w-[140px]">
+                    <i className="ri-phone-line mr-2"></i>Số điên thoại:
                   </span>
-                  <span>{guest.phone}</span>
+                  <span className="font-medium">{guest.phone}</span>
                 </div>
               </div>
             </div>
 
-            <div className="section bg-blue-50 mt-4 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-              <h5 className="text-xl font-semibold mb-4 text-blue-700 flex items-center">
-                <i className="ri-hospital-line mr-2"></i>
+            <div className="section mt-4 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <h5 className="text-xl font-semibold mb-4 text-blue-700 flex items-start">
+                <i className="ri-hospital-line mr-2 mt-1"></i>
                 Thông tin bác sĩ
               </h5>
               <div className="info-grid space-y-4">
-                <div className="info-item flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
-                    <i className="ri-user-star-line mr-2"></i>Bác sĩ phụ trách:
-                  </span>
-                  <span className="font-medium">{doctor.doctor_name}</span>
-                </div>
-                <div className="info-item flex justify-between items-center">
-                  <span className="text-gray-600 flex items-center">
-                    <i className="ri-stethoscope-line mr-2"></i>Chuyên khoa:
-                  </span>
-                  <span>{doctor.specialty !== 'N/A' ? doctor.specialty : 'Đa khoa'}</span>
-                </div>
+                {doctor ? (
+                  <>
+                    <div className="info-item flex items-start gap-4">
+                      <span className="text-gray-600 flex items-center min-w-[140px]">
+                        <i className="ri-user-star-line mr-2"></i>Bác sĩ phụ trách:
+                      </span>
+                      <span className="font-medium text-left">{doctor.doctor_name || 'Chưa cập nhật'}</span>
+                    </div>
+                    <div className="info-item flex items-start gap-4">
+                      <span className="text-gray-600 flex items-center min-w-[140px]">
+                        <i className="ri-stethoscope-line mr-2"></i>Chuyên khoa:
+                      </span>
+                      <span className="text-left">{doctor.specialty || 'Đa khoa'}</span>
+                    </div>
+                    <div className="info-item flex items-start gap-4">
+                      <span className="text-gray-600 flex items-center min-w-[140px]">
+                        <i className="ri-medal-line mr-2"></i>Kinh nghiệm:
+                      </span>
+                      <span className="text-left">{doctor.exp ? `${doctor.exp} năm` : 'Chưa cập nhật'}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-gray-500 italic">
+                    Không có thông tin bác sĩ
+                  </div>
+                )}
               </div>
             </div>
           </div>
-
+          
           {/* Diagnosis Results */}
           <div className="space-y-6 mb-8">
-            <div className="section bg-blue-50 mt-4 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="section mt-4 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <h5 className="text-xl font-semibold mb-4 text-blue-700 flex items-center">
                 <i className="ri-mental-health-line mr-2"></i>
                 Chẩn đoán
@@ -319,7 +346,7 @@ const KetQuaKham = () => {
               <p className="text-gray-800 whitespace-pre-line">{diagnosis}</p>
             </div>
 
-            <div className="section bg-blue-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div className="section p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <h5 className="text-xl font-semibold mb-4 text-blue-700 flex items-center">
                 <i className="ri-medicine-bottle-line mr-2"></i>
                 Đơn thuốc
@@ -335,7 +362,7 @@ const KetQuaKham = () => {
                   </thead>
                   <tbody>
                     {prescriptionList.map((item, index) => (
-                      <tr key={index} className="bg-white hover:bg-blue-50 transition-colors">
+                      <tr key={index} className="bg-white hover:transition-colors">
                         <td className="border border-blue-300 p-2">{item.medicine || "N/A"}</td>
                         <td className="border border-blue-300 p-2">{item.quantity || "N/A"}</td>
                         <td className="border border-blue-300 p-2">{item.note || "N/A"}</td>
@@ -349,7 +376,7 @@ const KetQuaKham = () => {
             </div>
 
             {note && (
-              <div className="section bg-blue-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="section p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
                 <h3 className="text-xl font-semibold mb-4 text-blue-700 flex items-center">
                   <i className="ri-sticky-note-line mr-2"></i>
                   Ghi chú
@@ -366,7 +393,7 @@ const KetQuaKham = () => {
                 <i className="ri-image-line mr-2"></i>
                 Hình ảnh kết quả
               </h3>
-              <div className="bg-blue-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div className="p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
                 <img
                   src={`http://localhost:8000/storage/${file}`}
                   alt="Kết quả khám"
