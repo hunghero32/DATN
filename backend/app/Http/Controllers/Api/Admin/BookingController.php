@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
@@ -71,6 +72,30 @@ class BookingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Kết quả tìm kiếm đặt lịch khám bệnh',
+            'data' => $data
+        ], 200);
+    }
+
+
+    public function showDoctor($doctor_id)
+    {
+        $today = Carbon::today()->toDateString(); // Lấy ngày hôm nay
+        $data = Booking::join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
+            ->select('doctors.doctor_name', 'bookings.booking_date', 'bookings.booking_time')
+            ->where('bookings.doctor_id', $doctor_id)
+            ->where('bookings.booking_date', '>=', $today)
+            ->where('bookings.isDeleted', 0) // loại bỏ lịch đã bị xóa (nếu có cờ này)
+            ->whereNotIn('bookings.status', ['canceled', 'examining']) // loại bỏ lịch đã hủy hoặc đang khám
+            ->orderBy('bookings.booking_date')
+            ->orderBy('bookings.booking_time')
+            ->get();
+        if ($data->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Không có lịch khám từ hôm nay '], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Danh sách lịch khám   ',
             'data' => $data
         ], 200);
     }

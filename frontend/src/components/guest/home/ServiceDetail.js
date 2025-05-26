@@ -7,6 +7,63 @@ import ChuotChay from "../../loadding/chuotchay";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// Add TimeSlots component here, before ServiceDetail
+const TimeSlots = ({ doctor, selectedDates, generateTimeSlots, handleBooking }) => {
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTimeSlots = async () => {
+      setLoading(true);
+      const filteredSchedules = doctor.schedules
+        .filter((s) => s.working_date === selectedDates[doctor.id]);
+      
+      try {
+        const slotsPromises = filteredSchedules.map(schedule => generateTimeSlots(schedule));
+        const allSlotsArrays = await Promise.all(slotsPromises);
+        const allSlots = allSlotsArrays.flat();
+        setTimeSlots(allSlots);
+      } catch (error) {
+        console.error("Error loading time slots:", error);
+        setTimeSlots([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadTimeSlots();
+  }, [selectedDates[doctor.id], doctor.schedules, doctor.id, generateTimeSlots]);
+
+  if (loading) {
+    return <div className="col-span-full text-center">Loading...</div>;
+  }
+
+  if (timeSlots.length === 0) {
+    return (
+      <div className="col-span-full text-center text-red-500 p-2">
+        Đã hết thời gian làm việc trong ngày
+      </div>
+    );
+  }
+
+  return timeSlots.map((slot) => (
+    <button
+      key={slot.id}
+      className="p-2 rounded-lg bg-blue-100 border hover:border-blue-500 hover:shadow-md"
+      onClick={() =>
+        handleBooking(
+          doctor.id,
+          selectedDates[doctor.id],
+          slot.time_start,
+          slot.scheduleId
+        )
+      }
+    >
+      {slot.time_start} - {slot.time_end}
+    </button>
+  ));
+};
+
 const ServiceDetail = () => {
   // Add this new state at the top with other states
   const [expandedBios, setExpandedBios] = useState({});
@@ -98,20 +155,57 @@ const ServiceDetail = () => {
       fetchAverageRating();
     }
   }, [id]);
-
-  const generateTimeSlots = (schedule) => {
+  const fetchAvailableSlots = async (doctorId, date) => {
+    try {
+      const response = await api.get(`/api/bookings/doctor/${doctorId}`);
+      
+      if (response.data?.success) {
+        // Filter slots for the selected date and format time to match
+        return response.data.data.filter(booking => 
+          booking.booking_date === date && 
+          booking.booking_time.slice(0, 5) // Get only HH:mm part
+        );
+      }
+      return [];
+    } catch (error) {
+      console.error("Error fetching booked slots:", error);
+      return [];
+    }
+  };
+  
+  // Update the generateTimeSlots function
+  const generateTimeSlots = async (schedule) => {
     const slots = [];
     let startTime = new Date(`1970-01-01T${schedule.time_start}`);
     const endTime = new Date(`1970-01-01T${schedule.time_end}`);
     const duration = service?.duration || 30;
-
+  
+    // Fetch booked slots for this schedule
+    const bookedSlots = await fetchAvailableSlots(
+      schedule.doctor_id, 
+      selectedDates[schedule.doctor_id]
+    );
+    
     const isToday = selectedDates[schedule.doctor_id] === todayString;
     const currentTime = new Date();
-
+  
     while (startTime < endTime) {
       const slotEnd = new Date(startTime.getTime() + duration * 60000);
       if (slotEnd > endTime) break;
-
+  
+      const currentSlotTime = startTime.toTimeString().slice(0, 5);
+  
+      // Check if slot is booked - compare exact time format
+      const isBooked = bookedSlots.some(
+        bookedSlot => bookedSlot.booking_time.slice(0, 5) === currentSlotTime
+      );
+      
+      if (isBooked) {
+        startTime.setMinutes(startTime.getMinutes() + duration);
+        continue;
+      }
+  
+      // Skip past time slots for today
       if (isToday) {
         const slotTime = new Date();
         slotTime.setHours(startTime.getHours(), startTime.getMinutes());
@@ -120,12 +214,12 @@ const ServiceDetail = () => {
           continue;
         }
       }
-
+  
       slots.push({
-        id: `${schedule.id}-${startTime.toTimeString().slice(0, 5)}`,
-        time_start: startTime.toTimeString().slice(0, 5),
+        id: `${schedule.id}-${currentSlotTime}`,
+        time_start: currentSlotTime,
         time_end: slotEnd.toTimeString().slice(0, 5),
-        scheduleId: schedule.id // Add this line
+        scheduleId: schedule.id
       });
       startTime.setMinutes(startTime.getMinutes() + duration);
     }
@@ -380,37 +474,12 @@ const ServiceDetail = () => {
               </select>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-                {(() => {
-                  const filteredSchedules = doctor.schedules
-                    .filter((s) => s.working_date === selectedDates[doctor.id]);
-                  
-                  const allSlots = filteredSchedules.flatMap(schedule => generateTimeSlots(schedule));
-                  
-                  if (allSlots.length === 0) {
-                    return (
-                      <div className="col-span-full text-center text-red-500 p-2">
-                        Đã hết thời gian làm việc trong ngày
-                      </div>
-                    );
-                  }
-
-                  return allSlots.map((slot) => (
-                    <button
-                      key={slot.id}
-                      className="p-2 rounded-lg bg-blue-100 border hover:border-blue-500 hover:shadow-md"
-                      onClick={() =>
-                        handleBooking(
-                          doctor.id,
-                          selectedDates[doctor.id],
-                          slot.time_start,
-                          slot.scheduleId // Now this will have the correct schedule ID
-                        )
-                      }
-                    >
-                      {slot.time_start} - {slot.time_end}
-                    </button>
-                  ));
-                })()}
+                <TimeSlots 
+                  doctor={doctor}
+                  selectedDates={selectedDates}
+                  generateTimeSlots={generateTimeSlots}
+                  handleBooking={handleBooking}
+                />
               </div>
             </div>
           </div>
@@ -422,3 +491,4 @@ const ServiceDetail = () => {
 };
 
 export default ServiceDetail;
+

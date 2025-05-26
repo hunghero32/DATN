@@ -38,7 +38,39 @@
                   <div id="collapse{{ $record->id }}{{ $i }}" class="accordion-collapse collapse">
                     <div class="accordion-body" id="printableResult{{ $record->id }}{{ $i }}">
                       <p><strong>Chẩn đoán:</strong> {{ $result->diagnosis ?? '...' }}</p>
-                      <p><strong>Đơn thuốc:</strong> {{ $result->prescription ?? '...' }}</p>
+                      <div class="mt-3">
+                        <strong>Đơn thuốc:</strong>
+                        @php
+                          $prescriptionList = [];
+                          try {
+                            $prescriptionList = $result->prescription ? json_decode($result->prescription, true) : [];
+                          } catch (\Exception $e) {
+                            $prescriptionList = [];
+                          }
+                        @endphp
+                        @if (!empty($prescriptionList) && is_array($prescriptionList))
+                          <table class="table table-bordered mt-2">
+                            <thead>
+                              <tr>
+                                <th>Tên Thuốc</th>
+                                <th>Số lượng</th>
+                                <th>Ghi chú</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @foreach ($prescriptionList as $item)
+                                <tr>
+                                  <td>{{ $item['medicine'] ?? 'N/A' }}</td>
+                                  <td>{{ $item['quantity'] ?? 'N/A' }}</td>
+                                  <td>{{ $item['note'] ?? 'N/A' }}</td>
+                                </tr>
+                              @endforeach
+                            </tbody>
+                          </table>
+                        @else
+                          <p class="text-muted mt-2">Không có đơn thuốc</p>
+                        @endif
+                      </div>
                       <p><strong>Ghi chú:</strong> {{ $result->note ?? '...' }}</p>
                       <p><strong>Ngày tạo:</strong> {{ $result->created_at->format('d/m/Y H:i') }}</p>
                       <p>
@@ -70,3 +102,13 @@
     </div>
   </div>
 </div>
+
+<script>
+  function printResult(elementId) {
+    const printContent = document.getElementById(elementId).innerHTML;
+    const originalContent = document.body.innerHTML;
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalContent;
+  }
+</script>

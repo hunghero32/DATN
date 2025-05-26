@@ -104,6 +104,9 @@ Route::apiResource('invoice-details', InvoiceDetailController::class);
 Route::apiResource('feedbacks', FeedbackController::class);
 Route::apiResource('doctors',DoctorController::class);
 Route::apiResource('schedules',SchedulesController::class);
+Route::get('bookings/doctor/{doctor_id}', [BookingController::class, 'showDoctor']);
 Route::apiResource('bookings',BookingController::class);
+
+
 Route::apiResource('services', ServiceController::class);
 Route::apiResource('users', UserController::class);

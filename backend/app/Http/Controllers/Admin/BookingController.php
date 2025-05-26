@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\NotificationEmail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
@@ -21,13 +22,52 @@ class BookingController extends Controller
     public function index()
     {
         $perPage = request()->get('per_page', 10);
-        $data = Booking::join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
+        $today = date('Y-m-d');
+
+        // Lấy tất cả dữ liệu booking
+        $bookings = Booking::join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
             ->join('guests', 'bookings.guest_id', '=', 'guests.id')
             ->join('services', 'bookings.service_id', '=', 'services.id')
             ->select('bookings.*', 'guests.guest_name')
             ->where('bookings.isDeleted', 0)
-            ->orderBy('bookings.created_at', 'desc')
-            ->paginate($perPage);
+            ->get();
+
+        // Phân loại các lịch đặt
+        $currentBookings = [];
+        $futureBookings = [];
+        $pastBookings = [];
+
+        foreach ($bookings as $booking) {
+            if ($booking->booking_date == $today) {
+                $currentBookings[] = $booking;
+            } elseif ($booking->booking_date > $today) {
+                $futureBookings[] = $booking;
+            } else {
+                $pastBookings[] = $booking;
+            }
+        }
+
+        // Sắp xếp các lịch đặt tương lai theo thứ tự tăng dần theo ngày
+        usort($futureBookings, function($a, $b) {
+            return strcmp($a->booking_date, $b->booking_date);
+        });
+
+        // Sắp xếp các lịch đặt quá khứ theo thứ tự giảm dần theo ngày (gần nhất trước)
+        usort($pastBookings, function($a, $b) {
+            return strcmp($b->booking_date, $a->booking_date);
+        });
+
+        // Kết hợp các mảng theo thứ tự: hiện tại, tương lai, quá khứ
+        $sortedBookings = array_merge($currentBookings, $futureBookings, $pastBookings);
+
+        // Phân trang kết quả
+        $data = new \Illuminate\Pagination\LengthAwarePaginator(
+            array_slice($sortedBookings, ($perPage * (request()->get('page', 1) - 1)), $perPage),
+            count($sortedBookings),
+            $perPage,
+            request()->get('page', 1),
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         $doctors = Doctor::join('bookings', 'doctors.id', '=', 'bookings.doctor_id')
             ->where('doctors.isDeleted', 0)
@@ -90,8 +130,46 @@ class BookingController extends Controller
             $query->where('bookings.service_id', $request->input('service_id'));
         }
 
-        $data = $query->orderBy('bookings.created_at', 'desc')
-            ->paginate($perPage);
+        // Lấy tất cả dữ liệu booking theo điều kiện tìm kiếm
+        $bookings = $query->get();
+        $today = date('Y-m-d');
+
+        // Phân loại các lịch đặt
+        $currentBookings = [];
+        $futureBookings = [];
+        $pastBookings = [];
+
+        foreach ($bookings as $booking) {
+            if ($booking->booking_date == $today) {
+                $currentBookings[] = $booking;
+            } elseif ($booking->booking_date > $today) {
+                $futureBookings[] = $booking;
+            } else {
+                $pastBookings[] = $booking;
+            }
+        }
+
+        // Sắp xếp các lịch đặt tương lai theo thứ tự tăng dần theo ngày
+        usort($futureBookings, function($a, $b) {
+            return strcmp($a->booking_date, $b->booking_date);
+        });
+
+        // Sắp xếp các lịch đặt quá khứ theo thứ tự giảm dần theo ngày (gần nhất trước)
+        usort($pastBookings, function($a, $b) {
+            return strcmp($b->booking_date, $a->booking_date);
+        });
+
+        // Kết hợp các mảng theo thứ tự: hiện tại, tương lai, quá khứ
+        $sortedBookings = array_merge($currentBookings, $futureBookings, $pastBookings);
+
+        // Phân trang kết quả
+        $data = new \Illuminate\Pagination\LengthAwarePaginator(
+            array_slice($sortedBookings, ($perPage * ($request->get('page', 1) - 1)), $perPage),
+            count($sortedBookings),
+            $perPage,
+            $request->get('page', 1),
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
         $data->appends($request->all());
 
         // Get data for dropdowns
@@ -118,15 +196,45 @@ class BookingController extends Controller
     {
         try {
             $booking = Booking::findOrFail($id);
-            $booking->status = $request->status;
+            $currentStatus = $booking->status;
+            $newStatus = $request->status;
+
+            // Kiểm tra các điều kiện không cho phép thay đổi trạng thái
+
+            // Định nghĩa thứ tự trạng thái
+            $statusOrder = [
+                'pending' => 1,
+                'confirmed' => 2,
+                'examining' => 3,
+                'completed' => 4,
+                'canceled' => 5
+            ];
+
+            // Không cho phép hủy khi đang khám hoặc đã hoàn thành
+            if ($newStatus === 'canceled' && ($currentStatus === 'examining' || $currentStatus === 'completed')) {
+                return redirect()->back()->with('error', 'Không thể hủy lịch khám đang trong trạng thái đang khám hoặc đã hoàn thành');
+            }
+
+            // Không cho phép chuyển từ trạng thái cao hơn về trạng thái thấp hơn (trừ trường hợp hủy)
+            if ($newStatus !== 'canceled' && isset($statusOrder[$currentStatus]) && isset($statusOrder[$newStatus])) {
+                if ($statusOrder[$newStatus] < $statusOrder[$currentStatus]) {
+                    $statusNames = config('app.order_statuses');
+                    return redirect()->back()->with('error', "Không thể chuyển từ trạng thái '{$statusNames[$currentStatus]}' về trạng thái '{$statusNames[$newStatus]}'.");
+                }
+            }
+
+            // Cập nhật trạng thái nếu thỏa mãn điều kiện
+            $booking->status = $newStatus;
             $booking->save();
 
-            // 2. Gửi email thông báo nếu booking liên kết với guest có email
-            //    (giả sử bảng guests có cột `email`)
+            // Gửi email thông báo nếu booking liên kết với guest có email
             $guest = $booking->guest;
             if ($guest && isset($guest->email)) {
+                $statusNames = config('app.order_statuses');
+                $statusText = isset($statusNames[$booking->status]) ? $statusNames[$booking->status] : $booking->status;
+
                 $title   = 'Cập nhật trạng thái đặt lịch';
-                $content = "Lịch khám #{$booking->id} của bạn đã được cập nhật sang trạng thái: {$booking->status}.";
+                $content = "Lịch khám #{$booking->id} của bạn đã được cập nhật sang trạng thái: {$statusText}.";
 
                 $url     = route('admin.bookings.edit', ['booking' => $booking->id]);
 
@@ -136,7 +244,7 @@ class BookingController extends Controller
 
             return redirect()->back()->with('success', 'Cập nhật trạng thái thành công');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật trạng thái');
+            return redirect()->back()->with('error', 'Có lỗi xảy ra khi cập nhật trạng thái: ' . $e->getMessage());
         }
     }
     public function create()
@@ -323,17 +431,43 @@ class BookingController extends Controller
             return response()->json([]);
         }
 
-        // Lấy các ngày làm việc của bác sĩ từ bảng lịch làm việc
+        // Lấy tất cả các ngày làm việc của bác sĩ từ bảng lịch làm việc
         $workingDates = DB::table('schedules')
             ->where('doctor_id', $doctorId)
-            ->where('working_date', '>=', date('Y-m-d'))
             ->where('status', 1)
             ->where('isDeleted', 0)
             ->distinct()
             ->pluck('working_date')
             ->toArray();
 
-        return response()->json($workingDates);
+        // Lấy ngày hiện tại
+        $today = date('Y-m-d');
+
+        // Phân loại các ngày làm việc
+        $currentDates = [];
+        $futureDates = [];
+        $pastDates = [];
+
+        foreach ($workingDates as $date) {
+            if ($date == $today) {
+                $currentDates[] = $date;
+            } elseif ($date > $today) {
+                $futureDates[] = $date;
+            } else {
+                $pastDates[] = $date;
+            }
+        }
+
+        // Sắp xếp các ngày tương lai theo thứ tự tăng dần
+        sort($futureDates);
+
+        // Sắp xếp các ngày quá khứ theo thứ tự giảm dần (gần nhất trước)
+        rsort($pastDates);
+
+        // Kết hợp các mảng theo thứ tự: hiện tại, tương lai, quá khứ
+        $sortedDates = array_merge($currentDates, $futureDates, $pastDates);
+
+        return response()->json($sortedDates);
     }
     public function getDoctorServices(Request $request)
     {
@@ -396,7 +530,6 @@ class BookingController extends Controller
 
     public function getAvailableTimeSlots(Request $request)
     {
-
         $doctorId = $request->input('doctor_id');
         $date = $request->input('date');
 
@@ -417,7 +550,6 @@ class BookingController extends Controller
             ->select('id', 'time_start', 'time_end')
             ->get();
 
-
         // Check booking count for each time slot
         foreach ($timeSlots as $key => $slot) {
             // Count current bookings for this time slot
@@ -432,9 +564,43 @@ class BookingController extends Controller
             $timeSlots[$key]->booking_count = $bookingCount;
         }
 
+        // Sắp xếp thời gian theo thứ tự: hiện tại, tương lai, quá khứ
+        $currentTime = now()->format('H:i:s');
+
+        // Chuyển collection thành mảng để sắp xếp
+        $timeSlotsArray = $timeSlots->toArray();
+
+        // Phân loại các khung giờ
+        $currentSlots = [];
+        $futureSlots = [];
+        $pastSlots = [];
+
+        foreach ($timeSlotsArray as $slot) {
+            if ($slot->time_start == $currentTime) {
+                $currentSlots[] = $slot;
+            } elseif ($slot->time_start > $currentTime) {
+                $futureSlots[] = $slot;
+            } else {
+                $pastSlots[] = $slot;
+            }
+        }
+
+        // Sắp xếp các khung giờ tương lai theo thứ tự tăng dần
+        usort($futureSlots, function($a, $b) {
+            return strcmp($a->time_start, $b->time_start);
+        });
+
+        // Sắp xếp các khung giờ quá khứ theo thứ tự tăng dần
+        usort($pastSlots, function($a, $b) {
+            return strcmp($a->time_start, $b->time_start);
+        });
+
+        // Kết hợp các mảng theo thứ tự: hiện tại, tương lai, quá khứ
+        $sortedTimeSlots = array_merge($currentSlots, $futureSlots, $pastSlots);
+
         return response()->json([
             'success' => true,
-            'time_slots' => array_values($timeSlots->toArray())
+            'time_slots' => $sortedTimeSlots
         ]);
     }
 }

@@ -224,7 +224,7 @@ class DashboardController extends Controller
             ->whereBetween('bookings.booking_date', [$startDate, $endDate])
             ->groupBy('doctors.id', 'doctors.doctor_name')
             ->orderBy('appointment_count', 'desc')
-          
+
             ->get();
 
         // Lấy bác sĩ có doanh thu cao nhất
@@ -243,23 +243,18 @@ class DashboardController extends Controller
 
             ->get();
 
-        // Lấy bác sĩ có lợi nhuận cao nhất (dựa trên doctor_fee)
+        // Lấy bác sĩ có lợi nhuận cao nhất (dựa trên doctor_fee từ bảng bookings)
         $topProfitDoctors = DB::table('bookings')
             ->select(
                 'doctors.id',
                 'doctors.doctor_name',
-                DB::raw('SUM(doctor_service.doctor_fee) as total_profit')
+                DB::raw('SUM(bookings.doctor_fee) as total_profit')
             )
             ->join('doctors', 'bookings.doctor_id', '=', 'doctors.id')
-            ->join('doctor_service', function($join) {
-                $join->on('bookings.doctor_id', '=', 'doctor_service.doctor_id')
-                     ->on('bookings.service_id', '=', 'doctor_service.service_id');
-            })
             ->whereBetween('bookings.booking_date', [$startDate, $endDate])
             ->where('bookings.status', 'completed')
             ->groupBy('doctors.id', 'doctors.doctor_name')
             ->orderBy('total_profit', 'desc')
-
             ->get();
 
 

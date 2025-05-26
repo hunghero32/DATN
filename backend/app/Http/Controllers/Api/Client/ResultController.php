@@ -51,7 +51,8 @@ class ResultController extends Controller
                 'doctor' => [
                     'id' => $results->doctor->id ?? null,
                     'doctor_name' => $results->doctor->doctor_name ?? 'N/A',
-                    'specialty' => $results->doctor->specialty->specialty_name ?? 'N/A'
+                    'specialty' => $results->doctor->specialty->name ?? 'N/A',
+                    'exp' => $results->doctor->exp ?? 'N/A',
                 ],
                 'guest' => [
                     'guest_name' => $results->guest->guest_name ?? 'N/A',

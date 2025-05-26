@@ -2,11 +2,8 @@
 
 @section('content')
 <div class="container mt-4">
-    {{-- <h2 class="mb-4 text-center text-uppercase text-primary fw-bold">Chi Tiết Hóa Đơn</h2> --}}
-
     @foreach($invoiceDetails as $detail)
     <div class="card shadow-lg mb-4">
-
         <div class="card-body mt-4" id="invoice-{{ $detail->invoice_id }}">
             <div class="card-header text-center border-bottom border-1 border-primary pb-3 mb-3">
                 <h4 class="mb-1 fw-bold text-uppercase text-dark">HÓA ĐƠN KHÁM BỆNH</h4>
@@ -30,7 +27,6 @@
                 </div>
             </div>
 
-
             <h5 class="fw-bold text-secondary mt-4">Chi Tiết Dịch Vụ</h5>
             <div class="border-top border-2 border-primary my-3 shadow-sm opacity-75"></div>
             <table class="table table-bordered">
@@ -51,13 +47,46 @@
                     </tr>
                 </tbody>
             </table>
+
             <h5 class="fw-bold text-secondary mt-4">Kết Quả Khám Bệnh</h5>
             <div class="border-top border-2 border-primary my-3 shadow-sm opacity-75"></div>
 
             @if ($detail->booking->result)
             <div class="mb-3">
                 <p><strong>Chuẩn Đoán:</strong> {{ $detail->booking->result->diagnosis ?? 'Không có dữ liệu' }}</p>
-                <p><strong>Chỉ Định:</strong> {{ $detail->booking->result->prescription ?? 'Không có dữ liệu' }}</p>
+                <div class="mt-3">
+                    <strong>Chỉ Định:</strong>
+                    @php
+                        $instructionList = [];
+                        try {
+                            $instructionList = $detail->booking->result->prescription ? json_decode($detail->booking->result->prescription, true) : [];
+                        } catch (\Exception $e) {
+                            $instructionList = [];
+                        }
+                    @endphp
+                    @if (!empty($instructionList) && is_array($instructionList))
+                    <table class="table table-bordered mt-2">
+                        <thead>
+                            <tr>
+                                <th>Tên Thuốc</th>
+                                <th>Số lượng</th>
+                                <th>Ghi chú</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($instructionList as $item)
+                            <tr>
+                                <td>{{ $item['medicine'] ?? 'N/A' }}</td>
+                                <td>{{ $item['quantity'] ?? 'N/A' }}</td>
+                                <td>{{ $item['note'] ?? 'N/A' }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @else
+                    <p class="text-muted mt-2">Không có chỉ định</p>
+                    @endif
+                </div>
                 @if (!empty($detail->booking->result->note))
                 <p><strong>Ghi Chú:</strong> {{ $detail->booking->result->note }}</p>
                 @endif
@@ -65,6 +94,7 @@
             @else
             <div class="text-muted fst-italic">Chưa có kết quả khám bệnh.</div>
             @endif
+
             <h5 class="fw-bold text-secondary mt-4">Chi Tiết Thanh Toán</h5>
             <div class="border-top border-2 border-primary my-3 shadow-sm opacity-75"></div>
 
@@ -90,31 +120,22 @@
             <div class="card-header text-center">
                 <p class="mb-0 text-muted fst-italic">Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi</p>
                 <p class="mb-0 text-muted fst-italic">Vui lòng giữ hóa đơn để đối chiếu khi cần thiết</p>
-
             </div>
         </div>
-
     </div>
+
     <div class="card-header d-flex justify-content-between align-items-center d-print-none">
         <div class="d-flex">
             <a href="{{ route('invoice_details.edit', $detail->id) }}" class="btn btn-warning me-2">
                 <i class="fas fa-edit"></i> Sửa
             </a>
-
-            {{-- <form action="{{ route('invoice_details.delete', $detail->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa không?');">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger">
-                <i class="fas fa-trash-alt"></i> Xóa
-            </button>
-            </form> --}}
         </div>
 
         <button class="btn btn-primary mt-3" onclick="printInvoice('{{ $detail->invoice_id }}')">
             <i class="fas fa-print"></i> In Hóa Đơn
         </button>
     </div>
-@endforeach
+    @endforeach
 </div>
 @endsection
 
@@ -202,7 +223,7 @@
         break-inside: avoid !important;
     }
 }
-                `;
+        `;
 
         document.head.appendChild(style);
         window.print();
