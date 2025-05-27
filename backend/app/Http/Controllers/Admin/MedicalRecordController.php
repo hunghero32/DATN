@@ -72,7 +72,6 @@ class MedicalRecordController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'guest_id' => 'required|exists:guests,id',
             'BHYT' => 'nullable|string|max:50',
             'medical_condition' => 'nullable|string',
             'medications' => 'nullable|string',
