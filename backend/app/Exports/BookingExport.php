@@ -9,8 +9,10 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-class BookingExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class BookingExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithEvents
 {
     use Exportable;
 
@@ -78,13 +80,49 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'Ngày Đặt',
             'Giờ Đặt',
             'Giá gốc dịch vụ',
-            'Phí bác sĩ',
             'Giảm Giá',
             'Thuế',
             'Tổng Tiền',
-            'Trạng Thái',
+            'Phí bác sĩ',
+            'Trạng thái khách hàng',
         ];
     }
+
+    public function registerEvents(): array
+{
+    return [
+        AfterSheet::class => function (AfterSheet $event) {
+            $rows = $event->sheet->getDelegate()->getHighestRow(); 
+            $totalServicePrice = 0;
+            $totalDoctorFee = 0;
+
+            for ($row = 2; $row <= $rows; $row++) {
+                $servicePrice = $event->sheet->getDelegate()->getCell('O' . $row)->getValue(); 
+                $doctorFee = $event->sheet->getDelegate()->getCell('P' . $row)->getValue();    
+                $totalServicePrice += floatval($servicePrice);
+                $totalDoctorFee += floatval($doctorFee);
+            }
+
+            $summaryRow = $rows + 2;
+            $event->sheet->setCellValue('K' . $summaryRow, 'TỔNG CỘNG:');
+            $event->sheet->setCellValue('O' . $summaryRow, $totalServicePrice);
+            $event->sheet->setCellValue('P' . $summaryRow, $totalDoctorFee);
+            
+            // $profit = $totalServicePrice - $totalDoctorFee;
+
+            $styleRange = 'K' . $summaryRow . ':P' . $summaryRow;
+
+            $event->sheet->getStyle($styleRange)->getFont()->setBold(true);
+            $event->sheet->getStyle($styleRange)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('D9EDF7');
+            $event->sheet->getStyle($styleRange)->getFont()
+                ->getColor()->setRGB('FF0000');
+            // $event->sheet->setCellValue('K' . ($summaryRow + 2), 'LỢI NHUẬN:');
+            // $event->sheet->setCellValue('O' . ($summaryRow + 2), $profit);
+        },
+    ];
+}
 
     public function map($booking): array
     {
@@ -114,10 +152,10 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             $booking->booking_date,
             $booking->booking_time,
             $booking->service_price,
-            $booking->doctor_fee,
             $invoice->discount ?? 'N/A',
             $invoice->tax ?? 'N/A',
             $invoice->total_amount ?? 'N/A',
+            $booking->doctor_fee,
             $status ?? 'N/A',
         ];
     }

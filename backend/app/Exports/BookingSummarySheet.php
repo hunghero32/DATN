@@ -79,12 +79,12 @@ class BookingSummarySheet implements FromArray, WithEvents, WithStyles
 
             $result[] = ['', '', '', 'Tổng', $totalService, $totalFee, ''];
             $result[] = ['']; 
-            $grandTotalService += $totalService;
-            $grandTotalFee += $totalFee;
+            // $grandTotalService += $totalService;
+            // $grandTotalFee += $totalFee;
         }
-            $result[] = ['TỔNG TẤT CẢ'];
-            $result[] = ['', '', '', '', 'Tổng giá dịch vụ', $grandTotalService];
-            $result[] = ['', '', '', '', 'Tổng phí bác sĩ', $grandTotalFee];
+            // $result[] = ['TỔNG TẤT CẢ'];
+            // $result[] = ['', '', '', '', 'Tổng giá dịch vụ', $grandTotalService];
+            // $result[] = ['', '', '', '', 'Tổng phí bác sĩ', $grandTotalFee];
         return $result;
     }
 
@@ -95,7 +95,7 @@ class BookingSummarySheet implements FromArray, WithEvents, WithStyles
             'Tên Dịch Vụ',
             'Giờ Đặt',
             'Tên Bệnh Nhân',
-            'Giá gốc dịch vụ',
+            'Giá dịch vụ',
             'Phí bác sĩ',
             'Ngày Đặt',
         ];
