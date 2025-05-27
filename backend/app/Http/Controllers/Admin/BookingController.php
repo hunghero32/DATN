@@ -386,6 +386,16 @@ class BookingController extends Controller
             // Lấy thông tin bác sĩ và dịch vụ để lưu vào booking
             $doctor = Doctor::findOrFail($request->doctor_id);
             $service = Services::findOrFail($request->service_id);
+            
+            // Lấy doctor_fee từ bảng doctor_service
+            $doctorService = DoctorService::where('doctor_id', $request->doctor_id)
+                ->where('service_id', $request->service_id)
+                ->first();
+            if (!$doctorService) {
+                return redirect()->back()
+                    ->with('error', 'Không tìm thấy thông tin phí bác sĩ cho dịch vụ này')
+                    ->withInput();
+            }
 
             // Tạo booking mới
             $booking = new Booking();
@@ -395,6 +405,7 @@ class BookingController extends Controller
             $booking->service_id = $request->service_id;
             $booking->service_name = $service->services_name;
             $booking->service_price = $service->price;
+            $booking->doctor_fee = $doctorService->doctor_fee;
             $booking->booking_date = $request->booking_date;
             $booking->booking_time = $request->booking_time;
             $booking->status = 'pending';
