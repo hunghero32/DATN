@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Form, Button } from "react-bootstrap";
-import { FaChevronDown, FaChevronUp, FaFileMedical, FaNotesMedical, FaCalendarAlt, FaUserMd, FaPrescriptionBottleAlt } from "react-icons/fa";
+import { Modal, Form, Button, Table } from "react-bootstrap";
+import { FaChevronDown, FaChevronUp, FaFileMedical, FaNotesMedical, FaCalendarAlt, FaUserMd, FaPrescriptionBottleAlt, FaTrash } from "react-icons/fa";
 
 const MedicalRecordModal = ({
   show,
@@ -61,6 +61,45 @@ const MedicalRecordModal = ({
       day: "2-digit",
       month: "long",
       year: "numeric",
+    });
+  };
+
+  // Parse and format prescription data to array if it's a JSON string
+  const parsePrescription = (prescription) => {
+    if (!prescription) return [];
+    try {
+      return Array.isArray(prescription) ? prescription : JSON.parse(prescription);
+    } catch (e) {
+      return [{ medicine: prescription, quantity: "", note: "" }];
+    }
+  };
+
+  // Add new medicine entry
+  const addMedicine = () => {
+    setMedicalForm((prev) => ({
+      ...prev,
+      medications: [
+        ...(parsePrescription(prev.medications) || []),
+        { medicine: "", quantity: "", note: "" },
+      ],
+    }));
+  };
+
+  // Remove medicine entry
+  const removeMedicine = (index) => {
+    setMedicalForm((prev) => {
+      const meds = parsePrescription(prev.medications);
+      meds.splice(index, 1);
+      return { ...prev, medications: meds };
+    });
+  };
+
+  // Update medicine entry
+  const updateMedicine = (index, field, value) => {
+    setMedicalForm((prev) => {
+      const meds = parsePrescription(prev.medications);
+      meds[index] = { ...meds[index], [field]: value };
+      return { ...prev, medications: meds };
     });
   };
 
@@ -275,6 +314,44 @@ const MedicalRecordModal = ({
             background-color: #3b82f6;
             color: #fff;
           }
+
+          .medicine-table {
+            margin-bottom: 1rem;
+          }
+
+          .medicine-table th,
+          .medicine-table td {
+            vertical-align: middle;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+          }
+
+          .medicine-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+          }
+
+          .medicine-table td input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.5rem;
+          }
+
+          .delete-btn {
+            color: #ef4444;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+          }
+
+          .delete-btn:hover {
+            background-color: #fee2e2;
+          }
         `}
       </style>
 
@@ -329,13 +406,30 @@ const MedicalRecordModal = ({
                   </div>
                 </div>
 
-                <div className="col-md-6">
+                <div className="col-12">
                   <div className="info-group">
                     <div className="info-label">
                       <FaPrescriptionBottleAlt /> Thuốc
                     </div>
                     <div className="info-value">
-                      {medicalRecord.medications || "Không có dữ liệu"}
+                      <Table striped bordered hover className="medicine-table">
+                        <thead>
+                          <tr>
+                            <th>Tên Thuốc</th>
+                            <th>Số lượng</th>
+                            <th>Ghi chú</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {parsePrescription(medicalRecord.medications).map((item, index) => (
+                            <tr key={index}>
+                              <td>{item.medicine || "Không có dữ liệu"}</td>
+                              <td>{item.quantity || "Không có dữ liệu"}</td>
+                              <td>{item.note || "Không có dữ liệu"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
                     </div>
                   </div>
                 </div>
@@ -422,21 +516,66 @@ const MedicalRecordModal = ({
                   </Form.Group>
                 </div>
 
-                <div className="col-md-6">
-                  <Form.Group>
-                    <Form.Label>Thuốc:</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={medicalForm.medications || ""}
-                      onChange={(e) =>
-                        setMedicalForm({
-                          ...medicalForm,
-                          medications: e.target.value,
-                        })
-                      }
-                      placeholder="Nhập thông tin thuốc"
-                    />
-                  </Form.Group>
+                <div className="col-12">
+                  <div className="info-group">
+                    <div className="info-label">
+                      <FaPrescriptionBottleAlt /> Thuốc
+                    </div>
+                    <div className="info-value">
+                      <Table striped bordered hover className="medicine-table">
+                        <thead>
+                          <tr>
+                            <th>Tên Thuốc</th>
+                            <th>Số lượng</th>
+                            <th>Ghi chú</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {parsePrescription(medicalForm.medications).map((item, index) => (
+                            <tr key={index}>
+                              <td>
+                                <Form.Control
+                                  type="text"
+                                  value={item.medicine || ""}
+                                  onChange={(e) => updateMedicine(index, "medicine", e.target.value)}
+                                  placeholder="Nhập tên thuốc"
+                                />
+                              </td>
+                              <td>
+                                <Form.Control
+                                  type="text"
+                                  value={item.quantity || ""}
+                                  onChange={(e) => updateMedicine(index, "quantity", e.target.value)}
+                                  placeholder="Nhập số lượng"
+                                />
+                              </td>
+                              <td>
+                                <Form.Control
+                                  type="text"
+                                  value={item.note || ""}
+                                  onChange={(e) => updateMedicine(index, "note", e.target.value)}
+                                  placeholder="Nhập ghi chú"
+                                />
+                              </td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="delete-btn"
+                                  onClick={() => removeMedicine(index)}
+                                >
+                                  <FaTrash />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                      <Button variant="outline-primary" onClick={addMedicine} className="mt-2">
+                        Thêm Thuốc
+                      </Button>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="col-md-6">
@@ -614,7 +753,24 @@ const MedicalRecordModal = ({
                       <div className="info-group">
                         <div className="info-label">Đơn thuốc</div>
                         <div className="info-value">
-                          {result.prescription || "Không có đơn thuốc"}
+                          <Table striped bordered hover className="medicine-table">
+                            <thead>
+                              <tr>
+                                <th>Tên Thuốc</th>
+                                <th>Số lượng</th>
+                                <th>Ghi chú</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {parsePrescription(result.prescription).map((item, idx) => (
+                                <tr key={idx}>
+                                  <td>{item.medicine || "Không có dữ liệu"}</td>
+                                  <td>{item.quantity || "Không có dữ liệu"}</td>
+                                  <td>{item.note || "Không có dữ liệu"}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </Table>
                         </div>
                       </div>
 
