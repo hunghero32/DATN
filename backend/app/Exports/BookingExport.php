@@ -79,8 +79,8 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'Giờ Đặt',
             'Giá gốc dịch vụ',
             'Phí bác sĩ',
-            'Giảm Giá',
-            'Thuế',
+            // 'Giảm Giá',
+            // 'Thuế',
             'Tổng Tiền',
             'Trạng Thái',
         ];
@@ -115,8 +115,8 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             $booking->booking_time,
             $booking->service_price,
             $booking->doctor_fee,
-            $invoice->discount ?? 'N/A',
-            $invoice->tax ?? 'N/A',
+            // $invoice->discount ?? 'N/A',
+            // $invoice->tax ?? 'N/A',
             $invoice->total_amount ?? 'N/A',
             $status ?? 'N/A',
         ];
