@@ -570,6 +570,7 @@
     .select2-container {
         position: relative;
         width: 100%;
+        z-index: unset !important;
     }
 
     .select2-selection {

@@ -431,41 +431,36 @@ class BookingController extends Controller
             return response()->json([]);
         }
 
-        // Lấy tất cả các ngày làm việc của bác sĩ từ bảng lịch làm việc
+        // Lấy ngày hiện tại
+        $today = date('Y-m-d');
+
+        // Lấy các ngày làm việc của bác sĩ từ bảng lịch làm việc (chỉ lấy ngày hiện tại và tương lai)
         $workingDates = DB::table('schedules')
             ->where('doctor_id', $doctorId)
             ->where('status', 1)
             ->where('isDeleted', 0)
+            ->where('working_date', '>=', $today) // Chỉ lấy ngày hiện tại và tương lai
             ->distinct()
             ->pluck('working_date')
             ->toArray();
 
-        // Lấy ngày hiện tại
-        $today = date('Y-m-d');
-
         // Phân loại các ngày làm việc
         $currentDates = [];
         $futureDates = [];
-        $pastDates = [];
 
         foreach ($workingDates as $date) {
             if ($date == $today) {
                 $currentDates[] = $date;
-            } elseif ($date > $today) {
+            } else { // $date > $today
                 $futureDates[] = $date;
-            } else {
-                $pastDates[] = $date;
             }
         }
 
         // Sắp xếp các ngày tương lai theo thứ tự tăng dần
         sort($futureDates);
 
-        // Sắp xếp các ngày quá khứ theo thứ tự giảm dần (gần nhất trước)
-        rsort($pastDates);
-
-        // Kết hợp các mảng theo thứ tự: hiện tại, tương lai, quá khứ
-        $sortedDates = array_merge($currentDates, $futureDates, $pastDates);
+        // Kết hợp các mảng theo thứ tự: hiện tại, tương lai
+        $sortedDates = array_merge($currentDates, $futureDates);
 
         return response()->json($sortedDates);
     }
