@@ -75,7 +75,8 @@
                                     <td>
                                         <button type="button" class="btn btn-sm border-danger btn-warning btn-show-guest"
                                             data-bs-toggle="modal" data-bs-target="#guestModal"
-                                            data-id="{{ $guest->id }}" data-name="{{ $guest->user->name ?? 'N/A' }}"
+                                            data-id="{{ $guest->id }}"
+                                            data-name="{{ $guest->guest_name ?? (optional($guest->user)->name ?? 'N/A') }}"
                                             data-gender="{{ $genderMapping[$guest->gender] ?? 'Không xác định' }}"
                                             data-birthday="{{ $guest->birthday ?? 'N/A' }}"
                                             data-phone="{{ $guest->guest_phone ?? 'N/A' }}"
@@ -131,11 +132,11 @@
                         <div class="col-8" id="modalGuestAddress"></div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light rounded-bottom">
-                    <a href="#" id="btnViewMedicalRecord" class="btn btn-primary" >
+                <div class="modal-footer  rounded-bottom">
+                    <a href="#" id="btnViewMedicalRecord" class="btn btn-primary">
                         Hồ sơ bệnh án
                     </a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+
                 </div>
             </div>
         </div>
@@ -163,9 +164,9 @@
 
                         const guestId = this.getAttribute('data-id');
                         const route = `{{ url('admin/guests') }}/${guestId}`;
-                     btnViewMedicalRecord.onclick = function () {
-                    window.location.href = route;
-                     }
+                        btnViewMedicalRecord.onclick = function() {
+                            window.location.href = route;
+                        }
                     });
                 });
             });

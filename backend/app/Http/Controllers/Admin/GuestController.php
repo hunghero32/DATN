@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use Illuminate\Support\Facades\Storage;
 
 use App\Http\Requests\StoreGuestRequest;
@@ -46,7 +47,8 @@ class GuestController extends Controller
             }
         }
 
-        $guests = $query->paginate(10);
+        $guests = Guest::with('user')->paginate(10);
+
 
         return view('admin.pages.guests.index', compact('guests'));
     }
@@ -95,12 +97,12 @@ class GuestController extends Controller
      */
     public function show(string $id)
     {
-            $guest = Guest::find($id); 
-        // Lấy các hồ sơ y tế của khách mời, sắp xếp theo ngày khám giảm dần
-    $records = MedicalRecord::where('guest_id', $id)
-                            ->orderByDesc('created_at')
-                            ->get();
-        return view('admin.pages.guests.show', compact('guest','records'));
+        $guest = Guest::find($id);
+
+        $records = MedicalRecord::where('guest_id', $id)
+            ->orderByDesc('created_at')
+            ->get();
+        return view('admin.pages.guests.show', compact('guest', 'records'));
     }
 
     /**
@@ -128,5 +130,4 @@ class GuestController extends Controller
             'succers' => 'Ban da xoa thanh cong'
         ]);
     }
-
 }
