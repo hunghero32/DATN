@@ -9,8 +9,10 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 
-class BookingExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class BookingExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithEvents
 {
     use Exportable;
 
@@ -85,6 +87,31 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'Trạng Thái',
         ];
     }
+
+    public function registerEvents(): array
+{
+    return [
+        AfterSheet::class => function (AfterSheet $event) {
+            $rows = $event->sheet->getDelegate()->getHighestRow(); 
+            $totalServicePrice = 0;
+            $totalDoctorFee = 0;
+
+            for ($row = 2; $row <= $rows; $row++) {
+                $servicePrice = $event->sheet->getDelegate()->getCell('L' . $row)->getValue(); 
+                $doctorFee = $event->sheet->getDelegate()->getCell('M' . $row)->getValue();    
+                $totalServicePrice += floatval($servicePrice);
+                $totalDoctorFee += floatval($doctorFee);
+            }
+
+            $summaryRow = $rows + 1;
+            $event->sheet->setCellValue('K' . $summaryRow, 'TỔNG CỘNG:');
+            $event->sheet->setCellValue('L' . $summaryRow, $totalServicePrice);
+            $event->sheet->setCellValue('M' . $summaryRow, $totalDoctorFee);
+
+            $event->sheet->getStyle('K' . $summaryRow . ':M' . $summaryRow)->getFont()->setBold(true);
+        },
+    ];
+}
 
     public function map($booking): array
     {
