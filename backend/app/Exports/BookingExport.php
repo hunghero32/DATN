@@ -80,11 +80,11 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'Ngày Đặt',
             'Giờ Đặt',
             'Giá gốc dịch vụ',
-            'Phí bác sĩ',
-            // 'Giảm Giá',
-            // 'Thuế',
+            'Giảm Giá',
+            'Thuế',
             'Tổng Tiền',
-            'Trạng Thái',
+            'Phí bác sĩ',
+            'Trạng thái khách hàng',
         ];
     }
 
@@ -97,18 +97,29 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             $totalDoctorFee = 0;
 
             for ($row = 2; $row <= $rows; $row++) {
-                $servicePrice = $event->sheet->getDelegate()->getCell('L' . $row)->getValue(); 
-                $doctorFee = $event->sheet->getDelegate()->getCell('M' . $row)->getValue();    
+                $servicePrice = $event->sheet->getDelegate()->getCell('O' . $row)->getValue(); 
+                $doctorFee = $event->sheet->getDelegate()->getCell('P' . $row)->getValue();    
                 $totalServicePrice += floatval($servicePrice);
                 $totalDoctorFee += floatval($doctorFee);
             }
 
-            $summaryRow = $rows + 1;
+            $summaryRow = $rows + 2;
             $event->sheet->setCellValue('K' . $summaryRow, 'TỔNG CỘNG:');
-            $event->sheet->setCellValue('L' . $summaryRow, $totalServicePrice);
-            $event->sheet->setCellValue('M' . $summaryRow, $totalDoctorFee);
+            $event->sheet->setCellValue('O' . $summaryRow, $totalServicePrice);
+            $event->sheet->setCellValue('P' . $summaryRow, $totalDoctorFee);
+            
+            // $profit = $totalServicePrice - $totalDoctorFee;
 
-            $event->sheet->getStyle('K' . $summaryRow . ':M' . $summaryRow)->getFont()->setBold(true);
+            $styleRange = 'K' . $summaryRow . ':P' . $summaryRow;
+
+            $event->sheet->getStyle($styleRange)->getFont()->setBold(true);
+            $event->sheet->getStyle($styleRange)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('D9EDF7');
+            $event->sheet->getStyle($styleRange)->getFont()
+                ->getColor()->setRGB('FF0000');
+            // $event->sheet->setCellValue('K' . ($summaryRow + 2), 'LỢI NHUẬN:');
+            // $event->sheet->setCellValue('O' . ($summaryRow + 2), $profit);
         },
     ];
 }
@@ -141,10 +152,10 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             $booking->booking_date,
             $booking->booking_time,
             $booking->service_price,
-            $booking->doctor_fee,
-            // $invoice->discount ?? 'N/A',
-            // $invoice->tax ?? 'N/A',
+            $invoice->discount ?? 'N/A',
+            $invoice->tax ?? 'N/A',
             $invoice->total_amount ?? 'N/A',
+            $booking->doctor_fee,
             $status ?? 'N/A',
         ];
     }
