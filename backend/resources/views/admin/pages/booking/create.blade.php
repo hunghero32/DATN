@@ -320,7 +320,10 @@
                     success: function(data) {
                         $('#loading_dates').hide();
                         if (data && data.length > 0) {
-                            $.each(data, function(index, date) {
+                            // Sử dụng Set để loại bỏ các ngày trùng lặp
+                            const uniqueDates = [...new Set(data)];
+
+                            $.each(uniqueDates, function(index, date) {
                                 const formattedDate = new Date(date);
                                 const day = formattedDate.getDate().toString().padStart(2, '0');
                                 const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
@@ -431,15 +434,10 @@
             $('select[name="service_id"]').change(function() {
                 const serviceId = $(this).val();
                 const doctorId = $('select[name="doctor_id"]').val();
-                const dateSelect = $('#booking_date');
+                const bookingDate = $('#booking_date').val();
 
-                // Reset date and time selects
-                dateSelect.empty().append('<option value="">Chọn ngày hẹn</option>');
-                $('#booking_time').empty().append('<option value="">Chọn giờ hẹn</option>');
 
-                if (doctorId && serviceId) {
-                    loadWorkingDates(doctorId); // Reload dates based on doctor
-                }
+                // Không reset ngày và không load lại ngày làm việc
             });
 
             // Handle date selection
