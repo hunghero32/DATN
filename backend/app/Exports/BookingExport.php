@@ -112,7 +112,7 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             $event->sheet->setCellValue('O' . $summaryRow, $totalServicePrice);
             $event->sheet->setCellValue('P' . $summaryRow, $totalDoctorFee);
             
-            // $profit = $totalServicePrice - $totalDoctorFee;
+            $profit = $totalServicePrice - $totalDoctorFee;
 
             $styleRange = 'K' . $summaryRow . ':P' . $summaryRow;
 
@@ -122,8 +122,16 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
                 ->getStartColor()->setRGB('D9EDF7');
             $event->sheet->getStyle($styleRange)->getFont()
                 ->getColor()->setRGB('FF0000');
-            // $event->sheet->setCellValue('K' . ($summaryRow + 2), 'LỢI NHUẬN:');
-            // $event->sheet->setCellValue('O' . ($summaryRow + 2), $profit);
+            $event->sheet->setCellValue('K' . ($summaryRow + 2), 'LỢI NHUẬN:');
+            $event->sheet->setCellValue('O' . ($summaryRow + 2), $profit);
+            $profitStyleRange = 'K' . ($summaryRow + 2) . ':O' . ($summaryRow + 2);
+
+            $event->sheet->getStyle($profitStyleRange)->getFont()->setBold(true);
+            $event->sheet->getStyle($profitStyleRange)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('FFFF00');
+            $event->sheet->getStyle($profitStyleRange)->getFont()
+                ->getColor()->setRGB('FF0000');
         },
     ];
 }
