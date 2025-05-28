@@ -11,17 +11,45 @@ import Chatbot from "../chatbot/Chatbot";
 export default function HomeMain() {
   const [isChatOpen, setChatOpen] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const extractYoutubeId = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
 
   useEffect(() => {
+    setIsLoading(true);
     fetch("http://localhost:8000/api/system")
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then((data) => {
-        const videoId = data.site_video.split('v=')[1]?.split('&')[0];
+        console.log("Received data:", data); // Debug log
+        if (!data.site_video) {
+          setError("No video URL provided");
+          return;
+        }
+        const videoId = extractYoutubeId(data.site_video);
         if (videoId) {
           setVideoUrl(`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`);
+        } else {
+          setError("Invalid YouTube URL");
         }
       })
-      .catch((error) => console.error("Error fetching video URL:", error));
+      .catch((error) => {
+        console.error("Error fetching video URL:", error);
+        setError(error.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   return (
@@ -33,16 +61,21 @@ export default function HomeMain() {
       <TopSpecialties />
       <TopBookedServices />
       <div className="flex justify-center my-8 container mx-auto mt-2 mb-2 px-4">
-        <iframe 
-          width="100%" 
-          height="600" 
-          src={videoUrl}
-          title="Clinic Video" 
-          frameborder="0" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-          referrerpolicy="strict-origin-when-cross-origin" 
-          allowfullscreen
-        ></iframe>
+        {isLoading ? (
+          <div className="text-center">Loading video...</div>
+        ) : error ? (
+          <div className="text-center text-red-500">{error}</div>
+        ) : videoUrl ? (
+          <iframe 
+            width="100%" 
+            height="600" 
+            src={videoUrl}
+            title="Clinic Video" 
+            frameBorder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowFullScreen
+          ></iframe>
+        ) : null}
       </div>
       <ClinicDetail />    { /* Trang giới thiệu phòng khám */}
       <ArticleList />
