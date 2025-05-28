@@ -10,9 +10,11 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class BookingSummarySheet implements FromArray, WithEvents, WithStyles
+class BookingSummarySheet implements FromArray, WithEvents, WithStyles,WithTitle
 {
     protected $year, $month, $day, $start_date, $end_date, $guest_phone;
 
@@ -25,7 +27,10 @@ class BookingSummarySheet implements FromArray, WithEvents, WithStyles
         $this->end_date = $end_date;
         $this->guest_phone = $guest_phone;
     }
-
+     public function title(): string
+    {
+        return 'Danh sách bác sĩ';
+    }
     public function array(): array
     {
         $query = Booking::with('guest')

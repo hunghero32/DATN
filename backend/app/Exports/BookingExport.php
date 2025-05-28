@@ -11,8 +11,9 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class BookingExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithEvents
+class BookingExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithEvents,WithTitle
 {
     use Exportable;
 
@@ -27,7 +28,10 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $this->end_date = $end_date;
         $this->guest_phone = $guest_phone;
     }
-
+     public function title(): string
+    {
+        return 'Danh sách khách hàng';
+    }
     public function collection()
     {
         $query = Booking::with('guest')->where('isDeleted', 0);
@@ -108,7 +112,7 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
             $event->sheet->setCellValue('O' . $summaryRow, $totalServicePrice);
             $event->sheet->setCellValue('P' . $summaryRow, $totalDoctorFee);
             
-            // $profit = $totalServicePrice - $totalDoctorFee;
+            $profit = $totalServicePrice - $totalDoctorFee;
 
             $styleRange = 'K' . $summaryRow . ':P' . $summaryRow;
 
@@ -118,8 +122,16 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
                 ->getStartColor()->setRGB('D9EDF7');
             $event->sheet->getStyle($styleRange)->getFont()
                 ->getColor()->setRGB('FF0000');
-            // $event->sheet->setCellValue('K' . ($summaryRow + 2), 'LỢI NHUẬN:');
-            // $event->sheet->setCellValue('O' . ($summaryRow + 2), $profit);
+            $event->sheet->setCellValue('K' . ($summaryRow + 2), 'LỢI NHUẬN:');
+            $event->sheet->setCellValue('O' . ($summaryRow + 2), $profit);
+            $profitStyleRange = 'K' . ($summaryRow + 2) . ':O' . ($summaryRow + 2);
+
+            $event->sheet->getStyle($profitStyleRange)->getFont()->setBold(true);
+            $event->sheet->getStyle($profitStyleRange)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('FFFF00');
+            $event->sheet->getStyle($profitStyleRange)->getFont()
+                ->getColor()->setRGB('FF0000');
         },
     ];
 }
