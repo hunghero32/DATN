@@ -11,8 +11,9 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class BookingExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithEvents
+class BookingExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithEvents,WithTitle
 {
     use Exportable;
 
@@ -27,7 +28,10 @@ class BookingExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $this->end_date = $end_date;
         $this->guest_phone = $guest_phone;
     }
-
+     public function title(): string
+    {
+        return 'Danh sách khách hàng';
+    }
     public function collection()
     {
         $query = Booking::with('guest')->where('isDeleted', 0);
